@@ -1,0 +1,30 @@
+@startuml
+entity USER {
+    ID : NUMBER [PK]
+    firstname : VARCHAR
+    lastname : VARCHAR
+    age : NUMBER
+}
+
+entity IMAGES {
+    ID : NUMBER [PK]
+    user_id : NUMBER [FK]
+    img : BLOB
+}
+
+entity GAME_SCORE {
+    ID : NUMBER [PK]
+    user_id : NUMBER [FK]
+    score : NUMBER
+    game_type_id : NUMBER [FK]
+    game_spec : NUMBER
+}
+
+entity GAME_TYPE {
+    ID : NUMBER [PK]
+}
+
+USER ||--o{ IMAGES : "0 to many"
+USER ||--o{ GAME_SCORE : "0 to many"
+GAME_TYPE ||--o{ GAME_SCORE : "1 to many"
+@enduml

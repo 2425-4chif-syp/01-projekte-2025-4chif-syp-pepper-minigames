@@ -1,0 +1,62 @@
+
+@startuml
+
+' Entity for users who interact with the robot
+entity User {
+  * UserID : int
+  * Name : string
+  * Age : int
+  * Room : string
+  * FacialRecognition : string
+  * WantsContactWithPepper : bool
+}
+
+' Entity for the database with uploaded images
+entity Images {
+  * ImageID : int
+  * UploadDate : Date
+  * ValidUntil : Date
+  --
+  UserID : int
+}
+
+' Entity for the memory game
+entity MemoryGame {
+  * GameID : int
+  * DifficultyLevel : string
+  * GameMode : string
+  * UserID : int
+}
+
+' Entity for food orders
+entity Food {
+  * FoodID : int
+  * Dish : string
+  * Confirmed : bool
+  --
+  UserID : int
+}
+
+' Entity for the meal plan
+entity MealPlan {
+  * PlanID : int
+  * Description : string
+  * Date : Date
+  * FoodList: List<List<Food>> 
+}
+
+entity MonthlyFood {
+  * Dishes: public List<MealPlan>
+    get; set Date
+    
+}
+
+' Relationships between the entities
+User ||--o{ Images : "uploads"
+User ||--o{ MemoryGame : "plays"
+User ||--o{ Food : "orders"
+Images ||--o{ MemoryGame : "used in"
+MealPlan ||--o{ Food : "is ordered by"
+MonthlyFood ||--o{ MealPlan : "part of"
+
+@enduml
