@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS) // Nutze die Einstellungen aus `settings.gradle`
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "PepperDiebSpiel"
+include ':app'
