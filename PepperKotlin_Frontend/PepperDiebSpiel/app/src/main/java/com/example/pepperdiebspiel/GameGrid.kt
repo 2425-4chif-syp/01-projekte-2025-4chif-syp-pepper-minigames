@@ -195,6 +195,27 @@ fun GameGrid() {
                 ) {
                     Text("Neustart", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Beenden-Button
+                Button(
+                    onClick = {
+                        // Beenden
+                        isTimerRunning = false
+                        mediaPlayer.value?.release()
+                        mediaPlayer.value = null
+                        // Hier können Sie eine Aktivität beenden oder die App schließen
+                        Log.d("GameGrid", "Game beendet.")
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .border(2.dp, Color.White)
+                        .shadow(8.dp, shape = RectangleShape)
+                ) {
+                    Text("Beenden", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
             }
         }
     } else {
