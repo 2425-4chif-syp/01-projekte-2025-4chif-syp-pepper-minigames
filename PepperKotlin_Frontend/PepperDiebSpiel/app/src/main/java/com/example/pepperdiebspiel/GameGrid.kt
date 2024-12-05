@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
@@ -232,14 +233,22 @@ fun GameGrid() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFB3E5FC), Color(0xFF81D4FA)),
+                        startY = 0f,
+                        endY = screenHeightPx
+                    )
+                )
                 .wrapContentSize(align = Alignment.Center)
+                .shadow(12.dp, shape = RectangleShape)
         ) {
             LazyVerticalGrid(
                 cells = GridCells.Fixed(8),
                 modifier = Modifier
                     .wrapContentSize(align = Alignment.Center)
-                    .padding(4.dp)
+                    .padding(8.dp)
             ) {
                 items(gridItems.size) { index ->
                     val imageResId = gridItems[index]
@@ -277,19 +286,26 @@ fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(2.dp) // Kleineres Padding für mehr Platz auf dem Bildschirm
+            .padding(4.dp) // Etwas größeres Padding für mehr visuelle Abgrenzung
             .size(size) // Verwende die berechnete Zellengröße
-            .border(1.dp, Color.Gray)
+            .border(2.dp, Color.DarkGray)
+            .shadow(6.dp, shape = RoundedCornerShape(8.dp))
             .clickable {
                 Log.d("GameGrid", "Grid item clicked, image ID: $imageResId")
                 onClick()
             }
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color(0xFFE3F2FD), Color(0xFFBBDEFB))
+                )
+            )
     ) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
+            modifier = Modifier.fillMaxSize()
+                .padding(6.dp),
+            contentScale = ContentScale.Crop
         )
     }
 }
