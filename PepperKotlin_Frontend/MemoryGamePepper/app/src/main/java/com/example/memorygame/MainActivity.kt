@@ -68,21 +68,20 @@ fun MemoryGame(modifier: Modifier = Modifier) {
     var pairsFound by remember { mutableStateOf(0) }
     val context = LocalContext.current
 
+    var showMenu by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
 
     LaunchedEffect(flippedCards) {
         if (flippedCards.size == 2) {
             attempts += 1
-            delay(300) // Kurzer Delay für bessere Benutzererfahrung
+            kotlinx.coroutines.delay(300)
 
             if (flippedCards[0].id != flippedCards[1].id) {
-                // Karten zurückdrehen, wenn sie kein Paar sind
-                playSound(context, R.raw.fail) // Fehlversuch-Sound
-                delay(1000) // Karten kurz sichtbar lassen
+                playSound(context, R.raw.fail)
+                kotlinx.coroutines.delay(1000)
                 flippedCards.forEach { it.isFlippedState = false }
             } else {
-                // Karten markieren, wenn sie ein Paar sind
-                playSound(context, R.raw.success) // Erfolg-Sound
+                playSound(context, R.raw.success)
                 flippedCards[0].isMatchedState = true
                 flippedCards[1].isMatchedState = true
                 pairsFound += 1
@@ -92,6 +91,14 @@ fun MemoryGame(modifier: Modifier = Modifier) {
     }
 
     Box(modifier = modifier.fillMaxSize()) {
+        // Hintergrundbild
+        Image(
+            painter = painterResource(id = R.drawable.jungle),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
         // Spielfeld
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
@@ -113,35 +120,94 @@ fun MemoryGame(modifier: Modifier = Modifier) {
             }
         }
 
-        // Versuch- und Paarinformationen
+        // Informationen über Versuche und Paare
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(3.dp)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Versuche: $attempts",
-                style = MaterialTheme.typography.h6,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Gefundene Paare: $pairsFound / ${cards.size / 2}",
-                style = MaterialTheme.typography.h6,
-                color = Color.Black
-            )
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .wrapContentSize()
+                    .border(1.dp, Color.Black)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Versuche: $attempts",
+                        style = MaterialTheme.typography.h6,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Gefundene Paare: $pairsFound / ${cards.size / 2}",
+                        style = MaterialTheme.typography.h6,
+                        color = Color.Black
+                    )
+                }
+            }
+        }
+
+        // Menü-Button
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            IconButton(
+                onClick = { showMenu = true },
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(48.dp)
+                    .background(Color.White)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Optionen"
+                )
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(onClick = {
+                    isPaused = !isPaused
+                    showMenu = false
+                }) {
+                    Text(text = if (isPaused) "Spiel fortsetzen" else "Spiel pausieren")
+                }
+                DropdownMenuItem(onClick = {
+                    attempts = 0
+                    pairsFound = 0
+                    flippedCards = listOf()
+                    cards.clear()
+                    cards.addAll(createMemoryDeck())
+                    showMenu = false
+                }) {
+                    Text(text = "Spiel neustarten")
+                }
+            }
         }
     }
 }
 
 
+
 @Composable
 fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val boxHeight = screenHeight / 5
+
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .size(100.dp)
+            .height(boxHeight)
+            .fillMaxWidth()
             .clickable(enabled = !card.isMatchedState && !card.isFlippedState) {
                 onClick()
             },
