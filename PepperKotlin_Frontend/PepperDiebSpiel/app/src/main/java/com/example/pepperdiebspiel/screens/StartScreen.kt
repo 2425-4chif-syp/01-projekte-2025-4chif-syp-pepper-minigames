@@ -19,7 +19,7 @@ import androidx.navigation.NavController
 import com.example.pepperdiebspiel.R
 
 @Composable
-fun StartScreen(navController: NavController) {
+fun DifficultySelectionScreen(navController: NavController, onDifficultySelected: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -35,34 +35,73 @@ fun StartScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.thief), // Eine schöne Illustration, die das Thema des Spiels visualisiert
-                contentDescription = "Game Logo",
-                modifier = Modifier
-                    .size(250.dp)
-                    .padding(bottom = 16.dp)
-            )
             Text(
-                text = "Fang den Dieb🥷",
-                fontSize = 42.sp,
+                text = "Wähle den Schwierigkeitsgrad",
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 modifier = Modifier.shadow(4.dp, RoundedCornerShape(8.dp))
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
+                    onDifficultySelected("easy")
                     navController.navigate("game")
                 },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4682B4)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4CAF50)),
                 modifier = Modifier
-                    .padding(top = 16.dp)
+                    .padding(8.dp)
                     .height(60.dp)
                     .width(200.dp)
                     .shadow(10.dp, RoundedCornerShape(30.dp))
             ) {
                 Text(
-                    text = "Start",
+                    text = "Einfach",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onDifficultySelected("medium")
+                    navController.navigate("game")
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFFC107)),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .height(60.dp)
+                    .width(200.dp)
+                    .shadow(10.dp, RoundedCornerShape(30.dp))
+            ) {
+                Text(
+                    text = "Mittel",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onDifficultySelected("hard")
+                    navController.navigate("game")
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFF44336)),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .height(60.dp)
+                    .width(200.dp)
+                    .shadow(10.dp, RoundedCornerShape(30.dp))
+            ) {
+                Text(
+                    text = "Schwer",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
