@@ -201,12 +201,12 @@ fun MemoryGame(modifier: Modifier = Modifier) {
 fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val boxHeight = screenHeight / 5
+    val cardHeight = screenHeight / 5 // Dynamische Höhe basierend auf Bildschirmgröße
 
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(boxHeight)
+            .height(cardHeight)
             .fillMaxWidth()
             .clickable(enabled = !card.isMatchedState && !card.isFlippedState) {
                 onClick()
@@ -215,13 +215,16 @@ fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
         elevation = 8.dp
     ) {
         if (card.isFlippedState || card.isMatchedState) {
+            // Angepasstes Bild, das sich der Kartengröße anpasst
             Image(
                 painter = painterResource(id = card.image),
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                modifier = Modifier
+                    .fillMaxSize(), // Füllt die Karte vollständig aus
+                contentScale = ContentScale.Fit // Bild passt sich an die Karte an
             )
         } else {
+            // Rückseite der Karte mit Anpassung
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -230,7 +233,7 @@ fun MemoryCardView(card: MemoryCard, onClick: () -> Unit) {
                     painter = painterResource(id = R.drawable.question_mark),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop // Rückseitenbild füllt die Karte vollständig aus
                 )
             }
         }
