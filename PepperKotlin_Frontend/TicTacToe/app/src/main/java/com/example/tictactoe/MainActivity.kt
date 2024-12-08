@@ -23,7 +23,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import java.util.Locale
+import androidx.compose.runtime.LaunchedEffect as LaunchedEffect1
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
@@ -56,7 +58,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
 @Composable
 fun TicTacToeScreen(textToSpeech: TextToSpeech) {
-    var playAgainstRobot by remember {mutableStateOf<Boolean?>(null)}
+    var playAgainstRobot by remember { mutableStateOf<Boolean?>(null) }
 
     var player1Name by remember { mutableStateOf("") }
     var player2Name by remember { mutableStateOf("") }
@@ -69,57 +71,57 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
     var currentPlayer by remember { mutableStateOf('X') }
     var winner by remember { mutableStateOf<Char?>(null) }
     var gameOver by remember { mutableStateOf(false) }
-    var robotThinking by remember { mutableStateOf(false) }
+    var isRobotTurn by remember { mutableStateOf(false) }
+
+
 
     val backgroundColor = Color(0xFF1A1A1A)
     val fieldColor = Color(0xFFD32F2F)
     val textColor = Color(0xFFFFFFFF)
 
-    if(playAgainstRobot == null)
-        {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .background(backgroundColor)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
-            ){
-                Text(
+    if (playAgainstRobot == null) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxHeight()
+                .background(backgroundColor)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
                 text = "Wählen Sie den Spiel modus",
-                fontSize =24.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick ={ playAgainstRobot = false},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 40.dp)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-                    shape =  RoundedCornerShape(12.dp),
-                ){
-                    Text(text = "Gegen einen Freund", color = textColor)
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { playAgainstRobot = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 40.dp)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(text = "Gegen den Roboter", color = textColor)
-                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { playAgainstRobot = false },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 40.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Text(text = "Gegen einen Freund", color = textColor)
             }
-
-
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { playAgainstRobot = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 40.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Text(text = "Gegen den Roboter", color = textColor)
+            }
         }
-    else if (!namesSet) {
+
+
+    } else if (!namesSet) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -140,7 +142,7 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
             TextField(
                 value = player1Name,
                 onValueChange = { player1Name = it },
-                label = { Text(if (playAgainstRobot == true)"Ihr Name" else "Spieler 1 Name")},
+                label = { Text(if (playAgainstRobot == true) "Ihr Name" else "Spieler 1 Name") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.White
@@ -241,31 +243,28 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                         for (j in 0..2) {
                             val playerSymbol = board[i][j]
                             val animatedFieldColor by animateColorAsState(
-                                targetValue = if (playerSymbol == ' ') fieldColor else Color(0xFF388E3C),
+                                targetValue = if (playerSymbol == ' ') fieldColor else Color(
+                                    0xFF388E3C
+                                ),
                                 animationSpec = tween(durationMillis = 500)
                             )
-
 
                             Box(
                                 modifier = Modifier
                                     .size(125.dp)
                                     .padding(6.dp)
                                     .background(animatedFieldColor, RoundedCornerShape(10.dp))
-                                    .clickable(enabled = !gameOver && currentPlayer != 'O') {
+                                    .clickable(enabled = !gameOver && currentPlayer != 'O' && !isRobotTurn) {
                                         if (playerSymbol == ' ' && winner == null) {
                                             board[i][j] = currentPlayer
                                             winner = checkWinner(board)
 
                                             if (winner == null) {
-                                                currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+                                                currentPlayer =
+                                                    if (currentPlayer == 'X') 'O' else 'X'
 
                                                 if (playAgainstRobot == true && currentPlayer == 'O') {
-                                                    val robotMove = robotMove(board, 'O', 'X')
-                                                    if (robotMove != null) {
-                                                        board[robotMove.first][robotMove.second] = 'O'
-                                                        winner = checkWinner(board)
-                                                        currentPlayer = 'X'
-                                                    }
+                                                    isRobotTurn = true
                                                 }
                                             } else {
                                                 gameOver = true
@@ -293,8 +292,27 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+// Roboterzug wird hier ausgeführt
+                if (isRobotTurn) {
+                    LaunchedEffect1(Unit) {
+                        kotlinx.coroutines.delay(2000L) // 2 Sekunden warten
+                        val robotMove = robotMove(board, 'O', 'X')
+                        if (robotMove != null) {
+                            board[robotMove.first][robotMove.second] = 'O'
+                            winner = checkWinner(board)
+                            if (winner == null) {
+                                currentPlayer = 'X'
+                            } else {
+                                gameOver = true
+                                if (winner == 'X') player1Wins++ else player2Wins++
+                            }
+                        }
+                        isRobotTurn = false
+                    }
+                }
 
-            if (gameOver && winner != null) {
+
+                if (gameOver && winner != null) {
                 val winnerName = if (winner == 'X') player1Name else player2Name
 
                 // Full-Screen Winner Dialog
@@ -405,3 +423,17 @@ fun robotMove(board: Array<CharArray>, robotSymbol: Char, playerSymbol: Char): P
         null // Kein Zug möglich
     }
 }
+@Composable
+fun RobotTurn(
+    board: Array<CharArray>,
+    onMoveComplete: (Pair<Int, Int>) -> Unit
+) {
+    LaunchedEffect1(Unit) {
+        kotlinx.coroutines.delay(2000L) // Warte 2 Sekunden
+        val robotMove = robotMove(board, 'O', 'X')
+        if (robotMove != null) {
+            onMoveComplete(robotMove)
+        }
+    }
+}
+
