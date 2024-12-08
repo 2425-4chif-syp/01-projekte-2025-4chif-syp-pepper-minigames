@@ -69,6 +69,7 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
     var currentPlayer by remember { mutableStateOf('X') }
     var winner by remember { mutableStateOf<Char?>(null) }
     var gameOver by remember { mutableStateOf(false) }
+    var robotThinking by remember { mutableStateOf(false) }
 
     val backgroundColor = Color(0xFF1A1A1A)
     val fieldColor = Color(0xFFD32F2F)
@@ -244,19 +245,28 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                 animationSpec = tween(durationMillis = 500)
                             )
 
+
                             Box(
                                 modifier = Modifier
                                     .size(125.dp)
                                     .padding(6.dp)
                                     .background(animatedFieldColor, RoundedCornerShape(10.dp))
-                                    .clickable(enabled = !gameOver) {
+                                    .clickable(enabled = !gameOver && currentPlayer != 'O') {
                                         if (playerSymbol == ' ' && winner == null) {
                                             board[i][j] = currentPlayer
                                             winner = checkWinner(board)
 
                                             if (winner == null) {
-                                                currentPlayer =
-                                                    if (currentPlayer == 'X') 'O' else 'X'
+                                                currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+
+                                                if (playAgainstRobot == true && currentPlayer == 'O') {
+                                                    val robotMove = robotMove(board, 'O', 'X')
+                                                    if (robotMove != null) {
+                                                        board[robotMove.first][robotMove.second] = 'O'
+                                                        winner = checkWinner(board)
+                                                        currentPlayer = 'X'
+                                                    }
+                                                }
                                             } else {
                                                 gameOver = true
                                                 if (winner == 'X') player1Wins++ else player2Wins++
@@ -349,4 +359,49 @@ fun checkWinner(board: Array<CharArray>): Char? {
 
 fun resetGame(resetAction: () -> Unit) {
     resetAction()
+}
+fun robotMove(board: Array<CharArray>, robotSymbol: Char, playerSymbol: Char): Pair<Int, Int>? {
+    // 1. Prüfen, ob der Roboter gewinnen kann
+    for (i in 0..2) {
+        for (j in 0..2) {
+            if (board[i][j] == ' ') {
+                board[i][j] = robotSymbol
+                if (checkWinner(board) == robotSymbol) {
+                    board[i][j] = ' ' // Rückgängig machen, da es nur eine Simulation ist
+                    return Pair(i, j)
+                }
+                board[i][j] = ' ' // Rückgängig machen
+            }
+        }
+    }
+
+    // 2. Prüfen, ob der Roboter blockieren muss
+    for (i in 0..2) {
+        for (j in 0..2) {
+            if (board[i][j] == ' ') {
+                board[i][j] = playerSymbol
+                if (checkWinner(board) == playerSymbol) {
+                    board[i][j] = ' ' // Rückgängig machen
+                    return Pair(i, j)
+                }
+                board[i][j] = ' ' // Rückgängig machen
+            }
+        }
+    }
+
+    // 3. Zufälligen Zug auswählen
+    val emptyPositions = mutableListOf<Pair<Int, Int>>()
+    for (i in 0..2) {
+        for (j in 0..2) {
+            if (board[i][j] == ' ') {
+                emptyPositions.add(Pair(i, j))
+            }
+        }
+    }
+
+    return if (emptyPositions.isNotEmpty()) {
+        emptyPositions.random()
+    } else {
+        null // Kein Zug möglich
+    }
 }
