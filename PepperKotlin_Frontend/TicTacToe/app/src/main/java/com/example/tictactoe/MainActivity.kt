@@ -128,7 +128,7 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Geben Sie die Spielernamen ein",
+                text = if (playAgainstRobot == true) "Geben Sie Ihren Namen ein" else "Geben Sie die Spielernamen ein",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -139,34 +139,52 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
             TextField(
                 value = player1Name,
                 onValueChange = { player1Name = it },
-                label = { Text("Spieler 1 Name") },
+                label = { Text(if (playAgainstRobot == true)"Ihr Name" else "Spieler 1 Name")},
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.White
                 )
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = player2Name,
-                onValueChange = { player2Name = it },
-                label = { Text("Spieler 2 Name") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.White
+            if (playAgainstRobot == false) {
+                // Zweiter Spielername nur im Freundmodus
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = player2Name,
+                    onValueChange = { player2Name = it },
+                    label = { Text("Spieler 2 Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.White
+                    )
                 )
-            )
+            } else {
 
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = "Pepper",
+                    onValueChange = {},
+                    label = { Text("Gegner: Pepper") },
+                    enabled = false, // Eingabe deaktiviert
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Gray,
+                        disabledTextColor = Color.Black,
+                        disabledLabelColor = Color.DarkGray
+                    )
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    if (player1Name.isNotEmpty() && player2Name.isNotEmpty()) {
+                    if (player1Name.isNotEmpty() && (playAgainstRobot == false && player2Name.isNotEmpty() || playAgainstRobot == true)) {
+                        if (playAgainstRobot == true) {
+                            player2Name = "Pepper"
+                        }
                         namesSet = true
                     } else {
                         textToSpeech.speak(
-                            "Bitte geben Sie beide Spielernamen ein",
+                            "Bitte geben Sie alle benötigten Namen ein",
                             TextToSpeech.QUEUE_FLUSH,
                             null,
                             null
