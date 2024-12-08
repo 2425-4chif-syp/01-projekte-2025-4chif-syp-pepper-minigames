@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.unit.min
 import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -206,7 +207,6 @@ fun GameGrid() {
                         isTimerRunning = false
                         mediaPlayer.value?.release()
                         mediaPlayer.value = null
-                        // Hier können Sie eine Aktivität beenden oder die App schließen
                         Log.d("GameGrid", "Game beendet.")
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
@@ -222,38 +222,30 @@ fun GameGrid() {
     } else {
         // Grid anzeigen und sicherstellen, dass es vollständig auf den Bildschirm passt
         val configuration = LocalConfiguration.current
-        val screenHeightPx = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() }
-        val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
+        val screenWidth = configuration.screenWidthDp.dp
+        val screenHeight = configuration.screenHeightDp.dp
 
-        // Berechne die Größe der einzelnen Zellen basierend auf der Bildschirmgröße
-        val cellHeight = screenHeightPx / 6
-        val cellWidth = screenWidthPx / 8
-        val cellSize = with(LocalDensity.current) { min(cellHeight, cellWidth).toDp() }
+        val cellSize = with(LocalDensity.current) {
+            min(screenWidth / 8, screenHeight / 6) - 4.dp
+        }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp)
+                .padding(0.dp)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFB3E5FC), Color(0xFF81D4FA)),
-                        startY = 0f,
-                        endY = screenHeightPx
+                        colors = listOf(Color(0xFFB3E5FC), Color(0xFF81D4FA))
                     )
                 )
-                .wrapContentSize(align = Alignment.Center)
-                .shadow(12.dp, shape = RectangleShape)
         ) {
             LazyVerticalGrid(
-                cells = GridCells.Fixed(8),
-                modifier = Modifier
-                    .wrapContentSize(align = Alignment.Center)
-                    .padding(8.dp)
+                cells = GridCells.Fixed(8), // 8 Spalten
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(gridItems.size) { index ->
-                    val imageResId = gridItems[index]
-                    GridItem(imageResId = imageResId, size = cellSize) {
-                        Log.d("GameGrid", "Grid item clicked, image ID: $imageResId")
+                    GridItem(imageResId = gridItems[index], size = cellSize) {
+                        Log.d("GameGrid", "Grid item clicked, image ID: ${gridItems[index]}")
                         if (thiefPosition == index) {
                             gameWon = true
                         }
@@ -272,13 +264,7 @@ fun moveThief(currentPosition: Int): Int {
     if (currentPosition >= 8) possibleMoves.add(currentPosition - 8)
     if (currentPosition < 40) possibleMoves.add(currentPosition + 8)
 
-    val newPosition = possibleMoves.random()
-    val oldRow = currentPosition / 8
-    val oldColumn = currentPosition % 8
-    val newRow = newPosition / 8
-    val newColumn = newPosition % 8
-    Log.d("GameGrid", "Thief moved from [${oldRow + 1}|${oldColumn + 1}] to [${newRow + 1}|${newColumn + 1}]")
-    return newPosition
+    return possibleMoves.random()
 }
 
 @Composable
@@ -286,14 +272,11 @@ fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(4.dp) // Etwas größeres Padding für mehr visuelle Abgrenzung
-            .size(size) // Verwende die berechnete Zellengröße
+            .size(size)
+            .padding(2.dp)
             .border(2.dp, Color.DarkGray)
-            .shadow(6.dp, shape = RoundedCornerShape(8.dp))
-            .clickable {
-                Log.d("GameGrid", "Grid item clicked, image ID: $imageResId")
-                onClick()
-            }
+            .shadow(4.dp, shape = RoundedCornerShape(8.dp))
+            .clickable { onClick() }
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(Color(0xFFE3F2FD), Color(0xFFBBDEFB))
@@ -303,8 +286,7 @@ fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize()
-                .padding(6.dp),
+            modifier = Modifier.fillMaxSize().padding(4.dp),
             contentScale = ContentScale.Crop
         )
     }
