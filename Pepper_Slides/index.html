@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>Welcome to PEPPER Minigames</h1>
+				<p>Kyaw, Obaid, Milad, Amir</p>
+			</section>
+			<section>
+				<h1>What is PEPPER Minigames?</h1>
+				<p>PEPPER Minigames is a collection of minigames that can be played on the Pepper robot.</p>
+			</section>
+			<section>
+				<h3>Project Description</h3>
+				<p>Pepper in Retirement Homes is an innovative project aimed at enriching and facilitating the lives of
+					seniors in care facilities. Our main actor is the robot Pepper, which offers a variety of
+					interactive games and features to make the seniors' daily lives more enjoyable.
+				</p>
+			</section>
+			<section>
+				<h3>Reason for the Games</h3>
+				<p>Pepper offers a selection of games such as Memory (Personalized), Tag along stories, and many more,
+					specifically designed for seniors to stimulate their minds and provide entertainment.</p>
+			</section>
+			<section>
+				<h3>System Architecture</h3>
+				<img src="./SYS_ARC.png">
+			</section>
+			<section>
+				<h3>TagAlongStory Erd</h3>
+				<img src="./TagAlongStory_ERD.png">
+			</section>
+			<section>
+				<h3>GameScore Erd</h3>
+				<img src="./GameScore_ERD.png">
+			</section>
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		Reveal.initialize({
+			hash: true,
+
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
