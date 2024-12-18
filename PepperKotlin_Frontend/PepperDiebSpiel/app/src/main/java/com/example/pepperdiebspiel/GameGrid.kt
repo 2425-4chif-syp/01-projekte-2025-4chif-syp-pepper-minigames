@@ -32,14 +32,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.unit.min
 import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameGrid() {
+    // Liste von Bildern für die Gitterelemente
     val images = listOf(
         R.drawable.water,
         R.drawable.church,
@@ -47,6 +50,8 @@ fun GameGrid() {
         R.drawable.witch,
         R.drawable.bird
     )
+
+    // Liste der zugehörigen Sounds
     val sounds = listOf(
         R.raw.water_sound,
         R.raw.church_bells,
@@ -55,25 +60,26 @@ fun GameGrid() {
         R.raw.bird_chirp
     )
 
-    val thiefImage = R.drawable.thief
+    val thiefImage = R.drawable.thief // Bild des Diebes
+    val context = LocalContext.current // Zugriff auf den aktuellen Kontext
 
-    val context = LocalContext.current
+    // Initialisierung der Spielvariablen
+    var gridItems by remember { mutableStateOf(List(48) { images.random() }) } // 8x6 Gitter
+    var thiefPosition by remember { mutableStateOf((0 until 48).random()) } // Zufällige Dieb-Position
+    var gameWon by remember { mutableStateOf(false) } // Überprüfung, ob das Spiel gewonnen wurde
+    var elapsedTime by remember { mutableStateOf(0L) } // Zeit, die seit Spielstart vergangen ist
+    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) } // MediaPlayer für Sounds
 
-    var gridItems by remember { mutableStateOf(List(48) { images.random() }) } // 8x6 = 48 Elemente
-    var thiefPosition by remember { mutableStateOf((0 until 48).random()) }
-    var gameWon by remember { mutableStateOf(false) }
-    var elapsedTime by remember { mutableStateOf(0L) }
-    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
+    var isTimerRunning by remember { mutableStateOf(true) } // Kontrolliert den Timer
 
-    var isTimerRunning by remember { mutableStateOf(true) }
-
+    // Timer für die Anzeige der verstrichenen Zeit
     var startTime by remember { mutableStateOf(0L) }
     LaunchedEffect(isTimerRunning) {
         if (isTimerRunning) {
             startTime = System.currentTimeMillis()
             while (isTimerRunning && isActive) {
                 elapsedTime = System.currentTimeMillis() - startTime
-                delay(500)
+                delay(500) // Aktualisierung alle 500ms
                 val row = thiefPosition / 8
                 val column = thiefPosition % 8
                 Log.d("GameGrid", "Current thief position: [${row + 1}|${column + 1}]")
@@ -81,14 +87,14 @@ fun GameGrid() {
         }
     }
 
+    // Bewegung des Diebs und Abspielen von Sounds
     LaunchedEffect(isTimerRunning) {
         if (isTimerRunning) {
             while (!gameWon && isActive) {
-                delay(4000)
+                delay(4000) // Bewegung alle 4 Sekunden
                 if (gameWon) break
 
-                // Bewege den Dieb zu einer neuen Position
-                thiefPosition = moveThief(thiefPosition)
+                thiefPosition = moveThief(thiefPosition) // Dieb bewegt sich
                 val row = thiefPosition / 8
                 val column = thiefPosition % 8
                 Log.d("GameGrid", "Thief position updated: [${row + 1}|${column + 1}]")
@@ -96,12 +102,10 @@ fun GameGrid() {
                 withContext(Dispatchers.Main) {
                     try {
                         val soundIndex = images.indexOf(gridItems[thiefPosition])
-                        Log.d("GameGrid", "Playing sound index: $soundIndex")
-
                         if (soundIndex in sounds.indices) {
-                            mediaPlayer.value?.release()
+                            mediaPlayer.value?.release() // Vorherigen Sound stoppen
                             mediaPlayer.value = MediaPlayer.create(context, sounds[soundIndex])
-                            mediaPlayer.value?.start()
+                            mediaPlayer.value?.start() // Neuen Sound starten
                         } else {
                             Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
                         }
@@ -113,12 +117,10 @@ fun GameGrid() {
         }
     }
 
-    // Anzeige, wenn das Spiel gewonnen ist
+    // Anzeige, wenn das Spiel gewonnen wurde
     if (gameWon) {
-        // Stoppe das Audio
-        isTimerRunning = false
-        Log.d("GameGrid", "Game won! Time elapsed: ${(elapsedTime / 1000)} seconds")
-        mediaPlayer.value?.release()
+        isTimerRunning = false // Timer stoppen
+        mediaPlayer.value?.release() // Audio stoppen
         mediaPlayer.value = null
 
         Box(
@@ -135,17 +137,14 @@ fun GameGrid() {
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                verticalArrangement = Arrangement.Center
             ) {
-                // Bild des Diebs anzeigen
+                // Anzeige des Dieb-Bildes
                 Image(
                     painter = painterResource(id = thiefImage),
                     contentDescription = "Gefundener Dieb",
                     modifier = Modifier
-                        .size(300.dp) // Dieb-Bild noch größer gemacht
+                        .size(300.dp)
                         .padding(bottom = 24.dp)
                         .shadow(10.dp, shape = RectangleShape),
                     contentScale = ContentScale.Crop
@@ -153,7 +152,7 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Zeit anzeigen
+                // Anzeige der benötigten Zeit
                 Text(
                     text = "Zeit benötigt: ${(elapsedTime / 1000)} Sekunden",
                     fontSize = 30.sp,
@@ -165,7 +164,7 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Meldung für den Dieb anzeigen
+                // Nachricht "Dieb gefunden"
                 Text(
                     text = "Dieb wurde gefunden!",
                     fontSize = 36.sp,
@@ -180,7 +179,6 @@ fun GameGrid() {
                 // Neustart-Button
                 Button(
                     onClick = {
-                        // Neustart
                         gameWon = false
                         gridItems = List(48) { images.random() }
                         thiefPosition = (0 until 48).random()
@@ -195,35 +193,51 @@ fun GameGrid() {
                 ) {
                     Text("Neustart", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Beenden-Button
+                Button(
+                    onClick = {
+                        isTimerRunning = false
+                        mediaPlayer.value?.release()
+                        mediaPlayer.value = null
+                        Log.d("GameGrid", "Game beendet.")
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .border(2.dp, Color.White)
+                        .shadow(8.dp, shape = RectangleShape)
+                ) {
+                    Text("Beenden", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
             }
         }
     } else {
-        // Grid anzeigen und sicherstellen, dass es vollständig auf den Bildschirm passt
         val configuration = LocalConfiguration.current
-        val screenHeightPx = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() }
-        val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
+        val screenWidth = configuration.screenWidthDp.dp
+        val screenHeight = configuration.screenHeightDp.dp
 
-        // Berechne die Größe der einzelnen Zellen basierend auf der Bildschirmgröße
-        val cellHeight = screenHeightPx / 6
-        val cellWidth = screenWidthPx / 8
-        val cellSize = with(LocalDensity.current) { min(cellHeight, cellWidth).toDp() }
+        val cellSize = with(LocalDensity.current) {
+            min(screenWidth / 8, screenHeight / 6) - 4.dp
+        }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp)
-                .wrapContentSize(align = Alignment.Center)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFB3E5FC), Color(0xFF81D4FA))
+                    )
+                )
         ) {
             LazyVerticalGrid(
                 cells = GridCells.Fixed(8),
-                modifier = Modifier
-                    .wrapContentSize(align = Alignment.Center)
-                    .padding(4.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(gridItems.size) { index ->
-                    val imageResId = gridItems[index]
-                    GridItem(imageResId = imageResId, size = cellSize) {
-                        Log.d("GameGrid", "Grid item clicked, image ID: $imageResId")
+                    GridItem(imageResId = gridItems[index], size = cellSize) {
                         if (thiefPosition == index) {
                             gameWon = true
                         }
@@ -234,41 +248,40 @@ fun GameGrid() {
     }
 }
 
+// Logik für die Bewegung des Diebes
 fun moveThief(currentPosition: Int): Int {
     val possibleMoves = mutableListOf<Int>()
 
-    if (currentPosition % 8 != 0) possibleMoves.add(currentPosition - 1)
-    if (currentPosition % 8 != 7) possibleMoves.add(currentPosition + 1)
-    if (currentPosition >= 8) possibleMoves.add(currentPosition - 8)
-    if (currentPosition < 40) possibleMoves.add(currentPosition + 8)
+    if (currentPosition % 8 != 0) possibleMoves.add(currentPosition - 1) // Links
+    if (currentPosition % 8 != 7) possibleMoves.add(currentPosition + 1) // Rechts
+    if (currentPosition >= 8) possibleMoves.add(currentPosition - 8) // Oben
+    if (currentPosition < 40) possibleMoves.add(currentPosition + 8) // Unten
 
-    val newPosition = possibleMoves.random()
-    val oldRow = currentPosition / 8
-    val oldColumn = currentPosition % 8
-    val newRow = newPosition / 8
-    val newColumn = newPosition % 8
-    Log.d("GameGrid", "Thief moved from [${oldRow + 1}|${oldColumn + 1}] to [${newRow + 1}|${newColumn + 1}]")
-    return newPosition
+    return possibleMoves.random() // Zufällige Bewegung
 }
 
+// Einzelnes Grid-Element
 @Composable
 fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(2.dp) // Kleineres Padding für mehr Platz auf dem Bildschirm
-            .size(size) // Verwende die berechnete Zellengröße
-            .border(1.dp, Color.Gray)
-            .clickable {
-                Log.d("GameGrid", "Grid item clicked, image ID: $imageResId")
-                onClick()
-            }
+            .size(size)
+            .padding(2.dp)
+            .border(2.dp, Color.DarkGray)
+            .shadow(4.dp, shape = RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color(0xFFE3F2FD), Color(0xFFBBDEFB))
+                )
+            )
     ) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
+            modifier = Modifier.fillMaxSize().padding(4.dp),
+            contentScale = ContentScale.Crop
         )
     }
 }
