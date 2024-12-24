@@ -1,24 +1,26 @@
 = Besprechungsprotokoll 17.12.2024
-Kyaw Htet Htun
-1.0, {docdate}:
+
+Kyaw Htet Htun / Obaidullah Mushtaq
+
+1.0, 17.12.2024
+
+
 ifndef::imagesdir[:imagesdir: images]
 :icons: font
 //:sectnums:    // Nummerierung der Überschriften / section numbering
 //:toc: left
 
-//Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
 
 // https://fontawesome.com/v4.7.0/icons/
-icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/asciidoctor-docker-template/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
-icon:github-square[link=https://github.com/htl-leonding-college/asciidoctor-docker-template] ‏ ‏ ‎
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/asciidoctor-docker-template/master/asciidocs/{docname}.adoc]
+icon:github-square[link=https://github.com/htl-leonding-college/asciidoctor-docker-template]
 icon:home[link=https://htl-leonding.github.io/]
 endif::backend-html5[]
 
-
 .Teilnehmer
 |===
-|anwesend |Verteiler
+|Anwesend |Verteiler
 
 |Kyaw Htet Htun
 |
@@ -33,23 +35,22 @@ endif::backend-html5[]
 |
 
 |Stütz Thomas
-|Stütz Thomas
+|
 
 |Ingrid Bauer
-|Ingrid Bauer
+|
 
 |Peter Bauer
 |
 
 |Die Dame von Volkshilfe
-|Die Dame von Volkshilfe
+|
 
 |Klasse 3AHIF
 |
 
 |Dieter Steiner
-|Dieter Steiner
-
+|
 |===
 
 .Ort und Zeit
@@ -58,20 +59,33 @@ endif::backend-html5[]
 |Ort
 |HTL-Leonding
 
-|von-bis
+|Von-Bis
 |Di. 17.12.2024, 4. und 5. EH
+
 |Dauer
 |120 min
 |===
-
-
 
 == Besprochene Themen
 
 * Mögliche Verbesserungen der Mitmachgeschichte
 * Personenbezogene Memorys
-* Pepper Auswahl Menü Layout
+* Pepper Auswahl-Menü Layout
 * Umsetzung der Memorys und Mitmachgeschichte
+
+
+
+== Besprochene Punkte
+
+* Bilder von Webserver holen (Pepper holt sie selbst)
+*Bildqualität so anpassen, dass wenig Speicherplatz benötigt wird
+* Probleme in YouTrack eintragen
+* 12 fixe Bilder für Memorys
+* Flexible Anzahl an Memory-Bildern/Fotos
+* Eine App, die im Hintergrund Prozesse steuern kann
+* Ffmpeg (Linux-Programm) für die gesamte Bildbearbeitung nutzen
+* Menü zur Anzeige aller Spiele
+
 
 
 == Vereinbarungen und Entscheidungen
@@ -79,23 +93,29 @@ endif::backend-html5[]
 .Was wurde vereinbart?
 [%autowidth]
 |===
-|wer |macht was |bis wann
-
-| Die Dame von Volkshilfe
-a| Personenbezogene Memorys sollten fertig sein.
-Biografie Arbeit mit einer Bewohnerin
-Auswahlmöglichkeit (Menüsystem) für die Services
-| Bis Mai
+|Wer |Macht Was |Bis Wann
+|Die Dame von Volkshilfe
+a|Personenbezogene Memorys sollten fertig sein.
+Biografie-Arbeit mit einer Bewohnerin.
+Auswahlmöglichkeit (Menüsystem) für die Services.
+|Bis Mai
 
 |Thomas Stütz
-a|
-.Erd Diagramm
+
+| Menü Layout für Pepper Auswahl
+
+| Nach Weihnachtsferien
+
+
+|Thomas Stütz
+a|Erd-Diagramm
 image:./Pepper_ERD.png[width=400px]
 Mitmachgeschichte gehören überarbeitet.
-Die Fotos werden in Backend von Personal hochgeladen.
-Foto Album (Biografie Arbeit), Erstellung der Datenbank
+Die Fotos werden im Backend von Personal hochgeladen.
+Fotoalbum (Biografie-Arbeit), Erstellung der Datenbank.
 |27.12.2024
 
 |Fr. Emil
-a|
+a|Noch keine Aufgabe definiert.
+|
 |===
