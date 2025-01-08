@@ -67,6 +67,8 @@ export class CreatestoryComponent {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+
+
     this.route.params.subscribe((params) => {
       this.id = params['id'];
     });
@@ -76,15 +78,17 @@ export class CreatestoryComponent {
         .get<ITagalongStory>(this.baseUrl + '/' + this.id)
         .subscribe((story) => {
           this.tagalongstory = story;
+          this.uploadedImageUrl = 'data:image/png;base64,' + story.storyIcon;
+          
         });
 
       this.http
         .get<IStep[]>(this.baseUrl + '/' + this.id + '/steps')
         .subscribe((s) => {
-          this.steps = s;
+          this.steps = s.sort((a, b) => a.index - b.index);
         });
     }
-    console.log(this.tagalongstory);
+    
   }
 
   public addStep() {
@@ -138,6 +142,8 @@ export class CreatestoryComponent {
   }
 
   public uploadStepIcon(index: number) {
+    console.log("WAS GEHT AB");
+    
     const fileInput = document.getElementById(
       'stepIconInput-' + index
     ) as HTMLInputElement;
@@ -145,13 +151,14 @@ export class CreatestoryComponent {
   }
 
   public handleStepIcon(event: Event, index: number) {
+    
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.steps[index].image = e.target.result; // Set the uploaded image only for the specified step
+        this.steps[index].image = e.target.result;
+        console.log(e.target.result);
       };
       reader.readAsDataURL(file);
     }
@@ -169,9 +176,24 @@ export class CreatestoryComponent {
       this.tagalongstory.isEnabled = 'true';
       this.tagalongstory.storyIcon = this.uploadedImageUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
       this.tagalongstory.name = name;
-  
-      console.log('Tagalongstory:', this.tagalongstory);
+
+      // Send POST request to the backend
+      this.http.post('http://localhost:8080/api/tagalongstories', this.tagalongstory).subscribe(
+        (response) => {
+          console.log('TagalongStory uploaded successfully:', response);
+        },
+        (error) => {
+          console.error('Error uploading TagalongStory:', error);
+        }
+      );
     });
+  }
+  
+  public getImageSource(image: string): string {
+    if (image.startsWith('data:image/jpeg;base64,')) {
+      return image; // Image already has the prefix
+    }
+    return 'data:image/jpeg;base64,' + image; // Add the prefix if missing
   }
   
 
