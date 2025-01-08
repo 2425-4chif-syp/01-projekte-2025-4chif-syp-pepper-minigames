@@ -74,7 +74,7 @@
                     </td>
                     <td>
                         <input type="file" [id]="'stepIconInput-' + i" (change)="handleStepIcon($event, i)" hidden />
-                        <img [src]="'data:image/jpeg;base64,'+step.image" (click)="uploadStepIcon(i)" alt="Step Image" class="w-32 rounded-box cursor-pointer">
+                        <img [src]="getImageSource(step.image)" (click)="uploadStepIcon(i)" alt="Step Image" class="w-32 rounded-box cursor-pointer">
                     </td>
                     <td>
                        
