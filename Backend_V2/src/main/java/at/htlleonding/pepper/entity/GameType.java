@@ -6,12 +6,11 @@ import jakarta.persistence.*;
 @Table(name="pe_game_type")
 public class GameType {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gt_id")
-    private Long id;
+    private String id; // zB MEMORY oder TAG_ALONG_STORY
 
     @Column(name = "gt_name")
-    private String name;
+    private String name; // zB Memory oder Mitmachgeschichten
 
     //region Constructors
     public GameType() {
@@ -23,11 +22,11 @@ public class GameType {
     //endregion
 
     //region getter and setter
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
