@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="pe_game_type")
 public class GameType {
+
     @Id
     @Column(name = "gt_id")
     private String id; // zB MEMORY oder TAG_ALONG_STORY
