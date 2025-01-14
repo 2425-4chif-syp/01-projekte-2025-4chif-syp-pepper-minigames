@@ -21,17 +21,23 @@ public class Game {
     @Column(name = "g_is_enabled")
     private boolean isEnabled;
 
+    @ManyToOne
+    @JoinColumn(name = "g_gt_id")
+    private GameType gameType;
+
+
 
     //region Constructors
     public Game() {
     }
 
-    public Game(Long id, String name, byte[] icon, boolean isEnabled) {
-        this.id = id;
+    public Game(String name, byte[] icon, boolean isEnabled, GameType gameType) {
         this.name = name;
         this.icon = icon;
         this.isEnabled = isEnabled;
+        this.gameType = gameType;
     }
+
     //endregion
 
     //region getter and setter
@@ -66,5 +72,14 @@ public class Game {
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
     }
+
+    public GameType getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
+
     //endregion
 }
