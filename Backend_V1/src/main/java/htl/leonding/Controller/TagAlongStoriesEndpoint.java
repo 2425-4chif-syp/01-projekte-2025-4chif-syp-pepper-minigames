@@ -137,6 +137,7 @@ public class TagAlongStoriesEndpoint {
         if (tagAlongStory == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No tag along story found with id " + id).build();
         }
-        return Response.ok(tagAlongStory.getSteps()).build();
+        return Response.ok(tagAlongStory.getSteps()).build(
+        );
     }
 }
