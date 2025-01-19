@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { STORY_URL } from '../app.config';
-import { IStep, ITagalongStory } from '../../models/tagalongstories.model';
+import { IGameType, IStep, ITagalongStory } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { map, Observable } from 'rxjs';
@@ -46,13 +46,18 @@ export class CreatestoryComponent {
 
   @ViewChild('tbody') tbody!: ElementRef;
 
+  private defaultGameType : IGameType = {
+    id: "TAG_ALONG_STORY",
+    name: "Mitmachgeschichten"
+  }
+
   public tagalongstory: ITagalongStory = {
     id: 0,
     name: 'string',
-    storyIcon: 'string',
-    isEnabled: 'string',
+    icon: 'string',
+    gameType: this.defaultGameType,
+    enabled: true,
   };
-
 
 
   public steps: IStep[] = [];
@@ -78,7 +83,7 @@ export class CreatestoryComponent {
         .get<ITagalongStory>(this.baseUrl + '/' + this.id)
         .subscribe((story) => {
           this.tagalongstory = story;
-          this.uploadedImageUrl = 'data:image/png;base64,' + story.storyIcon;
+          this.uploadedImageUrl = 'data:image/png;base64,' + story.icon;
           
         });
 
@@ -173,8 +178,8 @@ export class CreatestoryComponent {
   
       // Now that we have the ID, set the other properties and upload
       this.tagalongstory.id = this.id;
-      this.tagalongstory.isEnabled = 'true';
-      this.tagalongstory.storyIcon = this.uploadedImageUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+      this.tagalongstory.enabled = true;
+      this.tagalongstory.icon = this.uploadedImageUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
       this.tagalongstory.name = name;
 
       // Send POST request to the backend

@@ -5,7 +5,7 @@ import at.htlleonding.pepper.entity.dto.StepDto;
 import at.htlleonding.pepper.entity.Game;
 import at.htlleonding.pepper.entity.Step;
 import at.htlleonding.pepper.repository.GameRepository;
-import at.htlleonding.pepper.repository.GameTypeRepository;
+import at.htlleonding.pepper.repository.ImageRepository;
 import at.htlleonding.pepper.repository.StepRepository;
 import at.htlleonding.pepper.service.Converter;
 import io.quarkus.logging.Log;
@@ -16,7 +16,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import java.util.List;
 
@@ -29,10 +28,10 @@ public class TagAlongStoryController {
     GameRepository gameRepository;
 
     @Inject
-    GameTypeRepository gameTypeRepository;
+    StepRepository stepRepository;
 
     @Inject
-    StepRepository stepRepository;
+    ImageRepository imageRepository;
 
     @GET
     @Operation(summary = "Get all tag along stories")
@@ -80,11 +79,15 @@ public class TagAlongStoryController {
     @Transactional
     @Operation(summary = "Create one tag along story")
     public Response CreateTagAlongStories(GameDto gameDTO) {
-        if (gameDTO == null && gameDTO.icon() == null) {
-            Log.error("Tag along story is null");
-            return Response.status(Response.Status.BAD_REQUEST).entity("Tag along story is null").build();
+        if (gameDTO == null) {
+            Log.error("Tag along story is NULL");
+            return Response.status(Response.Status.BAD_REQUEST).entity("Tag along story is NULL").build();
+        } else if (gameDTO.icon() == null) {
+            Log.error("The Icon of Tag along story is NULL");
+            return Response.status(Response.Status.BAD_REQUEST).entity("The Icon of Tag along story is NULL").build();
         }
         Game tagAlongStory = Converter.convertToTagAlongStory(gameDTO);
+
         gameRepository.persist(tagAlongStory);
         return Response.ok(tagAlongStory).build();
     }
@@ -93,7 +96,7 @@ public class TagAlongStoryController {
     @Path("/{id}")
     @Transactional
     @Operation(summary = "Update one tag along story with id")
-    public Response UpdateTagAlongStoriesById(@PathParam("id") Long id, @RequestBody GameDto gameDTO){
+    public Response UpdateTagAlongStoriesById(@PathParam("id") Long id, GameDto gameDTO){
         Game existingGame = gameRepository.findById(id);
         if (existingGame == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -121,25 +124,26 @@ public class TagAlongStoryController {
 
     @GET
     @Path("/{id}/steps")
-    @Operation(summary = "Get steps by game id")
+    @Operation(summary = "Get all steps by game id")
     public Response GetStepsById(@PathParam("id") Long id){
-        Step step = stepRepository.findById(id);
-        if (step == null) {
+        List<Step> steps = stepRepository.findByGameId(id);
+        if (steps == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No tag along story found with id " + id).build();
         }
-        return Response.ok(step).build();
+        return Response.ok(steps).build();
     }
 
     @POST
     @Path("/{id}/steps")
     @Transactional
-    @Operation(summary = "Create steps")
-    public Response CreateStepsById(@RequestBody StepDto stepDTO, @PathParam("id") Long id){
+    @Operation(summary = "Create step by game id")
+    public Response CreateStepsById(StepDto stepDTO, @PathParam("id") Long id){
         if (stepDTO == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Step story is null").build();
         }
         Step step = Converter.convertToStep(stepDTO);
-        stepRepository.persist(step);
+        imageRepository.persist(step.getImage());
+        //stepRepository.persist(step);
         return Response.ok(step).build();
     }
 }

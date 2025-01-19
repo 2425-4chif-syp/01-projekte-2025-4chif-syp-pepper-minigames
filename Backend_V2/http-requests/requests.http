@@ -6,11 +6,60 @@ POST {{host}}/api/tagalongstories
 Content-Type: application/json
 
 {
-  "name": "Geschichten vom Hallstätter See",
-  "icon": null,
+  "name": "Geschichten aus Wien",
+  "icon": "SGVsbHA=",
   "gameType": {
     "id": "TAG_ALONG_STORY",
     "name": "Mitmachgeschichten"
   },
   "enabled": true
+}
+
+###
+PUT {{host}}/api/tagalongstories/2
+Content-Type: application/json
+
+{
+  "name": "Geschichten aus Linz",
+  "icon": "SGVsbHA=",
+  "gameType": {
+    "id": "TAG_ALONG_STORY",
+    "name": "Mitmachgeschichten"
+  },
+  "enabled": false
+}
+###
+DELETE {{host}}/api/tagalongstories/2
+###
+
+GET {{host}}/api/tagalongstories/2/steps
+Content-Type: application/json
+###
+
+POST {{host}}/api/tagalongstories/2/steps
+Content-Type: application/json
+
+{
+  "game": {
+    "name": "Geschichten aus der Voralberg",
+    "icon": null,
+    "gameType": {
+      "id": "TAG_ALONG_STORY",
+      "name": "Mitmachgeschichten"
+    },
+    "enabled": true
+  },
+  "index": 1,
+  "image": {
+    "id": 1,
+    "person": null,
+    "image": null,
+    "url": "Cloud URL",
+    "description": "Vorarlberg"
+  },
+  "move": {
+    "name": "emote_hurra",
+    "description": "Hurra"
+  },
+  "text": "GAME ID 2"
 }

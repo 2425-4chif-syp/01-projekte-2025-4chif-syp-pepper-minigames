@@ -66,7 +66,7 @@ public class TagAlongStoriesEndpoint {
     @POST
     @Transactional
     @Operation(summary = "Create one tag along story")
-    public Response CreateTagAlongStories(@RequestBody TagAlongStoryDTO tagAlongStoryDTO)
+    public Response CreateTagAlongStories(TagAlongStoryDTO tagAlongStoryDTO)
     {
         if (tagAlongStoryDTO == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Tag along story is null").build();

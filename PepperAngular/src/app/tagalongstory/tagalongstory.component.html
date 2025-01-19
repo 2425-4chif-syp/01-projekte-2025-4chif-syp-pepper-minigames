@@ -24,7 +24,7 @@
     <!-- Aligning the Toggle and Button -->
     <div class="flex items-center gap-2 ml-auto">
       <label class="cursor-pointer">
-        <input type="checkbox" class="toggle toggle-primary" [checked]="story.isEnabled !== 'true'" />
+        <input type="checkbox" class="toggle toggle-success" [checked]="story.enabled !== true" />
       </label>
       <button (click)="deleteStory(story.id)" class="btn btn-sm btn-error">Löschen</button>
     </div>
