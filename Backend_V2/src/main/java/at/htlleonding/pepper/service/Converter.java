@@ -14,7 +14,7 @@ public class Converter {
         Game game = new Game();
         game.setName(gameDTO.name());
         game.setEnabled(gameDTO.isEnabled());
-        game.setGameType(new GameType("TAG_ALONG_STORY"));
+        game.setGameType(gameDTO.gameType());
         game.setIcon(Base64.getDecoder().decode(gameDTO.icon()));
         return game;
     }

@@ -51,15 +51,19 @@ Content-Type: application/json
   },
   "index": 1,
   "image": {
-    "id": 1,
     "person": null,
-    "image": null,
+    "image": "SGVsbHA=",
     "url": "Cloud URL",
     "description": "Vorarlberg"
   },
   "move": {
+    "id": 1,
     "name": "emote_hurra",
     "description": "Hurra"
   },
-  "text": "GAME ID 2"
+  "text": "GAME ID 5"
 }
+
+###
+DELETE {{host}}/api/tagalongstories/2/steps/5
+Content-Type: application/json

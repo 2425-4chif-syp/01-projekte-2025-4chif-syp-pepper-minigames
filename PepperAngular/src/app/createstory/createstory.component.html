@@ -3,8 +3,8 @@
         <input type="checkbox" />
         <div class="collapse-title text-xl font-medium flex justify-between items-center">
             <h1 class="text-xl font-bold roboto">
-                Geschichte: {{tagalongstory.name === 'string' ? 'Drücken Sie auf die Pfeilen um einen Name zu vergeben'
-                : tagalongstory.name}}
+                Geschichte: 
+                {{ tagalongstory.name === '' ? 'Drücken Sie auf die Pfeilen um einen Name zu vergeben' : tagalongstory.name }}
             </h1>
             <button class="btn btn-ghost font-extrabold">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -15,15 +15,35 @@
             </button>
         </div>
         <div class="collapse-content">
-            <input #tagAlongStoryName [value]="tagalongstory.name === 'string' ? '' : tagalongstory.name" type="text"
+            <input [(ngModel)]="tagalongstory.name" type="text"
                 placeholder="Name der GESCHICHTE" class="text-xl font-medium input max-w-xs mb-5" />
             <div class="flex justify-between items-center">
-                <img #storyIconImg
-                    class="rounded-box hover:shadow-2xl object-cover w-[50%] h-96 transition-all duration-300"
-                    [src]="uploadedImageUrl" />
+
+                <image-cropper class="rounded-box hover:shadow-2xl transition-all duration-300"
+                        [imageChangedEvent]="imageChangedEvent"
+                        [maintainAspectRatio]="true"
+                        [aspectRatio]="1 / 1"
+                        [cropperMinWidth]="500"
+                        [cropperMinHeight]="500"
+                        [cropperStaticWidth]="500"
+                        [cropperStaticHeight]="500"
+                        [resizeToWidth]="500"
+                        [resizeToHeight]="500"
+                        format="png"
+                        (imageCropped)="imageCropped($event)"
+                        (imageLoaded)="imageLoaded($event)"
+                        (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()"
+                    ></image-cropper>
+
                 <div class="w-[50%] flex justify-center items-center">
-                    <input type="file" id="storyIconInput" (change)="handleStoryIcon($event)" hidden />
-                    <div class="text-center" (click)="uploadStoryIcon()">
+
+                    <input  type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput/>
+                    
+                    
+
+
+                    <div class="text-center"  (click)="triggerFileInput()">
                         <p class="lg:text-xl sm:text-sm md:font-extrabold mb-2 cursor-pointer">
                             NEUE DECKFOTO HOCHLADEN</p>
 
@@ -73,8 +93,8 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" [id]="'stepIconInput-' + i" (change)="handleStepIcon($event, i)" hidden />
-                        <img [src]="getImageSource(step.image)" (click)="uploadStepIcon(i)" alt="Step Image" class="w-32 rounded-box cursor-pointer">
+                        <input type="file" [id]="'stepIconInput-' + i" hidden />
+                        <img alt="Step Image" class="w-32 rounded-box cursor-pointer">
                     </td>
                     <td>
                        
@@ -94,11 +114,11 @@
 
     </div>
     <div class="w-full">
-        <button (click)="addStep()" class="btn btn-primary font-extrabold w-full rounded-none">
+        <button class="btn btn-primary font-extrabold w-full rounded-none">
             HINZUFÜGEN
         </button>
         <div class="bg-base-200 p-5 flex justify-around">
-            <button (click)="uploadTagalongStory(tagAlongStoryName.value)" class="btn btn-primary font-extrabold w-[25%]">
+            <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
                 SPREICHERN
             </button>
 

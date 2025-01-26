@@ -1,5 +1,6 @@
 package at.htlleonding.pepper.controller;
 
+import at.htlleonding.pepper.entity.Image;
 import at.htlleonding.pepper.entity.dto.GameDto;
 import at.htlleonding.pepper.entity.dto.StepDto;
 import at.htlleonding.pepper.entity.Game;
@@ -141,9 +142,30 @@ public class TagAlongStoryController {
         if (stepDTO == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Step story is null").build();
         }
+
         Step step = Converter.convertToStep(stepDTO);
+
+        Game game = gameRepository.findById(id);
+        step.setGame(game);
         imageRepository.persist(step.getImage());
-        //stepRepository.persist(step);
+        stepRepository.persist(step);
         return Response.ok(step).build();
     }
+
+    @DELETE
+    @Path("/{id}/steps/{stepId}")
+    @Transactional
+    @Operation(summary = "Delete step by ID")
+    public Response deleteStepById(@PathParam("id") Long gameId, @PathParam("stepId") Long stepId) {
+        Step step = stepRepository.findById(stepId);
+        if (step == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Step not found").build();
+        }
+        if (!step.getGame().getId().equals(gameId)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Step does not belong to the specified Game").build();
+        }
+        stepRepository.delete(step);
+        return Response.noContent().build();
+    }
+
 }
