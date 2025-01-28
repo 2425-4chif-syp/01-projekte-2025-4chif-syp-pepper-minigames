@@ -1,6 +1,7 @@
 package com.example.memorygame
 
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.NavType
@@ -8,15 +9,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.memorygame.ui.screens.GridSelectionScreen
-import com.example.memorygame.ui.screens.HighScoresScreen
 import com.example.memorygame.ui.menu.MainMenuScreen
-import com.example.memorygame.ui.screens.InstructionsScreen
+import com.example.memorygame.ui.screens.*
 import com.example.memorygame.ui.theme.MemoryGameTheme
+import java.util.Locale
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
+
+    private lateinit var textToSpeech: TextToSpeech
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialisiere TextToSpeech
+        textToSpeech = TextToSpeech(this, this)
+
         setContent {
             MemoryGameTheme {
                 val navController = rememberNavController()
@@ -49,12 +56,26 @@ class MainActivity : ComponentActivity() {
                         HighScoresScreen()
                     }
 
-                    // Spieleanleitung
+                    // Spieleinleitung
                     composable("instructions") {
-                        InstructionsScreen()
+                        InstructionsScreen(
+                            textToSpeech = textToSpeech,
+                            navController = navController
+                        )
                     }
                 }
             }
         }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            textToSpeech.language = Locale.GERMAN
+        }
+    }
+
+    override fun onDestroy() {
+        textToSpeech.shutdown()
+        super.onDestroy()
     }
 }
