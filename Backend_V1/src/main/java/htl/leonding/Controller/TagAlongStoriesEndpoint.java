@@ -66,7 +66,7 @@ public class TagAlongStoriesEndpoint {
     @POST
     @Transactional
     @Operation(summary = "Create one tag along story")
-    public Response CreateTagAlongStories(@RequestBody TagAlongStoryDTO tagAlongStoryDTO)
+    public Response CreateTagAlongStories(TagAlongStoryDTO tagAlongStoryDTO)
     {
         if (tagAlongStoryDTO == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Tag along story is null").build();
@@ -137,6 +137,7 @@ public class TagAlongStoriesEndpoint {
         if (tagAlongStory == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No tag along story found with id " + id).build();
         }
-        return Response.ok(tagAlongStory.getSteps()).build();
+        return Response.ok(tagAlongStory.getSteps()).build(
+        );
     }
 }
