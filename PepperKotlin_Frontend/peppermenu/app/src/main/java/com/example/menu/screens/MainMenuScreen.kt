@@ -6,6 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +29,6 @@ import com.google.accompanist.pager.rememberPagerState
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
-    // Animation für die Hintergrundfarben
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
         initialValue = Color(0xFF2196F3),
@@ -56,14 +58,12 @@ fun MainMenuScreen(navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Titel des Menüs
         Text(
             text = "Program Menu",
             fontSize = 28.sp,
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Horizontaler Pager für Programme
         val pagerState = rememberPagerState(initialPage = 0)
         HorizontalPager(
             count = 5,
@@ -73,26 +73,31 @@ fun MainMenuScreen(navController: NavHostController) {
             when (page) {
                 0 -> MenuItem(
                     imageRes = R.drawable.mitmachgeschichte,
+                    title = "Mitmachgeschichte",
                     navController = navController,
                     route = "mitmachgeschichte_screen"
                 )
                 1 -> MenuItem(
                     imageRes = R.drawable.memory_game,
+                    title = "Memory",
                     navController = navController,
                     route = "memory_screen"
                 )
                 2 -> MenuItem(
                     imageRes = R.drawable.tic_tac_toe,
+                    title = "Tic Tac Toe",
                     navController = navController,
                     route = "tic_tac_toe_screen"
                 )
                 3 -> MenuItem(
                     imageRes = R.drawable.fang_den_dieb,
+                    title = "Fang den Dieb",
                     navController = navController,
                     route = "fang_den_dieb_screen"
                 )
                 4 -> MenuItem(
                     imageRes = R.drawable.essensplan,
+                    title = "Essensplan",
                     navController = navController,
                     route = "essensplan_screen"
                 )
@@ -102,29 +107,36 @@ fun MainMenuScreen(navController: NavHostController) {
 }
 
 @Composable
-fun MenuItem(imageRes: Int, navController: NavHostController, route: String) {
-    Column(
+fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
+    Card(
         modifier = Modifier
-            .fillMaxSize()
             .padding(16.dp)
+            .fillMaxWidth(0.8f)
+            .aspectRatio(1f)
             .clickable { navController.navigate(route) },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF9C4) // Sanftes Gelb für die Karten
+        ),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .size(200.dp)
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(id = imageRes),
-                contentDescription = null
+                contentDescription = null,
+                modifier = Modifier.size(120.dp)
+            )
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
-        Text(
-            text = route.replace("_screen", "").replace("_", " ").capitalize(),
-            fontSize = 18.sp
-        )
     }
 }
