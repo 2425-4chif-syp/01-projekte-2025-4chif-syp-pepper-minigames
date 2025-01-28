@@ -20,9 +20,9 @@ fun GridSelectionScreen(navController: NavHostController) {
     ) {
         Text("Wähle ein Grid:", modifier = Modifier.padding(16.dp))
         listOf(
-            "3x2" to Pair(3, 2),
-            "4x2" to Pair(4, 2),
-            "4x3" to Pair(4, 3),
+            "2x3" to Pair(2, 3),
+            "2x4" to Pair(2, 4),
+            "3x4" to Pair(3, 4),
             "4x4" to Pair(4, 4)
         ).forEach { (label, gridSize) ->
             Button(
