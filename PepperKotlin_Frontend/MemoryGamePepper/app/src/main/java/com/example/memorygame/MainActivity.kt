@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.memorygame.navigation.Navigation
 import com.example.memorygame.ui.theme.MemoryGameTheme
 import kotlinx.coroutines.delay
 
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+//
 @Composable
 fun MemoryGame(modifier: Modifier = Modifier) {
     val cards = remember { mutableStateListOf(*createMemoryDeck().toTypedArray()) }

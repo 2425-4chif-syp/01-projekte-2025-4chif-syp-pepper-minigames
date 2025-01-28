@@ -37,7 +37,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion '1.1.1' // Passend zu Kotlin 1.6.10
     }
     packagingOptions {
         resources {
@@ -47,33 +47,58 @@ android {
 }
 
 dependencies {
+    // Core Libraries
+    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+    implementation 'androidx.activity:activity-compose:1.3.1'
 
-    dependencies {
-        implementation 'androidx.core:core-ktx:1.2.0'
-        implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
-        implementation 'androidx.activity:activity-compose:1.3.1'
-        implementation "androidx.compose.ui:ui:$compose_ui_version"
-        implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-        implementation 'androidx.compose.material:material:1.2.0'
-        testImplementation 'junit:junit:4.13.2'
-        androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-        androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-        androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
-        debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
-        debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+    // Jetpack Compose Libraries
+    implementation "androidx.compose.ui:ui:1.2.0"
+    implementation "androidx.compose.material:material:1.2.0"
+    implementation "androidx.compose.foundation:foundation:1.2.0"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.2.0"
 
-        // **Wichtig**: Passender Compose Compiler
-        implementation 'androidx.compose.compiler:compiler:1.1.1'
+    // Compose Compiler (passend zu Kotlin 1.6.10)
+    implementation 'androidx.compose.compiler:compiler:1.1.1'
 
-        // Deine zusätzlichen Compose-Bibliotheken
-        implementation("androidx.compose.ui:ui:1.0.1")
-        implementation("androidx.compose.material:material:1.0.1")
-        implementation("androidx.compose.ui:ui-tooling-preview:1.0.1")
-        implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-        implementation("androidx.activity:activity-compose:1.3.1")
-        implementation "androidx.compose.foundation:foundation:1.0.5"
-    }
+    // Navigation Compose
+    implementation "androidx.navigation:navigation-compose:2.4.0"
 
-
-
+    // Test Libraries
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.2.0"
+    debugImplementation "androidx.compose.ui:ui-tooling:1.2.0"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:1.2.0"
 }
+
+
+/*dependencies {
+    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+    implementation 'androidx.activity:activity-compose:1.3.1'
+    implementation "androidx.compose.ui:ui:1.2.0"
+    implementation "androidx.compose.material:material:1.2.0"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.0.1"
+    implementation "androidx.compose.foundation:foundation:1.2.0"
+
+    // Kotlin Standard Library für Kotlin 1.6.10
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.10"
+
+    // Compose Navigation (passend zu deiner Version)
+    implementation "androidx.navigation:navigation-compose:2.4.0"
+
+    // Test-Abhängigkeiten
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.0.1"
+    debugImplementation "androidx.compose.ui:ui-tooling:1.2.0"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:1.2.0"
+
+    // Compose Compiler (passend zu Compose 1.0.1)
+    implementation 'androidx.compose.compiler:compiler:1.2.0'
+}*/
+
+
