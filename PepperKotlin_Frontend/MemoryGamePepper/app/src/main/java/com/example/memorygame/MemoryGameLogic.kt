@@ -14,7 +14,18 @@ val cardImages = listOf(
     R.drawable.image5, R.drawable.image6, R.drawable.image7, R.drawable.image8
 )
 
+
 fun createMemoryDeck(): List<MemoryCard> {
     val cards = cardImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }
     return cards.shuffled()
 }
+/*var cardId = 0
+fun createMemoryDeck(): List<MemoryCard> {
+    val cards = cardImages.flatMap {
+        listOf(
+            MemoryCard(cardId++, it),
+            MemoryCard(cardId++, it)
+        )
+    }
+    return cards.shuffled()
+}*/
