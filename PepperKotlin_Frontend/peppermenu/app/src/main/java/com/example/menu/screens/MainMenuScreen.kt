@@ -2,11 +2,8 @@ package com.example.menu.screens
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     // Animation für die Hintergrundfarben
@@ -58,23 +59,18 @@ fun MainMenuScreen(navController: NavHostController) {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Menüpunkt (Platzhalter)
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .clickable { navController.navigate("example_screen") },
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFFE0B2) // Sanfter Farbton
+        // Horizontaler Pager (noch ohne Navigation)
+        val pagerState = rememberPagerState(initialPage = 0)
+        HorizontalPager(
+            count = 5, // Anzahl der Seiten (Platzhalter)
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            Text(
+                text = "Seite $page",
+                fontSize = 20.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Beispiel Menüpunkt", fontSize = 20.sp)
-                Text(text = "Klicke, um zu navigieren", fontSize = 14.sp)
-            }
         }
     }
 }
