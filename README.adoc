@@ -1,0 +1,53 @@
+= Pepper in Retirement Homes (Minigames) 🤖🏡
+Kyaw, Obaid, Amir, Milad
+:toc: right
+:toc-title: Table of Contents
+:icons: font
+
+== Project Description
+
+*Pepper in Retirement Homes* is an innovative project aimed at enriching and facilitating the lives of seniors in care facilities. Our main actor is the robot Pepper, which offers a variety of interactive games and features to make the seniors' daily lives more enjoyable.
+
+== Contributors
+
+- Kyaw
+- Obaid
+- Amir
+- Milad
+
+
+== 🎮 Games
+Pepper offers a selection of games such as Memory (Personalized), Tag along stories, and many more, specifically designed for seniors to stimulate their minds and provide entertainment.
+
+
+== Tech Stack
+
+- **Kotlin**: For developing games on Pepper
+- **Java**: As the programming language for backend
+- **Quarkus**: For building efficient and high-performance Backend
+- **Jetpack Compose**: For modern UI design and development for Pepper
+- **OracleSQL**: For the database
+- **Docker**: For containerization of OracleSQL
+- **Angular**: For the web application
+- **HTML**: For the frontend
+- **Tailwind CSS**: For styling the frontend
+- **TypeScript**: For the frontend
+- **Postman**: For API testing
+- **Swagger**: For API documentation
+- **Git**: For version control
+- **GitHub**: For collaboration and project management
+- **YouTrack**: For issue tracking and project management
+
+
+== System Architecture
+
+image::SYS_ARC.png[System Architecture, width=500]
+
+== Diagrams
+
+image::./Documentation/images/Pepper_ERD.png[PeperERDs, width=500]
+
+
+== Test Section
+
+This is a test section added to verify push access.
