@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.material.icons.Icons
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -19,11 +20,26 @@ import com.example.menu.R
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.ArrowForward
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
+
+    // Liste mit Bildquellen und dazugehörigen Titeln
+    val menuItems = listOf(
+        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte"),
+        Pair(R.drawable.memory_game, "Memory Spiel"),
+        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe"),
+        Pair(R.drawable.fang_den_dieb, "Fang den Dieb"),
+        Pair(R.drawable.essensplan, "Essensplan")
+    )
 
     // Animation für die Farben
     val infiniteTransition = rememberInfiniteTransition()
@@ -55,39 +71,70 @@ fun MainMenuScreen(navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Stilvoller Titel in der Mitte
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp), // Optional: Höhe anpassen, falls nötig
+            contentAlignment = Alignment.Center // Zentriert den Inhalt in der Box
+        ) {
+            // Schwarzer Text als Hintergrund (leicht versetzt)
+            Text(
+                text = menuItems[pagerState.currentPage].second,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black, // Randfarbe
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .offset(x = 2.dp, y = -5.dp) // Leichte Verschiebung nach oben
+            )
+            // Weißer Text darüber
+            Text(
+                text = menuItems[pagerState.currentPage].second,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White, // Hauptfarbe
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .offset(y = -5.dp) // Weißer Text auch leicht nach oben
+            )
+        }
+
+
+
         // Horizontaler Pager für Programme
-        HorizontalPager(
-            count = 5,
-            state = pagerState,
+        Box(
             modifier = Modifier.fillMaxSize()
-        ) { page ->
-            when (page) {
-                0 -> MenuItem(
-                    imageRes = R.drawable.mitmachgeschichte,
+        ) {
+            HorizontalPager(
+                count = menuItems.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                MenuItem(
+                    imageRes = menuItems[page].first,
                     navController = navController,
-                    route = "mitmachgeschichte_screen"
-                )
-                1 -> MenuItem(
-                    imageRes = R.drawable.memory_game,
-                    navController = navController,
-                    route = "memory_screen"
-                )
-                2 -> MenuItem(
-                    imageRes = R.drawable.tic_tac_toe,
-                    navController = navController,
-                    route = "tic_tac_toe_screen"
-                )
-                3 -> MenuItem(
-                    imageRes = R.drawable.fang_den_dieb,
-                    navController = navController,
-                    route = "fang_den_dieb_screen"
-                )
-                4 -> MenuItem(
-                    imageRes = R.drawable.essensplan,
-                    navController = navController,
-                    route = "essensplan_screen"
+                    route = when (page) {
+                        0 -> "mitmachgeschichte_screen"
+                        1 -> "memory_screen"
+                        2 -> "tic_tac_toe_screen"
+                        3 -> "fang_den_dieb_screen"
+                        4 -> "essensplan_screen"
+                        else -> "main_menu"
+                    }
                 )
             }
+
+            // Icon außerhalb des Pagers, fix auf der rechten Seite
+            Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = "Swipe Right",
+                tint = Color.Blue,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd) // Fixiert es auf die rechte Seite
+                    .padding(end = 16.dp)
+                    .size(100.dp)
+            )
         }
     }
 }
@@ -96,17 +143,17 @@ fun MainMenuScreen(navController: NavHostController) {
 fun MenuItem(imageRes: Int, navController: NavHostController, route: String) {
     Column(
         modifier = Modifier
-            .fillMaxSize() // Füllt den verfügbaren Platz
+            .fillMaxSize()
             .padding(16.dp)
-            .clickable { navController.navigate(route) }, // Navigation bleibt erhalten
+            .clickable { navController.navigate(route) },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.8f) // Breite angepasst, um Bild besser darzustellen
-                .aspectRatio(1f) // Verhältnis beibehalten
-                .padding(bottom = 16.dp), // Abstand nach unten
+                .fillMaxWidth(0.8f)
+                .aspectRatio(1f)
+                .padding(bottom = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
