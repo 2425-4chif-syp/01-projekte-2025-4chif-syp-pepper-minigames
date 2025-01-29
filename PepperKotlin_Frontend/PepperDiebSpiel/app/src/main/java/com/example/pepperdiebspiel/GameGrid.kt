@@ -42,7 +42,6 @@ import kotlin.math.min
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameGrid() {
-    // Liste von Bildern für die Gitterelemente
     val images = listOf(
         R.drawable.water,
         R.drawable.church,
@@ -51,7 +50,6 @@ fun GameGrid() {
         R.drawable.bird
     )
 
-    // Liste der zugehörigen Sounds
     val sounds = listOf(
         R.raw.water_sound,
         R.raw.church_bells,
@@ -60,62 +58,63 @@ fun GameGrid() {
         R.raw.bird_chirp
     )
 
-    val thiefImage = R.drawable.thief // Bild des Diebes
-    val context = LocalContext.current // Zugriff auf den aktuellen Kontext
+    val thiefImage = R.drawable.thief
+    val context = LocalContext.current
 
-    // Initialisierung der Spielvariablen
-    var gridItems by remember { mutableStateOf(List(48) { images.random() }) } // 8x6 Gitter
-    var thiefPosition by remember { mutableStateOf((0 until 48).random()) } // Zufällige Dieb-Position
-    var gameWon by remember { mutableStateOf(false) } // Überprüfung, ob das Spiel gewonnen wurde
-    var elapsedTime by remember { mutableStateOf(0L) } // Zeit, die seit Spielstart vergangen ist
-    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) } // MediaPlayer für Sounds
+    var gridItems by remember { mutableStateOf(List(48) { images.random() }) }
+    var thiefPosition by remember { mutableStateOf((0 until 48).random()) }
+    var gameWon by remember { mutableStateOf(false) }
+    var elapsedTime by remember { mutableStateOf(0L) }
+    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
 
-    var isTimerRunning by remember { mutableStateOf(true) } // Kontrolliert den Timer
+    var isTimerRunning by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope() // NEU: Coroutine für Hintergrund-Logik
 
-    // Timer für die Anzeige der verstrichenen Zeit
-    var startTime by remember { mutableStateOf(0L) }
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            startTime = System.currentTimeMillis()
-            while (isTimerRunning && isActive) {
-                elapsedTime = System.currentTimeMillis() - startTime
-                delay(500) // Aktualisierung alle 500ms
-                val row = thiefPosition / 8
-                val column = thiefPosition % 8
-                Log.d("GameGrid", "Current thief position: [${row + 1}|${column + 1}]")
-            }
-        }
-    }
+    // **Optimierte Dieb-Bewegung in einem separaten Thread**
+    LaunchedEffect(rememberUpdatedState(isTimerRunning)) {
 
-    // Bewegung des Diebs und Abspielen von Sounds
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (!gameWon && isActive) {
-                delay(4000) // Bewegung alle 4 Sekunden
+    coroutineScope.launch(Dispatchers.Default) {
+        while (!gameWon && isTimerRunning && isActive) {
+                delay(4000)
                 if (gameWon) break
 
-                thiefPosition = moveThief(thiefPosition) // Dieb bewegt sich
-                val row = thiefPosition / 8
-                val column = thiefPosition % 8
-                Log.d("GameGrid", "Thief position updated: [${row + 1}|${column + 1}]")
+                thiefPosition = moveThief(thiefPosition)
+                Log.d("GameGrid", "Thief moved to position: $thiefPosition")
 
-                withContext(Dispatchers.Main) {
-                    try {
-                        val soundIndex = images.indexOf(gridItems[thiefPosition])
-                        if (soundIndex in sounds.indices) {
-                            mediaPlayer.value?.release() // Vorherigen Sound stoppen
-                            mediaPlayer.value = MediaPlayer.create(context, sounds[soundIndex])
-                            mediaPlayer.value?.start() // Neuen Sound starten
-                        } else {
-                            Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
+            withContext(Dispatchers.Default) {
+                thiefPosition = moveThief(thiefPosition)
+            }
+
+            withContext(Dispatchers.Main) {
+                try {
+                    val soundIndex = images.indexOf(gridItems[thiefPosition])
+                    if (soundIndex in sounds.indices) {
+                        mediaPlayer.value?.apply {
+                            stop()
+                            reset()
+                            release()
                         }
-                    } catch (e: Exception) {
-                        Log.e("GameGrid", "Error playing sound: ${e.message}")
+                        mediaPlayer.value = null
+
+                        val newMediaPlayer = MediaPlayer.create(context, sounds[soundIndex]).apply {
+                            setOnCompletionListener {
+                                release()
+                                mediaPlayer.value = null
+                            }
+                            start()
+                        }
+                        mediaPlayer.value = newMediaPlayer
+                    } else {
+                        Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
                     }
+                } catch (e: Exception) {
+                    Log.e("GameGrid", "Error playing sound: ${e.message}")
                 }
             }
+
         }
-    }
+        }
+}
 
     // Anzeige, wenn das Spiel gewonnen wurde
     if (gameWon) {
@@ -234,7 +233,8 @@ fun GameGrid() {
         ) {
             LazyVerticalGrid(
                 cells = GridCells.Fixed(8),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(2.dp)
             ) {
                 items(gridItems.size) { index ->
                     GridItem(imageResId = gridItems[index], size = cellSize) {
