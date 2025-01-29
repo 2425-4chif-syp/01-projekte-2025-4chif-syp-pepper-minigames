@@ -1,23 +1,19 @@
-package com.example.menu.screens
-
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.menu.R
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -29,33 +25,36 @@ import com.google.accompanist.pager.rememberPagerState
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
 
+    // Animation für die Farben
+    val infiniteTransition = rememberInfiniteTransition()
+    val color1 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF2196F3), // Blau
+        targetValue = Color(0xFF64B5F6), // Hellblau
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val color2 by infiniteTransition.animateColor(
+        initialValue = Color(0xFFFF8A65), // Korallorange
+        targetValue = Color(0xFFBBDEFB), // Sehr helles Blau
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(0xFFFFCDD2),
-                        Color(0xFFFFF59D),
-                        Color(0xFFA5D6A7),
-                        Color(0xFF90CAF9)
-                    )
+                    colors = listOf(color1, color2)
                 )
             )
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Titel des Menüs
-        Text(
-            text = "Program Menu",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF3E2723) // Dunkles Braun
-            ),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
         // Horizontaler Pager für Programme
         HorizontalPager(
             count = 5,
@@ -65,31 +64,26 @@ fun MainMenuScreen(navController: NavHostController) {
             when (page) {
                 0 -> MenuItem(
                     imageRes = R.drawable.mitmachgeschichte,
-                    title = "Mitmachgeschichte",
                     navController = navController,
                     route = "mitmachgeschichte_screen"
                 )
                 1 -> MenuItem(
                     imageRes = R.drawable.memory_game,
-                    title = "Memoryspiel",
                     navController = navController,
                     route = "memory_screen"
                 )
                 2 -> MenuItem(
                     imageRes = R.drawable.tic_tac_toe,
-                    title = "Tic Tac Toe",
                     navController = navController,
                     route = "tic_tac_toe_screen"
                 )
                 3 -> MenuItem(
                     imageRes = R.drawable.fang_den_dieb,
-                    title = "Fang den Dieb",
                     navController = navController,
                     route = "fang_den_dieb_screen"
                 )
                 4 -> MenuItem(
                     imageRes = R.drawable.essensplan,
-                    title = "Essensplan",
                     navController = navController,
                     route = "essensplan_screen"
                 )
@@ -99,43 +93,26 @@ fun MainMenuScreen(navController: NavHostController) {
 }
 
 @Composable
-fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
-    Card(
+fun MenuItem(imageRes: Int, navController: NavHostController, route: String) {
+    Column(
         modifier = Modifier
+            .fillMaxSize() // Füllt den verfügbaren Platz
             .padding(16.dp)
-            .width(250.dp) // Breite der Karte
-            .height(350.dp) // Höhe der Karte
-            .clickable { navController.navigate(route) },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF3E0) // Sanfte Hintergrundfarbe der Karte
-        ),
-        elevation = CardDefaults.elevatedCardElevation(8.dp) // Kleinere Elevation für flacheren Effekt
+            .clickable { navController.navigate(route) }, // Navigation bleibt erhalten
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp), // Innerer Abstand der Karte
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Zentriert Bild und Text
+                .fillMaxWidth(0.8f) // Breite angepasst, um Bild besser darzustellen
+                .aspectRatio(1f) // Verhältnis beibehalten
+                .padding(bottom = 16.dp), // Abstand nach unten
+            contentAlignment = Alignment.Center
         ) {
-            // Verkleinertes Bild
             Image(
                 painter = painterResource(id = imageRes),
-                contentDescription = title,
-                modifier = Modifier
-                    .size(200.dp) // Kleinere Bildgröße
-                    .padding(bottom = 8.dp) // Abstand zwischen Bild und Text
-            )
-            // Text unter dem Bild
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 20.sp, // Kleinere Schriftgröße
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B5E20)
-                ),
-                modifier = Modifier.padding(top = 4.dp) // Abstand über dem Text
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
