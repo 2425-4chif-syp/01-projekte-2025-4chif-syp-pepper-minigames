@@ -243,9 +243,11 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                         for (j in 0..2) {
                             val playerSymbol = board[i][j]
                             val animatedFieldColor by animateColorAsState(
-                                targetValue = if (playerSymbol == ' ') fieldColor else Color(
-                                    0xFF388E3C
-                                ),
+                                targetValue = when (playerSymbol) {
+                                    'X' -> Color(0xFF388E3C) // Grün für Spieler 1 (X)
+                                    'O' -> Color(0xFF1976D2)
+                                    else -> fieldColor
+                                },
                                 animationSpec = tween(durationMillis = 500)
                             )
 
@@ -254,14 +256,13 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                     .size(125.dp)
                                     .padding(6.dp)
                                     .background(animatedFieldColor, RoundedCornerShape(10.dp))
-                                    .clickable(enabled = !gameOver && currentPlayer != 'O' && !isRobotTurn) {
-                                        if (playerSymbol == ' ' && winner == null) {
+                                    .clickable(enabled = !gameOver && board[i][j] == ' ' && !isRobotTurn) {
+                                        if (board[i][j] == ' ' && winner == null) {
                                             board[i][j] = currentPlayer
                                             winner = checkWinner(board)
 
                                             if (winner == null) {
-                                                currentPlayer =
-                                                    if (currentPlayer == 'X') 'O' else 'X'
+                                                currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
 
                                                 if (playAgainstRobot == true && currentPlayer == 'O') {
                                                     isRobotTurn = true
@@ -275,7 +276,7 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = when (playerSymbol) {
+                                    text = when (board[i][j]) {
                                         'X' -> "X"
                                         'O' -> "O"
                                         else -> ""
@@ -285,6 +286,7 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                     color = textColor
                                 )
                             }
+
 
                             Spacer(modifier = Modifier.width(8.dp))
                         }
