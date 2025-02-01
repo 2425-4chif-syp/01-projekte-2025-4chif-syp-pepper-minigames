@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.ui.layout.ContentScale // Import für ContentScale
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -35,7 +38,7 @@ fun MainMenuScreen(navController: NavHostController) {
     // Liste mit Bildquellen und dazugehörigen Titeln
     val menuItems = listOf(
         Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte"),
-        Pair(R.drawable.memory_game, "Memory Spiel"),
+        Pair(R.drawable.memory_game, "Memory"),
         Pair(R.drawable.tic_tac_toe, "Tic Tac Toe"),
         Pair(R.drawable.fang_den_dieb, "Fang den Dieb"),
         Pair(R.drawable.essensplan, "Essensplan")
@@ -74,32 +77,12 @@ fun MainMenuScreen(navController: NavHostController) {
         // Stilvoller Titel in der Mitte
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp), // Optional: Höhe anpassen, falls nötig
+                .fillMaxWidth(),
+//                .height(90.dp), // Optional: Höhe anpassen, falls nötig
             contentAlignment = Alignment.Center // Zentriert den Inhalt in der Box
         ) {
-            // Schwarzer Text als Hintergrund (leicht versetzt)
-            Text(
-                text = menuItems[pagerState.currentPage].second,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black, // Randfarbe
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .offset(x = 2.dp, y = -5.dp) // Leichte Verschiebung nach oben
-            )
-            // Weißer Text darüber
-            Text(
-                text = menuItems[pagerState.currentPage].second,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White, // Hauptfarbe
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .offset(y = -5.dp) // Weißer Text auch leicht nach oben
-            )
-        }
 
+        }
 
 
         // Horizontaler Pager für Programme
@@ -113,6 +96,7 @@ fun MainMenuScreen(navController: NavHostController) {
             ) { page ->
                 MenuItem(
                     imageRes = menuItems[page].first,
+                    title = menuItems[page].second,
                     navController = navController,
                     route = when (page) {
                         0 -> "mitmachgeschichte_screen"
@@ -129,37 +113,55 @@ fun MainMenuScreen(navController: NavHostController) {
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Swipe Right",
-                tint = Color.Blue,
+                tint = Color.White, // Weiße Farbe für den Pfeil
                 modifier = Modifier
                     .align(Alignment.CenterEnd) // Fixiert es auf die rechte Seite
                     .padding(end = 16.dp)
                     .size(100.dp)
             )
+            Icon(
+                imageVector = Icons.Default.ArrowBack, // Pfeil nach links
+                contentDescription = "Swipe Left",
+                tint = Color.White, // Weiße Farbe für den Pfeil
+                modifier = Modifier
+                    .align(Alignment.CenterStart) // Fixiert es auf die linke Seite
+                    .padding(start = 16.dp) // Abstand von der linken Seite
+                    .size(100.dp) // Größe des Icons
+            )
+
         }
     }
 }
 
 @Composable
-fun MenuItem(imageRes: Int, navController: NavHostController, route: String) {
-    Column(
+fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .clickable { navController.navigate(route) },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Halbtransparenter Hintergrund für besseren Kontrast
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .aspectRatio(1f)
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.5f)) // Dunkler Hintergrund mit Transparenz
+                .align(Alignment.TopCenter) // Oben zentrieren
+                .padding(8.dp)
         ) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+            Text(
+                text = title,
+                color = Color.White, // Weißer Text für besseren Kontrast
+                fontSize = 70.sp, // Große Schriftgröße
+                fontWeight = FontWeight.Bold, // Fettschrift
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
