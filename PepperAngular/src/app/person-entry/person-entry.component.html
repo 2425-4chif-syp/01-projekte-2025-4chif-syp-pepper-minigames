@@ -1,28 +1,44 @@
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow p-4 w-50">
-      <h2 class="text-center mb-4">Personen Eingabe</h2>
-  
-      <form (submit)="onLogin($event)">
-        <div class="mb-3">
-          <label for="firstName" class="form-label">Vorname</label>
-          <input id="firstName" type="text" name="firstName" class="form-control"
-            (input)="updatePerson('firstName', $event)" required />
-        </div>
-  
-        <div class="mb-3">
-          <label for="lastName" class="form-label">Nachname</label>
-          <input id="lastName" type="text" name="lastName" class="form-control"
-            (input)="updatePerson('lastName', $event)" required />
-        </div>
-  
-        <div class="mb-3">
-          <label for="roomNumber" class="form-label">Raum-Nummer</label>
-          <input id="roomNumber" type="number" name="roomNumber" class="form-control"
-            (input)="updatePerson('roomNumber', $event)" required />
-        </div>
-  
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-      </form>
-    </div>
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
+    <h2 class="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">Personen Eingabe</h2>
   </div>
-  
+
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <form class="space-y-6" (submit)="onLogin($event)">
+      
+      <div>
+        <label for="firstName" class="block text-sm font-medium text-gray-900">Vorname</label>
+        <div class="mt-2">
+          <input type="text" id="firstName" name="firstName" required 
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+            (input)="updatePerson('firstName', $event)">
+        </div>
+      </div>
+
+      <div>
+        <label for="lastName" class="block text-sm font-medium text-gray-900">Nachname</label>
+        <div class="mt-2">
+          <input type="text" id="lastName" name="lastName" required 
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+            (input)="updatePerson('lastName', $event)">
+        </div>
+      </div>
+
+      <div>
+        <label for="roomNumber" class="block text-sm font-medium text-gray-900">Raum-Nummer</label>
+        <div class="mt-2">
+          <input type="number" id="roomNumber" name="roomNumber" required 
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+            (input)="updatePerson('roomNumber', $event)">
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          Login
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
