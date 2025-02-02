@@ -1,44 +1,60 @@
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-    <h2 class="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">Personen Eingabe</h2>
-  </div>
-
-  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form class="space-y-6" (submit)="onLogin($event)">
+<div class="min-h-screen flex items-center justify-center bg-white">
+  <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 p-12">
+    
+    <!-- Linke Seite: Formular -->
+    <div class="flex flex-col justify-center">
+      <div class="text-center md:text-left mt-[-50px] ml-8">
+        <h2 class="text-4xl font-extrabold text-gray-900">Personen Eingabe</h2>
+        <p class="mt-2 text-sm text-gray-600">
+                 Bitte fülle die Felder aus, um fortzufahren.
+        </p>
+        <br>
+      </div>
       
-      <div>
-        <label for="firstName" class="block text-sm font-medium text-gray-900">Vorname</label>
-        <div class="mt-2">
-          <input type="text" id="firstName" name="firstName" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
-            (input)="updatePerson('firstName', $event)">
-        </div>
-      </div>
 
-      <div>
-        <label for="lastName" class="block text-sm font-medium text-gray-900">Nachname</label>
-        <div class="mt-2">
-          <input type="text" id="lastName" name="lastName" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
-            (input)="updatePerson('lastName', $event)">
-        </div>
-      </div>
+      <div class="bg-white py-10 px-8 shadow-xl rounded-lg sm:px-12 w-full transform -translate-x-12 ">
+        <form class="space-y-6" (submit)="onLogin($event)">
+          
+          <!-- Vorname -->
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700">Vorname</label>
+            <input type="text" id="firstName" name="firstName" required 
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              (input)="updatePerson('firstName', $event)">
+          </div>
 
-      <div>
-        <label for="roomNumber" class="block text-sm font-medium text-gray-900">Raum-Nummer</label>
-        <div class="mt-2">
-          <input type="number" id="roomNumber" name="roomNumber" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
-            (input)="updatePerson('roomNumber', $event)">
-        </div>
-      </div>
+          <!-- Nachname -->
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700">Nachname</label>
+            <input type="text" id="lastName" name="lastName" required 
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              (input)="updatePerson('lastName', $event)">
+          </div>
 
-      <div>
-        <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Login
-        </button>
+          <!-- Raum-Nummer -->
+          <div>
+            <label for="roomNumber" class="block text-sm font-medium text-gray-700">Raum-Nummer</label>
+            <input type="number" id="roomNumber" name="roomNumber" required 
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              (input)="updatePerson('roomNumber', $event)">
+          </div>
+
+          <!-- Login Button -->
+          <div>
+            <button type="submit" 
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-lg font-semibold">
+              Speichern
+            </button>
+          </div>
+
+        </form>
       </div>
-    </form>
+    </div>
+
+    <!-- Rechte Seite: Großes Bild -->
+    <div class="hidden md:flex items-center justify-center">
+      <img src="assets/images/Pepper.jpg" alt="Illustration" class="h-full w-full object-cover rounded-lg shadow-lg">
+    </div>
+
   </div>
 </div>
