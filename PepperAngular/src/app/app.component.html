@@ -19,6 +19,7 @@
       <div class="flex-1">
         <a routerLink="/" class="btn btn-ghost text-xl">PEPPER Dashboard</a>
       </div>
+      
       <div class="flex-none">
         <button (click)="onDarkmode()" class="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -37,8 +38,11 @@
       <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
+        
+        <li><a routerLink="/personen-eingabe">Personen Eingabe</a></li>
         <li><a>Sidebar Item 1</a></li>
         <li><a>Sidebar Item 2</a></li>
+        
       </ul>
     </div>
   </div>
