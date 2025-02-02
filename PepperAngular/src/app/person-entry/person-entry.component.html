@@ -1,0 +1,28 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow p-4 w-50">
+      <h2 class="text-center mb-4">Personen Eingabe</h2>
+  
+      <form (submit)="onLogin($event)">
+        <div class="mb-3">
+          <label for="firstName" class="form-label">Vorname</label>
+          <input id="firstName" type="text" name="firstName" class="form-control"
+            (input)="updatePerson('firstName', $event)" required />
+        </div>
+  
+        <div class="mb-3">
+          <label for="lastName" class="form-label">Nachname</label>
+          <input id="lastName" type="text" name="lastName" class="form-control"
+            (input)="updatePerson('lastName', $event)" required />
+        </div>
+  
+        <div class="mb-3">
+          <label for="roomNumber" class="form-label">Raum-Nummer</label>
+          <input id="roomNumber" type="number" name="roomNumber" class="form-control"
+            (input)="updatePerson('roomNumber', $event)" required />
+        </div>
+  
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+    </div>
+  </div>
+  
