@@ -1,0 +1,8 @@
+<h2>Personen-Eingabe</h2>
+<form (ngSubmit)="submitPerson()">
+  <label for="name">Name:</label>
+  <input type="text" id="name" [(ngModel)]="person.name" name="name" required />
+
+  <button type="submit">Speichern</button>
+</form>
+    
