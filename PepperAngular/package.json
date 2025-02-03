@@ -21,8 +21,8 @@
     "@angular/platform-server": "^18.2.0",
     "@angular/router": "^18.2.0",
     "@angular/ssr": "^18.2.8",
+    "cropperjs": "^1.6.2",
     "express": "^4.18.2",
-    "ngx-image-cropper": "^9.1.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
