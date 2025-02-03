@@ -1,122 +1,39 @@
 <div class="min-h-screen">
-    <div class="collapse bg-base-200 rounded-b-none">
-        <input type="checkbox" />
-        <div class="collapse-title text-xl font-medium flex justify-between items-center">
+    <div class="bg-base-200 p-5">
+        <div class="text-xl font-medium m-5">
             <h1 class="text-xl font-bold roboto">
                 Geschichte: 
-                {{ tagalongstory.name === '' ? 'Drücken Sie auf die Pfeilen um einen Name zu vergeben' : tagalongstory.name }}
+                {{ tagalongstory.name === '' ? 'In der Eingabe den Titel des Mitmachgeschichte eingeben!' : tagalongstory.name }}
             </h1>
-            <button class="btn btn-ghost font-extrabold">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-                </svg>
-            </button>
+        
         </div>
-        <div class="collapse-content">
-            <input [(ngModel)]="tagalongstory.name" type="text"
-                placeholder="Name der GESCHICHTE" class="text-xl font-medium input max-w-xs mb-5" />
-            <div class="flex justify-between items-center">
-
-                <image-cropper class="rounded-box hover:shadow-2xl transition-all duration-300"
-                        [imageChangedEvent]="imageChangedEvent"
-                        [maintainAspectRatio]="true"
-                        [aspectRatio]="1 / 1"
-                        [cropperMinWidth]="500"
-                        [cropperMinHeight]="500"
-                        [cropperStaticWidth]="500"
-                        [cropperStaticHeight]="500"
-                        [resizeToWidth]="500"
-                        [resizeToHeight]="500"
-                        format="png"
-                        (imageCropped)="imageCropped($event)"
-                        (imageLoaded)="imageLoaded($event)"
-                        (cropperReady)="cropperReady()"
-                        (loadImageFailed)="loadImageFailed()"
-                    ></image-cropper>
-
-                <div class="w-[50%] flex justify-center items-center">
-
-                    <input  type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput/>
-                    
-                    
-
-
-                    <div class="text-center"  (click)="triggerFileInput()">
-                        <p class="lg:text-xl sm:text-sm md:font-extrabold mb-2 cursor-pointer">
-                            NEUE DECKFOTO HOCHLADEN</p>
-
-                        <div class="flex justify-center items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-12 h-12 transform ">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <input [(ngModel)]="tagalongstory.name" type="text"
+            placeholder="Eingabe" class="m-5 input input-bordered input-primary w-full max-w-xs"/>
+    </div>
+    
+    <div class="container mx-auto p-5">
+        <input (change)="onFileSelected($event)" type="file" #fileInput accept="image/*" class="w-full mb-4 p-2 border border-gray-300 rounded">
+        <div class="controls flex gap-2 flex-wrap justify-between mb-4 w-full">
+            <button (click)="setCropBoxTo1280x800()" class="btn btn-primary">1280 × 800</button>
+            <button (click)="cropTo1280x800()" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+              </svg>
+               1280 x 800</button>
+            <button (click)="reset()" class="btn btn-primary">Reset</button>
+        </div>
+        <div class="image-container w-full h-96 bg-gray-200 relative overflow-hidden">
+            <img #image src="" class="max-w-full max-h-full">
+        </div>
+        <div class="mt-4">
+            <label for="zoomRange" class="block text-sm font-medium text-gray-700">Zoom Level</label>
+            <input type="range" #zoomRange min="0.01" max="0.5" step="0.01" value="0.2" class="w-full">
         </div>
     </div>
 
 
-
-    <div class="overflow-x-auto">
-        <table class="table">
-            <!-- head -->
-            <thead>
-                <tr>
-                    <th>Reihe</th>
-                    <th>Sprachausgabe</th>
-                    <th>Bewegung</th>
-                    <th>Dauer(sec)</th>
-                    <th>Bild hochladen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let step of steps; let i = index">
-                    <th>
-                        <input [(ngModel)]="step.index" type="number" placeholder="Reihe Nr." class="input w-20 max-w-xs" min="1" />
-                    </th>
-                    <td>
-                        <textarea [(ngModel)]="step.text" class="textarea textarea-bordered" placeholder="GESCHICHTE"></textarea>
-                    </td>
-                    <td>
-                        <select [(ngModel)]="step.moveNameAndDuration" class="select select-bordered w-full max-w-xs">
-                            <option *ngFor="let move of moves; let j = index" [value]="move">{{ moveNames[j] }}</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select [(ngModel)]="step.duration" class="select select-bordered w-full max-w-xs">
-                            <option *ngFor="let time of duration" [value]="time">{{ time }}</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="file" [id]="'stepIconInput-' + i" hidden />
-                        <img alt="Step Image" class="w-32 rounded-box cursor-pointer">
-                    </td>
-                    <td>
-                       
-                        <button class="btn btn-error">
-                            <!-- Remove Step Icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                
-            </tbody>
-        </table>
-
-
-    </div>
+    
     <div class="w-full">
-        <button class="btn btn-primary font-extrabold w-full rounded-none">
-            HINZUFÜGEN
-        </button>
+        
         <div class="bg-base-200 p-5 flex justify-around">
             <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
                 SPREICHERN
