@@ -1,7 +1,6 @@
 package com.example.pepperdiebspiel
 
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -36,18 +34,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.min
 import com.example.pepperdiebspiel.game.GameViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameGrid() {
-
     val gameViewModel: GameViewModel = viewModel()
 
     // Zugriff auf die Zustände aus dem ViewModel
-
+    val gridItems by gameViewModel.gridItems
+    val thiefPosition by gameViewModel.thiefPosition
+    val gameWon by gameViewModel.gameWon
+    val elapsedTime by gameViewModel.elapsedTime
 
     // Hier werden die Bilder definiert
     val images = listOf(
@@ -57,65 +55,6 @@ fun GameGrid() {
         R.drawable.witch,
         R.drawable.bird
     )
-
-    val sounds = listOf(
-        R.raw.water_sound,
-        R.raw.church_bells,
-        R.raw.sheep_bleat,
-        R.raw.witch_laugh,
-        R.raw.bird_chirp
-    )
-
-    val thiefImage = R.drawable.thief
-    val context = LocalContext.current
-
-    var gridItems by remember { mutableStateOf(List(48) { images.random() }) }
-    var thiefPosition by remember { mutableStateOf((0 until 48).random()) }
-    var gameWon by remember { mutableStateOf(false) }
-    var elapsedTime by remember { mutableStateOf(0L) }
-    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
-
-    var isTimerRunning by remember { mutableStateOf(true) }
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(rememberUpdatedState(isTimerRunning)) {
-        coroutineScope.launch(Dispatchers.Default) {
-            while (!gameWon && isTimerRunning && isActive) {
-                delay(4000)
-                if (gameWon) break
-
-                thiefPosition = gameViewModel.moveThief()
-                Log.d("GameGrid", "Thief moved to position: $thiefPosition")
-
-                withContext(Dispatchers.Main) {
-                    try {
-                        val soundIndex = images.indexOf(gridItems[thiefPosition])
-                        if (soundIndex in sounds.indices) {
-                            mediaPlayer.value?.apply {
-                                stop()
-                                reset()
-                                release()
-                            }
-                            mediaPlayer.value = null
-
-                            val newMediaPlayer = MediaPlayer.create(context, sounds[soundIndex]).apply {
-                                setOnCompletionListener {
-                                    release()
-                                    mediaPlayer.value = null
-                                }
-                                start()
-                            }
-                            mediaPlayer.value = newMediaPlayer
-                        } else {
-                            Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("GameGrid", "Error playing sound: ${e.message}")
-                    }
-                }
-            }
-        }
-    }
 
     // Anzeige, wenn das Spiel gewonnen wurde
     if (gameWon) {
@@ -220,8 +159,7 @@ fun GameGrid() {
         ) {
             LazyVerticalGrid(
                 cells = GridCells.Fixed(8),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(2.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(gridItems.size) { index ->
                     GridItem(imageResId = images[gridItems[index]], size = cellSize) {
