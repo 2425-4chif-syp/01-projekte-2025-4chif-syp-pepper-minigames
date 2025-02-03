@@ -36,6 +36,7 @@ public class TagAlongStoryController {
 
     @GET
     @Operation(summary = "Get all tag along stories")
+    @Transactional
     public Response getAllTagAlongStory(@QueryParam("withoutDisabled") Boolean withoutDisabled) {
         List<Game> tagAlongStories;
         if (withoutDisabled != null && withoutDisabled) {
@@ -88,7 +89,7 @@ public class TagAlongStoryController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The Icon of Tag along story is NULL").build();
         }
         Game tagAlongStory = Converter.convertToTagAlongStory(gameDTO);
-
+        System.out.println("TS"+tagAlongStory.getIcon().toString());
         gameRepository.persist(tagAlongStory);
         return Response.ok(tagAlongStory).build();
     }
