@@ -1,6 +1,7 @@
 package com.example.pepperdiebspiel
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -20,28 +21,35 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
-import android.util.Log
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
-import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.min
-import kotlin.math.min
+import com.example.pepperdiebspiel.game.GameViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameGrid() {
+
+    val gameViewModel: GameViewModel = viewModel()
+
+    // Zugriff auf die Zustände aus dem ViewModel
+
+
+    // Hier werden die Bilder definiert
     val images = listOf(
         R.drawable.water,
         R.drawable.church,
@@ -68,59 +76,50 @@ fun GameGrid() {
     val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
 
     var isTimerRunning by remember { mutableStateOf(true) }
-    val coroutineScope = rememberCoroutineScope() // NEU: Coroutine für Hintergrund-Logik
+    val coroutineScope = rememberCoroutineScope()
 
-    // **Optimierte Dieb-Bewegung in einem separaten Thread**
     LaunchedEffect(rememberUpdatedState(isTimerRunning)) {
-
-    coroutineScope.launch(Dispatchers.Default) {
-        while (!gameWon && isTimerRunning && isActive) {
+        coroutineScope.launch(Dispatchers.Default) {
+            while (!gameWon && isTimerRunning && isActive) {
                 delay(4000)
                 if (gameWon) break
 
-                thiefPosition = moveThief(thiefPosition)
+                thiefPosition = gameViewModel.moveThief()
                 Log.d("GameGrid", "Thief moved to position: $thiefPosition")
 
-            withContext(Dispatchers.Default) {
-                thiefPosition = moveThief(thiefPosition)
-            }
-
-            withContext(Dispatchers.Main) {
-                try {
-                    val soundIndex = images.indexOf(gridItems[thiefPosition])
-                    if (soundIndex in sounds.indices) {
-                        mediaPlayer.value?.apply {
-                            stop()
-                            reset()
-                            release()
-                        }
-                        mediaPlayer.value = null
-
-                        val newMediaPlayer = MediaPlayer.create(context, sounds[soundIndex]).apply {
-                            setOnCompletionListener {
+                withContext(Dispatchers.Main) {
+                    try {
+                        val soundIndex = images.indexOf(gridItems[thiefPosition])
+                        if (soundIndex in sounds.indices) {
+                            mediaPlayer.value?.apply {
+                                stop()
+                                reset()
                                 release()
-                                mediaPlayer.value = null
                             }
-                            start()
+                            mediaPlayer.value = null
+
+                            val newMediaPlayer = MediaPlayer.create(context, sounds[soundIndex]).apply {
+                                setOnCompletionListener {
+                                    release()
+                                    mediaPlayer.value = null
+                                }
+                                start()
+                            }
+                            mediaPlayer.value = newMediaPlayer
+                        } else {
+                            Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
                         }
-                        mediaPlayer.value = newMediaPlayer
-                    } else {
-                        Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
+                    } catch (e: Exception) {
+                        Log.e("GameGrid", "Error playing sound: ${e.message}")
                     }
-                } catch (e: Exception) {
-                    Log.e("GameGrid", "Error playing sound: ${e.message}")
                 }
             }
-
         }
-        }
-}
+    }
 
     // Anzeige, wenn das Spiel gewonnen wurde
     if (gameWon) {
-        isTimerRunning = false // Timer stoppen
-        mediaPlayer.value?.release() // Audio stoppen
-        mediaPlayer.value = null
+        gameViewModel.stopTimer()
 
         Box(
             contentAlignment = Alignment.Center,
@@ -138,9 +137,8 @@ fun GameGrid() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Anzeige des Dieb-Bildes
                 Image(
-                    painter = painterResource(id = thiefImage),
+                    painter = painterResource(id = R.drawable.thief),
                     contentDescription = "Gefundener Dieb",
                     modifier = Modifier
                         .size(300.dp)
@@ -151,7 +149,6 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Anzeige der benötigten Zeit
                 Text(
                     text = "Zeit benötigt: ${(elapsedTime / 1000)} Sekunden",
                     fontSize = 30.sp,
@@ -163,7 +160,6 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Nachricht "Dieb gefunden"
                 Text(
                     text = "Dieb wurde gefunden!",
                     fontSize = 36.sp,
@@ -175,14 +171,9 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Neustart-Button
                 Button(
                     onClick = {
-                        gameWon = false
-                        gridItems = List(48) { images.random() }
-                        thiefPosition = (0 until 48).random()
-                        elapsedTime = 0L
-                        isTimerRunning = true
+                        gameViewModel.resetGame()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1976D2)),
                     modifier = Modifier
@@ -195,13 +186,9 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Beenden-Button
                 Button(
                     onClick = {
-                        isTimerRunning = false
-                        mediaPlayer.value?.release()
-                        mediaPlayer.value = null
-                        Log.d("GameGrid", "Game beendet.")
+                        gameViewModel.stopGame()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
                     modifier = Modifier
@@ -237,30 +224,27 @@ fun GameGrid() {
                 contentPadding = PaddingValues(2.dp)
             ) {
                 items(gridItems.size) { index ->
-                    GridItem(imageResId = gridItems[index], size = cellSize) {
+                    GridItem(imageResId = images[gridItems[index]], size = cellSize) {
                         if (thiefPosition == index) {
-                            gameWon = true
+                            gameViewModel.setGameWon(true)
                         }
                     }
                 }
             }
         }
     }
+
+    // Bewege den Dieb alle paar Sekunden
+    LaunchedEffect(gameWon) {
+        if (!gameWon) {
+            while (isActive) {
+                delay(4000)  // Warte 4 Sekunden für die Bewegung des Diebes
+                gameViewModel.moveThief() // Bewege den Dieb
+            }
+        }
+    }
 }
 
-// Logik für die Bewegung des Diebes
-fun moveThief(currentPosition: Int): Int {
-    val possibleMoves = mutableListOf<Int>()
-
-    if (currentPosition % 8 != 0) possibleMoves.add(currentPosition - 1) // Links
-    if (currentPosition % 8 != 7) possibleMoves.add(currentPosition + 1) // Rechts
-    if (currentPosition >= 8) possibleMoves.add(currentPosition - 8) // Oben
-    if (currentPosition < 40) possibleMoves.add(currentPosition + 8) // Unten
-
-    return possibleMoves.random() // Zufällige Bewegung
-}
-
-// Einzelnes Grid-Element
 @Composable
 fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
     Box(
