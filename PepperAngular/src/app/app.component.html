@@ -39,10 +39,11 @@
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
         
-        <li><a routerLink="/person-entry">Personen Eingabe</a></li>
-        <li><a routerLink="/memory">Memory</a></li>
-        <li><a routerLink="/tagalongstory">MitMachGeschichte</a></li>
-        <li><a>Sidebar Item 2</a></li>
+        <li><a routerLink="/person-entry" (click)="closeDrawer()">Personen Eingabe</a></li>
+        <li><a routerLink="/memory" (click)="closeDrawer()">Memory</a></li>
+        <li><a routerLink="/tagalongstory" (click)="closeDrawer()">MitMachGeschichte</a></li>
+        
+        
         
       </ul>
     </div>
