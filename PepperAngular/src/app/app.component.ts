@@ -18,4 +18,11 @@ export class AppComponent {
     const theme = this.isDarkmode ? 'dark' : 'light';
     document.getElementById("appComp")?.setAttribute('data-theme', theme);
   }
+  
+  public closeDrawer(): void{
+    const drawer: any = document.getElementById("my-drawer");
+    if(drawer){
+      drawer.checked =  false;
+    }
+  }
 }
