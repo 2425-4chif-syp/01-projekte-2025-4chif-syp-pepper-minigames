@@ -19,6 +19,9 @@
       <div class="flex-1">
         <a routerLink="/" class="btn btn-ghost text-xl">PEPPER Dashboard</a>
       </div>
+      <div class="flex-none ml-auto">
+        <a routerLink="/login" class="btn btn-primary text-xl ml-100 text-white">Login</a>
+      </div>
       
       <div class="flex-none">
         <button (click)="onDarkmode()" class="btn btn-square btn-ghost">
@@ -39,9 +42,16 @@
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
         
-        <li><a routerLink="/person-entry" (click)="closeDrawer()">Personen Eingabe</a></li>
+        <li><a routerLink="/person-entry" (click)="closeDrawer()">Personen Anlegen</a></li>
         <li><a routerLink="/memory" (click)="closeDrawer()">Memory</a></li>
-        <li><a routerLink="/tagalongstory" (click)="closeDrawer()">MitMachGeschichte</a></li>
+        <li><a routerLink="/tagalongstory" (click)="closeDrawer()">Mit-Mach-Geschichten</a></li>
+        <li><a routerLink="/Tictactoe" (click)="closeDrawer()">Tic-Tac-Toe</a></li>
+
+
+
+        
+
+        
         
         
         

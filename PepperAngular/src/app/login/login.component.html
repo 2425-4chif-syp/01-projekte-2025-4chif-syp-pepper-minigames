@@ -1,0 +1,61 @@
+<div class="flex min-h-screen flex-col justify-center px-6 py-12 bg-base-200 lg:px-8">
+    <!-- Logo und Titel -->
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <img src="/public/pepper.ico" alt="">
+      <h2 class="mt-6 text-center text-3xl font-bold tracking-tight">
+        Melde dich bei deinem Konto an
+      </h2>
+    </div>
+    
+    <!-- Formular -->
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-sm">
+      <form class="space-y-6" action="#" method="POST">
+        <!-- E-Mail-Feld -->
+        <div>
+          <label for="email" class="block text-sm font-medium ">E-Mail-Adresse</label>
+          <div class="mt-2">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              class="block w-full rounded-lg border-gray-300 px-4 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="du@example.com"
+            />
+          </div>
+        </div>
+  
+        <!-- Passwort-Feld -->
+        <div>
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-sm font-medium ">Passwort</label>
+            <div class="text-sm">
+              <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Passwort vergessen?</a>
+            </div>
+          </div>
+          <div class="mt-2">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="block w-full rounded-lg border-gray-300 px-4 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+  
+        <!-- Login-Button -->
+        <div>
+          <button
+            type="submit"
+            class="w-full flex justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-transform duration-150 ease-in-out transform hover:scale-105">
+            Anmelden
+          </button>
+        </div>
+      </form>
+  
+    </div>
+</div>
