@@ -47,7 +47,7 @@ fun MainMenuScreen(navController: NavHostController) {
         initialValue = Color(0xFF2196F3),
         targetValue = Color(0xFF64B5F6),
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            animation = tween(durationMillis = 2999, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
