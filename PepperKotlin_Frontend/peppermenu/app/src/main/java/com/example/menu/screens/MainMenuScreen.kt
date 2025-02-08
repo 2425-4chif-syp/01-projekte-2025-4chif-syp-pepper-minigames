@@ -50,7 +50,7 @@ fun MainMenuScreen(navController: NavHostController) {
         initialValue = Color(0xFF2196F3), // Blau
         targetValue = Color(0xFF64B5F6), // Hellblau
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            animation = tween(durationMillis = 30001, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
