@@ -24,6 +24,8 @@ export class CreatestoryComponent{
   private baseUrl = inject(STORY_URL);
   private http = inject(HttpClient);
   public duration = [5, 10, 15];
+  public uploadedImageSize = "0 x 0";
+  public cropRecommans:string[] = [];
 
   public moves = [
     'emote_hurra',
@@ -50,7 +52,6 @@ export class CreatestoryComponent{
     'Winken',
   ];
 
-  public steps: IStep[] = [];
   private defaultGameType : IGameType = {
     id: "TAG_ALONG_STORY",
     name: "Mitmachgeschichten"
@@ -58,14 +59,18 @@ export class CreatestoryComponent{
 
   @ViewChild('image', { static: false }) imageElement!: ElementRef<HTMLImageElement>;
   @ViewChild('zoomRange', { static: false }) zoomRangeElement!: ElementRef<HTMLInputElement>;
+  
 
   private cropper!: Cropper;
 
   ngAfterViewInit(): void {
+    if (!this.imageElement?.nativeElement) {
+      console.error("Fehler: imageElement wurde nicht gefunden!");
+      return;
+    }
+
     if (!this.imageElement) {
       console.error("Fehler: imageElement wurde nicht gefunden!");
-    } else {
-      console.log("imageElement gefunden:", this.imageElement);
     }
   
     this.initializeCropper();
@@ -81,9 +86,13 @@ export class CreatestoryComponent{
       aspectRatio: NaN,
       viewMode: 1,
       preview: '.preview',
+      cropBoxResizable: false,
       crop: (event) => {
         console.log("Cropping-Daten: ", event.detail);
       },
+      ready: ()=> {
+        this.setCropBoxTo1280x800();
+      }
     });
 
     // Add event listener for the range slider
@@ -108,12 +117,6 @@ export class CreatestoryComponent{
   }
 
 
-  setAspectRatio(ratio: number): void {
-    if (this.cropper) {
-      this.cropper.setAspectRatio(ratio);
-    }
-  }
-
   crop(): void {
     if (this.cropper) {
       const croppedCanvas = this.cropper.getCroppedCanvas();
@@ -130,7 +133,8 @@ export class CreatestoryComponent{
   reset(): void {
     if (this.cropper) {
       this.cropper.reset();
-      this.zoomRangeElement.nativeElement.value = '1'; // Reset the range input to the default zoom level
+      this.zoomRangeElement.nativeElement.value = '0.1'; // Reset the range input to the default zoom level
+      this.setCropBoxTo1280x800();
     }
   }
 
@@ -187,6 +191,98 @@ export class CreatestoryComponent{
       document.body.removeChild(link);
     }
   }
+
+  cropVariants(): void {
+    this.cropRecommans = []; // Clear the previous recommendations
+    if (!this.cropper) {
+      console.error("Cropper is not initialized!");
+      return;
+    }
+  
+    const imageData = this.cropper.getImageData();
+    const naturalWidth = imageData.naturalWidth;
+    const naturalHeight = imageData.naturalHeight;
+  
+    // Define crop regions
+    const cropRegions = [
+      { name: 'Top-Left', x: 0, y: 0, width: naturalWidth / 2, height: naturalHeight / 2 },
+      { name: 'Bottom-Left', x: 0, y: naturalHeight / 2, width: naturalWidth / 2, height: naturalHeight / 2 },
+      { name: 'Middle', x: naturalWidth / 4, y: naturalHeight / 4, width: naturalWidth / 2, height: naturalHeight / 2 },
+      { name: 'Top-Right', x: naturalWidth / 2, y: 0, width: naturalWidth / 2, height: naturalHeight / 2 },
+      { name: 'Bottom-Right', x: naturalWidth / 2, y: naturalHeight / 2, width: naturalWidth / 2, height: naturalHeight / 2 },
+    ];
+  
+    cropRegions.forEach((region, index) => {
+      // Set the crop box position and size for the current region
+      this.cropper.setData({
+        x: region.x,
+        y: region.y,
+        width: region.width,
+        height: region.height,
+      });
+  
+      const croppedCanvas = this.cropper.getCroppedCanvas({
+        width: 1280, // Set output width
+        height: 800, // Set output height
+        fillColor: '#fff', // Background for non-image areas
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+      });
+
+      // Convert canvas to data URL
+      const dataURL = croppedCanvas.toDataURL('image/png');
+
+      // Log the cropped image data URL
+      console.log(`Crop Region: ${region.name}`, dataURL);
+
+      // Add the data URL to the crop recommendations array
+      this.cropRecommans.push(dataURL);
+
+      // Log the final array of crop recommendations after all regions are processed
+      if (index === cropRegions.length - 1) {
+        console.log(this.cropRecommans);
+      }
+      
+    });
+    this.setCropBoxTo1280x800();
+  }
+
+  downloadCropRecommans(imageUrl: string) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // For CORS if needed
+    img.src = imageUrl;
+
+    img.onload = () => {
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      // Set canvas dimensions
+      canvas.width = 1280;
+      canvas.height = 800;
+
+      // Draw image resized to 1280x800
+      ctx.drawImage(img, 0, 0, 1280, 800);
+
+      // Convert to blob and trigger download
+      canvas.toBlob(blob => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `resized-image-${Date.now()}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      }, 'image/jpeg', 0.9);
+    };
+
+    img.onerror = () => {
+      console.error('Failed to load image');
+    };
+  }
   
 
   // Default Placeholder from TagAlongStory
@@ -210,15 +306,21 @@ export class CreatestoryComponent{
     if (input.files && input.files[0]) {
       const file = input.files[0];
       const reader = new FileReader();
-  
+      
       reader.onload = (e) => {
         if (this.imageElement) {
           if(this.cropper){
             this.cropper.destroy()
           }
+          const img = new Image();
+          img.src = e.target?.result as string;
+          img.onload = () => {
+            this.uploadedImageSize = img.naturalWidth + " x "+ img.naturalHeight;
+          }
+
+
           this.imageElement.nativeElement.src = e.target?.result as string;
           this.initializeCropper();
-  
         } else {
           console.error("Fehler: this.imageElement ist undefined!");
         }
@@ -228,22 +330,8 @@ export class CreatestoryComponent{
     }
   }
   
-  
   //#endregion
 
-
-  addNewStep(){
-    this.steps.push({
-      id: 0, // Temporary ID (can be updated later)
-      duration: 0,
-      image: 'https://fakeimg.pl/600x400?text=Bild+Hochladen',
-      index: this.steps.length + 1, // Set index dynamically
-      text: '',
-      move: '',
-      game: 0
-    })
-    
-  }
 
 
 
@@ -273,14 +361,6 @@ export class CreatestoryComponent{
       //);
 
       // Implement add steps to the following TagAlongStory
-      this.steps.forEach(item => {
-        const move = moveHandler.getMove(item.move as string);
-        if (move) {
-          item.move = move;
-        }
-      });
-      
-      console.log(this.steps);
       
     } else {
         console.error("No image to save!");
