@@ -26,11 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
+    val coroutineScope = rememberCoroutineScope()
 
     // Liste mit Bildquellen und dazugehörigen Titeln
     val menuItems = listOf(
@@ -90,7 +93,7 @@ fun MainMenuScreen(navController: NavHostController) {
                 )
             }
 
-            // Pfeil rechts
+            // Pfeil rechts (zur nächsten Seite, mit Rotation)
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Swipe Right",
@@ -99,9 +102,15 @@ fun MainMenuScreen(navController: NavHostController) {
                     .align(Alignment.CenterEnd)
                     .padding(end = 32.dp)
                     .size(60.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            val nextPage = (pagerState.currentPage + 1) % menuItems.size
+                            pagerState.animateScrollToPage(nextPage)
+                        }
+                    }
             )
 
-            // Pfeil links
+            // Pfeil links (zur vorherigen Seite, mit Rotation)
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Swipe Left",
@@ -110,6 +119,12 @@ fun MainMenuScreen(navController: NavHostController) {
                     .align(Alignment.CenterStart)
                     .padding(start = 32.dp)
                     .size(60.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            val previousPage = if (pagerState.currentPage - 1 < 0) menuItems.size - 1 else pagerState.currentPage - 1
+                            pagerState.animateScrollToPage(previousPage)
+                        }
+                    }
             )
         }
     }

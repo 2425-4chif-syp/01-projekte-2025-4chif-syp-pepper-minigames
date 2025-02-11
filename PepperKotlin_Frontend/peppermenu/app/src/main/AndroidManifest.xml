@@ -3,7 +3,9 @@
     package="com.example.menu">
 
     <!-- Berechtigung für den Empfang von BOOT_COMPLETED -->
+    <!--
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    -->
 
     <application
         android:allowBackup="true"
@@ -13,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Menu">
 
-        <!-- Receiver für BOOT_COMPLETED -->
+        <!-- Receiver für BOOT_COMPLETED (vorübergehend auskommentiert) -->
+        <!--
         <receiver
             android:name=".receivers.BootReceiver"
             android:enabled="true"
@@ -22,6 +25,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        -->
 
         <!-- Hauptaktivität -->
         <activity
