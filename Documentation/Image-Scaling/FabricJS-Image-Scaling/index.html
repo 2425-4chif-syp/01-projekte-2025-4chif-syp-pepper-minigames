@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric.js Image Scaler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            cursor: pointer;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        canvas {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fabric.js Image Scaler</h1>
+        <input type="file" id="fileInput">
+        <button id="scaleUp">Größer</button>
+        <button id="scaleDown">Kleiner</button>
+        <br>
+        <canvas id="canvas" width="600" height="400"></canvas>
+    </div>
+    
+    <script>
+        const canvas = new fabric.Canvas("canvas");
+        let imgObj = null;
+
+        document.getElementById("fileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                fabric.Image.fromURL(e.target.result, function (img) {
+                    if (imgObj) canvas.remove(imgObj);
+
+                    imgObj = img;
+                    imgObj.scaleToWidth(300);
+                    imgObj.set({
+                        left: 150,
+                        top: 100,
+                        selectable: true,
+                        hasControls: true,
+                        lockScalingFlip: true
+                    });
+
+                    canvas.add(imgObj);
+                    canvas.setActiveObject(imgObj);
+                    canvas.renderAll();
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById("scaleUp").addEventListener("click", function () {
+            if (imgObj) {
+                imgObj.scale(imgObj.scaleX * 1.2);
+                canvas.renderAll();
+            }
+        });
+
+        document.getElementById("scaleDown").addEventListener("click", function () {
+            if (imgObj) {
+                imgObj.scale(imgObj.scaleX * 0.8);
+                canvas.renderAll();
+            }
+        });
+
+        canvas.on("object:modified", function (event) {
+            console.log("Bild geändert:", event.target);
+        });
+    </script>
+</body>
+</html>

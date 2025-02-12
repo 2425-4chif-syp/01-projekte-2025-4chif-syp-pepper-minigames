@@ -6,8 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -19,25 +21,42 @@ import com.example.menu.R
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
+    val coroutineScope = rememberCoroutineScope()
 
-    // Animation für die Farben
+    // Liste mit Bildquellen und dazugehörigen Titeln
+    val menuItems = listOf(
+        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte"),
+        Pair(R.drawable.memory_game, "Memory Spiel"),
+        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe"),
+        Pair(R.drawable.fang_den_dieb, "Fang den Dieb"),
+        Pair(R.drawable.essensplan, "Essensplan")
+    )
+
+    // Animation für den Hintergrund
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF2196F3), // Blau
-        targetValue = Color(0xFF64B5F6), // Hellblau
+        initialValue = Color(0xFF2196F3),
+        targetValue = Color(0xFF64B5F6),
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3000, easing = LinearEasing),
+            animation = tween(durationMillis = 2999, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
     val color2 by infiniteTransition.animateColor(
-        initialValue = Color(0xFFFF8A65), // Korallorange
-        targetValue = Color(0xFFBBDEFB), // Sehr helles Blau
+        initialValue = Color(0xFFFF8A65),
+        targetValue = Color(0xFFBBDEFB),
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 3000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
@@ -48,71 +67,98 @@ fun MainMenuScreen(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.horizontalGradient(
-                    colors = listOf(color1, color2)
-                )
-            )
-            .padding(16.dp),
+                Brush.horizontalGradient(colors = listOf(color1, color2))
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Horizontaler Pager für Programme
-        HorizontalPager(
-            count = 5,
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { page ->
-            when (page) {
-                0 -> MenuItem(
-                    imageRes = R.drawable.mitmachgeschichte,
+        // Horizontaler Pager für die Bilder
+        Box(modifier = Modifier.fillMaxSize()) {
+            HorizontalPager(
+                count = menuItems.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                MenuItem(
+                    imageRes = menuItems[page].first,
+                    title = menuItems[page].second,
                     navController = navController,
-                    route = "mitmachgeschichte_screen"
-                )
-                1 -> MenuItem(
-                    imageRes = R.drawable.memory_game,
-                    navController = navController,
-                    route = "memory_screen"
-                )
-                2 -> MenuItem(
-                    imageRes = R.drawable.tic_tac_toe,
-                    navController = navController,
-                    route = "tic_tac_toe_screen"
-                )
-                3 -> MenuItem(
-                    imageRes = R.drawable.fang_den_dieb,
-                    navController = navController,
-                    route = "fang_den_dieb_screen"
-                )
-                4 -> MenuItem(
-                    imageRes = R.drawable.essensplan,
-                    navController = navController,
-                    route = "essensplan_screen"
+                    route = when (page) {
+                        0 -> "mitmachgeschichte_screen"
+                        1 -> "memory_screen"
+                        2 -> "tic_tac_toe_screen"
+                        3 -> "fang_den_dieb_screen"
+                        4 -> "essensplan_screen"
+                        else -> "main_menu"
+                    }
                 )
             }
+
+            // Pfeil rechts (zur nächsten Seite, mit Rotation)
+            Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = "Swipe Right",
+                tint = Color.White,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 32.dp)
+                    .size(60.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            val nextPage = (pagerState.currentPage + 1) % menuItems.size
+                            pagerState.animateScrollToPage(nextPage)
+                        }
+                    }
+            )
+
+            // Pfeil links (zur vorherigen Seite, mit Rotation)
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Swipe Left",
+                tint = Color.White,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 32.dp)
+                    .size(60.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            val previousPage = if (pagerState.currentPage - 1 < 0) menuItems.size - 1 else pagerState.currentPage - 1
+                            pagerState.animateScrollToPage(previousPage)
+                        }
+                    }
+            )
         }
     }
 }
 
 @Composable
-fun MenuItem(imageRes: Int, navController: NavHostController, route: String) {
-    Column(
+fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
+    Box(
         modifier = Modifier
-            .fillMaxSize() // Füllt den verfügbaren Platz
-            .padding(16.dp)
-            .clickable { navController.navigate(route) }, // Navigation bleibt erhalten
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .clickable { navController.navigate(route) },
+        contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Halbtransparenter Hintergrund für besseren Kontrast
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.8f) // Breite angepasst, um Bild besser darzustellen
-                .aspectRatio(1f) // Verhältnis beibehalten
-                .padding(bottom = 16.dp), // Abstand nach unten
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.6f))
+                .align(Alignment.TopCenter)
+                .padding(8.dp)
         ) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+            Text(
+                text = title,
+                color = Color.White,
+                fontSize = 80.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
