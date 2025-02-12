@@ -3,6 +3,7 @@ package com.example.memorygame
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -22,47 +23,43 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MemoryGameScreen(rows: Int, columns: Int) {
-    val userImages = listOf(
-        R.drawable.image1, R.drawable.image2, R.drawable.image3, R.drawable.image4,
-        R.drawable.image5, R.drawable.image6, R.drawable.image7, R.drawable.image8/*,
-        R.drawable.image9, R.drawable.image10, R.drawable.image11*/
-    )
-
-    val localImages = listOf(
-        R.drawable.local1, R.drawable.local2, R.drawable.local3, R.drawable.local4,
-        R.drawable.local5, R.drawable.local6, R.drawable.local7, R.drawable.local8
-    )
-
-    val requiredPairs = (rows * columns) / 2
-    val selectedImages = if (userImages.size >= requiredPairs) {
-        userImages.shuffled().take(requiredPairs)
-    } else {
-        userImages + localImages.shuffled().take(requiredPairs - userImages.size)
-    }
+    // Verwenden der in MemoryGameLogic.kt definierten Liste von Bildreferenzen
+    val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
 
     val cards = remember {
-        mutableStateListOf(*selectedImages.flatMap { listOf(it, it) }.shuffled().toTypedArray())
+        mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
     }
+
     var flippedCards by remember { mutableStateOf(listOf<Int>()) }
     var matchedCards by remember { mutableStateOf(mutableSetOf<Int>()) }
 
     LaunchedEffect(flippedCards) {
         if (flippedCards.size == 2) {
-            delay(1000)
-            val firstCard = flippedCards[0]
-            val secondCard = flippedCards[1]
-            if (cards[firstCard] == cards[secondCard]) {
-                matchedCards.addAll(flippedCards)
-            }
+            delay(300) // Warte, um die Auswahl zu zeigen
+
+            val firstCardIndex = flippedCards[0]
+            val secondCardIndex = flippedCards[1]
+            val firstCard = cards[firstCardIndex]
+            val secondCard = cards[secondCardIndex]
+
             flippedCards = listOf()
+
+            if (firstCard.image == secondCard.image) {
+                matchedCards.add(firstCardIndex)
+                matchedCards.add(secondCardIndex)
+            } else {
+                cards[firstCardIndex].isFlipped = false
+                cards[secondCardIndex].isFlipped = false
+            }
         }
     }
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
+    val gridAvailableHeight = screenHeight - 70.dp
     val cardWidth = screenWidth / columns
-    val cardHeight = screenHeight / rows
+    val cardHeight = gridAvailableHeight / rows
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -73,14 +70,19 @@ fun MemoryGameScreen(rows: Int, columns: Int) {
         )
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
+            columns = GridCells.Fixed(columns),  // Grid mit der Anzahl der Spalten
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(16.dp)
+                .padding(16.dp),
+            contentPadding = PaddingValues(8.dp)
         ) {
             items(cards.size) { index ->
-                val isFlipped = index in flippedCards || index in matchedCards
+                val card = cards[index]
+                val isFlipped = card.isFlipped || index in matchedCards
+                val borderColor = if (index in flippedCards) Color.Green else Color.Transparent
+                val borderWidth = if (index in flippedCards) 3.dp else 2.dp
+
                 Box(
                     modifier = Modifier
                         .width(cardWidth)
@@ -90,23 +92,27 @@ fun MemoryGameScreen(rows: Int, columns: Int) {
                         .clickable(enabled = !isFlipped) {
                             if (flippedCards.size < 2 && index !in matchedCards) {
                                 flippedCards = flippedCards + index
+                                card.isFlipped = true // Karte umdrehen
                             }
-                        },
+                        }
+                        .border(borderWidth, borderColor), // Rand der Karte anpassen
                     contentAlignment = Alignment.Center
                 ) {
                     if (isFlipped) {
                         Image(
-                            painter = painterResource(id = cards[index]),
+                            painter = painterResource(id = card.image),  // Bild der Karte anzeigen
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
                     } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "?", color = Color.White)
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Image(
+                                painter = painterResource(id = R.drawable.question_mark), // Fragezeichen anzeigen
+                                contentDescription = "Question Mark",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit
+                            )
                         }
                     }
                 }
