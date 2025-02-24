@@ -35,4 +35,4 @@ jobs:
           echo "Hallo ich bin hier"
           ls -lah
           ls -l Backend_V2/target/
-          scp Backend_V2/target/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
+          scp Backend_V2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
