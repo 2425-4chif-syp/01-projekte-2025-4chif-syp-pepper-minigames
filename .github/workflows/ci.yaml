@@ -14,7 +14,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-          cache-dependency-path: 'sub-project/pom.xml' # optional
+          cache-dependency-path: 'Backend_V2/pom.xml' # optional
       - name: Build with Maven
         run: |
           cd Backend_V2
