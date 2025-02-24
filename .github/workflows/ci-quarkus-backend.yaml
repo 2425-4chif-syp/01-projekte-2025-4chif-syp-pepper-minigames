@@ -24,7 +24,7 @@ jobs:
           cd Backend_V2
           mvn verify -B -DskipTests -Dquarkus.package.type=uber-jar
       - name: install ssh key
-        uses: webfactory/ssh-agent@v0.5.3
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}
       - name: create .ssh/known_hosts
@@ -32,7 +32,5 @@ jobs:
           ssh-keyscan -H -t ecdsa -v ${{ secrets.SERVER_IP }}  >> ~/.ssh/known_hosts
       - name: copy binaries to vm
         run: |
-          echo "Hallo ich bin hier"
-          ls -lah
           ls -l Backend_V2/target/
           scp Backend_V2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
