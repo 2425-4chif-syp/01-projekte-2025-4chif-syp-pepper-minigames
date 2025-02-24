@@ -3,6 +3,8 @@ name: PEPPER Backend CI
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'Backend_V2/**'
 
 jobs:
   build:
@@ -19,8 +21,6 @@ jobs:
         run: |
           cd Backend_V2
           mvn verify -B -DskipTests
-      - name: Build
-        run: ./mvnw clean package -Dquarkus.package.type=uber-jar -B
       - name: install ssh key
         uses: webfactory/ssh-agent@v0.5.3
         with:
