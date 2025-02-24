@@ -26,13 +26,13 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SERVER_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_SERVER_PRIVATE_KEY }}" > ~/.ssh/id_pepper
+          chmod 600 ~/.ssh/id_pepper
           ssh-keyscan -H -t ed25519 -v ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
         shell: bash
       - name: copy binaries to vm
         run: |
           ls -l Backend_V2/target/
           ls ~/.ssh
-          cat ~/.ssh/config
+          cat ~/.ssh/id_pepper
           scp Backend_V2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
