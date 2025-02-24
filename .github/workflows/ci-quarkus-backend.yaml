@@ -29,9 +29,10 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}
       - name: create .ssh/known_hosts
         run: |
-          ssh-keyscan -H -t rsa -v ${{ secrets.SERVER_IP }}  >> ~/.ssh/known_hosts
-      - name: copy binaries to oravm
+          ssh-keyscan -H -t ecdsa -v ${{ secrets.SERVER_IP }}  >> ~/.ssh/known_hosts
+      - name: copy binaries to vm
         run: |
           echo "Hallo ich bin hier"
+          ls -lah
           ls -l target/
           scp target/gh-actions-demo-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
