@@ -22,7 +22,7 @@ jobs:
       - name: Build with Maven
         run: |
           cd Backend_V2
-          mvn verify -B -DskipTests
+          mvn verify -B -DskipTests -Dquarkus.package.type=uber-jar
       - name: install ssh key
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -34,5 +34,5 @@ jobs:
         run: |
           echo "Hallo ich bin hier"
           ls -lah
-          ls -l target/
-          scp target/gh-actions-demo-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
+          ls -l Backend_V2/target/
+          scp target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:
