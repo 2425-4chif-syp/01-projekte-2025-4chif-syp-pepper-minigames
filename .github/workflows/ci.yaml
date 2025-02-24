@@ -1,0 +1,21 @@
+name: PEPPER Backend CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: 'sub-project/pom.xml' # optional
+      - name: Build with Maven
+        run: |
+          cd Backend_V2
+          mvn verify -B
