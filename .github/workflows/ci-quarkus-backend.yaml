@@ -35,11 +35,11 @@ jobs:
           ls -l Backend_V2/target/
           ls ~/.ssh
           scp Backend_V2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:backend.jar
-      - name: run backend.jar on vm
-        uses: fifsky/ssh-action@master
-        with:
-          command: |
-            java -jar backend.jar
-          host: ${{ secrets.SERVER_IP }}
-          user: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}
+#      - name: run backend.jar on vm
+#        uses: fifsky/ssh-action@master
+#        with:
+#          command: |
+#            java -jar backend.jar
+#          host: ${{ secrets.SERVER_IP }}
+#          user: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}
