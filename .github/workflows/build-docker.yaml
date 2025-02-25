@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:backend_v2"
-          file: ./backend_v2/src/main/docker/Dockerfile
+          file: ./src/main/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}
