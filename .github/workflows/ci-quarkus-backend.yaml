@@ -13,7 +13,7 @@ jobs:
   build-and-release-backend:
     runs-on: ubuntu-latest
     permissions:
-      content: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
