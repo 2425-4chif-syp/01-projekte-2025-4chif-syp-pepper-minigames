@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
 #    paths:
-#      - 'Backend_V2/**'
+#      - 'backend_v2/**'
 #      - '.github/workflows/**'
     workflow_dispatch:
 
@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-          cache-dependency-path: 'Backend_V2/pom.xml' # optional
+          cache-dependency-path: 'backend_v2/pom.xml' # optional
 
       - run: java --version
 
@@ -45,7 +45,7 @@ jobs:
 
 #      - name: Build with Maven
 #        run: |
-#          cd Backend_V2
+#          cd backend_v2
 #          mvn verify -B -DskipTests -Dquarkus.package.type=uber-jar
 #      - name: install ssh key
 #        uses: webfactory/ssh-agent@v0.9.0
@@ -56,9 +56,9 @@ jobs:
 #          ssh-keyscan -H -t ed25519 -v ${{ secrets.SERVER_IP }}  >> ~/.ssh/known_hosts
 #      - name: copy binaries to vm
 #        run: |
-#          ls -l Backend_V2/target/
+#          ls -l backend_v2/target/
 #          ls ~/.ssh
-#          scp Backend_V2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:backend.jar
+#          scp backend_v2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:backend.jar
 
 
 

@@ -2,10 +2,10 @@
 
 set -e
 
-pushd Backend_V2
+pushd backend_v2
   mvn -B clean package
 popd
 
 mkdir -p dist/backend
 
-cp -r Backend_V2/target/*-runner.jar dist/backend/backend.jar
+cp -r backend_v2/target/*-runner.jar dist/backend/backend.jar
