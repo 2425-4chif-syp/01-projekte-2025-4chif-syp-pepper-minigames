@@ -2,7 +2,9 @@ FROM maven:3-eclipse-temurin-21 AS builder
 
 WORKDIR /opt/pepper
 
-COPY pom.xml .
+RUN ls -lah
+
+COPY ./pom.xml .
 
 RUN mvn verify clean --fail-never
 
