@@ -34,7 +34,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./backend_v2
+          context: "{{defaultContext}}:backend_v2"
           file: ./backend_v2/src/main/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
