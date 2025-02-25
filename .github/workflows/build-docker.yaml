@@ -32,13 +32,13 @@ jobs:
           echo "IMAGE_TAG=${tag}" >> "$GITHUB_ENV"
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
-          context: ./Backend_V2
+          context: "{{defaultContext}}:Backend_V2"
           file: ./Backend_V2/src/main/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository }}/franklyn-server:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
