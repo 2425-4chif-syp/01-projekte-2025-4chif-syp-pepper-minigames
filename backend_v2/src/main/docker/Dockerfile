@@ -2,11 +2,11 @@ FROM maven:3-eclipse-temurin-21 AS builder
 
 WORKDIR /opt/pepper
 
-COPY backend_v2/pom.xml .
+COPY pom.xml .
 
 RUN mvn verify clean --fail-never
 
-COPY backend_v2 .
+COPY . .
 
 RUN mvn -B package
 
