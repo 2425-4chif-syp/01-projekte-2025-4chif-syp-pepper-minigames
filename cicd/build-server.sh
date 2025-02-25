@@ -8,4 +8,4 @@ popd
 
 mkdir -p dist/backend
 
-cp -r Backend_V2/target/*-runner.jar dist/backend/backend.jar
+cp -r backend_v2/target/*-runner.jar dist/backend/backend.jar

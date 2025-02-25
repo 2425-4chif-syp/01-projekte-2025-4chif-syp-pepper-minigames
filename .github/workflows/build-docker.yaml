@@ -2,7 +2,7 @@ name: Build docker images
 on:
   push:
     paths:
-      - 'Backend_V2/**'
+      - '../../backend_v2/**'
       - 'cicd/**'
     branches:
       - main
@@ -34,8 +34,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./Backend_V2
-          file: ./Backend_V2/src/main/docker/Dockerfile
+          context: ./backend_v2
+          file: ./backend_v2/src/main/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}
