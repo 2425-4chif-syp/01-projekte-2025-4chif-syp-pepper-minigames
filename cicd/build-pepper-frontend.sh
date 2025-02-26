@@ -9,4 +9,4 @@ popd
 
 mkdir -p dist/frontend
 
-cp -r PepperAngular/dist/frontend/browser/* dist/frontend/
+cp -r PepperAngular/dist/pepper-angular/browser/* dist/frontend/
