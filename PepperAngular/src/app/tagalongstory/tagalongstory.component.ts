@@ -8,11 +8,10 @@ import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-tagalongstory',
-  standalone: true,
-  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
-  templateUrl: './tagalongstory.component.html',
-  styleUrls: ['./tagalongstory.component.css']
+    selector: 'app-tagalongstory',
+    imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
+    templateUrl: './tagalongstory.component.html',
+    styleUrls: ['./tagalongstory.component.css']
 })
 export class TagalongstoryComponent {
   private baseUrl = inject(STORY_URL);

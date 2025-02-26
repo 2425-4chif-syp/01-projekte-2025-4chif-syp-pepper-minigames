@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-editstory',
-  standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule],
-  templateUrl: './editstory.component.html',
-  styleUrl: './editstory.component.css'
+    selector: 'app-editstory',
+    imports: [RouterModule, CommonModule, FormsModule],
+    templateUrl: './editstory.component.html',
+    styleUrl: './editstory.component.css'
 })
 export class EditstoryComponent {
 
