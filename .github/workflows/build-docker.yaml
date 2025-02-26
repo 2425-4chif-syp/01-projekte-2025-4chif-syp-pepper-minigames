@@ -79,9 +79,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./
-          file: ./PepperAngular/docker/Dockerfile
+          file: ./docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository }}/franklyn-instructor-client:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
