@@ -29,16 +29,20 @@ public class Step {
     @Column(name = "st_text")
     private String text;
 
+    @Column(name = "st_duration_in_sec")
+    private int durationInSeconds;
+
     public Step() {
     }
 
-    public Step(Long id, Game game, int index, Image image, Move move, String text) {
+    public Step(Long id, Game game, int index, Image image, Move move, String text, int durationInSeconds) {
         this.id = id;
         this.game = game;
         this.index = index;
         this.image = image;
         this.move = move;
         this.text = text;
+        this.durationInSeconds = durationInSeconds;
     }
 
     public Long getId() {
@@ -87,5 +91,13 @@ public class Step {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public int getDurationInSeconds() {
+        return durationInSeconds;
+    }
+
+    public void setDurationInSeconds(int durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
     }
 }
