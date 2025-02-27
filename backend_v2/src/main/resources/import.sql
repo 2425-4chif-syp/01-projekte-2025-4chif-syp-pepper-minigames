@@ -5,9 +5,9 @@ INSERT INTO pe_game_type (gt_id, gt_name) VALUES
                                               ('CATCH_THE_THIEF', 'Fang den Dieb');
 
 INSERT INTO pe_game (g_is_enabled, g_gt_id, g_name, g_story_icon) VALUES
-                                                                      (true, 'MEMORY', 'Memory fürs Anna', NULL),
-                                                                      (true, 'TAG_ALONG_STORY', 'Geschichten aus der Voralberg', NULL),
-                                                                      (false, 'TAG_ALONG_STORY', 'Geschichten aus der Hallstätter See', NULL);
+                                                                      (true, 'MEMORY', 'Memory für Anna', NULL),
+                                                                      (true, 'TAG_ALONG_STORY', 'Geschichten aus Vorarlberg', NULL),
+                                                                      (false, 'TAG_ALONG_STORY', 'Geschichten vom Hallstätter See', NULL);
 
 INSERT INTO pe_move (m_name, m_description) VALUES
                                                 ('emote_hurra', 'Hurra'),
@@ -18,7 +18,7 @@ INSERT INTO pe_move (m_name, m_description) VALUES
                                                 ('highfive_rechts', 'Highfive rechts'),
                                                 ('klatschen', 'Klatschen'),
                                                 ('strecken', 'Strecken'),
-                                                ('umher_sehen', 'Umher sehen'),
+                                                ('umher_sehen', 'Umhersehen'),
                                                 ('winken', 'Winken');
 
 
