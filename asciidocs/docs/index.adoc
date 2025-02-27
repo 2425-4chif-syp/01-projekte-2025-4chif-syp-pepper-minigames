@@ -103,6 +103,14 @@ export interface Storys {
   steps: Step[]
   isEnabled: boolean
 }
+
+export interface Step {
+  id: number
+  text: string
+  image: string
+  duration: number
+  moveNameAndDuration: string
+}
 ----
 
 ----
