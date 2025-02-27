@@ -574,6 +574,7 @@ pre.rouge .gs {
 <li><a href="#_schnittstellenbeschreibung_ist">1. Schnittstellenbeschreibung IST</a>
 <ul class="sectlevel2">
 <li><a href="#_endpoint_auflisten_aller_stories">1.1. Endpoint: Auflisten aller Stories</a></li>
+<li><a href="#_endpoint_erstellen_einer_story">1.2. Endpoint: Erstellen einer Story</a></li>
 </ul>
 </li>
 <li><a href="#_datenmodell_soll">2. Datenmodell SOLL</a>
@@ -654,7 +655,7 @@ pre.rouge .gs {
 <div class="sect2">
 <h3 id="_endpoint_auflisten_aller_stories"><a class="anchor" href="#_endpoint_auflisten_aller_stories"></a>1.1. Endpoint: Auflisten aller Stories</h3>
 <div class="listingblock">
-<div class="title">c# code</div>
+<div class="title">typescript code</div>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="typescript"><span class="nf">getTagalongstories</span><span class="p">():</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="p">[]</span><span class="o">&gt;</span> <span class="p">{</span>
 <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="p">[]</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">baseUrl</span><span class="p">);</span>
@@ -682,9 +683,46 @@ pre.rouge .gs {
 </div>
 </div>
 <div class="listingblock">
+<div class="title">request</div>
 <div class="content">
-<pre>GET http://localhost:8080/legacy/story</pre>
+<pre class="rouge highlight"><code data-lang="httprequest">GET http://localhost:8080/api/legacy/stories
+Accept: application/json</code></pre>
 </div>
+</div>
+<div class="listingblock">
+<div class="title">response</div>
+<div class="content">
+<pre>[
+  {
+    "id": 2,
+    "name": "Geschichten aus Vorarlberg",
+    "icon": "null",
+    "steps": [
+      {
+        "id": 1,
+        "text": "GAME ID 2",
+        "image": "n/a",
+        "duration": 10,
+        "moveNameAndDuration": "emote_hurra"
+      },
+      {
+        "id": 3,
+        "text": "GAME ID 2",
+        "image": "n/a",
+        "duration": 5,
+        "moveNameAndDuration": "gehen"
+      }
+    ],
+    "isEnabled": true
+  }
+]</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_erstellen_einer_story"><a class="anchor" href="#_endpoint_erstellen_einer_story"></a>1.2. Endpoint: Erstellen einer Story</h3>
+<div class="paragraph">
+<p>to be continued &#8230;&#8203;</p>
 </div>
 </div>
 </div>
@@ -714,7 +752,7 @@ pre.rouge .gs {
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2025-02-27 21:42:51 UTC
+Last updated 2025-02-27 21:53:08 UTC
 </div>
 </div>
 </body>
