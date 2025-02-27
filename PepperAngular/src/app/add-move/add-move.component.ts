@@ -11,5 +11,5 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrls: ['./add-move.component.scss']
 })
 export class AddMoveComponent {
-  moves = ["winken", "nicken", "beidarmig Winken", "drehen", "tanzen", "springen", "klatschen", "stampfen", "hüpfen", "wackeln", "winken", "nicken", "beidarmig Winken", "drehen", "tanzen", "springen", "klatschen", "stampfen", "hüpfen", "wackeln"];
+  moves = ["winken", "nicken", "beidarmig winken", "drehen", "tanzen", "springen", "klatschen", "stampfen", "hüpfen", "wackeln", "winken", "nicken", "beidarmig winken", "drehen", "tanzen", "springen", "klatschen", "stampfen", "hüpfen", "wackeln"];
 }
