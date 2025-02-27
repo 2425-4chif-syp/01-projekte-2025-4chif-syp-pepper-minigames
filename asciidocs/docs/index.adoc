@@ -85,7 +85,7 @@ export class StorysService {
 
 === Endpoint: Auflisten aller Stories
 
-.c# code
+.typescript code
 [source,typescript]
 ----
 getTagalongstories(): Observable<Storys[]> {
@@ -113,10 +113,44 @@ export interface Step {
 }
 ----
 
+.request
+[source,httprequest]
 ----
-GET http://localhost:8080/legacy/story
+GET http://localhost:8080/api/legacy/stories
+Accept: application/json
 ----
 
+.response
+----
+[
+  {
+    "id": 2,
+    "name": "Geschichten aus Vorarlberg",
+    "icon": "null",
+    "steps": [
+      {
+        "id": 1,
+        "text": "GAME ID 2",
+        "image": "n/a",
+        "duration": 10,
+        "moveNameAndDuration": "emote_hurra"
+      },
+      {
+        "id": 3,
+        "text": "GAME ID 2",
+        "image": "n/a",
+        "duration": 5,
+        "moveNameAndDuration": "gehen"
+      }
+    ],
+    "isEnabled": true
+  }
+]
+----
+
+=== Endpoint: Erstellen einer Story
+
+to be continued ...
 
 == Datenmodell SOLL
 
