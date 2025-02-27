@@ -87,3 +87,4 @@ lint/tmp/
 
 .idea/
 dist/
+docs/slides/revealjs
