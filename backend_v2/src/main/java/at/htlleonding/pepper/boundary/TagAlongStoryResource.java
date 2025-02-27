@@ -1,6 +1,5 @@
-package at.htlleonding.pepper.controller;
+package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Image;
 import at.htlleonding.pepper.entity.dto.GameDto;
 import at.htlleonding.pepper.entity.dto.StepDto;
 import at.htlleonding.pepper.entity.Game;
@@ -24,7 +23,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class TagAlongStoryController {
+public class TagAlongStoryResource {
     @Inject
     GameRepository gameRepository;
 
