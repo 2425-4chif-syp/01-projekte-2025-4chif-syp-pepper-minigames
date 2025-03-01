@@ -45,44 +45,114 @@ fun LoginScreen(onLoginClick: () -> Unit, onContinueWithoutLogin: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Dropdown für Namensauswahl
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.width(450.dp) // Breite des Textfeldes anpassen
+        // Zwei Buttons nebeneinander
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TextField(
-                value = selectedName,
-                onValueChange = {},
-                label = { Text("Wählen Sie Ihren Namen ⬇️", fontSize = 30.sp) },
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Yellow, // Hintergrundfarbe des Textfeldes
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                textStyle = MaterialTheme.typography.h5.copy(fontSize = 40.sp)
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
+            Button(
+                onClick = onLoginClick,
                 modifier = Modifier
-                    .heightIn(min = 150.dp) // Mindesthöhe des Dropdowns
-                    .background(Color.White)
+                    .weight(0.5f)
+                    .height(90.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Green,
+                    contentColor = Color.White
+                )
             ) {
-                names.forEach { name ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selectedName = name
-                            expanded = false
-                        },
-                        modifier = Modifier.height(60.dp)
-                    ) {
-                        Text(text = name, fontSize = 20.sp)
+                Text(
+                    text = "Ja",
+                    fontSize = 30.sp
+                )
+            }
+
+            Button(
+                onClick = onContinueWithoutLogin,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(90.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Blue,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Ohne Anmeldung weiter",
+                    fontSize = 30.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Alles in einer Row packen (Dropdown + Gesichts- und Spracherkennung Icons)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Dropdown für Namensauswahl
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.width(450.dp) // Breite des Textfeldes anpassen
+            ) {
+                TextField(
+                    value = selectedName,
+                    onValueChange = {},
+                    label = {
+                        Text(
+                            "Wählen Sie Ihren Namen ⬇️",
+                            fontSize = 30.sp
+                        )                            },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Yellow, // Hintergrundfarbe des Textfeldes
+                        focusedIndicatorColor = Color.Transparent, // Keine Umrandung bei Fokus
+                        unfocusedIndicatorColor = Color.Transparent // Keine Umrandung bei nicht Fokus
+                    ),
+                    textStyle = MaterialTheme.typography.h5.copy(fontSize = 40.sp) // Optimale Textgröße
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .heightIn(min = 150.dp) // Mindesthöhe des Dropdowns
+                        .background(Color.White) // Professioneller Hintergrund
+                ) {
+                    names.forEach { name ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedName = name
+                                expanded = false
+                            },
+                            modifier = Modifier.height(60.dp) // Höhe der Dropdown-Items anpassen
+                        ) {
+                            Text(text = name, fontSize = 20.sp)
+                        }
                     }
                 }
+            }
+
+            // Icons für Gesichts- und Spracherkennung
+            IconButton(onClick = { /* Handle Gesichtserkennung */ }) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Gesichtserkennung",
+                    modifier = Modifier.size(110.dp),
+                    tint = Color(0xFFFFA500) // Orange
+                )
+            }
+
+            IconButton(onClick = { /* Handle Spracherkennung */ }) {
+                Icon(
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "Spracherkennung",
+                    modifier = Modifier.size(120.dp),
+                    tint = Color.Green
+                )
             }
         }
     }
