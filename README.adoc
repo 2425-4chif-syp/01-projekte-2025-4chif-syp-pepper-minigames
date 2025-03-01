@@ -51,3 +51,7 @@ image::./Documentation/images/Pepper_ERD.png[PeperERDs, width=500]
 == Test Section
 
 This is a test section added to verify push access.
+
+== github
+
+https://github.com/2425-4chif-syp/01-projekte-2025-4chif-syp-pepper-minigames
