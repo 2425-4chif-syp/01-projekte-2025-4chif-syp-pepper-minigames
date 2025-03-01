@@ -1,4 +1,5 @@
 package com.example.smartloginapp
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -16,12 +17,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.smartloginapp.network.RetrofitInstance
+import com.example.smartloginapp.presentation.LoginScreen
+import com.example.smartloginapp.presentation.MainMenuScreen
 import com.example.smartloginapp.ui.theme.SmartLoginAppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import retrofit2.HttpException
 import java.io.IOException
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,26 +34,59 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartLoginAppTheme {
                 // Navigation Controller erstellen
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
+                val navController = rememberNavController()
+
+                // NavHost für die Navigation
+                NavHost(navController = navController, startDestination = "login") {
+                    // Login Screen
+                    composable("login") {
+                        LoginScreen(
+                            onLoginClick = {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    try {
+                                        val response = RetrofitInstance.api.getUserName()
+                                        if (response.isSuccessful) {
+                                            val userName = response.body()?.name ?: "Unbekannt"
+                                            // Navigiere zum MainMenuScreen nach erfolgreicher Anmeldung
+                                            navController.navigate("mainMenu")
+                                        } else {
+                                            // Fehlerfall bei ungültiger Antwort
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Fehler: ${response.code()}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    } catch (e: IOException) {
+                                        // Netzwerkfehler
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Netzwerkfehler, bitte versuchen Sie es später erneut.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } catch (e: HttpException) {
+                                        // Fehler vom Server
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Serverfehler: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            },
+                            onContinueWithoutLogin = {
+                                // Weiter ohne Anmeldung
+                                navController.navigate("mainMenu")
+                            }
+                        )
+                    }
+
+                    // Main Menu Screen
+                    composable("mainMenu") {
+                        MainMenuScreen()
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    SmartLoginAppTheme {
-        Greeting("Android")
     }
 }
