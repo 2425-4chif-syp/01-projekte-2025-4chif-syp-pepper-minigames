@@ -1,5 +1,6 @@
 package com.example.smartloginapp.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginScreen(onLoginClick: () -> Unit, onContinueWithoutLogin: () -> Unit) {
     var selectedName by remember { mutableStateOf("Hermine Mayer") }
@@ -79,7 +80,74 @@ fun LoginScreen(onLoginClick: () -> Unit, onContinueWithoutLogin: () -> Unit) {
             }
         }
 
-        // Ab hier kommen die weiteren UI-Elemente (Dropdown, Icons etc.)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Alles in einer Row packen (Dropdown + Gesichts- und Spracherkennung Icons)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Dropdown für Namensauswahl
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.width(300.dp) // Breite des Textfeldes anpassen
+            ) {
+                TextField(
+                    value = selectedName,
+                    onValueChange = {},
+                    label = { Text("Wählen Sie Ihren Namen") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = MaterialTheme.typography.h5.copy(fontSize = 18.sp)
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .heightIn(min = 150.dp)
+                        .background(Color.White)
+                ) {
+                    names.forEach { name ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedName = name
+                                expanded = false
+                            },
+                            modifier = Modifier.height(50.dp)
+                        ) {
+                            Text(text = name, fontSize = 18.sp)
+                        }
+                    }
+                }
+            }
+
+            // Icons für Gesichts- und Spracherkennung
+            IconButton(onClick = { /* Handle Gesichtserkennung */ }) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Gesichtserkennung",
+                    modifier = Modifier.size(48.dp),
+                    tint = Color(0xFFFFA500) // Orange
+                )
+            }
+
+            IconButton(onClick = { /* Handle Spracherkennung */ }) {
+                Icon(
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "Spracherkennung",
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.Green
+                )
+            }
+        }
     }
 }
 
