@@ -3,10 +3,29 @@ Kyaw, Obaid, Amir, Milad
 :toc: right
 :toc-title: Table of Contents
 :icons: font
+:source-highlighter: rouge
 
 == Project Description
 
 *Pepper in Retirement Homes* is an innovative project aimed at enriching and facilitating the lives of seniors in care facilities. Our main actor is the robot Pepper, which offers a variety of interactive games and features to make the seniors' daily lives more enjoyable.
+
+== Verzeichnisse
+
+[%autowidth]
+|===
+|Verzeichnis |Inhalt
+
+|`backend_v2`
+|Das derzeitige Backend
+
+|`PepperAngular`
+|Das Legacy-Frontend (System der vorjährigen Schülergruppe)
+
+|`PepperAngularNeu`
+|Das neu zu entwickelnde Frontend
+|===
+
+
 
 == Contributors
 
