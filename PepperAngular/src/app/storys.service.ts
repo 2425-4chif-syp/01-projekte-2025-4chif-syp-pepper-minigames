@@ -24,7 +24,9 @@ export interface Step {
   providedIn: 'root'
 })
 export class StorysService {
-  constructor(private httpClient: HttpClient, @Inject(STORY_URL) private baseUrl: string) { }
+  constructor(private httpClient: HttpClient, @Inject(STORY_URL) private baseUrl: string) {
+    console.log(baseUrl);
+  }
 
   getTagalongstories(): Observable<Storys[]> {
     return this.httpClient.get<Storys[]>(this.baseUrl);

@@ -5,7 +5,7 @@ import java.util.List;
 public record GameDto(
         Long id,
         String name,
-        String icon,
+        String storyIcon,
         List<StepDto> steps,
         boolean isEnabled
 ) { }

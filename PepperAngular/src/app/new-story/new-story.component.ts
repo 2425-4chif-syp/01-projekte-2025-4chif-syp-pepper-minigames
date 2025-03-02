@@ -99,9 +99,11 @@ export class NewStoryComponent implements OnInit {
         // editiermodus
         this.stories.getTagalongstory(id).subscribe(data => {
           var image = data.storyIcon;
-          if(!image.includes("data:image/png;base64,")){
-            image ="data:image/png;base64,"+image;
-          }
+          console.log("Loaded Raw MG-Image: " + image);
+          // if(!image.includes("data:image/png;base64,")){
+          //   image ="data:image/png;base64,"+image;
+          // }
+          // console.log("Loaded MG-Image: " + image);
           this.form.patchValue({
             id: data.id,
             name: data.name,
@@ -183,7 +185,8 @@ export class NewStoryComponent implements OnInit {
         id: id,
         text: text,
         duration: duration,
-        moveNameAndDuration: move + "_" + duration,
+        //moveNameAndDuration: move + "_" + duration,
+        moveNameAndDuration: move,
         image: image
       });
     }
@@ -201,7 +204,8 @@ export class NewStoryComponent implements OnInit {
       storyIcon: image
     };
 
-    console.log(model);
+    console.log("MODEL: " + model);
+    console.log()
 
     if(this.isNew){
       this.stories.postgetTagalongstories(model).subscribe(_ => {
@@ -213,8 +217,6 @@ export class NewStoryComponent implements OnInit {
       });
     }
   }
-
-
 
   onFileSelected(event: any) {
     let file: File = event.target.files[0];
