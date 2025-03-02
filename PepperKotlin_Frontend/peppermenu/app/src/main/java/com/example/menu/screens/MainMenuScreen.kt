@@ -126,6 +126,9 @@ fun MenuItem(imageRes: Int, title: String, navController: NavHostController, pac
                 intent?.let {
                     it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     navController.context.startActivity(it)
+
+                    // Nachdem die App beendet wurde, zurück zum Menü navigieren
+                    navController.popBackStack()  // Geht zurück zum Menü
                 }
             },
         contentAlignment = Alignment.Center
