@@ -285,12 +285,14 @@ DELETE http://localhost:8080/api/legacy/stories/1
 Accept: application/json
 ----
 
-=== Endpoint: Löschen einer Story
+=== Endpoint: Erstellen von Steps
 
 * [ ] NICHT implementiert
 
+* Die Anforderungen sind hier nicht klar.
+** es wird kein Step Objekt übergeben
 
-=== Endpoint: Löschen einer Story
+=== Endpoint: Abrufen von Steps
 
 * [ ] NICHT implementiert
 
