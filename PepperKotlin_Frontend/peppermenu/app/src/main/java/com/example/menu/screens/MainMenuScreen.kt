@@ -1,3 +1,4 @@
+import android.content.Intent
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -35,13 +36,13 @@ import androidx.compose.ui.layout.ContentScale // Import für ContentScale
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
 
-    // Liste mit Bildquellen und dazugehörigen Titeln
+    // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
-        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte"),
-        Pair(R.drawable.memory_game, "Memory"),
-        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe"),
-        Pair(R.drawable.fang_den_dieb, "Fang den Dieb"),
-        Pair(R.drawable.essensplan, "Essensplan")
+        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mitmachgeschichte"),
+        Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
+        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
+        Pair(R.drawable.fang_den_dieb, "Fang den Dieb" to "com.example.fangdendieb"),
+        Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
     )
 
     // Animation für die Farben
@@ -74,17 +75,6 @@ fun MainMenuScreen(navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Stilvoller Titel in der Mitte
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(),
-//                .height(90.dp), // Optional: Höhe anpassen, falls nötig
-            contentAlignment = Alignment.Center // Zentriert den Inhalt in der Box
-        ) {
-
-        }
-
-
         // Horizontaler Pager für Programme
         Box(
             modifier = Modifier.fillMaxSize()
@@ -96,16 +86,9 @@ fun MainMenuScreen(navController: NavHostController) {
             ) { page ->
                 MenuItem(
                     imageRes = menuItems[page].first,
-                    title = menuItems[page].second,
+                    title = menuItems[page].second.first, // Der Titel der App
                     navController = navController,
-                    route = when (page) {
-                        0 -> "mitmachgeschichte_screen"
-                        1 -> "memory_screen"
-                        2 -> "tic_tac_toe_screen"
-                        3 -> "fang_den_dieb_screen"
-                        4 -> "essensplan_screen"
-                        else -> "main_menu"
-                    }
+                    packageName = menuItems[page].second.second // Der Package-Name der App
                 )
             }
 
@@ -113,32 +96,38 @@ fun MainMenuScreen(navController: NavHostController) {
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Swipe Right",
-                tint = Color.White, // Weiße Farbe für den Pfeil
+                tint = Color.White,
                 modifier = Modifier
-                    .align(Alignment.CenterEnd) // Fixiert es auf die rechte Seite
+                    .align(Alignment.CenterEnd)
                     .padding(end = 16.dp)
                     .size(100.dp)
             )
             Icon(
-                imageVector = Icons.Default.ArrowBack, // Pfeil nach links
+                imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Swipe Left",
-                tint = Color.White, // Weiße Farbe für den Pfeil
+                tint = Color.White,
                 modifier = Modifier
-                    .align(Alignment.CenterStart) // Fixiert es auf die linke Seite
-                    .padding(start = 16.dp) // Abstand von der linken Seite
-                    .size(100.dp) // Größe des Icons
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+                    .size(100.dp)
             )
-
         }
     }
 }
 
 @Composable
-fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
+fun MenuItem(imageRes: Int, title: String, navController: NavHostController, packageName: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable { navController.navigate(route) },
+            .clickable {
+                // Hier startest du die App direkt mit dem dynamischen Package-Namen
+                val intent = navController.context.packageManager.getLaunchIntentForPackage(packageName)
+                intent?.let {
+                    it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    navController.context.startActivity(it)
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -148,19 +137,18 @@ fun MenuItem(imageRes: Int, title: String, navController: NavHostController, rou
             contentScale = ContentScale.Crop
         )
 
-        // Halbtransparenter Hintergrund für besseren Kontrast
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.5f)) // Dunkler Hintergrund mit Transparenz
-                .align(Alignment.TopCenter) // Oben zentrieren
+                .background(Color.Black.copy(alpha = 0.5f))
+                .align(Alignment.TopCenter)
                 .padding(8.dp)
         ) {
             Text(
                 text = title,
-                color = Color.White, // Weißer Text für besseren Kontrast
-                fontSize = 70.sp, // Große Schriftgröße
-                fontWeight = FontWeight.Bold, // Fettschrift
+                color = Color.White,
+                fontSize = 70.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
