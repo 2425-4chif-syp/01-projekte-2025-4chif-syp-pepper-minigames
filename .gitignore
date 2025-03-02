@@ -88,3 +88,4 @@ lint/tmp/
 .idea/
 dist/
 docs/slides/revealjs
+.DS_Store
