@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://backend:8080' // URL für Entwicklung
+  apiUrl: 'http://vm107.htl-leonding.ac.at:8080/api/legacy/stories' // URL für Entwicklung
 };
