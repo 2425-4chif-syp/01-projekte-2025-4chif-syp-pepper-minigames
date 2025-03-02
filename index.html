@@ -565,7 +565,7 @@ pre.rouge .gs {
 <div class="details">
 <span id="author" class="author">The Pepper Team</span><br>
 <span id="revnumber">version 1.0,</span>
-<span id="revdate">2025-02-27</span>
+<span id="revdate">2025-03-02</span>
 <br><span id="revremark">work-in-progress</span>
 </div>
 <div id="toc" class="toc2">
@@ -573,8 +573,14 @@ pre.rouge .gs {
 <ul class="sectlevel1">
 <li><a href="#_schnittstellenbeschreibung_ist">1. Schnittstellenbeschreibung IST</a>
 <ul class="sectlevel2">
-<li><a href="#_endpoint_auflisten_aller_stories">1.1. Endpoint: Auflisten aller Stories</a></li>
-<li><a href="#_endpoint_erstellen_einer_story">1.2. Endpoint: Erstellen einer Story</a></li>
+<li><a href="#_speichern_der_images">1.1. Speichern der Images</a></li>
+<li><a href="#_endpoint_auflisten_aller_stories">1.2. Endpoint: Auflisten aller Stories</a></li>
+<li><a href="#_endpoint_erstellen_einer_story">1.3. Endpoint: Erstellen einer Story</a></li>
+<li><a href="#_endpoint_abrufen_einer_story_durch_story_id">1.4. Endpoint: Abrufen einer Story durch Story-Id</a></li>
+<li><a href="#_endpoint_ändern_einer_story">1.5. Endpoint: Ändern einer Story</a></li>
+<li><a href="#_endpoint_löschen_einer_story">1.6. Endpoint: Löschen einer Story</a></li>
+<li><a href="#_endpoint_löschen_einer_story_2">1.7. Endpoint: Löschen einer Story</a></li>
+<li><a href="#_endpoint_löschen_einer_story_3">1.8. Endpoint: Löschen einer Story</a></li>
 </ul>
 </li>
 <li><a href="#_datenmodell_soll">2. Datenmodell SOLL</a>
@@ -652,8 +658,62 @@ pre.rouge .gs {
 <span class="p">}</span></code></pre>
 </div>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Bitte im endgültigen Produkt anstelle "Storys" bitte "Stories" verwenden.
+</td>
+</tr>
+</table>
+</div>
 <div class="sect2">
-<h3 id="_endpoint_auflisten_aller_stories"><a class="anchor" href="#_endpoint_auflisten_aller_stories"></a>1.1. Endpoint: Auflisten aller Stories</h3>
+<h3 id="_speichern_der_images"><a class="anchor" href="#_speichern_der_images"></a>1.1. Speichern der Images</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Von Angular werden die Images als base64-codierter String übergeben.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>zB <code>data:image/jpeg;base64,/9j/4U6aRXhpZgAA&#8230;&#8203;</code></p>
+</li>
+<li>
+<p>Im Legacy-Service wird dieser String als byte[] gespeichert.</p>
+</li>
+<li>
+<p>Zusätzlich wird noch der Image-Typ gespeichert (zB "image/jpeg").</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Beim Upload auf Images einschränken. Derzeit könnten auch Videos und andere Formate hochgeladen werden.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_auflisten_aller_stories"><a class="anchor" href="#_endpoint_auflisten_aller_stories"></a>1.2. Endpoint: Auflisten aller Stories</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-check-square-o"></i> implementiert</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="title">typescript code</div>
 <div class="content">
@@ -720,9 +780,206 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_erstellen_einer_story"><a class="anchor" href="#_endpoint_erstellen_einer_story"></a>1.2. Endpoint: Erstellen einer Story</h3>
+<h3 id="_endpoint_erstellen_einer_story"><a class="anchor" href="#_endpoint_erstellen_einer_story"></a>1.3. Endpoint: Erstellen einer Story</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-check-square-o"></i> implementiert</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">typescript code</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="typescript"><span class="nf">postgetTagalongstories</span><span class="p">(</span><span class="nx">story</span><span class="p">:</span> <span class="nx">Storys</span><span class="p">):</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="nx">post</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">baseUrl</span><span class="p">,</span> <span class="nx">story</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+</div>
+</div>
 <div class="paragraph">
-<p>to be continued &#8230;&#8203;</p>
+<p>Frage: warum heißt die Methode postget&#8230;&#8203; und nicht post&#8230;&#8203;?</p>
+</div>
+<div class="listingblock">
+<div class="title">request</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="httprequest">POST http://localhost:8080/api/legacy/stories
+Content-Type: application/json
+
+{
+  "name": "dddddd",
+  "id": 0,
+  "isEnabled": true,
+  "steps": [
+    {
+      "id": 0,
+      "text": "asdf",
+      "duration": 15,
+      "moveNameAndDuration": "highfive_links"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+moveNameAndDuration: Dieses Feld wurde inhaltlich verändert, da die Duration nun weggelassen wird (highfive_links statt highfive_links_15).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_abrufen_einer_story_durch_story_id"><a class="anchor" href="#_endpoint_abrufen_einer_story_durch_story_id"></a>1.4. Endpoint: Abrufen einer Story durch Story-Id</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-check-square-o"></i> implementiert</p>
+</li>
+<li>
+<p>Parameter</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Story-id als PathParam</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Response</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Location-URI</p>
+</li>
+<li>
+<p>zB</p>
+<div class="listingblock">
+<div class="content">
+<pre>HTTP/1.1 201 Created
+Location: http://localhost:8080/api/legacy/stories/4</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">typescript code</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="typescript"><span class="nf">getTagalongstory</span><span class="p">(</span><span class="nx">id</span><span class="p">:</span> <span class="kr">number</span><span class="p">):</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">baseUrl</span><span class="p">}</span><span class="s2">/</span><span class="p">${</span><span class="nx">id</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">request</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="httprequest">GET http://localhost:8080/api/legacy/stories/1
+Accept: application/json</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_ändern_einer_story"><a class="anchor" href="#_endpoint_ändern_einer_story"></a>1.5. Endpoint: Ändern einer Story</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-check-square-o"></i> implementiert (teilweise - Ändern der Steps fehlt noch, sowie Reihenfolge der Steps)</p>
+</li>
+<li>
+<p>Parameter</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Story-id als PathParam</p>
+</li>
+<li>
+<p>Story-Object im Body</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">typescript code</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="typescript"><span class="nf">putTagalongstory</span><span class="p">(</span><span class="nx">story</span><span class="p">:</span> <span class="nx">Storys</span><span class="p">):</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="nx">put</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">baseUrl</span><span class="p">}</span><span class="s2">/</span><span class="p">${</span><span class="nx">story</span><span class="p">.</span><span class="nx">id</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span> <span class="nx">story</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">request</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="httprequest">PUT http://localhost:8080/api/legacy/stories/1
+Accept: application/json
+
+// Story als Json-Object ...</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_löschen_einer_story"><a class="anchor" href="#_endpoint_löschen_einer_story"></a>1.6. Endpoint: Löschen einer Story</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-check-square-o"></i> implementiert</p>
+</li>
+<li>
+<p>Parameter</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Story-id als PathParam</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">typescript code</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="typescript"><span class="nf">deleteTagalongstory</span><span class="p">(</span><span class="nx">id</span><span class="p">:</span> <span class="kr">number</span><span class="p">):</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="k">delete</span><span class="o">&lt;</span><span class="nx">Storys</span><span class="o">&gt;</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">baseUrl</span><span class="p">}</span><span class="s2">/</span><span class="p">${</span><span class="nx">id</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">request</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="httprequest">DELETE http://localhost:8080/api/legacy/stories/1
+Accept: application/json</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_löschen_einer_story_2"><a class="anchor" href="#_endpoint_löschen_einer_story_2"></a>1.7. Endpoint: Löschen einer Story</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-square-o"></i> NICHT implementiert</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_endpoint_löschen_einer_story_3"><a class="anchor" href="#_endpoint_löschen_einer_story_3"></a>1.8. Endpoint: Löschen einer Story</h3>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p><i class="fa fa-square-o"></i> NICHT implementiert</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -752,7 +1009,7 @@ Accept: application/json</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2025-02-27 21:53:08 UTC
+Last updated 2025-03-02 16:19:46 UTC
 </div>
 </div>
 </body>
