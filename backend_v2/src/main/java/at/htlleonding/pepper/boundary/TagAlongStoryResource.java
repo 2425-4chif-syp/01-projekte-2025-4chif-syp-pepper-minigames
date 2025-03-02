@@ -70,10 +70,10 @@ public class TagAlongStoryResource {
     @Operation(summary = "Get one image per tag along story with id")
     public Response GetTagAlongStoriesPicById(@PathParam("id") Long id) {
         Game tagAlongStory = gameRepository.find("id = ?1 and gameType.id = ?2", id, "TAG_ALONG_STORY").firstResult();
-        if (tagAlongStory == null || tagAlongStory.getIcon() == null) {
+        if (tagAlongStory == null || tagAlongStory.getStoryIconBinary() == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No image found for tag along story with id " + id).build();
         }
-        return Response.ok(tagAlongStory.getIcon()).build();
+        return Response.ok(tagAlongStory.getStoryIconBinary()).build();
     }
 
     @POST
@@ -88,7 +88,7 @@ public class TagAlongStoryResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("The Icon of Tag along story is NULL").build();
         }
         Game tagAlongStory = Converter.convertToTagAlongStory(gameDTO);
-        System.out.println("TS"+tagAlongStory.getIcon().toString());
+        System.out.println("TS"+tagAlongStory.getStoryIconBinary().toString());
         gameRepository.persist(tagAlongStory);
         return Response.ok(tagAlongStory).build();
     }
@@ -107,7 +107,7 @@ public class TagAlongStoryResource {
         Game updatedGame = Converter.convertToTagAlongStory(gameDTO);
         existingGame.setName(updatedGame.getName());
         existingGame.setEnabled(updatedGame.isEnabled());
-        existingGame.setIcon(updatedGame.getIcon());
+        existingGame.setStoryIconBinary(updatedGame.getStoryIconBinary());
         return Response.ok(existingGame).build();
     }
 

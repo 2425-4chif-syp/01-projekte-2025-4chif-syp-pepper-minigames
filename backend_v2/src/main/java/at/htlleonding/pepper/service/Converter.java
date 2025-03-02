@@ -3,7 +3,6 @@ package at.htlleonding.pepper.service;
 import at.htlleonding.pepper.entity.dto.GameDto;
 import at.htlleonding.pepper.entity.dto.StepDto;
 import at.htlleonding.pepper.entity.Game;
-import at.htlleonding.pepper.entity.GameType;
 import at.htlleonding.pepper.entity.Step;
 
 import java.util.Base64;
@@ -15,7 +14,8 @@ public class Converter {
         game.setName(gameDTO.name());
         game.setEnabled(gameDTO.isEnabled());
         game.setGameType(gameDTO.gameType());
-        game.setIcon(Base64.getDecoder().decode(gameDTO.icon()));
+        // TODO: Bin mir nicht sicher, ob das funktioniert, da der data:<imagetype>-Prefix nicht berücksichtigt wird.
+        game.setStoryIconBinary(Base64.getDecoder().decode(gameDTO.icon()));
         return game;
     }
 
