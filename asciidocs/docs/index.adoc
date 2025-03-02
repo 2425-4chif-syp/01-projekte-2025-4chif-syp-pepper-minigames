@@ -83,7 +83,20 @@ export class StorysService {
 }
 ----
 
+IMPORTANT: Bitte im endgültigen Produkt anstelle "Storys" bitte "Stories" verwenden.
+
+=== Speichern der Images
+
+* Von Angular werden die Images als base64-codierter String übergeben.
+** zB `data:image/jpeg;base64,/9j/4U6aRXhpZgAA...`
+** Im Legacy-Service wird dieser String als byte[] gespeichert.
+** Zusätzlich wird noch der Image-Typ gespeichert (zB "image/jpeg").
+
+IMPORTANT: Beim Upload auf Images einschränken. Derzeit könnten auch Videos und andere Formate hochgeladen werden.
+
 === Endpoint: Auflisten aller Stories
+
+* [x] implementiert
 
 .typescript code
 [source,typescript]
@@ -148,9 +161,139 @@ Accept: application/json
 ]
 ----
 
+
 === Endpoint: Erstellen einer Story
 
-to be continued ...
+* [x] implementiert
+
+.typescript code
+[source,typescript]
+----
+postgetTagalongstories(story: Storys): Observable<Storys> {
+  return this.httpClient.post<Storys>(this.baseUrl, story);
+}
+----
+
+Frage: warum heißt die Methode postget... und nicht post...?
+
+.request
+[source,httprequest]
+----
+POST http://localhost:8080/api/legacy/stories
+Content-Type: application/json
+
+{
+  "name": "dddddd",
+  "id": 0,
+  "isEnabled": true,
+  "steps": [
+    {
+      "id": 0,
+      "text": "asdf",
+      "duration": 15,
+      "moveNameAndDuration": "highfive_links"
+    }
+  ]
+}
+----
+
+IMPORTANT: moveNameAndDuration: Dieses Feld wurde inhaltlich verändert, da die Duration nun weggelassen wird (highfive_links statt highfive_links_15).
+
+
+
+
+
+
+=== Endpoint: Abrufen einer Story durch Story-Id
+
+* [x] implementiert
+
+* Parameter
+** Story-id als PathParam
+
+* Response
+** Location-URI
+** zB
++
+----
+HTTP/1.1 201 Created
+Location: http://localhost:8080/api/legacy/stories/4
+----
+
+
+.typescript code
+[source,typescript]
+----
+getTagalongstory(id: number): Observable<Storys> {
+  return this.httpClient.get<Storys>(`${this.baseUrl}/${id}`);
+}
+----
+
+.request
+[source,httprequest]
+----
+GET http://localhost:8080/api/legacy/stories/1
+Accept: application/json
+----
+
+
+=== Endpoint: Ändern einer Story
+
+* [x] implementiert (teilweise - Ändern der Steps fehlt noch, sowie Reihenfolge der Steps)
+
+* Parameter
+** Story-id als PathParam
+** Story-Object im Body
+
+.typescript code
+[source,typescript]
+----
+putTagalongstory(story: Storys): Observable<Storys> {
+  return this.httpClient.put<Storys>(`${this.baseUrl}/${story.id}`, story);
+}
+----
+
+.request
+[source,httprequest]
+----
+PUT http://localhost:8080/api/legacy/stories/1
+Accept: application/json
+
+// Story als Json-Object ...
+----
+
+
+=== Endpoint: Löschen einer Story
+
+* [x] implementiert
+
+* Parameter
+** Story-id als PathParam
+
+.typescript code
+[source,typescript]
+----
+deleteTagalongstory(id: number): Observable<Storys> {
+  return this.httpClient.delete<Storys>(`${this.baseUrl}/${id}`);
+}
+----
+
+.request
+[source,httprequest]
+----
+DELETE http://localhost:8080/api/legacy/stories/1
+Accept: application/json
+----
+
+=== Endpoint: Löschen einer Story
+
+* [ ] NICHT implementiert
+
+
+=== Endpoint: Löschen einer Story
+
+* [ ] NICHT implementiert
+
 
 == Datenmodell SOLL
 
