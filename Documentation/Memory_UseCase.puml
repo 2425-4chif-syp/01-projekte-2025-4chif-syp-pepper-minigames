@@ -1,5 +1,7 @@
-@startuml
+@startuml PUML
+
 actor "User" as user
+actor "Admin" as admin
 
 usecase "Upload Image" as uploadImage
 usecase "View Images" as viewImages
@@ -7,18 +9,24 @@ usecase "Play Game" as playGame
 usecase "View Score" as viewScore
 usecase "Set Game Type" as setGameType
 
+rectangle "System" {
+  usecase "Manage Images" as manageImages
+  usecase "Record Game Score" as recordScore
+  usecase "View Game Score" as viewGameScore
+  usecase "Manage Game Type" as manageGameType
+
+  uploadImage --> manageImages
+  viewImages --> manageImages
+  playGame --> recordScore
+  viewScore --> viewGameScore
+  setGameType --> manageGameType
+}
+
 user --> uploadImage
 user --> viewImages
 user --> playGame
 user --> viewScore
 
-actor "Admin" as admin
 admin --> setGameType
-
-uploadImage --> (Manage Images)
-viewImages --> (Manage Images)
-playGame --> (Record Game Score)
-viewScore --> (View Game Score)
-setGameType --> (Manage Game Type)
 
 @enduml

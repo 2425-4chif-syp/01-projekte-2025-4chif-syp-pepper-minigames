@@ -1,0 +1,13 @@
+/*https://github.com/asciidoctor/asciidoctor-reveal.js/issues/199*/
+.reveal section img {
+    border: 0;
+    box-shadow: none;
+}
+.font-smaller {
+    font-size: smaller;
+}
+.font-larger {
+    font-size: larger;
+}
+
+.reveal .lightbg { background: #fff8f1d0; }
