@@ -4,7 +4,7 @@ import { STORY_URL } from './app.config';
 import { Observable } from 'rxjs';
 
 
-export interface Storys {
+export interface Stories {
   id: number
   name: string
   storyIcon: string
@@ -23,29 +23,29 @@ export interface Step {
 @Injectable({
   providedIn: 'root'
 })
-export class StorysService {
+export class StoryService {
   constructor(private httpClient: HttpClient, @Inject(STORY_URL) private baseUrl: string) {
     console.log(baseUrl);
   }
 
-  getTagalongstories(): Observable<Storys[]> {
-    return this.httpClient.get<Storys[]>(this.baseUrl);
+  getTagalongstories(): Observable<Stories[]> {
+    return this.httpClient.get<Stories[]>(this.baseUrl);
   }
 
-  postgetTagalongstories(story: Storys): Observable<Storys> {
-    return this.httpClient.post<Storys>(this.baseUrl, story);
+  postgetTagalongstories(story: Stories): Observable<Stories> {
+    return this.httpClient.post<Stories>(this.baseUrl, story);
   }
 
-  getTagalongstory(id: number): Observable<Storys> {
-    return this.httpClient.get<Storys>(`${this.baseUrl}/${id}`);
+  getTagalongstory(id: number): Observable<Stories> {
+    return this.httpClient.get<Stories>(`${this.baseUrl}/${id}`);
   }
 
-  putTagalongstory(story: Storys): Observable<Storys> {
-    return this.httpClient.put<Storys>(`${this.baseUrl}/${story.id}`, story);
+  putTagalongstory(story: Stories): Observable<Stories> {
+    return this.httpClient.put<Stories>(`${this.baseUrl}/${story.id}`, story);
   }
 
-  deleteTagalongstory(id: number): Observable<Storys> {
-    return this.httpClient.delete<Storys>(`${this.baseUrl}/${id}`);
+  deleteTagalongstory(id: number): Observable<Stories> {
+    return this.httpClient.delete<Stories>(`${this.baseUrl}/${id}`);
   }
 
   postTagalongstorySteps(id: number): Observable<Step> {

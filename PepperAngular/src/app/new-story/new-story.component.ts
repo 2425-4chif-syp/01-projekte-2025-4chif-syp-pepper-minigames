@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDividerModule} from '@angular/material/divider';
 import { NgxDropzoneModule } from 'ngx-dropzone';
-import { Step, Storys, StorysService } from '../storys.service';
+import { Step, Stories, StoryService } from '../storys.service';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
 
@@ -32,7 +32,7 @@ export class NewStoryComponent implements OnInit {
 
   constructor(private cd: ChangeDetectorRef,
     private fb: FormBuilder,
-    private stories: StorysService,
+    private stories: StoryService,
     private router: Router,
     private activatedRoute: ActivatedRoute) {
   }
@@ -196,7 +196,7 @@ export class NewStoryComponent implements OnInit {
     if(!image.includes("data")){
       image = "data:image/png;base64,"+image;
     }
-    const model: Storys = {
+    const model: Stories = {
       name: this.form.get('name')?.value as string,
       steps: stepArray,
       id: id,
@@ -220,6 +220,12 @@ export class NewStoryComponent implements OnInit {
 
   onFileSelected(event: any) {
     let file: File = event.target.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
+
     let reader = new FileReader();
     reader.onload = () => {
       const base64 = (reader.result as string);
@@ -232,6 +238,11 @@ export class NewStoryComponent implements OnInit {
 
   onRowFileSelected(event: any, index: number) {
     const file: File = event.target.files[0];
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
     const reader = new FileReader();
 
     reader.onload = () => {

@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDividerModule} from '@angular/material/divider';
 import { Component } from '@angular/core';
-import { Storys, StorysService } from '../storys.service';
+import { Stories, StoryService } from '../storys.service';
 import { Observable, debounceTime, distinctUntilChanged, filter, from, map, startWith, switchMap, tap } from 'rxjs';
 @Component({
   selector: 'app-story-selection',
@@ -27,7 +27,7 @@ export class StorySelectionComponent {
 
   */
 
-  constructor(public storyService: StorysService) { }
+  constructor(public storyService: StoryService) { }
 
  //public gStorys$ = this.storyService.getTagalongstories();
 
@@ -39,7 +39,7 @@ export class StorySelectionComponent {
   );
 }
 
-getStorys(): Observable<Storys[]>{
+getStorys(): Observable<Stories[]>{
   return this.formGroup.valueChanges.pipe(
     startWith({nameFilter: ''}),
     debounceTime(200),
@@ -60,7 +60,7 @@ getStorys(): Observable<Storys[]>{
 
 
 
-  toggle(event: MatSlideToggleChange, story: Storys){
+  toggle(event: MatSlideToggleChange, story: Stories){
     console.log("toggle");
     const checked = event.checked;
     story.isEnabled = checked;
