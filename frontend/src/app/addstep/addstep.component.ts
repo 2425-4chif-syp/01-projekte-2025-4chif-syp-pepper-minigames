@@ -5,10 +5,11 @@ import { MoveHandler } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-addstep',
-    imports: [FormsModule, CommonModule],
-    templateUrl: './addstep.component.html',
-    styleUrl: './addstep.component.css'
+  selector: 'app-addstep',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './addstep.component.html',
+  styleUrl: './addstep.component.css'
 })
 export class AddstepComponent {
   public steps: IStep[] = [];
