@@ -10,28 +10,6 @@ Accept: application/json
 
 ###
 
-POST http://localhost:8080/api/legacy/stories
-Content-Type: application/json
-
-{
-  "name": "dddddd",
-  "id": 0,
-  "isEnabled": true,
-  "steps": [
-    {
-      "id": 0,
-      "text": "asdf",
-      "duration": 15,
-      "moveNameAndDuration": "highfive_links"
-    }
-  ]
-}
-
-###
-
-
-
-
 ###
 POST http://localhost:8080/api/legacy/stories
 Content-Type: application/json
@@ -43,7 +21,7 @@ Content-Type: application/json
       "id": 0,
       "text": "qwee",
       "duration": "15",
-      "moveNameAndDuration": "highfive_rechts_15",
+      "moveNameAndDuration": "highfive_rechts",
       "image": "data:image/png;base64,"
     }
   ],
@@ -53,4 +31,14 @@ Content-Type: application/json
 }
 
 ###
+
+### Steps Endpoints
+
+GET http://localhost:8080/api/legacy/stories/2/steps
+Content-Type: */*
+###
+
+GET http://localhost:8080/api/legacy/stories/steps/2
+Content-Type: */*
+
 
