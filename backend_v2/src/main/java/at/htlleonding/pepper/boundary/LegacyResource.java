@@ -52,7 +52,7 @@ public class LegacyResource {
                             step.getText(),
                             step.getImageBase64(),
                             step.getDurationInSeconds(),
-                            step.getMove().getName() + "_" + step.getDurationInSeconds()
+                            step.getMove().getName()
                     );
                     stepDtoList.add(stepDto);
                 });
@@ -277,6 +277,32 @@ public class LegacyResource {
 
         return Response.noContent().build();
     }
+
+    @Transactional
+    @GET
+    @Path("{id}/steps")
+    public Response findAllStepsByStoryId(@PathParam("id") Long id) {
+        var game = gameRepository.findByIdOptional(id);
+
+        if (game.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        var steps = stepRepository.list("game.id = ?1", id);
+        return Response.ok(steps).build();
+    }
+
+    @Transactional
+    @GET
+    @Path("steps/{id}")
+    public Response findStepById(@PathParam("id") Long id) {
+        var step = stepRepository.findByIdOptional(id);
+        if(step.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(step).build();
+    }
+
 
 
 
