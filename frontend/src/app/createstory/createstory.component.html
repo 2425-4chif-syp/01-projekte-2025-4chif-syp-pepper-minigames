@@ -1,0 +1,16 @@
+<div class="container">
+
+    <h1 class="text-3xl font-bold text-center tracking-widest">ERSTELLE EINE GESCHICHTE</h1>
+    <div class="flex w-full h-screen flex-col items-center mt-10">
+      <label class="input input-bordered flex items-center gap-2 lg:w-[35%]">
+        <input type="text" class="grow" placeholder="Titel der Geschichte" [(ngModel)]="storyTitle" />
+      </label>
+
+      <label class="input input-bordered flex items-center gap-2 lg:w-[35%] mt-5">
+        <textarea class="grow" placeholder="Beschreibung der Geschichte" [(ngModel)]="storyDescription"></textarea>
+      </label>
+
+      <button (click)="createStory()" class="btn btn-primary mt-5">Geschichte erstellen</button>
+    </div>
+
+</div>
