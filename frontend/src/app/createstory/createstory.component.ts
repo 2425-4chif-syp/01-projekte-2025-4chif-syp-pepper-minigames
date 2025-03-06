@@ -8,9 +8,14 @@ import { Component } from '@angular/core';
 export class CreatestoryComponent {
   storyTitle: string = '';
   storyDescription: string = '';
+  showImages: boolean = false;
 
   createStory() {
     // Logik zum Erstellen der Geschichte
     console.log('Geschichte erstellt:', this.storyTitle, this.storyDescription);
+  }
+
+  toggleImages() {
+    this.showImages = !this.showImages;
   }
 }
