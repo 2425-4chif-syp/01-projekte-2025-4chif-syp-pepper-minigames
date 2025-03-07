@@ -34,7 +34,9 @@ export class PersonEntryComponent {
       firstName: this.person.firstName,
       lastName: this.person.lastName,
       dob: this.person.dob,  // `birthDate` wird als `dob` gesendet
-      roomNo: this.person.roomNo
+      roomNo: this.person.roomNo,
+      isWorker: null,
+      password: null
     };
 
     this.http.post(this.apiUrl, requestBody).subscribe({
