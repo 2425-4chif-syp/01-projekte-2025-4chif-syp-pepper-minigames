@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     ) { backStackEntry ->
                         val rows = backStackEntry.arguments?.getInt("rows") ?: 4
                         val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-                        MemoryGameScreen(rows, columns)
+                        MemoryGameScreen(navController ,rows, columns)
                     }
 
                     // High Scores
