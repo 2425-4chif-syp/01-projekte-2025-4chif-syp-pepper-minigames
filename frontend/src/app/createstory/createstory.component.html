@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6">
+    <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
+    <div>
+      <button (click)="createStory()" class="btn btn-primary mr-2">Geschichte erstellen</button>
+      <button (click)="toggleImages()" class="btn btn-secondary mr-2">Bilder</button>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-start mt-10 ml-6">
+    <label class="input input-bordered flex items-center gap-2 w-[35%]">
+      <input type="text" class="grow" placeholder="Titel der Geschichte" />
+    </label>
+
+    <label class="input input-bordered flex items-center gap-2 w-[35%] mt-5">
+      <input type="text" class="grow" placeholder="Beschreibung der Geschichte" />
+    </label>
+
+  </div>
+</div>
