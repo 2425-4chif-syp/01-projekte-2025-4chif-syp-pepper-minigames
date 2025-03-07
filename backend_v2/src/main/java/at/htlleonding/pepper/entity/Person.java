@@ -20,15 +20,20 @@ public class Person {
     private LocalDate dob;
     @Column(name = "p_room_no")
     private String roomNo;
-
+    @Column(name = "p_isWorker")
+    private Boolean isWorker;
+    @Column(name = "p_password")
+    private String password;
     public Person() {
     }
 
-    public Person(String firstName, String lastName, LocalDate dob, String roomNo) {
+    public Person(String firstName, String lastName, LocalDate dob, String roomNo, Boolean isWorker,String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dob = dob;
         this.roomNo = roomNo;
+        this.isWorker = isWorker;
+        this.password = password;
     }
 
     public Long getId() {
@@ -70,4 +75,14 @@ public class Person {
     public void setRoomNo(String roomNo) {
         this.roomNo = roomNo;
     }
+
+    public Boolean getIsWorker() { return isWorker; }
+
+    public void setIsWorker(Boolean isWorker) { this.isWorker = isWorker; }
+
+    public String getPassword() { return password; }
+
+    public void setPassword(String password) { this.password = password; }
+
+
 }
