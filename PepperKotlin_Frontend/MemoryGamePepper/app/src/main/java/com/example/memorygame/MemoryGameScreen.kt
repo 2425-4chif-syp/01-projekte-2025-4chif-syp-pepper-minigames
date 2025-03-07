@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.memorygame.logic.restartGame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
@@ -31,7 +32,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
     }
 
-    var flippedCards by remember { mutableStateOf(listOf<Int>()) }
+    var flippedCards by remember { mutableStateOf(mutableListOf<Int>()) }
     var matchedCards by remember { mutableStateOf(mutableSetOf<Int>()) }
 
     LaunchedEffect(flippedCards) {
@@ -43,7 +44,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             val firstCard = cards[firstCardIndex]
             val secondCard = cards[secondCardIndex]
 
-            flippedCards = listOf()
+            flippedCards = mutableListOf()
+
 
             if (firstCard.image == secondCard.image) {
                 matchedCards.add(firstCardIndex)
@@ -75,7 +77,6 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         var isGameOver by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = matchedCards.size) {
-            Log.d("MemoryGame", "Matched Cards: ${matchedCards.size / 2}, Total Pairs: $totalPairs")
             if (matchedCards.size / 2 == totalPairs) {
                 isGameOver = true
             }
@@ -85,9 +86,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             WinDialog(
                 onRestart = {
                     isGameOver = false
-                    matchedCards.clear()
-                    flippedCards = listOf()
-                    cards.forEach { it.isFlipped = false } // Alle Karten zurückdrehen
+                    restartGame(cards, matchedCards, flippedCards, rows, columns)
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
@@ -117,7 +116,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                         .background(Color.Gray)
                         .clickable(enabled = !isFlipped) {
                             if (flippedCards.size < 2 && index !in matchedCards) {
-                                flippedCards = flippedCards + index
+                                // Hinzufügen des Index zur flippedCards-Liste
+                                flippedCards = mutableListOf(*flippedCards.toTypedArray(), index) // Zustand wird aktualisiert
                                 card.isFlipped = true // Karte umdrehen
                             }
                         }
@@ -154,14 +154,4 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.White)
         }
     }
-}
-
-// Simulierte Funktion für Backend-Daten
-suspend fun fetchUserImagesFromBackend(): List<Int> {
-    delay(1000) // Simuliere Netzwerkverzögerung
-    return listOf(
-        R.drawable.image1, R.drawable.image2/*, R.drawable.image3, R.drawable.image4,
-        R.drawable.image5, R.drawable.image6, R.drawable.image7, R.drawable.image8,
-        R.drawable.image9, R.drawable.image10, R.drawable.image11*/
-    )
 }
