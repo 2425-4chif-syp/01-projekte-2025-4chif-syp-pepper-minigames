@@ -17,12 +17,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.memorygame.logic.selectImagesForGrid
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.memorygame.ui.dialogs.WinDialog
 
 @Composable
-fun MemoryGameScreen(rows: Int, columns: Int) {
+fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
     // Verwenden der in MemoryGameLogic.kt definierten Liste von Bildreferenzen
     val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
 
@@ -68,6 +70,27 @@ fun MemoryGameScreen(rows: Int, columns: Int) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
+        var isGameOver by remember { mutableStateOf(false) }
+
+        val totalPairs = createMemoryDeck().size / 2;
+        LaunchedEffect(key1 = matchedCards.size) {
+            if (matchedCards.size == totalPairs) {
+                isGameOver = true
+            }
+        }
+
+        if (isGameOver) {
+            WinDialog(
+                onRestart = {
+                    isGameOver = false
+                    // Logik zum Neustarten des Spiels
+                },
+                onGoToMainMenu = {
+                    navController.navigate("main_menu")
+                }
+            )
+        }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),  // Grid mit der Anzahl der Spalten
