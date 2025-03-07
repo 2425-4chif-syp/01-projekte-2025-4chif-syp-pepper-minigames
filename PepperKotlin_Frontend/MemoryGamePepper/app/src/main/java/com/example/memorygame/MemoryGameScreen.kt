@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.memorygame.logic.selectImagesForGrid
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
@@ -71,11 +70,13 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             contentScale = ContentScale.Crop
         )
 
+        val totalPairs = cards.size / 2 // Berechne totalPairs basierend auf den aktuellen Karten
+
         var isGameOver by remember { mutableStateOf(false) }
 
-        val totalPairs = createMemoryDeck().size / 2;
         LaunchedEffect(key1 = matchedCards.size) {
-            if (matchedCards.size == totalPairs) {
+            Log.d("MemoryGame", "Matched Cards: ${matchedCards.size / 2}, Total Pairs: $totalPairs")
+            if (matchedCards.size / 2 == totalPairs) {
                 isGameOver = true
             }
         }
@@ -84,7 +85,9 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             WinDialog(
                 onRestart = {
                     isGameOver = false
-                    // Logik zum Neustarten des Spiels
+                    matchedCards.clear()
+                    flippedCards = listOf()
+                    cards.forEach { it.isFlipped = false } // Alle Karten zurückdrehen
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
