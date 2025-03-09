@@ -25,6 +25,9 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
         setContent {
             MenuTheme {
+
+                RoboterActions.speak("Hallo. Ich heiße Pepper. Was kann ich für Sie tun?")
+
                 // Initialisiere NavController
                 val navController = rememberNavController()
 
