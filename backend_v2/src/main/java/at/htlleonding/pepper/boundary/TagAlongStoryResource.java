@@ -1,5 +1,6 @@
 package at.htlleonding.pepper.boundary;
 
+import at.htlleonding.pepper.entity.Image;
 import at.htlleonding.pepper.entity.dto.GameDto;
 import at.htlleonding.pepper.entity.dto.StepDto;
 import at.htlleonding.pepper.entity.Game;
@@ -17,6 +18,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
+import java.util.Base64;
 import java.util.List;
 
 @Path("tagalongstories")
@@ -33,6 +35,8 @@ public class TagAlongStoryResource {
     @Inject
     ImageRepository imageRepository;
 
+
+    //region TagAlongStory Endpoints
     @GET
     @Operation(summary = "Get all tag along stories")
     @Transactional
@@ -88,7 +92,12 @@ public class TagAlongStoryResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("The Icon of Tag along story is NULL").build();
         }
         Game tagAlongStory = Converter.convertToTagAlongStory(gameDTO);
-        System.out.println("TS"+tagAlongStory.getStoryIconBinary().toString());
+        // create clean base64 string without the prefix
+        String base64 = Converter.extractBase64String(gameDTO.icon());
+        // create image reference by saving the image to pe_image table and the foreign key to the game story icon
+        Image image = new Image(null, java.util.Base64.getDecoder().decode(base64), null, "Bild für mit-mach-geschichte");
+        imageRepository.persist(image);
+        tagAlongStory.setStoryIcon(image);
         gameRepository.persist(tagAlongStory);
         return Response.ok(tagAlongStory).build();
     }
@@ -116,19 +125,23 @@ public class TagAlongStoryResource {
     @Transactional
     @Operation(summary = "Delete one tag along story with id")
     public Response DeleteTagAlongStoriesById(@PathParam("id") Long id){
-        boolean deleted = gameRepository.deleteById(id);
+        boolean deleted = gameRepository.deleteGameAndSteps(id);
         if (!deleted) {
             return Response.status(Response.Status.NOT_FOUND).entity("No tag along story found with id " + id).build();
         }
         return Response.ok("Deleted tag along story").build();
     }
+    //endregion
 
+
+    //region Steps Endpoints
+    @Transactional
     @GET
     @Path("/{id}/steps")
     @Operation(summary = "Get all steps by game id")
     public Response GetStepsById(@PathParam("id") Long id){
         List<Step> steps = stepRepository.findByGameId(id);
-        if (steps == null) {
+        if (steps.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity("No tag along story found with id " + id).build();
         }
         return Response.ok(steps).build();
@@ -144,6 +157,12 @@ public class TagAlongStoryResource {
         }
 
         Step step = Converter.convertToStep(stepDTO);
+        step.setImageBase64(stepDTO.image());
+
+        String base64 = Converter.extractBase64String(stepDTO.image());
+        Image image = new Image(null, java.util.Base64.getDecoder().decode(base64), null, "Bild für die Szenen");
+        imageRepository.persist(image);
+        step.setImage(image);
 
         Game game = gameRepository.findById(id);
         step.setGame(game);
@@ -165,7 +184,8 @@ public class TagAlongStoryResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Step does not belong to the specified Game").build();
         }
         stepRepository.delete(step);
-        return Response.noContent().build();
+        return Response.ok(step).build();
     }
+    //endregion
 
 }
