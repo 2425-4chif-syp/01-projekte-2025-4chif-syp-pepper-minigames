@@ -14,8 +14,8 @@ class RoboterActions {
         var robotExecute: Boolean = true
 
 
-        fun speak(text: String): Future<Void>?{
-            if(robotExecute){
+        fun speak(text: String): Future<Void>? {
+            if (robotExecute) {
                 val say: Future<Say>? = SayBuilder.with(qiContext)
                     .withText(text)
                     .buildAsync()
@@ -30,7 +30,6 @@ class RoboterActions {
                 }
             }
             return null;
-            }
         }
     }
 }
