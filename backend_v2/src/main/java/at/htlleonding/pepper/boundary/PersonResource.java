@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
@@ -18,14 +19,17 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-public class PersonController {
+public class PersonResource {
 
     @Inject
     PersonRepository personRepository;
 
+    //region Person Endpoints
     // 🔍 GET: Alle Personen abrufen
     @GET
-    public Response getAllPersons() {
+    @Operation(summary = "Get all people")
+    @Transactional
+    public Response getAllPeople() {
         List<Person> persons = personRepository.listAll();
 
         if (persons.isEmpty()) {
@@ -87,7 +91,9 @@ public class PersonController {
         }
         return Response.ok("Person gelöscht").build();
     }
+    //endregion
 
+    //region Auth
     @POST
     @Path("/login")
     public Response login(Person loginPerson) {
@@ -107,23 +113,20 @@ public class PersonController {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Senioren benötigen kein Login").build();
         }
 
-        // Überprüfe, ob das Passwort korrekt ist
         boolean passwordMatches = BCrypt.checkpw(loginPerson.getPassword(), person.getPassword());
 
         // Wenn das Passwort nicht korrekt ist, versuche, es neu zu hashen und zu speichern
         if (!passwordMatches) {
             // Überprüfe, ob der Salt möglicherweise veraltet ist
             try {
-                // Hash das Passwort neu, falls das Format des gespeicherten Hashs ungültig ist
+                // Hash das Passn das Passwort nicht korrekt ist, vewort neu, falls das Format des gespeicherten Hashs ungültig ist
                 rehashPasswordAndStore(person);
                 passwordMatches = BCrypt.checkpw(loginPerson.getPassword(), person.getPassword());
             } catch (IllegalArgumentException e) {
-                // Falls der Salt immer noch ungültig ist
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Falsches Passwort").build();
             }
         }
 
-        // Erfolgreiches Login
         if (passwordMatches) {
             return Response.ok().entity("Erfolgreich eingeloggt").build();
         }
@@ -141,21 +144,7 @@ public class PersonController {
         person.setPassword(hashedPassword);
         personRepository.persist(person);
     }
-    @POST
-    @Transactional
-    @Path("/addPerson")
-    public Response Register(Person person) {
-        if (person.getFirstName() == null || person.getLastName() == null || person.getRoomNo() == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Fehlende Daten: Vorname, Nachname oder Zimmernummer").build();
-        }
-
-        // Hash das Passwort vor dem Speichern
-        String hashedPassword = BCrypt.hashpw(person.getPassword(), BCrypt.gensalt());
-        person.setPassword(hashedPassword); // Setze den gehashten Wert in die Person
-
-        personRepository.persist(person);
-        return Response.status(Response.Status.CREATED).entity(person).build();
-    }
+    //endregion
 
 }
 
