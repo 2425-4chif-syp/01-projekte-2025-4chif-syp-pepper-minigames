@@ -29,12 +29,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.layout.ContentScale // Import für ContentScale
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
+    val coroutineScope = rememberCoroutineScope() // Coroutine-Scope für suspend-Funktionen
 
     // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
@@ -92,7 +95,7 @@ fun MainMenuScreen(navController: NavHostController) {
                 )
             }
 
-            // Icon außerhalb des Pagers, fix auf der rechten Seite
+            // Pfeil-Icon für "nächste Seite"
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Swipe Right",
@@ -101,7 +104,16 @@ fun MainMenuScreen(navController: NavHostController) {
                     .align(Alignment.CenterEnd)
                     .padding(end = 16.dp)
                     .size(100.dp)
+                    .clickable {
+                        // Zur nächsten Seite navigieren (innerhalb einer Coroutine)
+                        coroutineScope.launch {
+                            val nextPage = (pagerState.currentPage + 1) % menuItems.size
+                            pagerState.animateScrollToPage(nextPage)
+                        }
+                    }
             )
+
+            // Pfeil-Icon für "vorherige Seite"
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Swipe Left",
@@ -110,6 +122,13 @@ fun MainMenuScreen(navController: NavHostController) {
                     .align(Alignment.CenterStart)
                     .padding(start = 16.dp)
                     .size(100.dp)
+                    .clickable {
+                        // Zur vorherigen Seite navigieren (innerhalb einer Coroutine)
+                        coroutineScope.launch {
+                            val previousPage = (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
+                            pagerState.animateScrollToPage(previousPage)
+                        }
+                    }
             )
         }
     }
@@ -121,15 +140,8 @@ fun MenuItem(imageRes: Int, title: String, navController: NavHostController, pac
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                // Hier startest du die App direkt mit dem dynamischen Package-Namen
-                val intent = navController.context.packageManager.getLaunchIntentForPackage(packageName)
-                intent?.let {
-                    it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    navController.context.startActivity(it)
-
-                    // Nachdem die App beendet wurde, zurück zum Menü navigieren
-                    navController.popBackStack()  // Geht zurück zum Menü
-                }
+                // Navigiere zum LoginScreen statt direkt zur App
+                navController.navigate("login_screen") // Dies führt den Benutzer zum LoginScreen
             },
         contentAlignment = Alignment.Center
     ) {
