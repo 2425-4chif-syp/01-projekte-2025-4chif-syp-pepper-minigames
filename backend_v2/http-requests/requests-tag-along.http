@@ -1,3 +1,5 @@
+### TagAlongStory Endpoints
+
 GET {{host}}/api/tagalongstories
 Content-Type: application/json
 
@@ -30,7 +32,8 @@ Content-Type: application/json
 }
 ###
 DELETE {{host}}/api/tagalongstories/2
-###
+
+### Step Endpoints
 
 GET {{host}}/api/tagalongstories/2/steps
 Content-Type: application/json
@@ -42,7 +45,7 @@ Content-Type: application/json
 {
   "game": {
     "name": "Geschichten aus der Voralberg",
-    "icon": null,
+    "icon": "SGVsbHA=",
     "gameType": {
       "id": "TAG_ALONG_STORY",
       "name": "Mitmachgeschichten"
@@ -65,5 +68,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE {{host}}/api/tagalongstories/2/steps/5
+DELETE {{host}}/api/tagalongstories/2/steps/6
 Content-Type: application/json
