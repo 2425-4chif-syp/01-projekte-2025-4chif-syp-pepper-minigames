@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.menu.presentation.LoginScreen
 import com.example.menu.ui.theme.MenuTheme
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
@@ -59,14 +60,22 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        TODO("Not yet implemented")
+        // Context für Pepper um seine Funktionen aufrufen zu können
+        RoboterActions.qiContext = qiContext
+        // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
+        RoboterActions.robotExecute = false
     }
 
     override fun onRobotFocusLost() {
-        TODO("Not yet implemented")
+        QiSDK.unregister(this,this)
+        super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {
-        TODO("Not yet implemented")
+
+        // Im Logcat werden Fehlermeldungen ausgeben, falls die Verbindung unterbrochen wird
+        if(reason != null){
+            Log.d("Reason:",reason)
+        }
     }
 }
