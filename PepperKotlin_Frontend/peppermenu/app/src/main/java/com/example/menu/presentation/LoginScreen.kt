@@ -21,9 +21,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -236,7 +238,30 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { speechRecognizer.startListening(speechRecognizerIntent) },
+                            onClick = {
+                                scope.launch {
+                                    var image: ImageBitmap? = null
+                                    try {
+                                        RoboterActions.takePicture { image }
+
+                                        if(image != null){
+                                            val response = ApiHelper.sendPostRequest(image)
+
+                                            if(IsResponseValid(response = response)){
+                                                // Response: Found Person: Name
+                                                selectedName = response.split(':')[1]
+                                                RoboterActions.speak("Sind Sie ${selectedName}")
+                                            }
+                                            else{
+                                                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                                            }
+                                        }
+                                    }catch(e:Exception){
+                                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                                        Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
+                                    }
+                                }
+                            },
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
@@ -266,7 +291,7 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { /* Handle Spracherkennung */ },
+                            onClick = { speechRecognizer.startListening(speechRecognizerIntent) },
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
@@ -309,4 +334,9 @@ fun LoginScreen(
             )
         }
     }
+}
+
+fun IsResponseValid(response: String): Boolean{
+    val responseUpper = response.uppercase(Locale.getDefault())
+    return responseUpper!= "" && responseUpper != "NO MATCHING PERSON FOUND" && responseUpper != "TODO!!!!!!!!!!!!!!!";
 }
