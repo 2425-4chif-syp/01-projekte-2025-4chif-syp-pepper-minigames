@@ -85,4 +85,6 @@ dependencies {
 
     implementation "androidx.navigation:navigation-compose:2.4.0"
     implementation "androidx.compose.material:material-icons-extended:1.0.1"
+	implementation 'com.aldebaran:qisdk:1.7.5'
+	implementation 'com.aldebaran:qisdk-design:1.7.5'
 }
