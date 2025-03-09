@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "name": "Geschichten aus Wien",
-  "icon": "SGVsbHA=",
+  "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
   "gameType": {
     "id": "TAG_ALONG_STORY",
     "name": "Mitmachgeschichten"
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 {
   "name": "Geschichten aus Linz",
-  "icon": "SGVsbHA=",
+  "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
   "gameType": {
     "id": "TAG_ALONG_STORY",
     "name": "Mitmachgeschichten"
@@ -31,7 +31,7 @@ Content-Type: application/json
   "enabled": false
 }
 ###
-DELETE {{host}}/api/tagalongstories/2
+DELETE {{host}}/api/tagalongstories/4
 
 ### Step Endpoints
 
@@ -44,27 +44,24 @@ Content-Type: application/json
 
 {
   "game": {
-    "name": "Geschichten aus der Voralberg",
-    "icon": "SGVsbHA=",
+    "name": "Geschichten aus der Eisenstadt",
+    "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
     "gameType": {
       "id": "TAG_ALONG_STORY",
       "name": "Mitmachgeschichten"
     },
     "enabled": true
   },
-  "index": 1,
-  "image": {
-    "person": null,
-    "image": "SGVsbHA=",
-    "url": "Cloud URL",
-    "description": "Vorarlberg"
-  },
+  "index": 2,
+  "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
+  "image_desc": "Eisenstädtergasse",
   "move": {
     "id": 1,
     "name": "emote_hurra",
     "description": "Hurra"
   },
-  "text": "GAME ID 5"
+  "text": "Der Text für steps!",
+  "durationInSeconds": 15
 }
 
 ###
