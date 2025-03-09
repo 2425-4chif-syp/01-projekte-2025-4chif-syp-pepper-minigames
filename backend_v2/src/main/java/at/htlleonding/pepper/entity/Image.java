@@ -28,8 +28,7 @@ public class Image {
     public Image() {
     }
 
-    public Image(Long id, Person person, byte[] image, String url, String description) {
-        this.id = id;
+    public Image(Person person, byte[] image, String url, String description) {
         this.person = person;
         this.image = image;
         this.url = url;
