@@ -3,6 +3,7 @@ package at.htlleonding.pepper.repository;
 import at.htlleonding.pepper.entity.Step;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -10,5 +11,10 @@ import java.util.List;
 public class StepRepository implements PanacheRepository<Step> {
     public List<Step> findByGameId(Long gameId) {
         return find("game.id", gameId).list();
+    }
+
+    @Transactional
+    public void deleteByGameId(Long gameId) {
+        delete("game.id", gameId);
     }
 }
