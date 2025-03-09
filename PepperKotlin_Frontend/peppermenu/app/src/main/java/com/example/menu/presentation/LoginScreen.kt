@@ -1,6 +1,12 @@
 package com.example.menu.presentation
 
 
+import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,11 +21,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.menu.RoboterActions
+import com.example.menu.network.ApiHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -29,7 +42,69 @@ fun LoginScreen(
     navController: NavHostController // NavController als Parameter hinzufügen
 ) {
     var selectedName by remember { mutableStateOf("Hermine Mayer") } // Zustand für den ausgewählten Namen
-    val names = listOf("Hermine Mayer", "Max Mustermann", "Anna Müller", "John Doe", "Max MusterMann", "Marc Laros")
+    val names = listOf(
+        "Hermine Mayer",
+        "Max Mustermann",
+        "Anna Müller",
+        "John Doe",
+        "Max MusterMann",
+        "Marc Laros"
+    )
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+    val speechRecognizerIntent = remember {
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        }
+    }
+
+    speechRecognizer.setRecognitionListener(object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle?) {}
+        override fun onBeginningOfSpeech() {}
+        override fun onRmsChanged(rmsdB: Float) {}
+        override fun onBufferReceived(buffer: ByteArray?) {}
+        override fun onEndOfSpeech() {}
+        override fun onError(error: Int) {
+            Log.d("Spracherkennung", "Fehler: $error")
+        }
+
+        override fun onResults(results: Bundle?) {
+            val data = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            val answerContext =
+                "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
+
+            scope.launch {
+                try {
+                    val response =
+                        ApiHelper.sendPostRequestSmallTalk(data.toString() + answerContext)
+                    val answer = response.ifEmpty { "Fehler bei der API-Anfrage" }
+
+                    if (answer.isNotEmpty()) {
+                        withContext(Dispatchers.Main) {
+                            selectedName = answer
+                            RoboterActions.speak("Sind Sie ${selectedName}?")
+                        }
+                    }
+                } catch (e: Exception) {
+                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                    Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
+                }
+            }
+
+        }
+
+        override fun onPartialResults(partialResults: Bundle?) {}
+        override fun onEvent(eventType: Int, params: Bundle?) {}
+    })
+
+
 
     Box(
         modifier = Modifier
@@ -125,12 +200,16 @@ fun LoginScreen(
                     ) {
                         items(names.size) { index ->
                             Button(
-                                onClick = { selectedName = names[index] }, // Aktualisiere selectedName
+                                onClick = {
+                                    selectedName = names[index]
+                                }, // Aktualisiere selectedName
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(80.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = if (names[index] == selectedName) Color(0xFFFFEB3B) else Color.White, // Gelb für Auswahl
+                                    backgroundColor = if (names[index] == selectedName) Color(
+                                        0xFFFFEB3B
+                                    ) else Color.White, // Gelb für Auswahl
                                     contentColor = Color.Black
                                 )
                             ) {
@@ -157,7 +236,7 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { /* Handle Gesichtserkennung */ },
+                            onClick = { speechRecognizer.startListening(speechRecognizerIntent) },
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
