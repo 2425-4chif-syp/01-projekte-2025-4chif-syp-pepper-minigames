@@ -18,44 +18,21 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.memorygame.logic.restartGame
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 
 @Composable
 fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
-    // Verwenden der in MemoryGameLogic.kt definierten Liste von Bildreferenzen
+    val gameLogic = remember { GameLogic() }
     val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
-
     val cards = remember {
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
     }
 
-    var flippedCards by remember { mutableStateOf(mutableListOf<Int>()) }
-    var matchedCards by remember { mutableStateOf(mutableSetOf<Int>()) }
-
-    LaunchedEffect(flippedCards) {
-        if (flippedCards.size == 2) {
-            delay(300) // Warte, um die Auswahl zu zeigen
-
-            val firstCardIndex = flippedCards[0]
-            val secondCardIndex = flippedCards[1]
-            val firstCard = cards[firstCardIndex]
-            val secondCard = cards[secondCardIndex]
-
-            flippedCards = mutableListOf()
-
-
-            if (firstCard.image == secondCard.image) {
-                matchedCards.add(firstCardIndex)
-                matchedCards.add(secondCardIndex)
-            } else {
-                cards[firstCardIndex].isFlipped = false
-                cards[secondCardIndex].isFlipped = false
-            }
-        }
-    }
+    val flippedCards by remember { derivedStateOf { gameLogic.flippedCards } }
+    val matchedCards by remember { derivedStateOf { gameLogic.matchedCards } }
+    val isGameOver by remember { derivedStateOf { gameLogic.isGameOver } }
+    val coroutineScope = rememberCoroutineScope()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -72,21 +49,12 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             contentScale = ContentScale.Crop
         )
 
-        val totalPairs = cards.size / 2 // Berechne totalPairs basierend auf den aktuellen Karten
-
-        var isGameOver by remember { mutableStateOf(false) }
-
-        LaunchedEffect(key1 = matchedCards.size) {
-            if (matchedCards.size / 2 == totalPairs) {
-                isGameOver = true
-            }
-        }
-
         if (isGameOver) {
             WinDialog(
                 onRestart = {
-                    isGameOver = false
-                    restartGame(cards, matchedCards, flippedCards, rows, columns)
+                    val newDeck = gameLogic.restartGame()
+                    cards.clear()
+                    cards.addAll(newDeck)
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
@@ -95,7 +63,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),  // Grid mit der Anzahl der Spalten
+            columns = GridCells.Fixed(columns),
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
@@ -116,17 +84,17 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                         .background(Color.Gray)
                         .clickable(enabled = !isFlipped) {
                             if (flippedCards.size < 2 && index !in matchedCards) {
-                                // Hinzufügen des Index zur flippedCards-Liste
-                                flippedCards = mutableListOf(*flippedCards.toTypedArray(), index) // Zustand wird aktualisiert
-                                card.isFlipped = true // Karte umdrehen
+                                coroutineScope.launch {
+                                    gameLogic.flipCard(index, cards)
+                                }
                             }
                         }
-                        .border(borderWidth, borderColor), // Rand der Karte anpassen
+                        .border(borderWidth, borderColor),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isFlipped) {
                         Image(
-                            painter = painterResource(id = card.image),  // Bild der Karte anzeigen
+                            painter = painterResource(id = card.image),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -134,7 +102,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Image(
-                                painter = painterResource(id = R.drawable.question_mark), // Fragezeichen anzeigen
+                                painter = painterResource(id = R.drawable.question_mark),
                                 contentDescription = "Question Mark",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Fit
