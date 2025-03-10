@@ -18,12 +18,12 @@ fun Navigation(navController: NavHostController, textToSpeech: TextToSpeech) {
     NavHost(navController = navController, startDestination = "main_menu") {
         // Hauptmenü
         composable("main_menu") {
-            MainMenuScreen(navController)
+            MainMenuScreen(textToSpeech,navController)
         }
 
         // Grid-Auswahl
         composable("grid_selection") {
-            GridSelectionScreen(navController)
+            GridSelectionScreen(textToSpeech ,navController)
         }
 
         // Spiel
@@ -36,7 +36,7 @@ fun Navigation(navController: NavHostController, textToSpeech: TextToSpeech) {
         ) { backStackEntry ->
             val rows = backStackEntry.arguments?.getInt("rows") ?: 4
             val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-            MemoryGameScreen(navController ,rows, columns)
+            MemoryGameScreen(textToSpeech,navController ,rows, columns)
         }
 
         // High Scores

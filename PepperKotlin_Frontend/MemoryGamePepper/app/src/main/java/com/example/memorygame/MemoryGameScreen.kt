@@ -22,11 +22,17 @@ import com.example.memorygame.logic.restartGame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
+import android.speech.tts.TextToSpeech
+import kotlin.random.Random
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
-fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
+fun MemoryGameScreen(textToSpeech: TextToSpeech,navController: NavHostController, rows: Int, columns: Int) {
     // Verwenden der in MemoryGameLogic.kt definierten Liste von Bildreferenzen
     val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
+    val coroutineScope = rememberCoroutineScope()
 
     val cards = remember {
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
@@ -37,7 +43,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
 
     LaunchedEffect(flippedCards) {
         if (flippedCards.size == 2) {
-            delay(300) // Warte, um die Auswahl zu zeigen
+            delay(500) // Warte, um die Auswahl zu zeigen
 
             val firstCardIndex = flippedCards[0]
             val secondCardIndex = flippedCards[1]
@@ -50,9 +56,54 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             if (firstCard.image == secondCard.image) {
                 matchedCards.add(firstCardIndex)
                 matchedCards.add(secondCardIndex)
+
+
+
+                if (firstCard.image == secondCard.image) {
+                    matchedCards.add(firstCardIndex)
+                    matchedCards.add(secondCardIndex)
+
+
+                    val totalPairs = (rows * columns) / 2
+                    if (matchedCards.size / 2 < totalPairs) {
+                        speakWithPepper(
+                            textToSpeech,
+                            listOf(
+                                "Jo, passt!",
+                                "Guat g'macht!",
+                                "Jo sicher!",
+                                "Bumm, des woar guat!",
+                                "Freili, weiter so!",
+                                "Läuft wia g'schmiert!",
+                                "Sauba!",
+                                "Volltreffer!",
+                                "Stark!"
+                            ),
+                            coroutineScope
+                        )
+                    }
+
+                }
+
             } else {
                 cards[firstCardIndex].isFlipped = false
                 cards[secondCardIndex].isFlipped = false
+
+                speakWithPepper(
+                    textToSpeech,
+                    listOf(
+                        "naa, nix da!",
+                        "Probier’s no amoi!",
+                        "Dös passt net!",
+                        "Knapp vorbei!",
+                        "Schade, oba weida!",
+                        "Bissl besser aufpassn!",
+                        "Schärfer schaun!",
+                        "Net aufgebn!",
+                        "Kanz knapp!"
+                    ),
+                    coroutineScope
+                )
             }
         }
     }
@@ -84,14 +135,16 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
 
         if (isGameOver) {
             WinDialog(
+
                 onRestart = {
                     isGameOver = false
                     restartGame(cards, matchedCards, flippedCards, rows, columns)
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
-                }
+                }, textToSpeech
             )
+
         }
 
         LazyVerticalGrid(
@@ -154,4 +207,29 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.White)
         }
     }
+}
+fun speakWithPepper(textToSpeech: TextToSpeech?, phrases: List<String>, coroutineScope: CoroutineScope) {
+    if (textToSpeech != null) {
+        val random = phrases.random()
+        val randomText = addEmotionToSpeech(random)
+        coroutineScope.launch(Dispatchers.IO) {
+            textToSpeech.speak(
+                randomText,
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                null
+            )
+        }
+    }
+}
+fun addEmotionToSpeech(text: String): String {
+    val variations = listOf(
+        "$text",
+        "$text...",
+        "$text!!",
+        "Hmm... $text",
+        "Oh! $text",
+
+    )
+    return variations.random()
 }

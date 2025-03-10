@@ -1,16 +1,18 @@
 package com.example.memorygame.ui.screens
-
+import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
+
 @Composable
-fun GridSelectionScreen(navController: NavHostController) {
+fun GridSelectionScreen(textToSpeech:TextToSpeech,navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -19,6 +21,14 @@ fun GridSelectionScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("Wähle ein Grid:", modifier = Modifier.padding(16.dp))
+        LaunchedEffect(Unit) {
+            textToSpeech.speak(
+                "Such dir ein Spielfeld aus",
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                null
+            )
+        }
         listOf(
             "2x3" to Pair(2, 3),
             "2x4" to Pair(2, 4),

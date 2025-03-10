@@ -35,6 +35,7 @@ class GameLogic {
                     secondCard.isMatched = true
                     matchedCards.add(firstCard)
                     matchedCards.add(secondCard)
+
                 } else {
                     // Falsches Paar, Karten zurückdrehen
                     firstCard.isFlipped = false

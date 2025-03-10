@@ -8,9 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import android.speech.tts.TextToSpeech
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun MainMenuScreen(navController: NavHostController) {
+fun MainMenuScreen(textToSpeech:TextToSpeech,navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -18,6 +20,14 @@ fun MainMenuScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        LaunchedEffect(Unit) {
+            textToSpeech.speak(
+                "Willkommen zu Memory",
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                null
+            )
+        }
         Text("Memory Game", modifier = Modifier.padding(16.dp))
 
         // Spiel starten
