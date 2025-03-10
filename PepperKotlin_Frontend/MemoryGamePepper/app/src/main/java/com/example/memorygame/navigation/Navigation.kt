@@ -36,7 +36,7 @@ fun Navigation(navController: NavHostController, textToSpeech: TextToSpeech) {
         ) { backStackEntry ->
             val rows = backStackEntry.arguments?.getInt("rows") ?: 4
             val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-            MemoryGameScreen(textToSpeech,navController ,rows, columns)
+            MemoryGameScreen(navController ,rows, columns, textToSpeech)
         }
 
         // High Scores
