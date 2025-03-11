@@ -2,6 +2,7 @@ package com.example.menu.viewmodel
 
 import android.app.Application
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -9,10 +10,11 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.menu.RoboterActions
-import com.example.menu.network.ApiHelper
+import com.example.menu.network.HttpInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,17 +59,17 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                 viewModelScope.launch {
                     try {
                         val response =
-                            ApiHelper.sendPostRequestSmallTalk(data.toString() + answerContext)
-                        val answer = response.ifEmpty { "Fehler bei der API-Anfrage" }
+                            HttpInstance.sendPostRequestSmallTalk(data.toString() + answerContext)
+                        val answer = response ?: "Fehler bei der API-Anfrage"
 
                         if (answer.isNotEmpty()) {
                             withContext(Dispatchers.Main) {
                                 selectedName.value = answer
-                                RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                                //RoboterActions.speak("Sind Sie ${selectedName.value}?")
                             }
                         }
                     } catch (e: Exception) {
-                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        //RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
                 }
@@ -88,50 +90,68 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
     fun captureAndRecognizePerson(){
         viewModelScope.launch {
-            var image: ImageBitmap? = null
+            var capturedImage: ImageBitmap? = null
 
             try{
-                RoboterActions.speak("Ich mache kurz ein Foto von dir")
-                RoboterActions.takePicture { image }
-
-                if(image != null){
-                    val response = ApiHelper.sendPostRequest(image)
-
-                    if(IsResponseValid(response = response)){
-                        selectedName.value = response.split(':')[1]
-                        RoboterActions.speak("Sind Sie ${selectedName}")
-                    }
-                    else{
-                        RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen")
-                    }
+                //RoboterActions.speak("Ich mache kurz ein Foto von dir")
+                RoboterActions.takePicture { image ->
+                    capturedImage = image
                 }
 
-            }catch (e: Exception){
-                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-            }
+                withContext(Dispatchers.IO) {
+                    capturedImage?.let { image ->
+                        val response = HttpInstance.sendPostRequestImage(image)
 
+                        withContext(Dispatchers.Main) {
+                            if(isResponseValid(response)){
+                                val parts = response.split(':')
+                                if (parts.size > 1) {
+                                    selectedName.value = parts[1]
+                                    RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                                } else {
+                                    //RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                                }
+                            } else {
+                                //RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                            }
+                        }
+                    } ?: run {
+                        withContext(Dispatchers.Main) {
+                            //RoboterActions.speak("Tut mir Leid. Ich konnte kein Foto aufnehmen.")
+                        }
+                    }
+                }
+            } catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    //RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                    Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
+                }
+            }
         }
     }
 
-    fun IsResponseValid(response: String): Boolean{
+    private fun isResponseValid(response: String): Boolean {
         val responseUpper = response.uppercase(Locale.getDefault())
-        return responseUpper!= "" && responseUpper != "NO MATCHING PERSON FOUND" && responseUpper != "TODO!!!!!!!!!!!!!!!";
+        return responseUpper != "" &&
+                responseUpper != "NO MATCHING PERSON FOUND" &&
+                responseUpper != "TODO!!!!!!!!!!!!!!!"
     }
 
-    fun testConntection(){
+    fun testConnection() {
         viewModelScope.launch {
             try {
-                val response =
-                    ApiHelper.sendPostRequestSmallTalk("Hallo ich heisse Nikola Mladenovic! Ich bin 19 Jahre alt und liebe Quarkus.\n Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!")
-                val answer = response.ifEmpty { "Fehler bei der API-Anfrage" }
+                val response = HttpInstance.sendPostRequestSmallTalk(
+                    "Hallo ich heisse Nikola Mladenovic! Ich bin 19 Jahre alt und liebe Quarkus.\n" +
+                            "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
+                )
 
-                if (answer.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        selectedName.value = answer
-                        RoboterActions.speak("Sind Sie ${selectedName.value}?")
-                        Log.d("Antwort","API richtig")
-                    }
+                val answer = response.takeIf { it.isNotEmpty() } ?: "Fehler bei der API-Anfrage"
+                Log.d("Antwort", ": $answer")
+
+                if (answer.isNotEmpty() && answer != "Fehler bei der API-Anfrage") {
+                    selectedName.value = answer
+                    //RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                    Log.d("Antwort", "API richtig")
                 }
             } catch (e: Exception) {
                 Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")

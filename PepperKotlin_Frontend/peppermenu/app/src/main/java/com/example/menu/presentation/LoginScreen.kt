@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.menu.RoboterActions
-import com.example.menu.network.ApiHelper
 import com.example.menu.viewmodel.LoginScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -176,8 +175,7 @@ fun LoginScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                viewModel.testConntection()
-                                //viewModel.captureAndRecognizePerson()
+                                viewModel.captureAndRecognizePerson()
                             },
                             modifier = Modifier
                                 .width(100.dp)
