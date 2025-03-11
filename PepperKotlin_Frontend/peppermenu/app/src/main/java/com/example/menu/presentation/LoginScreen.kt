@@ -11,8 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -23,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
@@ -31,82 +28,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.menu.RoboterActions
 import com.example.menu.network.ApiHelper
+import com.example.menu.viewmodel.LoginScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onContinueWithoutLogin: () -> Unit,
-    navController: NavHostController // NavController als Parameter hinzufügen
+    navController: NavHostController, // NavController als Parameter hinzufügen
+    viewModel: LoginScreenViewModel = viewModel()
 ) {
-    var selectedName by remember { mutableStateOf("Hermine Mayer") } // Zustand für den ausgewählten Namen
-    val names = listOf(
-        "Hermine Mayer",
-        "Max Mustermann",
-        "Anna Müller",
-        "John Doe",
-        "Max MusterMann",
-        "Marc Laros"
-    )
-
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-    val speechRecognizerIntent = remember {
-        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-        }
-    }
-
-    speechRecognizer.setRecognitionListener(object : RecognitionListener {
-        override fun onReadyForSpeech(params: Bundle?) {}
-        override fun onBeginningOfSpeech() {}
-        override fun onRmsChanged(rmsdB: Float) {}
-        override fun onBufferReceived(buffer: ByteArray?) {}
-        override fun onEndOfSpeech() {}
-        override fun onError(error: Int) {
-            Log.d("Spracherkennung", "Fehler: $error")
-        }
-
-        override fun onResults(results: Bundle?) {
-            val data = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-            val answerContext =
-                "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
-
-            scope.launch {
-                try {
-                    val response =
-                        ApiHelper.sendPostRequestSmallTalk(data.toString() + answerContext)
-                    val answer = response.ifEmpty { "Fehler bei der API-Anfrage" }
-
-                    if (answer.isNotEmpty()) {
-                        withContext(Dispatchers.Main) {
-                            selectedName = answer
-                            RoboterActions.speak("Sind Sie ${selectedName}?")
-                        }
-                    }
-                } catch (e: Exception) {
-                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                    Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                }
-            }
-
-        }
-
-        override fun onPartialResults(partialResults: Bundle?) {}
-        override fun onEvent(eventType: Int, params: Bundle?) {}
-    })
-
-
+    val selectedName by viewModel.selectedName
 
     Box(
         modifier = Modifier
@@ -120,7 +57,7 @@ fun LoginScreen(
         ) {
 
             Text(
-                text = "Sind sie Frau $selectedName?", // Dynamischer Text basierend auf selectedName
+                text = "Sind sie Frau ${selectedName}?", // Dynamischer Text basierend auf selectedName
                 fontSize = 60.sp,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,22 +137,22 @@ fun LoginScreen(
                         state = scrollState,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(names.size) { index ->
+                        items(viewModel.names.size) { index ->
                             Button(
                                 onClick = {
-                                    selectedName = names[index]
+                                    viewModel.setName(viewModel.names[index])
                                 }, // Aktualisiere selectedName
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(80.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = if (names[index] == selectedName) Color(
+                                    backgroundColor = if (viewModel.names[index] == selectedName) Color(
                                         0xFFFFEB3B
                                     ) else Color.White, // Gelb für Auswahl
                                     contentColor = Color.Black
                                 )
                             ) {
-                                Text(text = names[index], fontSize = 30.sp)
+                                Text(text = viewModel.names[index], fontSize = 30.sp)
                             }
                             Spacer(modifier = Modifier.height(8.dp)) // Abstand zwischen den Buttons
                         }
@@ -239,28 +176,8 @@ fun LoginScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                scope.launch {
-                                    var image: ImageBitmap? = null
-                                    try {
-                                        RoboterActions.takePicture { image }
-
-                                        if(image != null){
-                                            val response = ApiHelper.sendPostRequest(image)
-
-                                            if(IsResponseValid(response = response)){
-                                                // Response: Found Person: Name
-                                                selectedName = response.split(':')[1]
-                                                RoboterActions.speak("Sind Sie ${selectedName}")
-                                            }
-                                            else{
-                                                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                                            }
-                                        }
-                                    }catch(e:Exception){
-                                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                                        Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                                    }
-                                }
+                                viewModel.testConntection()
+                                //viewModel.captureAndRecognizePerson()
                             },
                             modifier = Modifier
                                 .width(100.dp)
@@ -291,7 +208,7 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { speechRecognizer.startListening(speechRecognizerIntent) },
+                            onClick = { viewModel.startSpeechRecognition() },
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
@@ -334,9 +251,4 @@ fun LoginScreen(
             )
         }
     }
-}
-
-fun IsResponseValid(response: String): Boolean{
-    val responseUpper = response.uppercase(Locale.getDefault())
-    return responseUpper!= "" && responseUpper != "NO MATCHING PERSON FOUND" && responseUpper != "TODO!!!!!!!!!!!!!!!";
 }
