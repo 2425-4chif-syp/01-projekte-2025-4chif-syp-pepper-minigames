@@ -1,13 +1,11 @@
 import android.content.Intent
+import android.util.Log
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,8 +27,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.layout.ContentScale // Import für ContentScale
+import com.example.menu.RoboterActions
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -38,6 +37,11 @@ import kotlinx.coroutines.launch
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope() // Coroutine-Scope für suspend-Funktionen
+
+    LaunchedEffect(key1 = Unit){
+        Log.d("QiContext:","${RoboterActions.qiContext}")
+        RoboterActions.speak("Was wollen Sie machen?")
+    }
 
     // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
@@ -125,7 +129,8 @@ fun MainMenuScreen(navController: NavHostController) {
                     .clickable {
                         // Zur vorherigen Seite navigieren (innerhalb einer Coroutine)
                         coroutineScope.launch {
-                            val previousPage = (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
+                            val previousPage =
+                                (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
                             pagerState.animateScrollToPage(previousPage)
                         }
                     }

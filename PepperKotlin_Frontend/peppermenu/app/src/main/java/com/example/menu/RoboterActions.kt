@@ -12,7 +12,6 @@ import com.aldebaran.qi.sdk.`object`.image.EncodedImage
 import com.aldebaran.qi.sdk.`object`.image.EncodedImageHandle
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.builder.TakePictureBuilder
-import com.example.menu.network.ApiHelper
 import java.nio.ByteBuffer
 import java.util.concurrent.Future
 
@@ -22,7 +21,7 @@ class RoboterActions {
 
         // Kontext wird benötigt um die Verbindung mit dem Roboter zu gewährleisten
         var qiContext: QiContext? = null
-        var robotExecute: Boolean = true
+        var robotExecute: Boolean = false
 
 
         fun speak(text: String): Future<Void>? {
@@ -70,6 +69,5 @@ class RoboterActions {
                 }
             }
         }
-
     }
 }

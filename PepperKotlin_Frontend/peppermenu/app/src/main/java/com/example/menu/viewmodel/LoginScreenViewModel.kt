@@ -65,11 +65,11 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                         if (answer.isNotEmpty()) {
                             withContext(Dispatchers.Main) {
                                 selectedName.value = answer
-                                //RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                                RoboterActions.speak("Sind Sie ${selectedName.value}?")
                             }
                         }
                     } catch (e: Exception) {
-                        //RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
                 }
@@ -93,7 +93,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
             var capturedImage: ImageBitmap? = null
 
             try{
-                //RoboterActions.speak("Ich mache kurz ein Foto von dir")
+                RoboterActions.speak("Ich mache kurz ein Foto von dir")
                 RoboterActions.takePicture { image ->
                     capturedImage = image
                 }
@@ -109,21 +109,21 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                                     selectedName.value = parts[1]
                                     RoboterActions.speak("Sind Sie ${selectedName.value}?")
                                 } else {
-                                    //RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                                    RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                                 }
                             } else {
-                                //RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                                RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                             }
                         }
                     } ?: run {
                         withContext(Dispatchers.Main) {
-                            //RoboterActions.speak("Tut mir Leid. Ich konnte kein Foto aufnehmen.")
+                            RoboterActions.speak("Tut mir Leid. Ich konnte kein Foto aufnehmen.")
                         }
                     }
                 }
             } catch (e: Exception){
                 withContext(Dispatchers.Main) {
-                    //RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                     Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                 }
             }
@@ -150,7 +150,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
                 if (answer.isNotEmpty() && answer != "Fehler bei der API-Anfrage") {
                     selectedName.value = answer
-                    //RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                    RoboterActions.speak("Sind Sie ${selectedName.value}?")
                     Log.d("Antwort", "API richtig")
                 }
             } catch (e: Exception) {

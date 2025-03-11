@@ -13,20 +13,20 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
 
         setContent {
             MenuTheme {
-
-                RoboterActions.speak("Hallo. Ich heiße Pepper. Was kann ich für Sie tun?")
 
                 // Initialisiere NavController
                 val navController = rememberNavController()
@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     override fun onRobotFocusGained(qiContext: QiContext?) {
         // Context für Pepper um seine Funktionen aufrufen zu können
         RoboterActions.qiContext = qiContext
+        Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
         // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
         RoboterActions.robotExecute = false
     }
