@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -192,11 +193,13 @@ fun LoginScreen(
                             .background(Color(0xFFE0E0E0)) // Hellgrau
                             .padding(10.dp)
                             .fillMaxWidth()
+                            .clickable { // Macht die gesamte Row klickbar
+                                viewModel.captureAndRecognizePerson() // Logik für Gesichtserkennung
+                            }
                     ) {
                         IconButton(
                             onClick = {
-                                //viewModel.testConnection()
-                                viewModel.captureAndRecognizePerson()
+                                // Leer lassen, da die Logik jetzt in der Row liegt
                             },
                             modifier = Modifier
                                 .width(50.dp)
@@ -225,9 +228,14 @@ fun LoginScreen(
                             .background(Color(0xFFE0E0E0)) // Hellgrau
                             .padding(10.dp)
                             .fillMaxWidth()
+                            .clickable { // Macht die gesamte Row klickbar
+                                viewModel.startSpeechRecognition() // Logik für Spracherkennung
+                            }
                     ) {
                         IconButton(
-                            onClick = { viewModel.startSpeechRecognition() },
+                            onClick = {
+                                // Leer lassen, da die Logik jetzt in der Row liegt
+                            },
                             modifier = Modifier
                                 .width(50.dp)
                                 .height(50.dp)
@@ -245,6 +253,7 @@ fun LoginScreen(
                             modifier = Modifier.padding(start = 16.dp)
                         )
                     }
+
                 }
             }
         }

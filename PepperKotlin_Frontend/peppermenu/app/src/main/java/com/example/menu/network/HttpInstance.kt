@@ -96,7 +96,7 @@ class HttpInstance {
                 ""
             }
         }
-
+/*
         // GET Request, um alle Personen zu erhalten
         suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
 
@@ -133,5 +133,6 @@ class HttpInstance {
                 emptyList()
             }
         }
+        */
     }
 }

@@ -47,7 +47,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     init {
 
         viewModelScope.launch {
-            persons = HttpInstance.getPersons()
+            //persons = HttpInstance.getPersons()
 
         }
 
