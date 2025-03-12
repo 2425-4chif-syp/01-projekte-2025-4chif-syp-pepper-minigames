@@ -1,4 +1,4 @@
-package at.htlleonding.pepper.util;
+package at.htlleonding.pepper.common;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;

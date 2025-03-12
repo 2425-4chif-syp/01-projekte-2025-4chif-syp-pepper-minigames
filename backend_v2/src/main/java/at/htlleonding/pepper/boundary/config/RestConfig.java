@@ -1,4 +1,4 @@
-package at.htlleonding.pepper.boundary;
+package at.htlleonding.pepper.boundary.config;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
