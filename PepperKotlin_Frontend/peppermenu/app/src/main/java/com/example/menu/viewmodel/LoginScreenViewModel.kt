@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.menu.RoboterActions
+import com.example.menu.dto.Person
 import com.example.menu.network.HttpInstance
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,8 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     //Zustand für den ausgewählten Namen
     var selectedName = mutableStateOf("Hermine Mayer")
         private set
+
+    var persons : List<Person>? = null
 
     val names = listOf<String>(
         "Hermine Mayer", "Max Mustermann", "Anna Müller",
@@ -42,6 +45,12 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     init {
+
+        viewModelScope.launch {
+            persons = HttpInstance.getPersons()
+
+        }
+
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
             override fun onBeginningOfSpeech() {}
@@ -58,7 +67,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                 Log.d("Sprache","${data}")
 
                 val answerContext =
-                    "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
+                    "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur der Name bitte keine extra Wörter!"
 
                 viewModelScope.launch {
                     try {
@@ -107,7 +116,8 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                     capturedImageDeferred.complete(image)
                 }
 
-                val capturedImage = capturedImageDeferred.await() // Hier wird gewartet, bis das Bild verfügbar ist
+                // Hier wird gewartet, bis das Bild verfügbar ist
+                val capturedImage = capturedImageDeferred.await()
 
                 val response = HttpInstance.sendPostRequestImage(capturedImage)
 
