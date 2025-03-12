@@ -56,3 +56,4 @@ VALUES
     (8, 'Profile picture of David Weber', NULL, NULL),
     (9, 'Profile picture of Julia Schmid', NULL, NULL),
     (10, 'Profile picture of Markus Wolf', NULL, NULL);
+

@@ -302,8 +302,4 @@ public class LegacyResource {
         }
         return Response.ok(step).build();
     }
-
-
-
-
 }
