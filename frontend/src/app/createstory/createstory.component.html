@@ -2,7 +2,7 @@
   <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
     <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
     <div>
-      <button class="btn btn-primary mr-2">Geschichte erstellen</button>
+      <button class="btn btn-primary mr-2">Geschichte speichern</button>
       <button class="btn btn-secondary mr-2">Bilder</button>
     </div>
   </div>
@@ -19,11 +19,11 @@
       <div class="flex-1">
         <textarea class="w-full border p-2 rounded">{{ scene.speech }}</textarea>
         <div class="flex gap-2 mt-2">
-          <select class="border p-2 rounded">
-            <option>{{ scene.movement }}</option>
+          <select class="border p-2 rounded" (change)="updateMovement($event, scene)">
+            <option *ngFor="let moveName of moveNames" [value]="moveName" [selected]="moveName === scene.movement">{{ moveName }}</option>
           </select>
-          <select class="border p-2 rounded">
-            <option>{{ scene.duration }}s</option>
+          <select class="border p-2 rounded" (change)="updateDuration($event, scene)">
+            <option *ngFor="let dur of duration" [value]="dur" [selected]="dur === scene.duration">{{ dur }}s</option>
           </select>
         </div>
       </div>
