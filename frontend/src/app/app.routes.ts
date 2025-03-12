@@ -5,6 +5,8 @@ import { EditstoryComponent } from './editstory/editstory.component';
 import { AddstepComponent } from './addstep/addstep.component';
 import { PersonEntryComponent } from './person-entry/person-entry.component';
 import { CreatestoryComponent } from './createstory/createstory.component';
+import { PictureOverviewComponent } from './picture-overview/picture-overview.component';
+import { ImageuploadComponent } from './imageupload/imageupload.component';
 
 export const routes: Routes = [
   {path: 'tagalongstory', component: TagalongstoryComponent},
@@ -12,6 +14,8 @@ export const routes: Routes = [
   {path: 'addstep/:id', component: AddstepComponent},
   {path: 'editstory/:id', component: EditstoryComponent},
   {path: 'person-entry', component: PersonEntryComponent},
-  { path: 'createstory', component: CreatestoryComponent }
+  { path: 'createstory', component: CreatestoryComponent },
+  { path: 'pictures', component: PictureOverviewComponent },
+  {path: 'imageUpload', component: ImageuploadComponent}
 ];
 
