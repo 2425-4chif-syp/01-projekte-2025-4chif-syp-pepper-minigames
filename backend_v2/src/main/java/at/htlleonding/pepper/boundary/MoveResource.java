@@ -1,6 +1,6 @@
 package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Move;
+import at.htlleonding.pepper.domain.Move;
 import at.htlleonding.pepper.repository.MoveRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,7 +21,7 @@ import java.util.List;
 public class MoveResource {
     @Inject
     MoveRepository moveRepository;
-
+    
     @GET
     @Operation(summary = "Get all moves")
     public Response getAllMoves() {
