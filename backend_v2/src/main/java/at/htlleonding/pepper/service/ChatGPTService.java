@@ -1,7 +1,7 @@
 package at.htlleonding.pepper.service;
 
-import at.htlleonding.pepper.entity.model.ChatGPTRequest;
-import at.htlleonding.pepper.entity.model.ChatGPTResponse;
+import at.htlleonding.pepper.domain.model.ChatGPTRequest;
+import at.htlleonding.pepper.domain.model.ChatGPTResponse;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;

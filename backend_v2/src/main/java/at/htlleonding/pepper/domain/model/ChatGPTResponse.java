@@ -1,4 +1,4 @@
-package at.htlleonding.pepper.entity.model;
+package at.htlleonding.pepper.domain.model;
 
 import java.util.List;
 

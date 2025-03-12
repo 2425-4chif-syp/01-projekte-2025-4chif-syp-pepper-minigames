@@ -1,6 +1,6 @@
 package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Image;
+import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.repository.ImageRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;

@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: backend
-    image: davidcristea/authentificationapp
+    image: backend
     env_file:
       - .env
     networks:
