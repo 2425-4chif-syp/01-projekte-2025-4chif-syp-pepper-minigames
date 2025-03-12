@@ -1,20 +1,36 @@
-<div class="container">
-  <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6">
+<div class="container h-screen">
+  <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
     <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
     <div>
-      <button (click)="createStory()" class="btn btn-primary mr-2">Geschichte erstellen</button>
-      <button (click)="toggleImages()" class="btn btn-secondary mr-2">Bilder</button>
+      <button class="btn btn-primary mr-2">Geschichte erstellen</button>
+      <button class="btn btn-secondary mr-2">Bilder</button>
     </div>
   </div>
-
-  <div class="flex flex-col items-start mt-10 ml-6">
+  
+  <div class="flex flex-col items-start mt-10 ml-6 mr-6">
     <label class="input input-bordered flex items-center gap-2 w-[35%]">
       <input type="text" class="grow" placeholder="Titel der Geschichte" />
     </label>
-
-    <label class="input input-bordered flex items-center gap-2 w-[35%] mt-5">
-      <input type="text" class="grow" placeholder="Beschreibung der Geschichte" />
-    </label>
-
+  </div>
+  
+  <div cdkDropList (cdkDropListDropped)="drop($event)" class="space-y-4 mt-6 ml-6 mr-6">
+    <div *ngFor="let scene of scenes; let i = index" cdkDrag class="scene-item flex w-full gap-4 p-4 bg-white rounded-lg shadow-md">
+      <div class="drag-handle text-xl cursor-move">☰</div>
+      <div class="flex-1">
+        <textarea class="w-full border p-2 rounded">{{ scene.speech }}</textarea>
+        <div class="flex gap-2 mt-2">
+          <select class="border p-2 rounded">
+            <option>{{ scene.movement }}</option>
+          </select>
+          <select class="border p-2 rounded">
+            <option>{{ scene.duration }}s</option>
+          </select>
+        </div>
+      </div>
+      <div class="w-24 h-16 overflow-hidden rounded">
+        <img [src]="scene.image" class="w-full h-full object-cover" />
+      </div>
+      <button class="bg-red-500 text-white p-2 rounded">🗑</button>
+    </div>
   </div>
 </div>

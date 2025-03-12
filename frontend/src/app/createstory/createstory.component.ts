@@ -1,21 +1,37 @@
 import { Component } from '@angular/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
+
+
+interface Scene {
+  speech: string;
+  movement: string;
+  duration: number;
+  image: string;
+}
 
 @Component({
   selector: 'app-createstory',
+  imports: [DragDropModule, CommonModule],
   templateUrl: './createstory.component.html',
-  styleUrls: ['./createstory.component.css']
 })
 export class CreatestoryComponent {
-  storyTitle: string = '';
-  storyDescription: string = '';
-  showImages: boolean = false;
+  scenes: Scene[] = [
+    {
+      speech: 'Während die Zirkusvorstellung beginnt, winken wir begeistert den talentierten Artisten zu...',
+      movement: 'Winken',
+      duration: 15,
+      image: 'assets/circus1.jpg'
+    },
+    {
+      speech: 'Mit einem lauten "Hurra" applaudieren wir am Ende der Zirkusvorstellung...',
+      movement: 'Hurra',
+      duration: 5,
+      image: 'assets/circus2.jpg'
+    }
+  ];
 
-  createStory() {
-    // Logik zum Erstellen der Geschichte
-    console.log('Geschichte erstellt:', this.storyTitle, this.storyDescription);
-  }
-
-  toggleImages() {
-    this.showImages = !this.showImages;
+  drop(event: CdkDragDrop<Scene[]>) {
+    moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
   }
 }
