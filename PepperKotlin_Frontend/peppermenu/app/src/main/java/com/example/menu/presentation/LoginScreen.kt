@@ -69,7 +69,8 @@ fun LoginScreen(
         ) {
 
             Text(
-                text = "Sind sie Frau ${selectedName}?", // Dynamischer Text basierend auf selectedName
+                // Dynamischer Text basierend auf selectedName
+                text = "Sind sie Frau ${selectedName}?",
                 fontSize = 60.sp,
                 modifier = Modifier
                     .fillMaxWidth()
