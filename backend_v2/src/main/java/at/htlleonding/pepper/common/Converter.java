@@ -1,15 +1,9 @@
-package at.htlleonding.pepper.util;
+package at.htlleonding.pepper.common;
 
-import at.htlleonding.pepper.entity.Image;
-import at.htlleonding.pepper.entity.dto.GameDto;
-import at.htlleonding.pepper.entity.dto.StepDto;
-import at.htlleonding.pepper.entity.Game;
-import at.htlleonding.pepper.entity.Step;
-import at.htlleonding.pepper.repository.ImageRepository;
-import io.quarkus.logging.Log;
-import jakarta.inject.Inject;
-
-import java.util.Base64;
+import at.htlleonding.pepper.dto.GameDto;
+import at.htlleonding.pepper.dto.StepDto;
+import at.htlleonding.pepper.domain.Game;
+import at.htlleonding.pepper.domain.Step;
 
 public class Converter {
 

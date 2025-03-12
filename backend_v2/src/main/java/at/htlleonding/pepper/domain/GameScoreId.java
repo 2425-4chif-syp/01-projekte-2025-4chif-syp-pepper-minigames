@@ -1,4 +1,4 @@
-package at.htlleonding.pepper.entity;
+package at.htlleonding.pepper.domain;
 
 import java.util.Objects;
 

@@ -1,7 +1,5 @@
-package at.htlleonding.pepper.boundary;
+package at.htlleonding.pepper.boundary.config;
 
-import at.htlleonding.pepper.entity.GameType;
-import at.htlleonding.pepper.entity.Move;
 import at.htlleonding.pepper.repository.GameTypeRepository;
 import at.htlleonding.pepper.repository.MoveRepository;
 import io.quarkus.runtime.Startup;

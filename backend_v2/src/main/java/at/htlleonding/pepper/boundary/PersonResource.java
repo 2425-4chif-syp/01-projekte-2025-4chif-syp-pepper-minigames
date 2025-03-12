@@ -1,6 +1,6 @@
 package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Person;
+import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.repository.PersonRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
