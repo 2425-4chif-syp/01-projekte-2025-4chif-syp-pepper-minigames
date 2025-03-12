@@ -1,4 +1,4 @@
-package at.htlleonding.pepper.service;
+package at.htlleonding.pepper.util;
 
 import at.htlleonding.pepper.entity.dto.GameDto;
 import at.htlleonding.pepper.entity.dto.StepDto;
