@@ -1,12 +1,17 @@
 package com.example.menu.presentation
 
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.menu.RoboterActions
 import com.example.menu.viewmodel.LoginScreenViewModel
@@ -39,10 +45,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onContinueWithoutLogin: () -> Unit,
-    navController: NavHostController, // NavController als Parameter hinzufügen
+    navController: NavHostController,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
     val selectedName by viewModel.selectedName
+    val context = LocalContext.current
+    val permissionGranted = remember { mutableStateOf(false) }
+
+    RequestAudioPermission {
+        permissionGranted.value = true
+        Log.d("LoginScreen", "Audio-Berechtigung wurde erteilt.")
+    }
 
     Box(
         modifier = Modifier
@@ -170,16 +183,17 @@ fun LoginScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(Color(0xFFE0E0E0)) // Hellgrau
-                            .padding(20.dp)
+                            .padding(10.dp)
                             .fillMaxWidth()
                     ) {
                         IconButton(
                             onClick = {
+                                //viewModel.testConnection()
                                 viewModel.captureAndRecognizePerson()
                             },
                             modifier = Modifier
-                                .width(100.dp)
-                                .height(100.dp)
+                                .width(50.dp)
+                                .height(50.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
@@ -190,7 +204,7 @@ fun LoginScreen(
                         }
                         Text(
                             text = "Gesichtserkennung",
-                            fontSize = 40.sp,
+                            fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp)
                         )
                     }
@@ -202,14 +216,14 @@ fun LoginScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(Color(0xFFE0E0E0)) // Hellgrau
-                            .padding(20.dp)
+                            .padding(10.dp)
                             .fillMaxWidth()
                     ) {
                         IconButton(
                             onClick = { viewModel.startSpeechRecognition() },
                             modifier = Modifier
-                                .width(100.dp)
-                                .height(100.dp)
+                                .width(50.dp)
+                                .height(50.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Mic,
@@ -220,7 +234,7 @@ fun LoginScreen(
                         }
                         Text(
                             text = "Spracherkennung",
-                            fontSize = 40.sp,
+                            fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp)
                         )
                     }
@@ -247,6 +261,33 @@ fun LoginScreen(
                 text = "Zurück",
                 fontSize = 16.sp // Kleinere Schriftgröße
             )
+        }
+    }
+}
+
+@Composable
+fun RequestAudioPermission(
+    onPermissionGranted: () -> Unit
+) {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onPermissionGranted()
+        } else {
+            Toast.makeText(context, "Mikrofon-Berechtigung erforderlich", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        } else {
+            onPermissionGranted()
         }
     }
 }

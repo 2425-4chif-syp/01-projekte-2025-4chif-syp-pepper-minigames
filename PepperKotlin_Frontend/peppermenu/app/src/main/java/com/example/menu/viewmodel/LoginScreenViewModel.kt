@@ -15,6 +15,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.menu.RoboterActions
 import com.example.menu.network.HttpInstance
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,7 +33,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     )
 
     private val context = application.applicationContext
-    private val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
+    private var speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
 
 
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -53,6 +54,9 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
             override fun onResults(results: Bundle?) {
                 val data = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+
+                Log.d("Sprache","${data}")
+
                 val answerContext =
                     "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
 
@@ -81,47 +85,46 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun startSpeechRecognition() {
-        speechRecognizer.startListening(speechRecognizerIntent)
+
+        viewModelScope.launch(Dispatchers.Main) {
+            speechRecognizer.startListening(speechRecognizerIntent)
+        }
     }
 
     fun setName(name: String) {
         selectedName.value = name
     }
 
-    fun captureAndRecognizePerson(){
-        viewModelScope.launch {
-            var capturedImage: ImageBitmap? = null
+    fun captureAndRecognizePerson() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
-            try{
+            try {
                 RoboterActions.speak("Ich mache kurz ein Foto von dir")
+
+                // Warte auf das Bild
                 RoboterActions.takePicture { image ->
-                    capturedImage = image
+                    capturedImageDeferred.complete(image)
                 }
 
-                withContext(Dispatchers.IO) {
-                    capturedImage?.let { image ->
-                        val response = HttpInstance.sendPostRequestImage(image)
+                val capturedImage = capturedImageDeferred.await() // Hier wird gewartet, bis das Bild verfügbar ist
 
-                        withContext(Dispatchers.Main) {
-                            if(isResponseValid(response)){
-                                val parts = response.split(':')
-                                if (parts.size > 1) {
-                                    selectedName.value = parts[1]
-                                    RoboterActions.speak("Sind Sie ${selectedName.value}?")
-                                } else {
-                                    RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
-                                }
-                            } else {
-                                RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
-                            }
+                val response = HttpInstance.sendPostRequestImage(capturedImage)
+
+                withContext(Dispatchers.Main) {
+                    if (isResponseValid(response)) {
+                        val parts = response.split(':')
+                        if (parts.size > 1) {
+                            selectedName.value = parts[1]
+                            RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                        } else {
+                            RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                         }
-                    } ?: run {
-                        withContext(Dispatchers.Main) {
-                            RoboterActions.speak("Tut mir Leid. Ich konnte kein Foto aufnehmen.")
-                        }
+                    } else {
+                        RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                     }
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                     Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")

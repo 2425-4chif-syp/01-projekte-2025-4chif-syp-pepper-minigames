@@ -17,8 +17,8 @@ class HttpInstance {
 
         // Client-Objekt einmal erstellen und wiederverwenden
         private val client = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(90, TimeUnit.SECONDS)
+            .readTimeout(90, TimeUnit.SECONDS)
             .protocols(listOf(Protocol.HTTP_1_1))
             .build()
 
