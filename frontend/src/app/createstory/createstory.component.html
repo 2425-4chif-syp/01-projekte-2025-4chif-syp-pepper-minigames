@@ -1,4 +1,4 @@
-<div class="container h-screen">
+<div class="container h-screen relative">
   <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
     <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
     <div>
@@ -17,7 +17,7 @@
     <div *ngFor="let scene of scenes; let i = index" cdkDrag class="scene-item flex w-full gap-4 p-4 bg-white rounded-lg shadow-md">
       <div class="drag-handle text-xl cursor-move">☰</div>
       <div class="flex-1">
-        <textarea class="w-full border p-2 rounded">{{ scene.speech }}</textarea>
+        <textarea class="w-full border p-2 rounded" placeholder="Gesprochener Text">{{ scene.speech }}</textarea>
         <div class="flex gap-2 mt-2">
           <select class="border p-2 rounded" (change)="updateMovement($event, scene)">
             <option *ngFor="let moveName of moveNames" [value]="moveName" [selected]="moveName === scene.movement">{{ moveName }}</option>
@@ -27,10 +27,21 @@
           </select>
         </div>
       </div>
-      <div class="w-24 h-16 overflow-hidden rounded">
-        <img [src]="scene.image" class="w-full h-full object-cover" />
+      <div class="w-24 h-24 overflow-hidden rounded relative border-2 border-gray-500">
+        <img [src]="scene.image" class="w-full h-full object-cover" alt="Klicken zum Bild hochladen" />
+        <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
+      
+        <!-- Bild löschen Button unter dem Bild und im selben Container -->
+        <button (click)="clearImage(scene)" class="absolute bottom-0 left-0 w-full text-xs bg-red-500 text-white p-1 rounded-b">
+          Bild löschen
+        </button>
       </div>
+      
+      
+      
       <button class="bg-red-500 text-white p-2 rounded">🗑</button>
     </div>
   </div>
+
+  <button (click)="addScene()" class="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-50">Scene hinzufügen</button>
 </div>

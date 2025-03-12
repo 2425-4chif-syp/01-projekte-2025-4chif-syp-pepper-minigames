@@ -41,20 +41,7 @@ export class CreatestoryComponent {
     'Winken',
   ];
   
-  scenes: Scene[] = [
-    {
-      speech: 'Während die Zirkusvorstellung beginnt, winken wir begeistert den talentierten Artisten zu...',
-      movement: 'Winken',
-      duration: 15,
-      image: 'assets/circus1.jpg'
-    },
-    {
-      speech: 'Mit einem lauten "Hurra" applaudieren wir am Ende der Zirkusvorstellung...',
-      movement: 'Hurra',
-      duration: 5,
-      image: 'assets/circus2.jpg'
-    }
-  ];
+  scenes: Scene[] = [];
 
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
@@ -68,5 +55,29 @@ export class CreatestoryComponent {
   updateDuration(event: Event, scene: Scene) {
     const selectElement = event.target as HTMLSelectElement;
     scene.duration = Number(selectElement.value);
+  }
+
+  updateImage(event: Event, scene: Scene) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        scene.image = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  clearImage(scene: Scene) {
+    scene.image = 'assets/default.jpg';
+  }
+
+  addScene() {
+    this.scenes.push({
+      speech: '',
+      movement: this.moveNames[0],
+      duration: this.duration[0],
+      image: 'assets/default.jpg'
+    });
   }
 }
