@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.menu.RoboterActions
+import com.example.menu.dto.Person
 import com.example.menu.network.HttpInstance
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,8 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     //Zustand für den ausgewählten Namen
     var selectedName = mutableStateOf("Hermine Mayer")
         private set
+
+    var persons : List<Person>? = null
 
     val names = listOf<String>(
         "Hermine Mayer", "Max Mustermann", "Anna Müller",
@@ -42,6 +45,12 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     init {
+
+        viewModelScope.launch {
+            persons = HttpInstance.getPersons()
+            
+        }
+
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
             override fun onBeginningOfSpeech() {}
