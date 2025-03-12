@@ -48,7 +48,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
         viewModelScope.launch {
             persons = HttpInstance.getPersons()
-            
+
         }
 
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
