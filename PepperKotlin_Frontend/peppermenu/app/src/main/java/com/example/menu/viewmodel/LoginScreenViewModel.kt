@@ -134,7 +134,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
         val responseUpper = response.uppercase(Locale.getDefault())
         return responseUpper != "" &&
                 responseUpper != "NO MATCHING PERSON FOUND" &&
-                responseUpper != "TODO!!!!!!!!!!!!!!!"
+                responseUpper != "ERROR PROCESSING IMAGE"
     }
 
     fun testConnection() {
