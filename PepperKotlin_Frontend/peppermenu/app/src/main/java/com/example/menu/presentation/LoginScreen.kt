@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
@@ -73,8 +74,9 @@ fun LoginScreen(
                 fontSize = 60.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp),
+                    .padding(top = 10.dp),
                 color = Color.Black,
+                fontWeight = FontWeight.Bold, // Fett gedruckt
                 style = MaterialTheme.typography.h4,
                 textAlign = TextAlign.Center
             )
@@ -104,7 +106,7 @@ fun LoginScreen(
                 Button(
                     onClick = onContinueWithoutLogin,
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.5f)
                         .height(100.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color(0xFF2196F3), // Blau
@@ -118,18 +120,18 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             // Row für ScrollView und Icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // ScrollView für Namensauswahl
                 Column(
                     modifier = Modifier
                         .width(400.dp)
-                        .height(400.dp)
+                        .height(500.dp)
                         .background(Color(0xFFE0E0E0)) // Hellgrau
                         .padding(16.dp),
                     horizontalAlignment = Alignment.Start,
@@ -137,10 +139,13 @@ fun LoginScreen(
                 ) {
                     // Text "Wählen Sie Ihren Namen aus"
                     Text(
-                        text = "Wählen Sie Ihren Namen aus",
+                        text = "Wählen Sie Ihren Namen aus ⬇️",
                         fontSize = 26.sp,
                         color = Color.Black,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        style = MaterialTheme.typography.h6.copy(
+                            fontWeight = FontWeight.Bold // Fett gedruckt
+                        )
                     )
 
                     // LazyColumn für die Namensliste mit Scrollbar
@@ -156,7 +161,8 @@ fun LoginScreen(
                                 }, // Aktualisiere selectedName
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(80.dp),
+                                    .height(45.dp)
+                                    .padding(vertical = 4.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = if (viewModel.names[index] == selectedName) Color(
                                         0xFFFFEB3B
@@ -164,9 +170,9 @@ fun LoginScreen(
                                     contentColor = Color.Black
                                 )
                             ) {
-                                Text(text = viewModel.names[index], fontSize = 30.sp)
+                                Text(text = viewModel.names[index], fontSize = 15.sp)
                             }
-                            Spacer(modifier = Modifier.height(8.dp)) // Abstand zwischen den Buttons
+                           // Spacer(modifier = Modifier.height(2.dp)) // Abstand zwischen den Buttons
                         }
                     }
                 }
@@ -174,7 +180,7 @@ fun LoginScreen(
                 // Column für Icons und Text
                 Column(
                     modifier = Modifier
-                        .padding(start = 50.dp),
+                        .padding(start = 36.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -198,7 +204,7 @@ fun LoginScreen(
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
                                 contentDescription = "Gesichtserkennung",
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize(), // Icon füllt den gesamten Button aus
                                 tint = Color(0xFFFFA500) // Orange
                             )
                         }
@@ -249,9 +255,9 @@ fun LoginScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd) // Positioniere den Button unten rechts
-                .padding(16.dp) // Abstand vom Rand
-                .width(100.dp) // Breite des Buttons
-                .height(50.dp), // Höhe des Buttons
+                .padding(bottom = 0.dp, end = 2.dp) // Abstand vom Rand
+                .width(120.dp) // Breite des Buttons
+                .height(60.dp), // Höhe des Buttons
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFFF44336), // Rot
                 contentColor = Color.White
@@ -259,7 +265,7 @@ fun LoginScreen(
         ) {
             Text(
                 text = "Zurück",
-                fontSize = 16.sp // Kleinere Schriftgröße
+                fontSize = 20.sp // Schriftgröße angepasst
             )
         }
     }
