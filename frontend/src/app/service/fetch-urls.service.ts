@@ -14,7 +14,7 @@ const httpOptions = {
 })
 export class FetchUrlsService {
 
-  private base_url = inject(STORY_URL);
+  private base_url = inject(STORY_URL) + 'tagalongstory';
   private http = inject(HttpClient)
   constructor() { }
 

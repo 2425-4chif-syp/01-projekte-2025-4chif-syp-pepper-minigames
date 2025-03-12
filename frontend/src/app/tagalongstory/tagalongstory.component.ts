@@ -15,9 +15,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./tagalongstory.component.css']
 })
 export class TagalongstoryComponent {
-  private baseUrl = inject(STORY_URL);
+  private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private http = inject(HttpClient);
-  
+
   public tagalongstoriesAll: ITagalongStory[] = [];  // All stories
   public tagalongstoriesEnabled: ITagalongStory[] = [];
   public tagalongstoriesDisabled: ITagalongStory[] = [];
@@ -38,12 +38,12 @@ export class TagalongstoryComponent {
         ...story,
         isEnabled: 'false'
       }));
-  
+
       this.tagalongstoriesEnabled = enabledStories.map(story => ({
         ...story,
         isEnabled: 'true'
       }));
-  
+
       // Use a map to ensure no duplicates
       const storyMap = new Map<number, ITagalongStory>();
 
@@ -53,7 +53,7 @@ export class TagalongstoryComponent {
 
       // Convert the map back to an array
       this.tagalongstoriesAll = Array.from(storyMap.values());
-  
+
       // Initially, display all stories
       this.filteredStories = this.tagalongstoriesAll;
     });
@@ -66,7 +66,7 @@ export class TagalongstoryComponent {
       this.filteredStories = this.tagalongstoriesAll;
     } else {
       // Filter stories based on the search term (case-insensitive)
-      this.filteredStories = this.tagalongstoriesAll.filter(story => 
+      this.filteredStories = this.tagalongstoriesAll.filter(story =>
         story.name.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
