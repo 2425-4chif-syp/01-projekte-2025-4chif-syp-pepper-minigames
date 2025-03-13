@@ -69,7 +69,7 @@ export class CreatestoryComponent {
   }
 
   clearImage(scene: Scene) {
-    scene.image = 'assets/default.jpg';
+    scene.image = 'assets/images/defaultUploadPic_5d0.jpg';
   }
 
   addScene() {
@@ -77,7 +77,11 @@ export class CreatestoryComponent {
       speech: '',
       movement: this.moveNames[0],
       duration: this.duration[0],
-      image: 'assets/default.jpg'
+      image: 'assets/images/defaultUploadPic_50.jpg'
     });
+  }
+
+  deleteScene(index: number) {
+    this.scenes.splice(index, 1);
   }
 }

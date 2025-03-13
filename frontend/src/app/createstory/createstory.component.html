@@ -1,3 +1,4 @@
+
 <div class="container h-screen relative">
   <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
     <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
@@ -27,20 +28,20 @@
           </select>
         </div>
       </div>
-      <div class="w-24 h-24 overflow-hidden rounded relative border-2 border-gray-500">
-        <img [src]="scene.image" class="w-full h-full object-cover" alt="Klicken zum Bild hochladen" />
-        <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
-      
-        <!-- Bild löschen Button unter dem Bild und im selben Container -->
-        <button (click)="clearImage(scene)" class="absolute bottom-0 left-0 w-full text-xs bg-red-500 text-white p-1 rounded-b">
+    
+      <div class="flex flex-col items-center">
+        <div class="w-24 h-25 overflow-hidden rounded border-2 border-gray-500 relative">
+          <img [src]="scene.image" class="w-full h-full object-cover" alt="Bild reinziehen oder mit Klicken hinzufügen"/>
+          <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
+        </div>
+        <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded">
           Bild löschen
         </button>
       </div>
-      
-      
-      
-      <button class="bg-red-500 text-white p-2 rounded">🗑</button>
+    
+      <button (click)="deleteScene(i)" class="bg-red-500 text-white p-4 px-4 rounded w-14 h-13">🗑</button>
     </div>
+    
   </div>
 
   <button (click)="addScene()" class="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-50">Scene hinzufügen</button>
