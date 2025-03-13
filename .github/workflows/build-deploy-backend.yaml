@@ -31,19 +31,6 @@ jobs:
           cd backend_v2
           mvn clean install -DskipTests
 
-      - name: Get the git commits since the last tag
-        run: |
-          git pull --unshallow
-          echo "$(git log $(git describe --tags --abbrev=0)..HEAD | git shortlog)" | sed 's/^ \+/- /'  > release-notes.txt
-          cat release-notes.txt
-
-      - name: Release the build
-        run: |
-          tag="$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)"
-          gh release create $tag ./dist/*/*.jar --title "pepper-backend $tag" --notes-file release-notes.txt --prerelease
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build Docker image
         run: |
           cd backend_v2
