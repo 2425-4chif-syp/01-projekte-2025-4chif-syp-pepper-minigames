@@ -391,5 +391,8 @@ export class ImageuploadComponent {
   }
   //#endregion
 
-
+  onCancel() {
+    // Seite neu laden
+    window.location.reload();
+  }
 }
