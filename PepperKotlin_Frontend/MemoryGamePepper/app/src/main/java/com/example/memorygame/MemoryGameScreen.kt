@@ -51,16 +51,17 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
     val cardHeight = gridAvailableHeight / rows
 
     // Timer starten
-    LaunchedEffect(Unit) {
-        gameStartTime = System.currentTimeMillis()
-        while (!gameLogic.isGameOver) {
-            delay(1000L)
-            elapsedSeconds++
+    LaunchedEffect(isGameOver) {
+        if (!gameLogic.isGameOver) {
+            elapsedSeconds = 0
+            gameStartTime = System.currentTimeMillis()
+            while (!gameLogic.isGameOver) {
+                delay(1000L)
+                elapsedSeconds++
+            }
+            val totalGameTimeSeconds = ((System.currentTimeMillis() - gameStartTime) / 1000).toInt()
+            scoreManager.applyTimeBonus(totalGameTimeSeconds, rows, columns)
         }
-        // Wenn das Spiel vorbei ist:
-        val gameEndTime = System.currentTimeMillis()
-        val totalGameTimeSeconds = ((gameEndTime - gameStartTime) / 1000).toInt()
-        scoreManager.applyTimeBonus(totalGameTimeSeconds, rows, columns)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -76,8 +77,6 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                 onRestart = {
                     restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
                     gameLogic.isGameOver = false
-                    elapsedSeconds = 0
-                    gameStartTime = System.currentTimeMillis()
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")

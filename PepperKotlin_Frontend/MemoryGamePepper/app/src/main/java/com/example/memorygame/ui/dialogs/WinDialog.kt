@@ -19,7 +19,7 @@ fun WinDialog(
         onDismissRequest = {},  // Verhindert das Schließen des Dialogs durch Tippen außerhalb
         title = { Text("\uD83C\uDF89 Gratulation! \uD83C\uDF89\n" +
                 "Du hast ${scoreManager.currentScore} Punkte erreicht!\n" +
-                "(Zeit: $formattedTime)") },
+                "gebrauchte Zeit: $formattedTime") },
         text = { Text("Möchtest du das Spiel neu starten oder zurück zum Hauptmenü gehen?") },
         confirmButton = {
             Button(onClick = onRestart) {
