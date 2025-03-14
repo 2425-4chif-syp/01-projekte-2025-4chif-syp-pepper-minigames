@@ -22,7 +22,7 @@ public class GameScore {
     @Column(name = "gs_date_time")
     private LocalDateTime dateTime;
 
-    @Column(name = "gs_score", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "gs_score")
     private int score;
 
     public Game getGame() {
