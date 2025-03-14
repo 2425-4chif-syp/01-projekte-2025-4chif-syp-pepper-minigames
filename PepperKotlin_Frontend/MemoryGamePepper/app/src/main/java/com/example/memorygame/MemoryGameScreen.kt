@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
+import com.example.memorygame.logic.restartGame
 
 @Composable
 fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
@@ -52,9 +53,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         if (isGameOver) {
             WinDialog(
                 onRestart = {
-                    val newDeck = gameLogic.restartGame()
-                    cards.clear()
-                    cards.addAll(newDeck)
+                    restartGame(cards, matchedCards, flippedCards, rows, columns)
+                    gameLogic.isGameOver = false;
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
