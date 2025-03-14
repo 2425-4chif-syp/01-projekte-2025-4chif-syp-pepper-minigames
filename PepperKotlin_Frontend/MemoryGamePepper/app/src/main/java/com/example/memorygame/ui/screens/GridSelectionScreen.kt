@@ -18,12 +18,12 @@ fun GridSelectionScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Wähle ein Grid:", modifier = Modifier.padding(16.dp))
+        Text("Wähle ein Grid zum Spielen:", modifier = Modifier.padding(16.dp))
         listOf(
-            "2x3" to Pair(2, 3),
-            "2x4" to Pair(2, 4),
-            "3x4" to Pair(3, 4),
-            "4x4" to Pair(4, 4)
+            "2x3 Kinderleicht \uD83D\uDE1D" to Pair(2, 3),
+            "2x4 Hast du Erfahrung? \uD83D\uDE09" to Pair(2, 4),
+            "3x4 Profimodus \uD83C\uDFAF" to Pair(3, 4),
+            "4x4 Meister \uD83C\uDFC6" to Pair(4, 4)
         ).forEach { (label, gridSize) ->
             Button(
                 onClick = {

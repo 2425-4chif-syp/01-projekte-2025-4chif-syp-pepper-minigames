@@ -3,6 +3,7 @@ package com.example.memorygame
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.delay
 
 data class MemoryCard(val id: Int, val image: Int, var isFlipped: Boolean = false, var isMatched: Boolean = false)
@@ -17,7 +18,7 @@ fun createMemoryDeck(): List<MemoryCard> {
     return cards.shuffled()
 }
 
-class GameLogic {
+class GameLogic(private val scoreManager: ScoreManager) {
     var flippedCards by mutableStateOf(mutableListOf<Int>())
     var matchedCards by mutableStateOf(mutableSetOf<Int>())
     var isGameOver by mutableStateOf(false)
@@ -44,9 +45,11 @@ class GameLogic {
             if (firstCard.image == secondCard.image) {
                 matchedCards.add(firstCardIndex)
                 matchedCards.add(secondCardIndex)
+                scoreManager.onMatchFound()
             } else {
                 firstCard.isFlipped = false
                 secondCard.isFlipped = false
+                scoreManager.onMismatch()
             }
 
             flippedCards = mutableListOf()
@@ -55,12 +58,5 @@ class GameLogic {
                 isGameOver = true
             }
         }
-    }
-
-    fun restartGame(): MutableList<MemoryCard> {
-        flippedCards = mutableListOf()
-        matchedCards = mutableSetOf()
-        isGameOver = false
-        return createMemoryDeck().toMutableList()
     }
 }
