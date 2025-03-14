@@ -43,17 +43,3 @@ VALUES
     ('Julia', 'Schmid', '1998-02-20', '109', TRUE, '$2a$10$examplehashedpassword9'),
     ('Markus', 'Wolf', '1975-06-12', '110', FALSE, NULL);
 
-
-INSERT INTO pe_image (i_p_id, i_description, i_url, i_image)
-VALUES
-    (1, 'Profile picture of Anna Müller', NULL, NULL),
-    (2, 'Profile picture of Franz Huber', NULL, NULL),
-    (3, 'Profile picture of Maria Bauer', NULL, NULL),
-    (4, 'Profile picture of Michael Wagner', NULL, NULL),
-    (5, 'Profile picture of Sophie Pichler', NULL, NULL),
-    (6, 'Profile picture of Thomas Steiner', NULL, NULL),
-    (7, 'Profile picture of Laura Fischer', NULL, NULL),
-    (8, 'Profile picture of David Weber', NULL, NULL),
-    (9, 'Profile picture of Julia Schmid', NULL, NULL),
-    (10, 'Profile picture of Markus Wolf', NULL, NULL);
-
