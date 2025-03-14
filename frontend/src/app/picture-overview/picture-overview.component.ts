@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonEngine } from '@angular/ssr/node';
 import { get } from 'http';
 import { ImageServiceService } from '../service/image-service.service';
-import { Image } from '../models/image.model';
+import { ImageModel } from '../models/image.model';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 
@@ -18,7 +18,7 @@ export class PictureOverviewComponent {
   constructor(private router: Router) {}
 
   imagesService = inject(ImageServiceService);
-  images = signal<Image[]>([]);
+  images = signal<ImageModel[]>([]);
 
   ngOnInit(): void {
     this.loadImages();

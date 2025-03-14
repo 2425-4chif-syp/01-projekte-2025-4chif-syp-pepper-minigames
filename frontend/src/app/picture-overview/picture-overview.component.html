@@ -1,14 +1,11 @@
-<div class="p-8 h-full">
+<div class="p-8 h-screen">
     <h1 class="text-3xl font-bold mb-4">Bilder - Überblick</h1>
-    <p class="text-lg text-yellow-500 font-semibold mb-6">
-      Filter für Bilder z.B. Ort und Datum (Jahr)
-    </p>
     
     <div class="grid grid-cols-4 gap-6">
       <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <img [src]="image.id" [alt]="image.description" class="w-full h-48 object-cover" />
+        <img [src]="'data:image/png;base64,' + image.base64Image" [alt]="image.description" class="w-full h-48 object-cover" />
         <div class="p-4 bg-blue-500 text-white text-center font-semibold">
-          {{ image.person.firstName }}  {{ image.person.lastName }}
+          {{ image.description }}
         </div>
       </div>
     </div>

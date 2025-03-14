@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -9,6 +9,9 @@ import { FormsModule } from '@angular/forms';
 import { map, Observable } from 'rxjs';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 import Cropper from 'cropperjs';
+import { ImageServiceService } from '../service/image-service.service';
+import { ImageModel } from '../models/image.model';
+import { log } from 'console';
 
 @Component({
   selector: 'app-imageupload',
@@ -23,7 +26,10 @@ export class ImageuploadComponent {
   public duration = [5, 10, 15];
   public uploadedImageSize = "0 x 0";
   public cropRecommans:string[] = [];
-
+  imagesService = inject(ImageServiceService);
+  images = signal<ImageModel[]>([]);
+  description = signal<string>("");
+  
   public moves = [
     'emote_hurra',
     'essen',
@@ -386,8 +392,25 @@ export class ImageuploadComponent {
 
   //#region Save TagAlongStory and Steps to DB
   saveToDb() : void{
+    const imageUpload: ImageModel = {
+        description: this.description(),
+        person: null,
+        base64Image: this.imageElement.nativeElement.src.split(',')[1]
+    };
+    console.log(imageUpload);
+    
 
-
+    this.imagesService.uploadImage(imageUpload).subscribe(
+      {
+        next: data=>{
+          console.log(data);
+          window.location.reload();
+        },
+        error: err=>{
+          "Upload fehlgeschlagen" + err.message;
+        },
+      }
+    )
   }
   //#endregion
 
@@ -395,4 +418,6 @@ export class ImageuploadComponent {
     // Seite neu laden
     window.location.reload();
   }
+
+  
 }
