@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.memorygame.logic.ScoreManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
@@ -39,12 +40,28 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
     val isGameOver by remember { derivedStateOf { gameLogic.isGameOver } }
     val coroutineScope = rememberCoroutineScope()
 
+    var gameStartTime by remember { mutableStateOf(0L) }
+    var elapsedSeconds by remember { mutableStateOf(0) }
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
     val gridAvailableHeight = screenHeight - 70.dp
     val cardWidth = screenWidth / columns
     val cardHeight = gridAvailableHeight / rows
+
+    // Timer starten
+    LaunchedEffect(Unit) {
+        gameStartTime = System.currentTimeMillis()
+        while (!gameLogic.isGameOver) {
+            delay(1000L)
+            elapsedSeconds++
+        }
+        // Wenn das Spiel vorbei ist:
+        val gameEndTime = System.currentTimeMillis()
+        val totalGameTimeSeconds = ((gameEndTime - gameStartTime) / 1000).toInt()
+        scoreManager.applyTimeBonus(totalGameTimeSeconds, rows, columns)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -59,10 +76,13 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                 onRestart = {
                     restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
                     gameLogic.isGameOver = false
+                    elapsedSeconds = 0
+                    gameStartTime = System.currentTimeMillis()
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
                 },
+                elapsedSeconds = elapsedSeconds,
                 scoreManager = scoreManager
             )
         }
@@ -124,14 +144,14 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.Black)
+            val formattedTime = String.format("%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
+            Text(text = "Deine Zeit: $formattedTime", color = Color.Black, fontSize = 18.sp)
             Text(
                 text = "Punkte: ${scoreManager.currentScore}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.Black
             )
-
         }
     }
 }

@@ -44,4 +44,33 @@ class ScoreManager(rows: Int, columns: Int) {
     fun resetScore() {
         currentScore = 0
     }
+
+    fun applyTimeBonus(totalSeconds: Int, rows: Int, columns: Int) {
+        val timeBonus = when (Pair(rows, columns)) {
+            Pair(2, 3) -> when {
+                totalSeconds < 10 -> 10
+                totalSeconds < 15 -> 5
+                else -> 0
+            }
+            Pair(2, 4) -> when {
+                totalSeconds < 25 -> 15
+                totalSeconds < 35 -> 7
+                else -> 0
+            }
+            Pair(3, 4) -> when {
+                totalSeconds < 40 -> 20
+                totalSeconds < 55 -> 10
+                else -> 0
+            }
+            Pair(4, 4) -> when {
+                totalSeconds < 60 -> 30
+                totalSeconds < 80 -> 10
+                else -> 0
+            }
+            else -> 0
+        }
+
+        currentScore += timeBonus
+    }
+
 }
