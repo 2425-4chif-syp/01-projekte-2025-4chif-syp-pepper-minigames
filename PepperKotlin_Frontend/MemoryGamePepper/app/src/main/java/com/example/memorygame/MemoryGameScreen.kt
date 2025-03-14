@@ -1,6 +1,5 @@
 package com.example.memorygame
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,7 +58,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             WinDialog(
                 onRestart = {
                     restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
-                    gameLogic.isGameOver = false;
+                    gameLogic.isGameOver = false
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
@@ -127,7 +126,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         ) {
             Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.Black)
             Text(
-                text = "Punkte: ${scoreManager.getCurrentScore()}",
+                text = "Punkte: ${scoreManager.currentScore}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.Black

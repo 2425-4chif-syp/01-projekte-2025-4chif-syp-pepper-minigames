@@ -1,13 +1,20 @@
 package com.example.memorygame.logic
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+
 class ScoreManager(rows: Int, columns: Int) {
 
-    private var currentScore: Int = 0
     private val pointsPerMatch: Int
     private val pointsPerMistake: Int
 
+    var currentScore by mutableStateOf(0)
+        private set
+
     init {
-        // Punkte basierend auf Grid-Größe definieren
         val gridPointsMap = mapOf(
             Pair(2, 3) to Pair(10, 2),
             Pair(2, 4) to Pair(15, 4),
@@ -32,9 +39,6 @@ class ScoreManager(rows: Int, columns: Int) {
         currentScore -= pointsPerMistake
         if (currentScore < 0) currentScore = 0 // verhindert negative Punkte
     }
-
-    // Aktuelle Punktzahl abrufen
-    fun getCurrentScore(): Int = currentScore
 
     // Punkte zurücksetzen (neues Spiel)
     fun resetScore() {
