@@ -7,7 +7,7 @@ import at.htlleonding.pepper.entity.Step;
 import at.htlleonding.pepper.repository.GameRepository;
 import at.htlleonding.pepper.repository.ImageRepository;
 import at.htlleonding.pepper.repository.StepRepository;
-import at.htlleonding.pepper.service.Converter;
+import at.htlleonding.pepper.util.Converter;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
