@@ -16,15 +16,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
 
 @Composable
 fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
-    val gameLogic = remember { GameLogic() }
+    val scoreManager = remember { ScoreManager(rows, columns) }
+    val gameLogic = remember { GameLogic(scoreManager) }
+
     val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
     val cards = remember {
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
@@ -53,12 +58,13 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         if (isGameOver) {
             WinDialog(
                 onRestart = {
-                    restartGame(cards, matchedCards, flippedCards, rows, columns)
+                    restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
                     gameLogic.isGameOver = false;
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
-                }
+                },
+                scoreManager = scoreManager
             )
         }
 
@@ -119,7 +125,14 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.White)
+            Text(text = "Gefundene Paare: ${matchedCards.size / 2}", color = Color.Black)
+            Text(
+                text = "Punkte: ${scoreManager.getCurrentScore()}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+
         }
     }
 }
