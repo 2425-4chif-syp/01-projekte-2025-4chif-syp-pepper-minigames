@@ -61,12 +61,4 @@ jobs:
             
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend:latest
           
-            docker run -d \
-              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-              -e CHATGBT_API_KEY=${{ secrets.CHATGBT_API_KEY }} \
-              --network postgres \
-              --name backend \
-              -p 8080:8080 \
-              --restart always \
-              ${{ secrets.DOCKER_USERNAME }}/backend:latest
+            docker run -d -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} -e CHATGBT_API_KEY=${{ secrets.CHATGBT_API_KEY }} --network postgres --name backend -p 8080:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/backend:latest
