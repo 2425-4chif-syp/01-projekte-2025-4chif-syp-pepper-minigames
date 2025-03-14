@@ -42,6 +42,7 @@ export class CreatestoryComponent {
   ];
   
   scenes: Scene[] = [];
+  isSidebarVisible = false;
 
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
@@ -83,5 +84,9 @@ export class CreatestoryComponent {
 
   deleteScene(index: number) {
     this.scenes.splice(index, 1);
+  }
+
+  toggleSidebar() {
+    this.isSidebarVisible = !this.isSidebarVisible;
   }
 }
