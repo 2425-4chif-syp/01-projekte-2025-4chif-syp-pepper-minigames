@@ -1,8 +1,7 @@
 import { Person } from "./person.model";
 
-export interface Image {
+export interface ImageModel {
     description: string;
-    id: number;
-    person: Person;
-    i_image: number;
+    person: Person | null;
+    base64Image: string;
 }
