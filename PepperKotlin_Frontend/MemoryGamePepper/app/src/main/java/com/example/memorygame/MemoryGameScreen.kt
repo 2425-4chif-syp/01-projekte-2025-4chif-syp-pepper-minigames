@@ -14,11 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.memorygame.data.AppDatabase
+import com.example.memorygame.data.PlayerScore
 import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -85,6 +88,27 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                 scoreManager = scoreManager
             )
         }
+
+
+        val context = LocalContext.current
+        val db = AppDatabase.getInstance(context)
+        val playerScoreDao = db.playerScoreDao()
+
+        LaunchedEffect(isGameOver) {
+            if (isGameOver) {
+                val playerScore = PlayerScore(
+                    personId = 1, // von Backend/API
+                    vorName = "Max",          // von Backend/API
+                    nachName = "Mustermann",  // von Backend/API
+                    gridRows = rows,
+                    gridColumns = columns,
+                    score = scoreManager.currentScore,
+                    elapsedTime = elapsedSeconds
+                )
+                playerScoreDao.insertScore(playerScore)
+            }
+        }
+
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
