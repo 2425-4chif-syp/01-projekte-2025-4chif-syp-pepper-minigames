@@ -22,11 +22,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.memorygame.data.AppDatabase
 import com.example.memorygame.data.PlayerScore
+import com.example.memorygame.data.ScoreRepository
+import com.example.memorygame.data.ScoreRequest
 import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
+
 
 @Composable
 fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
@@ -93,10 +96,12 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         val context = LocalContext.current
         val db = AppDatabase.getInstance(context)
         val playerScoreDao = db.playerScoreDao()
+        val repository = remember { ScoreRepository() }
+
 
         LaunchedEffect(isGameOver) {
             if (isGameOver) {
-                val playerScore = PlayerScore(
+                val playerScore = PlayerScore( //Die Daten für Lokale-Speicherung
                     personId = 1, // von Backend/API
                     vorName = "Max",          // von Backend/API
                     nachName = "Mustermann",  // von Backend/API
@@ -105,7 +110,24 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                     score = scoreManager.currentScore,
                     elapsedTime = elapsedSeconds
                 )
-                playerScoreDao.insertScore(playerScore)
+                playerScoreDao.insertScore(playerScore) // Score in Room-Datenbank save
+
+                val scoreRequest = ScoreRequest( // ✅ Daten fürs Backend
+                    personId = playerScore.personId,
+                    vorName = playerScore.vorName,
+                    nachName = playerScore.nachName,
+                    gridRows = playerScore.gridRows,
+                    gridColumns = playerScore.gridColumns,
+                    score = playerScore.score,
+                    elapsedTime = playerScore.elapsedTime
+                )
+                repository.sendScore(scoreRequest) { success ->
+                    if (success) {
+                        println("✅ Score erfolgreich ans Backend gesendet!")
+                    } else {
+                        println("❌ Fehler beim Senden des Scores.")
+                    }
+                }
             }
         }
 
