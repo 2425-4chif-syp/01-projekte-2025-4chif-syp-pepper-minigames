@@ -4,8 +4,12 @@ import android.speech.tts.TextToSpeech
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+<<<<<<< HEAD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+=======
+import com.example.memorygame.logic.ScoreManager
+>>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -21,7 +25,11 @@ fun createMemoryDeck(): List<MemoryCard> {
     return cards.shuffled()
 }
 
+<<<<<<< HEAD
 class GameLogic(private val textToSpeech: TextToSpeech?, private val coroutineScope: CoroutineScope) {
+=======
+class GameLogic(private val scoreManager: ScoreManager) {
+>>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2
     var flippedCards by mutableStateOf(mutableListOf<Int>())
     var matchedCards by mutableStateOf(mutableSetOf<Int>())
     var isGameOver by mutableStateOf(false)
@@ -48,6 +56,7 @@ class GameLogic(private val textToSpeech: TextToSpeech?, private val coroutineSc
             if (firstCard.image == secondCard.image) {
                 matchedCards.add(firstCardIndex)
                 matchedCards.add(secondCardIndex)
+<<<<<<< HEAD
 
                 // 🎙️ Pepper spricht nur, wenn das Spiel nicht vorbei ist
                 if (!isGameOver) {
@@ -86,6 +95,13 @@ class GameLogic(private val textToSpeech: TextToSpeech?, private val coroutineSc
                         )
                     )
                 }
+=======
+                scoreManager.onMatchFound()
+            } else {
+                firstCard.isFlipped = false
+                secondCard.isFlipped = false
+                scoreManager.onMismatch()
+>>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2
             }
 
             flippedCards = mutableListOf()
@@ -95,6 +111,7 @@ class GameLogic(private val textToSpeech: TextToSpeech?, private val coroutineSc
             }
         }
     }
+<<<<<<< HEAD
 
     fun restartGame(): MutableList<MemoryCard> {
         flippedCards = mutableListOf()
@@ -118,3 +135,6 @@ class GameLogic(private val textToSpeech: TextToSpeech?, private val coroutineSc
         }
     }
 }
+=======
+}
+>>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2
