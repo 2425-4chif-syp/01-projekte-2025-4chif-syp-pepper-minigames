@@ -1,0 +1,78 @@
+### GET all game scores
+GET {{host}}/api/gamescore
+Content-Type: application/json
+
+
+### GET game score by composite key (gameId, playerId)
+GET {{host}}/api/gamescore/2/10
+Content-Type: application/json
+
+
+### GET all scores for a specific game
+GET {{host}}/api/gamescore/game/2
+Content-Type: application/json
+
+
+### GET all scores for a specific player
+GET {{host}}/api/gamescore/player/10
+Content-Type: application/json
+
+
+### GET top scores (highest first)
+GET {{host}}/api/gamescore/top
+Content-Type: application/json
+
+### GET top 5 scores
+GET {{host}}/api/gamescore/top?limit=5
+Content-Type: application/json
+
+
+### GET latest scores (sorted by date, newest first)
+GET {{host}}/api/gamescore/latest
+Content-Type: application/json
+
+### GET latest 5 scores
+GET {{host}}/api/gamescore/latest?limit=5
+Content-Type: application/json
+
+
+### POST - Create a new game score
+POST {{host}}/api/gamescore
+Content-Type: application/json
+
+{
+  "dateTime": "2024-03-20T12:30:00",
+  "game": {
+    "enabled": true,
+    "gameType": {
+      "id": "TAG_ALONG_STORY",
+      "name": "Mitmachgeschichten"
+    },
+    "id": 2,
+    "name": "Geschichten aus Vorarlberg"
+  },
+  "person": {
+    "dob": "1975-06-12",
+    "firstName": "Markus",
+    "id": 10,
+    "isWorker": false,
+    "lastName": "Wolf",
+    "roomNo": "110"
+  },
+  "score": 250
+}
+
+
+### PUT - Update an existing game score
+PUT {{host}}/api/gamescore/2/10
+Content-Type: application/json
+
+{
+  "dateTime": "2024-03-20T12:30:00",
+  "score": 250
+}
+
+
+### DELETE - Remove a game score by ID
+DELETE {{host}}/api/gamescore/2/10
+Content-Type: application/json
