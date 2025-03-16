@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -9,6 +9,9 @@ import { FormsModule } from '@angular/forms';
 import { map, Observable } from 'rxjs';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 import Cropper from 'cropperjs';
+import { ImageServiceService } from '../service/image-service.service';
+import { ImageModel } from '../models/image.model';
+import { log } from 'console';
 
 @Component({
   selector: 'app-imageupload',
@@ -18,12 +21,15 @@ import Cropper from 'cropperjs';
   styleUrl: './imageupload.component.css'
 })
 export class ImageuploadComponent {
- private baseUrl = inject(STORY_URL);
+ private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private http = inject(HttpClient);
   public duration = [5, 10, 15];
   public uploadedImageSize = "0 x 0";
   public cropRecommans:string[] = [];
-
+  imagesService = inject(ImageServiceService);
+  images = signal<ImageModel[]>([]);
+  description = signal<string>("");
+  
   public moves = [
     'emote_hurra',
     'essen',
@@ -56,7 +62,7 @@ export class ImageuploadComponent {
 
   @ViewChild('image', { static: false }) imageElement!: ElementRef<HTMLImageElement>;
   @ViewChild('zoomRange', { static: false }) zoomRangeElement!: ElementRef<HTMLInputElement>;
-  
+
 
   private cropper!: Cropper;
 
@@ -69,7 +75,7 @@ export class ImageuploadComponent {
     if (!this.imageElement) {
       console.error("Fehler: imageElement wurde nicht gefunden!");
     }
-  
+
     this.initializeCropper();
   }
 
@@ -97,7 +103,7 @@ export class ImageuploadComponent {
     // Add event listener for the range slider
     this.zoomRangeElement.nativeElement.addEventListener('input', () => {
       const zoomValue = parseFloat(this.zoomRangeElement.nativeElement.value);
-      
+
       if (this.cropper) {
         console.log("Zoom-Level:", zoomValue);
         this.cropper.zoomTo(zoomValue);
@@ -105,14 +111,14 @@ export class ImageuploadComponent {
         console.error("Cropper ist nicht initialisiert!");
       }
     });
-    
+
 
     // Update the range slider when Cropper.js zoom changes
     (this.cropper as any).cropper.addEventListener('zoom', (event: any) => {
       const currentZoom = event.detail.ratio; // Get the current zoom level
       this.zoomRangeElement.nativeElement.value = currentZoom.toString(); // Update the range input value
     });
-    
+
   }
 
 
@@ -197,11 +203,11 @@ export class ImageuploadComponent {
       console.error("Cropper is not initialized!");
       return;
     }
-  
+
     const imageData = this.cropper.getImageData();
     const naturalWidth = imageData.naturalWidth;
     const naturalHeight = imageData.naturalHeight;
-  
+
     // Define crop regions
     const cropRegions = [
       { name: 'Top-Left', x: 0, y: 0, width: naturalWidth / 2, height: naturalHeight / 2 },
@@ -210,7 +216,7 @@ export class ImageuploadComponent {
       { name: 'Top-Right', x: naturalWidth / 2, y: 0, width: naturalWidth / 2, height: naturalHeight / 2 },
       { name: 'Bottom-Right', x: naturalWidth / 2, y: naturalHeight / 2, width: naturalWidth / 2, height: naturalHeight / 2 },
     ];
-  
+
     cropRegions.forEach((region, index) => {
       // Set the crop box position and size for the current region
       this.cropper.setData({
@@ -219,7 +225,7 @@ export class ImageuploadComponent {
         width: region.width,
         height: region.height,
       });
-  
+
       const croppedCanvas = this.cropper.getCroppedCanvas({
         width: 1280, // Set output width
         height: 800, // Set output height
@@ -241,7 +247,7 @@ export class ImageuploadComponent {
       if (index === cropRegions.length - 1) {
         console.log(this.cropRecommans);
       }
-      
+
     });
     this.setCropBoxTo1280x800();
   }
@@ -255,7 +261,7 @@ export class ImageuploadComponent {
       // Create canvas
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
-      
+
       // Set canvas dimensions
       canvas.width = 1280;
       canvas.height = 800;
@@ -282,7 +288,7 @@ export class ImageuploadComponent {
       console.error('Failed to load image');
     };
   }
-  
+
   // #endregion
 
   // Default Placeholder from TagAlongStory
@@ -306,7 +312,7 @@ export class ImageuploadComponent {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         if (this.imageElement) {
           if(this.cropper){
@@ -325,11 +331,11 @@ export class ImageuploadComponent {
           console.error("Fehler: this.imageElement ist undefined!");
         }
       };
-  
+
       reader.readAsDataURL(file);
     }
   }
-  
+
   //#endregion
 
   isDragging = false;
@@ -347,7 +353,7 @@ export class ImageuploadComponent {
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.isDragging = false;
-    
+
     if (event.dataTransfer?.files) {
       const file = event.dataTransfer.files[0];
       this.handleFile(file);
@@ -357,7 +363,7 @@ export class ImageuploadComponent {
   private handleFile(file: File) {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         if (this.imageElement) {
           if(this.cropper){
@@ -376,7 +382,7 @@ export class ImageuploadComponent {
           console.error("Fehler: this.imageElement ist undefined!");
         }
       };
-  
+
       reader.readAsDataURL(file);
     } else {
       console.warn('Invalid file type');
@@ -386,10 +392,32 @@ export class ImageuploadComponent {
 
   //#region Save TagAlongStory and Steps to DB
   saveToDb() : void{
-
+    const imageUpload: ImageModel = {
+        description: this.description(),
+        person: null,
+        base64Image: this.imageElement.nativeElement.src.split(',')[1]
+    };
+    console.log(imageUpload);
     
+
+    this.imagesService.uploadImage(imageUpload).subscribe(
+      {
+        next: data=>{
+          console.log(data);
+          window.location.reload();
+        },
+        error: err=>{
+          "Upload fehlgeschlagen" + err.message;
+        },
+      }
+    )
   }
   //#endregion
-  
 
+  onCancel() {
+    // Seite neu laden
+    window.location.reload();
+  }
+
+  
 }

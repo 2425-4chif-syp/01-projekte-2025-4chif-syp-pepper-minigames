@@ -2,8 +2,8 @@ package at.htlleonding.pepper.boundary;
 
 import at.htlleonding.pepper.boundary.dto.GameDto;
 import at.htlleonding.pepper.boundary.dto.StepDto;
-import at.htlleonding.pepper.entity.Game;
-import at.htlleonding.pepper.entity.Step;
+import at.htlleonding.pepper.domain.Game;
+import at.htlleonding.pepper.domain.Step;
 import at.htlleonding.pepper.repository.GameRepository;
 import at.htlleonding.pepper.repository.GameTypeRepository;
 import at.htlleonding.pepper.repository.MoveRepository;
@@ -302,8 +302,4 @@ public class LegacyResource {
         }
         return Response.ok(step).build();
     }
-
-
-
-
 }

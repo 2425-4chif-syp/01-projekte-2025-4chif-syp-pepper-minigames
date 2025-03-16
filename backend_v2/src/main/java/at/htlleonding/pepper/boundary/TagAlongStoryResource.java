@@ -1,14 +1,18 @@
 package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Image;
-import at.htlleonding.pepper.entity.dto.GameDto;
-import at.htlleonding.pepper.entity.dto.StepDto;
-import at.htlleonding.pepper.entity.Game;
-import at.htlleonding.pepper.entity.Step;
+import at.htlleonding.pepper.domain.Image;
+import at.htlleonding.pepper.dto.GameDto;
+import at.htlleonding.pepper.dto.StepDto;
+import at.htlleonding.pepper.domain.Game;
+import at.htlleonding.pepper.domain.Step;
 import at.htlleonding.pepper.repository.GameRepository;
 import at.htlleonding.pepper.repository.ImageRepository;
 import at.htlleonding.pepper.repository.StepRepository;
-import at.htlleonding.pepper.service.Converter;
+<<<<<<< HEAD
+import at.htlleonding.pepper.common.Converter;
+=======
+import at.htlleonding.pepper.util.Converter;
+>>>>>>> main
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,7 +22,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
-import java.util.Base64;
 import java.util.List;
 
 @Path("tagalongstories")

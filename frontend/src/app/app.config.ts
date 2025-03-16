@@ -6,10 +6,10 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch } from "@angular/common/http";
 export const STORY_URL= new InjectionToken<string>('STORY_URL');
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), 
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }),
   {
     provide: STORY_URL,
-    useValue: 'http://localhost:8080/api/tagalongstories'
-  }, 
+    useValue: 'http://localhost:8080/api/'
+  },
   provideRouter(routes), provideClientHydration(), provideHttpClient(withFetch())]
 };
