@@ -8,7 +8,11 @@ import at.htlleonding.pepper.domain.Step;
 import at.htlleonding.pepper.repository.GameRepository;
 import at.htlleonding.pepper.repository.ImageRepository;
 import at.htlleonding.pepper.repository.StepRepository;
+<<<<<<< HEAD
 import at.htlleonding.pepper.common.Converter;
+=======
+import at.htlleonding.pepper.util.Converter;
+>>>>>>> main
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

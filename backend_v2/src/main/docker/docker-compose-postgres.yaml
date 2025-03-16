@@ -1,9 +1,17 @@
 services:
   backend:
     container_name: backend
+<<<<<<< HEAD
     image: backend
     env_file:
       - .env
+=======
+    image: davidcristea/authentificationapp
+    env_file:
+      - ../../../db-postgres/.env
+    environment:
+      - QUARKUS_PROFILE=prod
+>>>>>>> main
     networks:
       - postgres
     ports:

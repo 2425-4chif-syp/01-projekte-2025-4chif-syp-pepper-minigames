@@ -3,6 +3,10 @@ package com.example.memorygame
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+<<<<<<< HEAD
+=======
+import com.example.memorygame.logic.ScoreManager
+>>>>>>> main
 import kotlinx.coroutines.delay
 
 data class MemoryCard(val id: Int, val image: Int, var isFlipped: Boolean = false, var isMatched: Boolean = false)
@@ -17,7 +21,11 @@ fun createMemoryDeck(): List<MemoryCard> {
     return cards.shuffled()
 }
 
+<<<<<<< HEAD
 class GameLogic {
+=======
+class GameLogic(private val scoreManager: ScoreManager) {
+>>>>>>> main
     var flippedCards by mutableStateOf(mutableListOf<Int>())
     var matchedCards by mutableStateOf(mutableSetOf<Int>())
     var isGameOver by mutableStateOf(false)
@@ -30,6 +38,7 @@ class GameLogic {
             if (flippedCards.size == 2) {
                 delay(300)
                 checkForMatch(allCards)
+<<<<<<< HEAD
             }
         }
     }
@@ -53,14 +62,42 @@ class GameLogic {
 
             if (matchedCards.size == allCards.size) {
                 isGameOver = true
+=======
+>>>>>>> main
             }
         }
     }
 
+<<<<<<< HEAD
     fun restartGame(): MutableList<MemoryCard> {
         flippedCards = mutableListOf()
         matchedCards = mutableSetOf()
         isGameOver = false
         return createMemoryDeck().toMutableList()
+=======
+    private fun checkForMatch(allCards: MutableList<MemoryCard>) {
+        if (flippedCards.size == 2) {
+            val firstCardIndex = flippedCards[0]
+            val secondCardIndex = flippedCards[1]
+            val firstCard = allCards[firstCardIndex]
+            val secondCard = allCards[secondCardIndex]
+
+            if (firstCard.image == secondCard.image) {
+                matchedCards.add(firstCardIndex)
+                matchedCards.add(secondCardIndex)
+                scoreManager.onMatchFound()
+            } else {
+                firstCard.isFlipped = false
+                secondCard.isFlipped = false
+                scoreManager.onMismatch()
+            }
+
+            flippedCards = mutableListOf()
+
+            if (matchedCards.size == allCards.size) {
+                isGameOver = true
+            }
+        }
+>>>>>>> main
     }
 }

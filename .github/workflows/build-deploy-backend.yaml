@@ -3,7 +3,11 @@ name: CI/CD Pipeline for Quarkus Docker Deployment
 on:
   push:
     branches:
+<<<<<<< HEAD
       - develop
+=======
+      - main
+>>>>>>> main
     paths:
       - '../../backend_v2/**'
   workflow_dispatch:
@@ -31,6 +35,7 @@ jobs:
           cd backend_v2
           mvn clean install -DskipTests
 
+<<<<<<< HEAD
       - name: Get the git commits since the last tag
         run: |
           git pull --unshallow
@@ -48,6 +53,12 @@ jobs:
         run: |
           cd backend_v2
           docker build -t backend .
+=======
+      - name: Build Docker image
+        run: |
+          cd backend_v2
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest .
+>>>>>>> main
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -57,7 +68,11 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
+<<<<<<< HEAD
           docker push backend
+=======
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
+>>>>>>> main
 
       - name: Deploy to VM (SSH)
         uses: appleboy/ssh-action@v0.1.5
@@ -67,6 +82,7 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
           script: |
+<<<<<<< HEAD
             docker stop $(docker ps -aq) && docker rm -f $(docker ps -aq)
 
 
@@ -79,3 +95,13 @@ jobs:
             -p 8080:8080 \
             --restart always \
             backend
+=======
+            if [ $(docker ps -q -f name=backend) ]; then
+              docker stop backend
+              docker rm backend
+            fi
+            
+            docker pull ${{ secrets.DOCKER_USERNAME }}/backend:latest
+          
+            docker run -d -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} -e CHATGBT_API_KEY=${{ secrets.CHATGBT_API_KEY }} --network postgres --name backend -p 8080:8080 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/backend:latest
+>>>>>>> main
