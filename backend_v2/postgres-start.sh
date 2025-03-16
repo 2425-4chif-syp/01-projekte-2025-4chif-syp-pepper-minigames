@@ -1,2 +1,2 @@
-cd db-postgres || exit
+SS  cd db-postgres || exit
 docker compose -f docker-compose-postgres.yaml up -d

@@ -1,6 +1,7 @@
 package at.htlleonding.pepper.boundary;
 
 import at.htlleonding.pepper.domain.Person;
+import at.htlleonding.pepper.dto.PersonDto;
 import at.htlleonding.pepper.repository.PersonRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +14,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Path("person")
@@ -34,8 +36,18 @@ public class PersonResource {
         if (persons.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity("Keine Personen gefunden").build();
         }
+        List<PersonDto> safePersons = persons.stream()
+                .map(person -> new PersonDto(
+                        person.getId(),
+                        person.getFirstName(),
+                        person.getLastName(),
+                        person.getDob(),
+                        person.getRoomNo(),
+                        person.getIsWorker()
+                ))
+                .collect(Collectors.toList());
 
-        return Response.ok(persons).build();
+        return Response.ok(safePersons).build();
     }
 
     @POST
@@ -55,7 +67,16 @@ public class PersonResource {
         if (person == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Person nicht gefunden").build();
         }
-        return Response.ok(person).build();
+        PersonDto safePerson = new PersonDto(
+                person.getId(),
+                person.getFirstName(),
+                person.getLastName(),
+                person.getDob(),
+                person.getRoomNo(),
+                person.getIsWorker()
+        );
+
+        return Response.ok(safePerson).build();
     }
 
     @PUT
