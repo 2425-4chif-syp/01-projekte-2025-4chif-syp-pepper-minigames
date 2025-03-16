@@ -1,0 +1,29 @@
+= Move API Documentation
+
+== Overview
+The Move API provides an endpoint to retrieve all available moves in the system.
+
+== Endpoints
+
+=== Get All Moves
+`GET /move`
+
+**Response:**
+- `200 OK`: Returns a list of moves.
+- `204 No Content`: If no moves are found.
+
+== Data Models
+
+=== Move
+```json
+{
+  "id": 1,
+  "name": "Example Move",
+  "description": "Description of the move"
+}
+```
+
+== Error Handling
+- `204 No Content`: No moves available.
+- `500 Internal Server Error`: Unexpected server error.
+
