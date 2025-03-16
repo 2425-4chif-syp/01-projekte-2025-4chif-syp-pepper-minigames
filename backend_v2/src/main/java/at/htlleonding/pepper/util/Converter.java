@@ -1,9 +1,10 @@
 package at.htlleonding.pepper.util;
 
-import at.htlleonding.pepper.entity.dto.GameDto;
-import at.htlleonding.pepper.entity.dto.StepDto;
-import at.htlleonding.pepper.entity.Game;
-import at.htlleonding.pepper.entity.Step;
+import at.htlleonding.pepper.domain.Image;
+import at.htlleonding.pepper.dto.GameDto;
+import at.htlleonding.pepper.dto.StepDto;
+import at.htlleonding.pepper.domain.Game;
+import at.htlleonding.pepper.domain.Step;
 
 import java.util.Base64;
 
@@ -22,7 +23,7 @@ public class Converter {
     public static Step convertToStep(StepDto stepDTO){
         Step step = new Step();
         step.setGame(stepDTO.game());
-        step.setImage(stepDTO.image());
+        step.setImage(new Image(null, Base64.getDecoder().decode((stepDTO.image())), null, null));
         step.setMove(stepDTO.move());
         step.setIndex(stepDTO.index());
         step.setText(stepDTO.text());
