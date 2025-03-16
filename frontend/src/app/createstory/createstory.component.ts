@@ -44,6 +44,8 @@ export class CreatestoryComponent {
   scenes: Scene[] = [];
   isSidebarVisible = false;
 
+  titleImage: string | null = null;
+
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
   }
@@ -88,5 +90,16 @@ export class CreatestoryComponent {
 
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
+  }
+
+  uploadTitleImage(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.titleImage = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
   }
 }
