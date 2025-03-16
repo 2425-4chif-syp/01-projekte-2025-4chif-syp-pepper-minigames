@@ -1,0 +1,32 @@
+<h1>Mitmachgeschichten</h1>
+
+
+<form class="input" [formGroup]="formGroup">
+  <label for="filter">Nach Geschichte filtern: </label>
+  <input id="filter" type="text" placeholder="Name der Geschichte" formControlName="nameFilter">
+</form>
+
+<ng-container>
+  <div *ngFor="let story of input$ | async; let i = index">
+    <div class="line">
+      <div class="editStory">
+        <a routerLink="/new-story/{{story.id}}"><button class="mat-mini-fab-button-custom-edit" ><mat-icon class="mat-icon-button-custom-edit">edit</mat-icon></button></a>
+      </div>
+
+      <div class="storyName">
+        {{story.name}}
+      </div>
+
+      <div class="showStory">
+        <mat-slide-toggle (change)="toggle($event, story)" [checked]="story.isEnabled" class="custom-slide-toggle"></mat-slide-toggle>
+      </div>
+
+      <div class="deleteStory">
+        <button mat-fab color="primary" class="mat-fab-button-custom" aria-label="Delete this story" (click)="deleteStory(story.id)">
+          <mat-icon class="mat-icon-button-custom">delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  <a routerLink="/new-story"><button class="newDance">Neue Geschichte</button></a>
+</ng-container>

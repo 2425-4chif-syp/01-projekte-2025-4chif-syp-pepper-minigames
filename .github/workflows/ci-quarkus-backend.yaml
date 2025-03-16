@@ -1,0 +1,72 @@
+name: Build and release backend
+run-name: ${{ github.actor }} is releasing the newest version.
+
+on:
+  push:
+    branches: [ main ]
+#    paths:
+#      - 'backend_v2/**'
+#      - '.github/workflows/**'
+    workflow_dispatch:
+
+jobs:
+  build-and-release-backend:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: 'backend_v2/pom.xml' # optional
+
+      - run: java --version
+
+      - name: Build with maven
+        run: |
+          chmod +x ./cicd/build-server.sh
+          ./cicd/build-server.sh
+
+      - name: Get the git commits since the last tag
+        run: |
+          git pull --unshallow
+          echo "$(git log $(git describe --tags --abbrev=0)..HEAD | git shortlog)" | sed 's/^ \+/- /'  > release-notes.txt
+          cat release-notes.txt
+
+      - name: Release the build
+        run: |
+          tag="$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)"
+          gh release create $tag ./dist/*/*.jar --title "pepper-backend $tag" --notes-file release-notes.txt --prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#      - name: Build with Maven
+#        run: |
+#          cd backend_v2
+#          mvn verify -B -DskipTests -Dquarkus.package.type=uber-jar
+#      - name: install ssh key
+#        uses: webfactory/ssh-agent@v0.9.0
+#        with:
+#          ssh-private-key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}
+#      - name: create .ssh/known_hosts
+#        run: |
+#          ssh-keyscan -H -t ed25519 -v ${{ secrets.SERVER_IP }}  >> ~/.ssh/known_hosts
+#      - name: copy binaries to vm
+#        run: |
+#          ls -l backend_v2/target/
+#          ls ~/.ssh
+#          scp backend_v2/target/pepper-dm-1.0.0-SNAPSHOT-runner.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:backend.jar
+
+
+
+#      - name: run backend.jar on vm
+#        uses: fifsky/ssh-action@master
+#        with:
+#          command: |
+#            java -jar backend.jar
+#          host: ${{ secrets.SERVER_IP }}
+#          user: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SSH_SERVER_PRIVATE_KEY }}

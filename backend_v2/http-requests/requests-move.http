@@ -1,0 +1,5 @@
+### GET request to example server
+GET {{host}}/api/move
+Content-Type: */*
+
+###

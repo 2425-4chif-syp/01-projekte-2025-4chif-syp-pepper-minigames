@@ -1,0 +1,12 @@
+<div class="container">
+  <div class="button-container">
+    <div class="header">
+      <h2>Bewegungen</h2>
+      <a routerLink="/new-story"><button>Zurück</button></a>
+    </div>
+
+    <div class="button-grid">
+      <button *ngFor="let move of moves" class="move-button">{{ move }}</button>
+    </div>
+  </div>
+</div>

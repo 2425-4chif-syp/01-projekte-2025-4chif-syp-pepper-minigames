@@ -1,5 +1,6 @@
 package com.example.menu.navigation
 
+import MainMenuScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
