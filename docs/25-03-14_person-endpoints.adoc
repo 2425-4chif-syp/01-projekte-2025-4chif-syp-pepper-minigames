@@ -1,0 +1,92 @@
+= Person API Documentation
+
+== Overview
+The Person API provides endpoints to manage people within a system. It supports CRUD operations and authentication for workers.
+
+== Endpoints
+
+=== Person Endpoints
+
+==== Get All People
+`GET /person`
+
+**Response:**
+- `200 OK`: Returns a list of people.
+- `404 Not Found`: If no people are found.
+
+==== Get Person by ID
+`GET /person/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the person.
+
+**Response:**
+- `200 OK`: Returns the person details.
+- `404 Not Found`: If the person is not found.
+
+==== Add a Person
+`POST /person`
+
+**Request Body:**
+- `Person` (JSON): The person data.
+
+**Response:**
+- `201 Created`: Returns the created person.
+- `400 Bad Request`: If required fields are missing.
+
+==== Update a Person
+`PUT /person/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the person.
+
+**Request Body:**
+- `Person` (JSON): The updated person data.
+
+**Response:**
+- `200 OK`: Returns the updated person.
+- `404 Not Found`: If the person does not exist.
+
+==== Delete a Person
+`DELETE /person/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the person.
+
+**Response:**
+- `200 OK`: Confirmation of deletion.
+- `404 Not Found`: If the person does not exist.
+
+=== Authentication Endpoints
+
+==== Login
+`POST /person/login`
+
+**Request Body:**
+- `Person` (JSON): Contains `firstName`, `lastName`, and `password`.
+
+**Response:**
+- `200 OK`: Successful login.
+- `401 Unauthorized`: If the person is not found or password is incorrect.
+
+== Data Models
+
+=== Person
+```json
+{
+  "id": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "dob": "1990-01-01",
+  "roomNo": "101",
+  "isWorker": true,
+  "password": "hashed_password"
+}
+```
+
+== Error Handling
+- `400 Bad Request`: Invalid input.
+- `404 Not Found`: Requested resource does not exist.
+- `401 Unauthorized`: Authentication failed.
+- `500 Internal Server Error`: Unexpected server error.
+

@@ -15,4 +15,8 @@ class BootReceiver : BroadcastReceiver() {
             context.startActivity(i)
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

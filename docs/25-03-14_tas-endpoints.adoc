@@ -1,0 +1,144 @@
+= Tag Along Story API Documentation
+
+== Overview
+The Tag Along Story API allows users to manage interactive stories where players can progress through steps. The API provides CRUD operations for stories and their steps, as well as handling images associated with them.
+
+== Endpoints
+
+=== Tag Along Story Endpoints
+
+==== Get All Tag Along Stories
+`GET /tagalongstories`
+
+**Query Parameters:**
+- `withoutDisabled` (boolean, optional): If `true`, only enabled stories are returned.
+
+**Response:**
+- `200 OK`: Returns a list of stories.
+- `404 Not Found`: If no stories are found.
+
+==== Get Tag Along Story by ID
+`GET /tagalongstories/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Response:**
+- `200 OK`: Returns the story.
+- `404 Not Found`: If the story is not found.
+
+==== Get Story Image by ID
+`GET /tagalongstories/{id}/image`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Response:**
+- `200 OK`: Returns the image in PNG format.
+- `404 Not Found`: If no image is found.
+
+==== Create a Tag Along Story
+`POST /tagalongstories`
+
+**Request Body:**
+- `GameDto` (JSON): The story data, including `icon` as a Base64 string.
+
+**Response:**
+- `200 OK`: Returns the created story.
+- `400 Bad Request`: If required data is missing.
+
+==== Update a Tag Along Story
+`PUT /tagalongstories/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Request Body:**
+- `GameDto` (JSON): The updated story data.
+
+**Response:**
+- `200 OK`: Returns the updated story.
+- `404 Not Found`: If the story does not exist.
+
+==== Delete a Tag Along Story
+`DELETE /tagalongstories/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Response:**
+- `200 OK`: Confirmation of deletion.
+- `404 Not Found`: If the story does not exist.
+
+=== Steps Endpoints
+
+==== Get Steps by Story ID
+`GET /tagalongstories/{id}/steps`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Response:**
+- `200 OK`: Returns a list of steps.
+- `404 Not Found`: If no steps are found.
+
+==== Create Step for a Story
+`POST /tagalongstories/{id}/steps`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+
+**Request Body:**
+- `StepDto` (JSON): Step data, including `image` as a Base64 string.
+
+**Response:**
+- `200 OK`: Returns the created step.
+- `400 Bad Request`: If required data is missing.
+
+==== Delete Step by ID
+`DELETE /tagalongstories/{id}/steps/{stepId}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the tag along story.
+- `stepId` (Long): The ID of the step to delete.
+
+**Response:**
+- `200 OK`: Confirmation of deletion.
+- `404 Not Found`: If the step does not exist.
+- `400 Bad Request`: If the step does not belong to the given story.
+
+== Repositories
+
+=== StepRepository
+- `findByGameId(Long gameId)`: Retrieves all steps for a given game.
+- `deleteByGameId(Long gameId)`: Deletes all steps for a given game.
+
+=== GameRepository
+- `deleteGameAndSteps(Long gameId)`: Deletes a game and its associated steps.
+
+== Data Models
+
+=== GameDto
+```json
+{
+  "id": 1,
+  "name": "Example Story",
+  "icon": "data:image/png;base64,encoded_string",
+  "isEnabled": true
+}
+```
+
+=== StepDto
+```json
+{
+  "id": 1,
+  "name": "Example Step",
+  "image": "data:image/png;base64,encoded_string"
+}
+```
+
+== Error Handling
+- `400 Bad Request`: Invalid input.
+- `404 Not Found`: Requested resource does not exist.
+- `500 Internal Server Error`: Unexpected server error.
+

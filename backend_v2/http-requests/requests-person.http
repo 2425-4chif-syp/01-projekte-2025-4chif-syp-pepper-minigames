@@ -1,0 +1,61 @@
+### GET: Get all persons
+GET http://localhost:8080/api/person
+Accept: application/json
+
+### POST: Add a new person
+POST http://localhost:8080/api/person
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "dob": "1990-01-01",
+  "roomNo": "101",
+  "isWorker": true,
+  "password": "password123"
+}
+
+### GET: Get a person by ID
+GET http://localhost:8080/api/person/1
+Accept: application/json
+
+### PUT: Update a person
+PUT http://localhost:8080/api/person/1
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "dob": "1990-01-01",
+  "roomNo": "102",
+  "isWorker": false,
+  "password": "newpassword123"
+}
+
+### DELETE: Delete a person
+DELETE http://localhost:8080/api/person/1
+Accept: application/json
+
+
+### Authentication
+
+
+### POST: Login as a worker
+POST http://localhost:8080/api/person/login
+Content-Type: application/json
+
+{
+  "firstName": "Anna",
+  "lastName": "Müller",
+  "password": "$2a$10$examplehashedpassword1"
+}
+
+### POST: Login as a senior (should fail)
+POST http://localhost:8080/api/person/login
+Content-Type: application/json
+
+{
+  "firstName": "Franz",
+  "lastName": "Huber",
+  "password": "newpassword123"
+}

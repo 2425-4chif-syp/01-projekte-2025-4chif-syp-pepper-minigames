@@ -1,0 +1,39 @@
+### GET request to example server
+GET {{host}}/api/image
+Content-Type: */*
+
+###
+
+GET {{host}}/api/image/2
+Content-Type: */*
+
+###
+### Not implemented rn
+GET {{host}}/api/image/person/3
+Content-Type: */*
+
+###
+
+POST {{host}}/api/image
+Content-Type: application/json
+
+{
+  "description": "Profile picture of Maria Bauer",
+  "person": {
+    "dob": "1978-11-30",
+    "firstName": "Maria",
+    "id": 3,
+    "isWorker": true,
+    "lastName": "Bauer",
+    "password": "$2a$10$examplehashedpassword3",
+    "roomNo": "103"
+  },
+  "base64Image": "/9j/4AAQSkZJRgABAQEASABIAAA="
+}
+
+###
+
+###
+
+DELETE {{host}}/api/image/2
+Content-Type: application/json
