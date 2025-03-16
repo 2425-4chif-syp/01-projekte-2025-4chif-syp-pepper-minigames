@@ -1,0 +1,44 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - asciidocs/**
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Build & Publish 🚀
+    runs-on: ubuntu-latest
+    env:
+      INPUTPATH: asciidocs
+      SLIDES: true
+      BRANCH: gh-pages
+    steps:
+      - uses: actions/checkout@v4
+
+      #- name: install packages
+      #  uses: awalsh128/cache-apt-pkgs-action@latest
+      #  with:
+      #    packages:  asciidoctor graphviz
+      #    version: 1.0
+
+      #- name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
+
+      - name: run docker
+        run: |
+          sudo ${{ env.INPUTPATH }}/scripts/docker-convert.sh ${{ env.INPUTPATH }} ${{ env.SLIDES }}
+          tree
+
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          # GITHUB_TOKEN: ${{ github.TOKEN }}
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH }}
+          folder: ${{ env.INPUTPATH }}

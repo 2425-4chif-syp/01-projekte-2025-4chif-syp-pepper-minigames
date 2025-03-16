@@ -1,0 +1,69 @@
+### TagAlongStory Endpoints
+
+GET {{host}}/api/tagalongstories
+Content-Type: application/json
+
+###
+POST {{host}}/api/tagalongstories
+Content-Type: application/json
+
+{
+  "name": "Geschichten aus Wien",
+  "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
+  "gameType": {
+    "id": "TAG_ALONG_STORY",
+    "name": "Mitmachgeschichten"
+  },
+  "enabled": true
+}
+
+###
+PUT {{host}}/api/tagalongstories/2
+Content-Type: application/json
+
+{
+  "name": "Geschichten aus Linz",
+  "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
+  "gameType": {
+    "id": "TAG_ALONG_STORY",
+    "name": "Mitmachgeschichten"
+  },
+  "enabled": false
+}
+###
+DELETE {{host}}/api/tagalongstories/4
+
+### Step Endpoints
+
+GET {{host}}/api/tagalongstories/2/steps
+Content-Type: application/json
+###
+
+POST {{host}}/api/tagalongstories/2/steps
+Content-Type: application/json
+
+{
+  "game": {
+    "name": "Geschichten aus der Eisenstadt",
+    "icon": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
+    "gameType": {
+      "id": "TAG_ALONG_STORY",
+      "name": "Mitmachgeschichten"
+    },
+    "enabled": true
+  },
+  "index": 2,
+  "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD",
+  "image_desc": "Eisenstädtergasse",
+  "move": {
+    "id": 1,
+    "name": "emote_hurra",
+    "description": "Hurra"
+  },
+  "text": "Der Text für steps!",
+  "durationInSeconds": 15
+}
+
+###
+DELETE {{host}}/api/tagalongstories/2/steps/6
+Content-Type: application/json

@@ -8,7 +8,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+<<<<<<< HEAD
 import androidx.compose.animation.expandHorizontally
+=======
+>>>>>>> main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+<<<<<<< HEAD
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +30,12 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import java.util.Locale
 import androidx.compose.runtime.LaunchedEffect as LaunchedEffect1
+=======
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import java.util.Locale
+>>>>>>> main
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
@@ -58,8 +68,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
 @Composable
 fun TicTacToeScreen(textToSpeech: TextToSpeech) {
+<<<<<<< HEAD
     var playAgainstRobot by remember { mutableStateOf<Boolean?>(null) }
 
+=======
+>>>>>>> main
     var player1Name by remember { mutableStateOf("") }
     var player2Name by remember { mutableStateOf("") }
     var namesSet by remember { mutableStateOf(false) }
@@ -71,14 +84,18 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
     var currentPlayer by remember { mutableStateOf('X') }
     var winner by remember { mutableStateOf<Char?>(null) }
     var gameOver by remember { mutableStateOf(false) }
+<<<<<<< HEAD
     var isRobotTurn by remember { mutableStateOf(false) }
 
 
+=======
+>>>>>>> main
 
     val backgroundColor = Color(0xFF1A1A1A)
     val fieldColor = Color(0xFFD32F2F)
     val textColor = Color(0xFFFFFFFF)
 
+<<<<<<< HEAD
     if (playAgainstRobot == null) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -122,6 +139,9 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
 
 
     } else if (!namesSet) {
+=======
+    if (!namesSet) {
+>>>>>>> main
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -131,7 +151,11 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
+<<<<<<< HEAD
                 text = if (playAgainstRobot == true) "Geben Sie Ihren Namen ein" else "Geben Sie die Spielernamen ein",
+=======
+                text = "Geben Sie die Spielernamen ein",
+>>>>>>> main
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -142,12 +166,17 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
             TextField(
                 value = player1Name,
                 onValueChange = { player1Name = it },
+<<<<<<< HEAD
                 label = { Text(if (playAgainstRobot == true) "Ihr Name" else "Spieler 1 Name") },
+=======
+                label = { Text("Spieler 1 Name") },
+>>>>>>> main
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.White
                 )
             )
+<<<<<<< HEAD
             if (playAgainstRobot == false) {
                 // Zweiter Spielername nur im Freundmodus
                 Spacer(modifier = Modifier.height(8.dp))
@@ -176,10 +205,26 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                     )
                 )
             }
+=======
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = player2Name,
+                onValueChange = { player2Name = it },
+                label = { Text("Spieler 2 Name") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.White
+                )
+            )
+
+>>>>>>> main
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
+<<<<<<< HEAD
                     if (player1Name.isNotEmpty() && (playAgainstRobot == false && player2Name.isNotEmpty() || playAgainstRobot == true)) {
                         if (playAgainstRobot == true) {
                             player2Name = "Pepper"
@@ -188,6 +233,13 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                     } else {
                         textToSpeech.speak(
                             "Bitte geben Sie alle benötigten Namen ein",
+=======
+                    if (player1Name.isNotEmpty() && player2Name.isNotEmpty()) {
+                        namesSet = true
+                    } else {
+                        textToSpeech.speak(
+                            "Bitte geben Sie beide Spielernamen ein",
+>>>>>>> main
                             TextToSpeech.QUEUE_FLUSH,
                             null,
                             null
@@ -243,11 +295,15 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                         for (j in 0..2) {
                             val playerSymbol = board[i][j]
                             val animatedFieldColor by animateColorAsState(
+<<<<<<< HEAD
                                 targetValue = when (playerSymbol) {
                                     'X' -> Color(0xFF388E3C) // Grün für Spieler 1 (X)
                                     'O' -> Color(0xFF1976D2)
                                     else -> fieldColor
                                 },
+=======
+                                targetValue = if (playerSymbol == ' ') fieldColor else Color(0xFF388E3C),
+>>>>>>> main
                                 animationSpec = tween(durationMillis = 500)
                             )
 
@@ -256,17 +312,25 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                     .size(125.dp)
                                     .padding(6.dp)
                                     .background(animatedFieldColor, RoundedCornerShape(10.dp))
+<<<<<<< HEAD
                                     .clickable(enabled = !gameOver && board[i][j] == ' ' && !isRobotTurn) {
                                         if (board[i][j] == ' ' && winner == null) {
+=======
+                                    .clickable(enabled = !gameOver) {
+                                        if (playerSymbol == ' ' && winner == null) {
+>>>>>>> main
                                             board[i][j] = currentPlayer
                                             winner = checkWinner(board)
 
                                             if (winner == null) {
                                                 currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+<<<<<<< HEAD
 
                                                 if (playAgainstRobot == true && currentPlayer == 'O') {
                                                     isRobotTurn = true
                                                 }
+=======
+>>>>>>> main
                                             } else {
                                                 gameOver = true
                                                 if (winner == 'X') player1Wins++ else player2Wins++
@@ -276,7 +340,11 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
+<<<<<<< HEAD
                                     text = when (board[i][j]) {
+=======
+                                    text = when (playerSymbol) {
+>>>>>>> main
                                         'X' -> "X"
                                         'O' -> "O"
                                         else -> ""
@@ -287,13 +355,17 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
                                 )
                             }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+<<<<<<< HEAD
 // Roboterzug wird hier ausgeführt
                 if (isRobotTurn) {
                     LaunchedEffect1(Unit) {
@@ -315,6 +387,10 @@ fun TicTacToeScreen(textToSpeech: TextToSpeech) {
 
 
                 if (gameOver && winner != null) {
+=======
+
+            if (gameOver && winner != null) {
+>>>>>>> main
                 val winnerName = if (winner == 'X') player1Name else player2Name
 
                 // Full-Screen Winner Dialog
@@ -379,6 +455,7 @@ fun checkWinner(board: Array<CharArray>): Char? {
 
 fun resetGame(resetAction: () -> Unit) {
     resetAction()
+<<<<<<< HEAD
 }
 fun robotMove(board: Array<CharArray>, robotSymbol: Char, playerSymbol: Char): Pair<Int, Int>? {
     // 1. Prüfen, ob der Roboter gewinnen kann
@@ -439,3 +516,6 @@ fun RobotTurn(
     }
 }
 
+=======
+}
+>>>>>>> main

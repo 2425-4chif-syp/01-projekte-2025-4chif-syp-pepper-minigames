@@ -5,14 +5,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.pepperdiebspiel.GameGrid
-import com.example.pepperdiebspiel.screens.StartScreen
+import com.example.pepperdiebspiel.screens.DifficultySelectionScreen
+import com.example.pepperdiebspiel.screens.DifficultySelectionScreen
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(navController: NavHostController, onDifficultySelected: (String) -> Unit) {
     NavHost(navController = navController, startDestination = "start") {
-        // Start-Bildschirm
+        // Schwierigkeitsauswahl-Bildschirm
         composable("start") {
-            StartScreen(navController = navController)
+            DifficultySelectionScreen(navController = navController, onDifficultySelected = onDifficultySelected)
+        }
+        // Schwierigkeitsauswahl-Bildschirm
+        composable("difficulty_selection") {
+            DifficultySelectionScreen(navController = navController, onDifficultySelected = onDifficultySelected)
         }
         // Spiel-Bildschirm
         composable("game") {

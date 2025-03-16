@@ -1,0 +1,16 @@
+<div class="p-8 h-screen">
+    <h1 class="text-3xl font-bold mb-4">Bilder - Überblick</h1>
+    
+    <div class="grid grid-cols-4 gap-6">
+      <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <img [src]="'data:image/png;base64,' + image.base64Image" [alt]="image.description" class="w-full h-48 object-cover" />
+        <div class="p-4 bg-blue-500 text-white text-center font-semibold">
+          {{ image.description }}
+        </div>
+      </div>
+    </div>
+    
+    <button (click)="goToUpload()" class="mt-6 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md">
+      HOCHLADEN
+    </button>
+  </div>
