@@ -118,9 +118,9 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         LaunchedEffect(isGameOver) {
             if (isGameOver) {
                 val playerScore = PlayerScore( //Die Daten für Lokale-Speicherung
-                    personId = 1, // von Backend/API
-                    vorName = "Max",          // von Backend/API
-                    nachName = "Mustermann",  // von Backend/API
+                    personId = 2, // von Backend/API
+                    vorName = "Amir",          // von Backend/API
+                    nachName = "Mohamadi",  // von Backend/API
                     gridRows = rows,
                     gridColumns = columns,
                     score = scoreManager.currentScore,

@@ -53,9 +53,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
                     }
 
-                    // High Scores
+                    // High Scores => 1 Just for Test
                     composable("high_scores") {
-                        HighScoresScreen()
+                        HighScoresScreen(1)
                     }
 
                     // Spieleinleitung
