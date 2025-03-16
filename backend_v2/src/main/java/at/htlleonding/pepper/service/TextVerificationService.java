@@ -1,15 +1,9 @@
 package at.htlleonding.pepper.service;
 
-<<<<<<< HEAD
-import at.htlleonding.pepper.common.Constants;
-import at.htlleonding.pepper.common.AwsClientProvider;
-import jakarta.ws.rs.core.Response;
-=======
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
->>>>>>> main
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
@@ -20,16 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-<<<<<<< HEAD
-public class TextVerificationService {
-=======
 @ApplicationScoped
 public class TextVerificationService {
 
     @ConfigProperty(name = "authentication.collection.id")
     String collectionId;
 
->>>>>>> main
     public Response verifyText(String text) {
 
         try (DynamoDbClient dynamoDbClient = AwsClientProvider.getDynamoDbClient()) {
@@ -41,20 +31,13 @@ public class TextVerificationService {
             String filterExpression = "FullName = :fullName";
 
             ScanRequest scanRequest = ScanRequest.builder()
-<<<<<<< HEAD
-                    .tableName(Constants.DYNAMODB_TABLE)
-=======
                     .tableName(collectionId)
->>>>>>> main
                     .filterExpression(filterExpression)
                     .expressionAttributeValues(expressionValues)
                     .build();
 
             System.out.println("Searching for FullName in DynamoDB: " + text);
-<<<<<<< HEAD
-=======
             System.out.println("Collection ID: " + collectionId);
->>>>>>> main
             ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
             List<Map<String, AttributeValue>> items = scanResponse.items();
@@ -71,8 +54,4 @@ public class TextVerificationService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing request").build();
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main
