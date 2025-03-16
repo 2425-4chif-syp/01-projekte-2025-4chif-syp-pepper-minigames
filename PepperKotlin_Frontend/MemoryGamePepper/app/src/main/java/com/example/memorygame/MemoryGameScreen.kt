@@ -20,12 +20,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+<<<<<<< HEAD
+=======
 import com.example.memorygame.data.AppDatabase
 import com.example.memorygame.data.PlayerScore
 import com.example.memorygame.data.ScoreRepository
 import com.example.memorygame.data.ScoreRequest
 import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.delay
+>>>>>>> main
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
@@ -33,9 +36,13 @@ import com.example.memorygame.logic.restartGame
 
 @Composable
 fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
+<<<<<<< HEAD
+    val gameLogic = remember { GameLogic() }
+=======
     val scoreManager = remember { ScoreManager(rows, columns) }
     val gameLogic = remember { GameLogic(scoreManager) }
 
+>>>>>>> main
     val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
     val cards = remember {
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
@@ -45,9 +52,12 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
     val matchedCards by remember { derivedStateOf { gameLogic.matchedCards } }
     val isGameOver by remember { derivedStateOf { gameLogic.isGameOver } }
     val coroutineScope = rememberCoroutineScope()
+<<<<<<< HEAD
+=======
 
     var gameStartTime by remember { mutableStateOf(0L) }
     var elapsedSeconds by remember { mutableStateOf(0) }
+>>>>>>> main
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -81,8 +91,14 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         if (isGameOver) {
             WinDialog(
                 onRestart = {
+<<<<<<< HEAD
+                    val newDeck = gameLogic.restartGame()
+                    cards.clear()
+                    cards.addAll(newDeck)
+=======
                     restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
                     gameLogic.isGameOver = false
+>>>>>>> main
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")
@@ -199,4 +215,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             )
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

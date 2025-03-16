@@ -1,0 +1,92 @@
+= Besprechungsprotokoll 03.02.2025
+
+Kyaw Htet Htun
+
+1.0, 17.12.2024
+
+
+ifndef::imagesdir[:imagesdir: images]
+:icons: font
+//:sectnums:    // Nummerierung der Überschriften / section numbering
+//:toc: left
+
+ifdef::backend-html5[]
+
+// https://fontawesome.com/v4.7.0/icons/
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/asciidoctor-docker-template/master/asciidocs/{docname}.adoc]
+icon:github-square[link=https://github.com/htl-leonding-college/asciidoctor-docker-template]
+icon:home[link=https://htl-leonding.github.io/]
+endif::backend-html5[]
+
+.Teilnehmer
+|===
+|Anwesend |Verteiler
+
+|Kyaw Htet Htun
+|
+
+|Obaidullah Mustaq
+|
+
+|Amir Mohamadi
+|
+
+|Milad Moradi
+|
+
+|Stütz Thomas
+|
+|===
+
+.Ort und Zeit
+[cols=2*]
+|===
+|Ort
+|HTL-Leonding
+
+|Von-Bis
+|Mo. 03.02.2025,
+
+|Dauer
+|180 min
+|===
+
+== Besprochene Themen
+
+* Memory
+* Mitmachgeschichte UI
+
+
+
+== Besprochene Punkte
+
+* Bilder und Datum hinzufügen bei den Geschichten
+* Bei den Geschichte statt das Bleistift Icon, ein Bearbeiten Button.
+* ToolTip Annotation für das Aktivieren von Mitmachgeschichte auf Pepper.
+* Eine Auflistung von der Dimension von jetzig geladene Bild und Pepper Dimension (1280 x 800).
+* Bei dem Bild darf man von Rand das Bild nicht verkleinern, sondern nur von der Ecke verkleineren, um komische Bildgrößen zu vermeiden.
+* Steuerelemente von Cropping neben von den image cropper und crop Vorschläge machen einbinden max 4. 
+
+
+* Unterschied zwischen schon gelöste Memory und jetzig Aktive Memory.
+* Komplimente nach jede gefundene Paar bei Memory.
+* Design: Die verdeckte Karten sollen ein Hintergrund haben
+* "Gefundene Paare" soll entfernt werden und Pepper muss das jedemal sagen, ob noch ein weiteres Paar gefunden wurde oder ein falshces Paar ausgewählt wurde
+* Die gefundene Karten sollen makiert sein => einfach anders als andere nicht gefundenen Karten
+* Meinscreen soll ein passendes Desgin bekommen
+== Vereinbarungen und Entscheidungen
+
+.Was wurde vereinbart?
+[%autowidth]
+|===
+|Wer |Macht Was |Bis Wann
+|Kyaw
+a| Steuerelemente umpositionieren, Crop Bilder Empfehlungen
+|Bis Mittwoch 12.02.2025
+
+|Amir
+
+| Schon gelöste Paar von Memory makieren, Komplimente nach jede gefundene Paar bei Memory.
+
+| Bis Montag 03.02.2025
+|===

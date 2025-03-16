@@ -1,0 +1,66 @@
+= Image API Documentation
+
+== Overview
+The Image API allows users to manage images, including retrieving, creating, and deleting images associated with people.
+
+== Endpoints
+
+=== Get All Images
+`GET /image`
+
+**Response:**
+- `200 OK`: Returns a list of images.
+- `404 Not Found`: If no images are found.
+
+=== Get Image by ID
+`GET /image/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the image.
+
+**Response:**
+- `200 OK`: Returns the image details.
+- `404 Not Found`: If the image is not found.
+
+=== Create an Image
+`POST /image`
+
+**Request Body:**
+- `ImageDto` (JSON): The image data, including `base64Image`, `imageUrl`, `description`, and optional `person`.
+
+**Response:**
+- `201 Created`: Image successfully created.
+- `400 Bad Request`: If required fields are missing.
+
+=== Delete an Image
+`DELETE /image/{id}`
+
+**Path Parameters:**
+- `id` (Long): The ID of the image.
+
+**Response:**
+- `204 No Content`: Image successfully deleted.
+- `404 Not Found`: If the image does not exist.
+
+== Data Models
+
+=== ImageDto
+```json
+{
+  "id": 1,
+  "person": {
+    "id": 2,
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "base64Image": "data:image/png;base64,encoded_string",
+  "imageUrl": "http://example.com/image.png",
+  "description": "Example image"
+}
+```
+
+== Error Handling
+- `400 Bad Request`: Invalid input.
+- `404 Not Found`: Requested resource does not exist.
+- `500 Internal Server Error`: Unexpected server error.
+

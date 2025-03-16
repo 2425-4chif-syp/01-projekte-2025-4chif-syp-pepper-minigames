@@ -1,6 +1,6 @@
 package at.htlleonding.pepper.boundary;
 
-import at.htlleonding.pepper.entity.Person;
+import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.repository.PersonRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,7 +25,6 @@ public class PersonResource {
     PersonRepository personRepository;
 
     //region Person Endpoints
-    // 🔍 GET: Alle Personen abrufen
     @GET
     @Operation(summary = "Get all people")
     @Transactional
@@ -39,7 +38,6 @@ public class PersonResource {
         return Response.ok(persons).build();
     }
 
-    // ✨ POST: Neue Person hinzufügen
     @POST
     @Transactional
     public Response addPerson(Person person) {
@@ -50,7 +48,6 @@ public class PersonResource {
         return Response.status(Response.Status.CREATED).entity(person).build();
     }
 
-    // 🔍 GET: Eine einzelne Person nach ID abrufen
     @GET
     @Path("/{id}")
     public Response getPersonById(@PathParam("id") Long id) {
@@ -61,7 +58,6 @@ public class PersonResource {
         return Response.ok(person).build();
     }
 
-    // ✏️ PUT: Person aktualisieren
     @PUT
     @Path("/{id}")
     @Transactional
@@ -71,7 +67,6 @@ public class PersonResource {
             return Response.status(Response.Status.NOT_FOUND).entity("Person nicht gefunden").build();
         }
 
-        // 🛠 Aktualisierung der Werte
         if (updatedPerson.getFirstName() != null) existingPerson.setFirstName(updatedPerson.getFirstName());
         if (updatedPerson.getLastName() != null) existingPerson.setLastName(updatedPerson.getLastName());
         if (updatedPerson.getDob() != null) existingPerson.setDob(updatedPerson.getDob());
@@ -80,7 +75,6 @@ public class PersonResource {
         return Response.ok(existingPerson).build();
     }
 
-    // 🗑 DELETE: Person löschen
     @DELETE
     @Path("/{id}")
     @Transactional

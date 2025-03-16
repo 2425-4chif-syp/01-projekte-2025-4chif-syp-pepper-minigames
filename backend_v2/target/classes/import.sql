@@ -44,6 +44,7 @@ VALUES
     ('Markus', 'Wolf', '1975-06-12', '110', FALSE, NULL);
 
 <<<<<<< HEAD:backend_v2/target/classes/import.sql
+<<<<<<< HEAD:backend_v2/target/classes/import.sql
 =======
 
 INSERT INTO pe_image (i_p_id, i_description, i_url, i_image)
@@ -59,3 +60,5 @@ VALUES
     (9, 'Profile picture of Julia Schmid', NULL, NULL),
     (10, 'Profile picture of Markus Wolf', NULL, NULL);
 >>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2:backend_v2/src/main/resources/import.sql
+=======
+>>>>>>> main:backend_v2/src/main/resources/import.sql
