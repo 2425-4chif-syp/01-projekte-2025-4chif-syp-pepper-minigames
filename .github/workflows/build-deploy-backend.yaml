@@ -49,7 +49,7 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_KEY }}
-          script: |
+          run: |
             if [ $(docker ps -q -f name=backend) ]; then
               docker stop backend
               docker rm backend
