@@ -3,6 +3,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { CommonModule } from '@angular/common';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
+import { FormsModule } from '@angular/forms';
 
 interface Scene {
   speech: string;
@@ -13,7 +14,7 @@ interface Scene {
 
 @Component({  
   selector: 'app-createstory',
-  imports: [DragDropModule, CommonModule],
+  imports: [DragDropModule, CommonModule, FormsModule],
   templateUrl: './createstory.component.html',
 })
 export class CreatestoryComponent {
@@ -45,10 +46,11 @@ export class CreatestoryComponent {
   
   scenes: Scene[] = [];
   isSidebarVisible = false;
-  selectedScene: Scene | null = null;  // Speichert die aktuell ausgewählte Szene
+  selectedScene: Scene | null = null;
 
   titleImage: string | null = null;
-
+  titleName: string = '';
+  
   imagesService = inject(ImageServiceService);
   images = signal<ImageModel[]>([]);
 
@@ -114,6 +116,80 @@ export class CreatestoryComponent {
 
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
+  }
+
+  saveButton() {
+    // Zuerst die Geschichte speichern
+    const storyData = {
+      name: this.titleName, // Der Name der Geschichte
+      icon: this.titleImage, // Das Titelbild als Base64-String
+      gameType: {
+        id: "TAG_ALONG_STORY", // Die ID des Spieltyps
+        name: "Mitmachgeschichten" // Der Name des Spieltyps
+      },
+      enabled: true // Aktivierungsstatus
+    };
+  
+    console.log('Daten werden gesendet:', storyData);
+  
+    // Geschichte speichern
+    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(storyData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Geschichte erfolgreich gespeichert:', data);
+  
+        // Nachdem die Geschichte gespeichert wurde, die Szenen speichern
+        const storyId = data.id; // Annahme: Die Antwort enthält die ID der gespeicherten Geschichte
+        this.saveScenes(storyId);
+      })
+      .catch((error) => console.error('Fehler beim Speichern der Geschichte:', error));
+  }
+  
+  saveScenes(storyId: number) {
+    // Szenen in der richtigen Reihenfolge speichern
+    this.scenes.forEach((scene, index) => {
+      const sceneData = {
+        game: {
+          name: this.titleName, // Der Name der Geschichte
+          icon: this.titleImage, // Das Titelbild als Base64-String
+          gameType: {
+            id: "TAG_ALONG_STORY", // Die ID des Spieltyps
+            name: "Mitmachgeschichten" // Der Name des Spieltyps
+          },
+          enabled: true // Aktivierungsstatus
+        },
+        index: index + 1, // Numerierung beginnt bei 1
+        image: scene.image, // Das Bild der Szene
+        image_desc: "Beschreibung des Bildes", // Hier kannst du eine Beschreibung hinzufügen
+        move: {
+          id: this.moves.indexOf(scene.movement) + 1, // ID der Bewegung
+          name: scene.movement, // Name der Bewegung
+          description: this.moveNames[this.moves.indexOf(scene.movement)] // Beschreibung der Bewegung
+        },
+        text: scene.speech, // Der Text der Szene
+        durationInSeconds: scene.duration // Dauer der Szene
+      };
+  
+      console.log('Szene wird gesendet:', sceneData);
+  
+      // Szene speichern
+      fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sceneData),
+      })
+        .then((response) => response.json())
+        .then((data) => console.log('Szene erfolgreich gespeichert:', data))
+        .catch((error) => console.error('Fehler beim Speichern der Szene:', error));
+    });
   }
 
   uploadTitleImage(event: Event) {
