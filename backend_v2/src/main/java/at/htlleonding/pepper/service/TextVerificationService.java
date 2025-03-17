@@ -1,5 +1,6 @@
 package at.htlleonding.pepper.service;
 
+import at.htlleonding.pepper.common.Constants;
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
@@ -17,8 +18,6 @@ import java.util.Map;
 @ApplicationScoped
 public class TextVerificationService {
 
-    @ConfigProperty(name = "authentication.collection.id")
-    String collectionId;
 
     public Response verifyText(String text) {
 
@@ -31,13 +30,13 @@ public class TextVerificationService {
             String filterExpression = "FullName = :fullName";
 
             ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName(collectionId)
+                    .tableName(Constants.COLLECTION_ID)
                     .filterExpression(filterExpression)
                     .expressionAttributeValues(expressionValues)
                     .build();
 
             System.out.println("Searching for FullName in DynamoDB: " + text);
-            System.out.println("Collection ID: " + collectionId);
+            System.out.println("Collection ID: " + Constants.COLLECTION_ID);
             ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
             List<Map<String, AttributeValue>> items = scanResponse.items();

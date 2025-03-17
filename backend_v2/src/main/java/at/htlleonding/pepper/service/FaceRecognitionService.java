@@ -1,5 +1,6 @@
 package at.htlleonding.pepper.service;
 
+import at.htlleonding.pepper.common.Constants;
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -19,18 +20,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class FaceRecognitionService {
 
-    @ConfigProperty(name = "authentication.collection.id")
-    String collectionId;
-
-    @ConfigProperty(name = "authentication.dynamodb.table")
-    String dynamodbTable;
-
-    @ConfigProperty(name = "authentication.fullName.key")
-    String fullNameKey;
-
-    @ConfigProperty(name = "authentication.rekognitionid.key")
-    String rekognitionIdKey;
-
     public Response verifyFace(byte[] fileContent) {
         try {
             RekognitionClient rekognitionClient = AwsClientProvider.getRekognitionClient();
@@ -49,7 +38,7 @@ public class FaceRecognitionService {
 
     private SearchFacesByImageResponse searchFaces(RekognitionClient rekognitionClient, byte[] fileContent) {
         SearchFacesByImageRequest searchFacesRequest = SearchFacesByImageRequest.builder()
-                .collectionId(collectionId)
+                .collectionId(Constants.COLLECTION_ID)
                 .image(Image.builder().bytes(SdkBytes.fromByteArray(fileContent)).build())
                 .build();
         return rekognitionClient.searchFacesByImage(searchFacesRequest);
@@ -63,7 +52,7 @@ public class FaceRecognitionService {
             GetItemResponse getItemResponse = fetchPersonFromDynamoDb(dynamoDbClient, faceId);
 
             if (getItemResponse.hasItem()) {
-                String fullName = getItemResponse.item().get(fullNameKey).s();
+                String fullName = getItemResponse.item().get(Constants.FULL_NAME_KEY).s();
                 return Response.ok("Found Person: " + fullName).build();
             }
         }
@@ -71,9 +60,9 @@ public class FaceRecognitionService {
     }
 
     private GetItemResponse fetchPersonFromDynamoDb(DynamoDbClient dynamoDbClient, String faceId) {
-        Map<String, AttributeValue> key = Map.of(rekognitionIdKey, AttributeValue.builder().s(faceId).build());
+        Map<String, AttributeValue> key = Map.of(Constants.REKOGNITION_ID_KEY, AttributeValue.builder().s(faceId).build());
         GetItemRequest getItemRequest = GetItemRequest.builder()
-                .tableName(dynamodbTable)
+                .tableName(Constants.DYNAMODB_TABLE)
                 .key(key)
                 .build();
         return dynamoDbClient.getItem(getItemRequest);
