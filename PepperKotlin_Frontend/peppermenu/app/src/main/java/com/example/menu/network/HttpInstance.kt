@@ -97,7 +97,10 @@ class HttpInstance {
             }
         }
 /*
+
+
         // GET Request, um alle Personen zu erhalten
+
         suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
 
             //URL ist grad local !! Löschen wenn es auf VM ist
