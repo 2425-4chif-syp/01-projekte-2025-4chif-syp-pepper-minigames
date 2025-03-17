@@ -64,11 +64,13 @@
     </div>
   </div>
 
-  <!-- Sidebar -->
-  <div [class.hidden]="!isSidebarVisible" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
-    <h3 class="text-lg font-semibold mb-4">Hochgeladene Bilder</h3>
-    <div *ngFor="let scene of scenes" class="mb-4">
-      <img [src]="scene.image" class="w-full h-auto rounded" alt="Bild"/>
-    </div>
+<!-- Sidebar -->
+<div [class.hidden]="!isSidebarVisible" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
+  <h3 class="text-lg font-semibold mb-4">Hochgeladene Bilder</h3>
+  <div *ngFor="let image of images()" class="mb-4 cursor-pointer" (click)="setSceneImage(selectedScene, image)">
+    <img [src]="'data:image/png;base64,' + image.base64Image" class="w-full h-auto rounded" [alt]="image.description"/>
   </div>
+</div>
+
+
 </div>

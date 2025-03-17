@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
+import { ImageServiceService } from '../service/image-service.service';
+import { ImageModel } from '../models/image.model';
 
 interface Scene {
   speech: string;
@@ -43,8 +45,30 @@ export class CreatestoryComponent {
   
   scenes: Scene[] = [];
   isSidebarVisible = false;
+  selectedScene: Scene | null = null;  // Speichert die aktuell ausgewählte Szene
 
   titleImage: string | null = null;
+
+  imagesService = inject(ImageServiceService);
+  images = signal<ImageModel[]>([]);
+
+  ngOnInit(): void {
+    this.loadImages();
+  }
+
+  loadImages(): void {
+    this.imagesService.getImages().subscribe(
+      {
+        next: data=>{
+          this.images.set(data);
+          console.log(data);
+        },
+        error: err=>{
+          console.error("Laden fehlgeschlagen: " + err.message);
+        },
+      }
+    );
+  }
 
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
@@ -101,5 +125,15 @@ export class CreatestoryComponent {
       };
       reader.readAsDataURL(input.files[0]);
     }
+  }
+
+  setSceneImage(scene: Scene | null, image: ImageModel) {
+    if (scene) {
+      scene.image = 'data:image/png;base64,' + image.base64Image;
+    }
+  }
+
+  selectScene(scene: Scene) {
+    this.selectedScene = scene;
   }
 }
