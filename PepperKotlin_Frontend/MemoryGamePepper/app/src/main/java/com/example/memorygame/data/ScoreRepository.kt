@@ -38,4 +38,16 @@ class ScoreRepository {
         })
     }
 
+
+    //fun sendScore(score: ScoreRequest, onResult: (Boolean) -> Unit) {
+    //    api.sendScore(score).enqueue(object : Callback<Void> {
+    //        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+    //            onResult(response.isSuccessful)
+    //        }
+    //
+    //        override fun onFailure(call: Call<Void>, t: Throwable) {
+    //            onResult(false)
+    //        }
+    //    })
+    //}
 }

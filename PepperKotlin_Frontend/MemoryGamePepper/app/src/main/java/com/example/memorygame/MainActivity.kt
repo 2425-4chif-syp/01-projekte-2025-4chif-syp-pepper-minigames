@@ -14,7 +14,6 @@ import com.example.memorygame.ui.screens.*
 import com.example.memorygame.ui.theme.MemoryGameTheme
 import java.util.Locale
 
-
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech
@@ -31,12 +30,12 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 NavHost(navController = navController, startDestination = "main_menu") {
                     // Hauptmenü
                     composable("main_menu") {
-                        MainMenuScreen(textToSpeech,navController)
+                        MainMenuScreen(navController)
                     }
 
                     // Grid-Auswahl
                     composable("grid_selection") {
-                        GridSelectionScreen(textToSpeech,navController)
+                        GridSelectionScreen(navController)
                     }
 
                     // Spiel
@@ -49,8 +48,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     ) { backStackEntry ->
                         val rows = backStackEntry.arguments?.getInt("rows") ?: 4
                         val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-                        MemoryGameScreen(navController, rows, columns, textToSpeech)
-
+                        MemoryGameScreen(navController ,rows, columns)
                     }
 
                     // High Scores => 1 Just for Test

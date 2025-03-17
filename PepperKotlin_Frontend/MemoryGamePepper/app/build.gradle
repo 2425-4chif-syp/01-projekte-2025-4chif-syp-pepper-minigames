@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    // Core Librariesdependencies {
+    // Core Libraries
     implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.activity:activity-compose:1.3.1'
@@ -73,8 +73,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:1.2.0"
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.2.0"
 
-<<<<<<< HEAD
-=======
     // Room-Databank for the Save Scores
     implementation("androidx.room:room-runtime:2.4.3")
     kapt("androidx.room:room-compiler:2.4.3")
@@ -86,6 +84,5 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3") // Für Debugging (optional)
 
 
->>>>>>> bfc662559ef0baa91b58eff2524a9c99fa6378f2
 }
 
