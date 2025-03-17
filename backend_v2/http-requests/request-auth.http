@@ -1,4 +1,4 @@
-POST http://vm88.htl-leonding.ac.at:8080/api/api/auth/text/verify
+POST {{host}}/api/api/auth/text/verify
 Content-Type: text/plain
 
 David Cristea
