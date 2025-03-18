@@ -7,15 +7,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -143,7 +148,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             items(cards.size) { index ->
                 val card = cards[index]
                 val isFlipped = card.isFlipped || index in matchedCards
-                val borderColor = if (index in flippedCards) Color.Green else Color.Transparent
+                val borderColor = if (index in flippedCards) Color.Green else Color(0x80FFFFFF)
                 val borderWidth = if (index in flippedCards) 3.dp else 2.dp
 
                 Box(
@@ -151,7 +156,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                         .width(cardWidth)
                         .height(cardHeight)
                         .padding(4.dp)
-                        .background(Color.Gray)
+                        .background(Color(0x80FFFFFF))
+                        .clip(RoundedCornerShape(20.dp))
                         .clickable(enabled = !isFlipped) {
                             if (flippedCards.size < 2 && index !in matchedCards) {
                                 coroutineScope.launch {
@@ -159,23 +165,31 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                                 }
                             }
                         }
-                        .border(borderWidth, borderColor),
+                        .border(borderWidth, borderColor, RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isFlipped) {
                         Image(
                             painter = painterResource(id = card.image),
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Transparent),
                             contentScale = ContentScale.Fit
                         )
                     } else {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Image(
-                                painter = painterResource(id = R.drawable.question_mark),
-                                contentDescription = "Question Mark",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center,
+
+                        ) {
+                            Text(
+                                text = "🔍 Karte verdeckt",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
                             )
                         }
                     }
@@ -190,12 +204,30 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val formattedTime = String.format("%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
-            Text(text = "Deine Zeit: $formattedTime", color = Color.Black, fontSize = 18.sp)
+            Text(
+                text = "Deine Zeit: $formattedTime",
+                color = Color.Red,
+                fontSize = 18.sp,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.White,
+                        offset = Offset(4f, 10f), // Verschiebt den Schatten nach rechts und unten
+                        blurRadius = 1f // Erzeugt eine weichere Kante
+                    )
+                )
+            )
             Text(
                 text = "Punkte: ${scoreManager.currentScore}",
-                fontWeight = FontWeight.Bold,
+                color = Color.Red,
                 fontSize = 20.sp,
-                color = Color.Black
+                fontWeight = FontWeight.Bold,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.White,
+                        offset = Offset(4f, 10f),
+                        blurRadius = 1f
+                    )
+                )
             )
         }
     }

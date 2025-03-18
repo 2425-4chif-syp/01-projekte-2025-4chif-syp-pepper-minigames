@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/4998ac3804ade61655b69824ed647ba7/transformed/espresso-idling-resource-3.6.1/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4998ac3804ade61655b69824ed647ba7/transformed/espresso-idling-resource-3.6.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4998ac3804ade61655b69824ed647ba7/transformed/espresso-idling-resource-3.6.1/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
