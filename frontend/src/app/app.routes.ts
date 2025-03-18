@@ -15,6 +15,7 @@ export const routes: Routes = [
   {path: 'editstory/:id', component: EditstoryComponent},
   {path: 'person-entry', component: PersonEntryComponent},
   { path: 'createstory', component: CreatestoryComponent },
+  { path: 'createstory/:id', component: CreatestoryComponent },
   { path: 'pictures', component: PictureOverviewComponent },
   {path: 'imageUpload', component: ImageuploadComponent}
 ];
