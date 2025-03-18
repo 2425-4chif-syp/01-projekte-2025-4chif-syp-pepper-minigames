@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -98,7 +99,9 @@ fun LoginScreen(
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color(0xFF4CAF50), // Grün
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = viewModel.loadingSequence.value == false
+
                 ) {
                     Text(
                         text = "Ja",
@@ -113,7 +116,8 @@ fun LoginScreen(
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color(0xFF2196F3), // Blau
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = viewModel.loadingSequence.value == false
                 ) {
                     Text(
                         text = "Ohne Anmeldung weiter",
@@ -130,12 +134,14 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // ScrollView für Namensauswahl
+                // ScrollView für Namensauswahl
                 Column(
                     modifier = Modifier
                         .width(400.dp)
                         .height(500.dp)
-                        .background(Color(0xFFE0E0E0)) // Hellgrau
-                        .padding(16.dp),
+                        .background(Color(0xFFE0E0E0)) // Hellgrau als Basis-Hintergrund
+                        .padding(16.dp)
+                        .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f), // Grau/transparent während des Ladens
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -154,27 +160,28 @@ fun LoginScreen(
                     val scrollState = rememberLazyListState()
                     LazyColumn(
                         state = scrollState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        userScrollEnabled = !viewModel.loadingSequence.value // Scrollen nur erlauben, wenn NICHT geladen wird
                     ) {
-                        items(viewModel.names.size) { index ->
+                        items(viewModel.names.value.size) { index ->
                             Button(
                                 onClick = {
-                                    viewModel.setName(viewModel.names[index])
-                                }, // Aktualisiere selectedName
+                                    viewModel.setName(viewModel.names.value[index])
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(45.dp)
                                     .padding(vertical = 4.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = if (viewModel.names[index] == selectedName) Color(
+                                    backgroundColor = if (viewModel.names.value[index] == selectedName) Color(
                                         0xFFFFEB3B
                                     ) else Color.White, // Gelb für Auswahl
                                     contentColor = Color.Black
-                                )
+                                ),
+                                enabled = !viewModel.loadingSequence.value // Buttons nur aktivieren, wenn NICHT geladen wird
                             ) {
-                                Text(text = viewModel.names[index], fontSize = 15.sp)
+                                Text(text = viewModel.names.value[index], fontSize = 15.sp)
                             }
-                           // Spacer(modifier = Modifier.height(2.dp)) // Abstand zwischen den Buttons
                         }
                     }
                 }
@@ -193,29 +200,32 @@ fun LoginScreen(
                             .background(Color(0xFFE0E0E0)) // Hellgrau
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable { // Macht die gesamte Row klickbar
-                                viewModel.captureAndRecognizePerson() // Logik für Gesichtserkennung
+                            .clickable(enabled = !viewModel.loadingSequence.value) { // Klickbar nur wenn NICHT geladen wird
+                                viewModel.captureAndRecognizePerson()
                             }
+                            .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f) // Transparent während des Ladens
                     ) {
                         IconButton(
-                            onClick = {
-                                // Leer lassen, da die Logik jetzt in der Row liegt
-                            },
+                            onClick = {},
                             modifier = Modifier
                                 .width(50.dp)
-                                .height(50.dp)
+                                .height(50.dp),
+                            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
                                 contentDescription = "Gesichtserkennung",
-                                modifier = Modifier.fillMaxSize(), // Icon füllt den gesamten Button aus
-                                tint = Color(0xFFFFA500) // Orange
+                                modifier = Modifier.fillMaxSize(),
+                                tint = if (viewModel.loadingSequence.value) Color.Gray else Color(
+                                    0xFFFFA500
+                                ) // Orange nur wenn NICHT geladen wird
                             )
                         }
                         Text(
                             text = "Gesichtserkennung",
                             fontSize = 30.sp,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = if (viewModel.loadingSequence.value) Color.Gray else Color.Black // Grau während des Ladens
                         )
                     }
 
@@ -225,40 +235,41 @@ fun LoginScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .background(Color(0xFFE0E0E0)) // Hellgrau
+                            .background(Color(0xFFE0E0E0))
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable { // Macht die gesamte Row klickbar
-                                viewModel.startSpeechRecognition() // Logik für Spracherkennung
+                            .clickable(enabled = !viewModel.loadingSequence.value) { // Klickbar nur wenn NICHT geladen wird
+                                viewModel.startSpeechRecognition()
                             }
+                            .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f) // Transparent während des Ladens
                     ) {
                         IconButton(
-                            onClick = {
-                                // Leer lassen, da die Logik jetzt in der Row liegt
-                            },
+                            onClick = {},
                             modifier = Modifier
                                 .width(50.dp)
-                                .height(50.dp)
+                                .height(50.dp),
+                            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Mic,
                                 contentDescription = "Spracherkennung",
                                 modifier = Modifier.fillMaxSize(),
-                                tint = Color(0xFF4CAF50) // Grün
+                                tint = if (viewModel.loadingSequence.value) Color.Gray else Color(
+                                    0xFF4CAF50
+                                ) // Grün nur wenn NICHT geladen wird
                             )
                         }
                         Text(
                             text = "Spracherkennung",
                             fontSize = 30.sp,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = if (viewModel.loadingSequence.value) Color.Gray else Color.Black // Grau während des Ladens
                         )
                     }
-
                 }
             }
         }
 
-        // Kleiner Button unten rechts
         Button(
             onClick = {
                 navController.navigate("main_menu") // Navigiere zurück zum Hauptmenü
@@ -271,7 +282,8 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFFF44336), // Rot
                 contentColor = Color.White
-            )
+            ),
+            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
         ) {
             Text(
                 text = "Zurück",
@@ -292,7 +304,8 @@ fun RequestAudioPermission(
         if (isGranted) {
             onPermissionGranted()
         } else {
-            Toast.makeText(context, "Mikrofon-Berechtigung erforderlich", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Mikrofon-Berechtigung erforderlich", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

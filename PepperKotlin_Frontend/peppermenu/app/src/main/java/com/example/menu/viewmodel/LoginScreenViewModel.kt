@@ -28,12 +28,12 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     var selectedName = mutableStateOf("Hermine Mayer")
         private set
 
+    var loadingSequence = mutableStateOf(false)
+
     var persons : List<Person>? = null
 
-    var names = listOf<String>(
-        "Hermine Mayer", "Max Mustermann", "Anna Müller",
-        "John Doe", "Max MusterMann", "Marc Laros"
-    )
+    var names = mutableStateOf<List<String>>(emptyList())
+        private set
 
     private val context = application.applicationContext
     private var speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
@@ -45,14 +45,21 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     init {
-
         viewModelScope.launch {
-            persons = HttpInstance.getPersons()
-            Log.d("Persons","${persons}")
-            names = persons!!.map { p -> p.firstName + " " + p.lastName }
-            Log.d("names","${names}")
-
+            loadingSequence.value = true
+            try {
+                persons = HttpInstance.getPersons()
+                Log.d("Persons","$persons")
+                names.value = persons?.map { p -> p.firstName + " " + p.lastName } ?: emptyList()
+                Log.d("names","${names.value}")
+            } catch (e: Exception) {
+                Log.e("Names", "Error loading names: ${e.message}")
+                names.value = emptyList()
+            } finally {
+                loadingSequence.value = false
+            }
         }
+
 
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
@@ -74,6 +81,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
                 viewModelScope.launch {
                     try {
+                        loadingSequence.value = true
                         val response =
                             HttpInstance.sendPostRequestSmallTalk(data.toString() + answerContext)
                         val answer = response ?: "Fehler bei der API-Anfrage"
@@ -88,6 +96,9 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                         RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
+                    finally {
+                        loadingSequence.value = false
+                    }
                 }
             }
 
@@ -97,7 +108,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun startSpeechRecognition() {
-
+        loadingSequence.value = true
         viewModelScope.launch(Dispatchers.Main) {
             speechRecognizer.startListening(speechRecognizerIntent)
         }
@@ -108,6 +119,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun captureAndRecognizePerson() {
+        loadingSequence.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
@@ -144,6 +156,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                 }
             }
         }
+        loadingSequence.value = false
     }
 
     private fun isResponseValid(response: String): Boolean {
