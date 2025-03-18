@@ -64,7 +64,7 @@ class HttpInstance {
         }
 
         suspend fun sendPostRequestSmallTalk(said: String): String = withContext(Dispatchers.IO) {
-            val url = "$BACKEND_URL/chat"
+            val url = BACKEND_URL + "api/chat"
             Log.d("Status", "Status Code:")
 
             val requestBody = RequestBody.create(
