@@ -96,43 +96,42 @@ class HttpInstance {
                 ""
             }
         }
-/*
-        // GET Request, um alle Personen zu erhalten
-        suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
 
-            //URL ist grad local !! Löschen wenn es auf VM ist
-            val url = "http://localhost:8080/api/person"
+            // GET Request, um alle Personen zu erhalten
+            suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
 
-            // Auskommentieren, wenn Backend in VM ist!!
-            //val url = BACKEND_URL + "api/person"
+                //URL ist grad local !! Löschen wenn es auf VM ist
+                //val url = "http://localhost:8080/api/person"
 
-            val request = Request.Builder()
-                .url(url)
-                .get()
-                .addHeader("Accept", "application/json")
-                .build()
+                // Auskommentieren, wenn Backend in VM ist!!
+                val url = BACKEND_URL + "api/person"
 
-            try {
-                val response: Response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
+                val request = Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Accept", "application/json")
+                    .build()
 
-                Log.d("GET", "Status Code: ${response.code}")
-                Log.d("GET", "Response Body: $responseBody")
+                try {
+                    val response: Response = client.newCall(request).execute()
+                    val responseBody = response.body?.string()
 
-                if (responseBody.isNullOrEmpty()) {
-                    Log.e("GET", "Error: Response is empty or null!")
+                    Log.d("GET", "Status Code: ${response.code}")
+                    Log.d("GET", "Response Body: $responseBody")
+
+                    if (responseBody.isNullOrEmpty()) {
+                        Log.e("GET", "Error: Response is empty or null!")
+                        emptyList()
+                    } else {
+                        // Verwende Gson, um die JSON-Antwort in eine Liste von Personen zu konvertieren
+                        val gson = Gson()
+                        gson.fromJson(responseBody, Array<Person>::class.java).toList()
+                    }
+                } catch (e: Exception) {
+                    Log.e("GET", "Exception: ${e.message}")
+                    e.printStackTrace()
                     emptyList()
-                } else {
-                    // Verwende Gson, um die JSON-Antwort in eine Liste von Personen zu konvertieren
-                    val gson = Gson()
-                    gson.fromJson(responseBody, Array<Person>::class.java).toList()
                 }
-            } catch (e: Exception) {
-                Log.e("GET", "Exception: ${e.message}")
-                e.printStackTrace()
-                emptyList()
             }
         }
-        */
-    }
 }

@@ -30,7 +30,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
     var persons : List<Person>? = null
 
-    val names = listOf<String>(
+    var names = listOf<String>(
         "Hermine Mayer", "Max Mustermann", "Anna Müller",
         "John Doe", "Max MusterMann", "Marc Laros"
     )
@@ -47,7 +47,10 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     init {
 
         viewModelScope.launch {
-            //persons = HttpInstance.getPersons()
+            persons = HttpInstance.getPersons()
+            Log.d("Persons","${persons}")
+            names = persons!!.map { p -> p.firstName + " " + p.lastName }
+            Log.d("names","${names}")
 
         }
 
