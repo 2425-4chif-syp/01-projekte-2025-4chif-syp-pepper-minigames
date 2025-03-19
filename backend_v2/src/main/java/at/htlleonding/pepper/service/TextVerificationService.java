@@ -30,13 +30,13 @@ public class TextVerificationService {
             String filterExpression = "FullName = :fullName";
 
             ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName(Constants.COLLECTION_ID)
+                    .tableName(Constants.DYNAMODB_TABLE)
                     .filterExpression(filterExpression)
                     .expressionAttributeValues(expressionValues)
                     .build();
 
             System.out.println("Searching for FullName in DynamoDB: " + text);
-            System.out.println("Collection ID: " + Constants.COLLECTION_ID);
+            System.out.println("Collection ID: " + Constants.DYNAMODB_TABLE);
             ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
             List<Map<String, AttributeValue>> items = scanResponse.items();
