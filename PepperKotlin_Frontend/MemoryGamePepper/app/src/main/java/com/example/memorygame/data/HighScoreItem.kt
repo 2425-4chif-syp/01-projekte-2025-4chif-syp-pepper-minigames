@@ -1,11 +1,12 @@
 package com.example.memorygame.data
 
-data class ScoreRequest(
+data class HighScoreItem(
     val personId: Long,
     val firstName: String,
     val lastName: String,
-    val grid: String,
+    val gridRows: Int,
+    val gridColumns: Int,
     val score: Int,
     val elapsedTime: Int,
-    val date: Long = System.currentTimeMillis()
+    val date: Long
 )

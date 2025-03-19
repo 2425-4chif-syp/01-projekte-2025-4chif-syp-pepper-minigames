@@ -7,10 +7,9 @@ import androidx.room.PrimaryKey
 data class PlayerScore(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val personId: Long,
-    val vorName: String,
-    val nachName: String,
-    val gridRows: Int,
-    val gridColumns: Int,
+    val firstName: String,
+    val lastName: String,
+    val grid: String,
     val score: Int,
     val elapsedTime: Int,
     val date: Long = System.currentTimeMillis()

@@ -104,14 +104,15 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         val repository = remember { ScoreRepository() }
 
 
+
         LaunchedEffect(isGameOver) {
             if (isGameOver) {
+                val grid = "${rows}x${columns}"
                 val playerScore = PlayerScore( //Die Daten für Lokale-Speicherung
                     personId = 2, // von Backend/API
-                    vorName = "Amir",          // von Backend/API
-                    nachName = "Mohamadi",  // von Backend/API
-                    gridRows = rows,
-                    gridColumns = columns,
+                    firstName = "Amir",          // von Backend/API
+                    lastName = "Mohamadi",  // von Backend/API
+                    grid = grid,
                     score = scoreManager.currentScore,
                     elapsedTime = elapsedSeconds
                 )
@@ -119,10 +120,9 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
 
                 val scoreRequest = ScoreRequest( // ✅ Daten fürs Backend
                     personId = playerScore.personId,
-                    vorName = playerScore.vorName,
-                    nachName = playerScore.nachName,
-                    gridRows = playerScore.gridRows,
-                    gridColumns = playerScore.gridColumns,
+                    firstName = playerScore.firstName,
+                    lastName = playerScore.lastName,
+                    grid = playerScore.grid,
                     score = playerScore.score,
                     elapsedTime = playerScore.elapsedTime
                 )
@@ -184,7 +184,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
                                 .background(Color.White),
                             contentAlignment = Alignment.Center,
 
-                        ) {
+                            ) {
                             Text(
                                 text = "🔍 Karte verdeckt",
                                 fontSize = 18.sp,
