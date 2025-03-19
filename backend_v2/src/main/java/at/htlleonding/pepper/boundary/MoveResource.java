@@ -4,10 +4,7 @@ import at.htlleonding.pepper.domain.Move;
 import at.htlleonding.pepper.repository.MoveRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -30,5 +27,12 @@ public class MoveResource {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
         return Response.ok(moves).build();
+    }
+
+    @POST
+    @Operation(summary = "Create a move")
+    public Response createMove(Move move) {
+        moveRepository.persist(move);
+        return Response.status(Response.Status.CREATED).build();
     }
 }
