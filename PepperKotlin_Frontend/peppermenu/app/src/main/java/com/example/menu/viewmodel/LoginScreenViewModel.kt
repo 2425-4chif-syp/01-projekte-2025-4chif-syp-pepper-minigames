@@ -135,13 +135,13 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                 val capturedImage = capturedImageDeferred.await()
 
                 val response = HttpInstance.sendPostRequestImage(capturedImage)
+                Log.d("Response", "${response}")
 
                 withContext(Dispatchers.Main) {
                     if (isResponseValid(response)) {
-                        val parts = response.split(':')
-                        if (parts.size > 1) {
-                            selectedName.value = parts[1]
-                            RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                        if (response != "" && response != null) {
+                            RoboterActions.speak("Sind Sie ${response}?")
+                            selectedName.value = response
                         } else {
                             RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                         }
