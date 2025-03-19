@@ -54,7 +54,7 @@ ifdef::backend-html5[]
 [%autowidth]
 |===
 |wer |macht was |bis wann
-|
+| Nikola, Obaid | Pepper Mitmachgeschichten | Montag 23.03.2025
 a|
 |
 |===
