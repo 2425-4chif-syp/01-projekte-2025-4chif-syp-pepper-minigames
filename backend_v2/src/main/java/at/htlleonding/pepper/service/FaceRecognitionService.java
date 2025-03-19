@@ -3,7 +3,6 @@ package at.htlleonding.pepper.service;
 import at.htlleonding.pepper.common.Constants;
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -26,12 +25,13 @@ public class FaceRecognitionService {
             SearchFacesByImageResponse searchFacesResponse = searchFaces(rekognitionClient, fileContent);
 
             if (searchFacesResponse.faceMatches().isEmpty()) {
-                return Response.ok("No matching person found").build();
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No matching person found")
+                        .build();
             }
 
             return CompletableFuture.supplyAsync(() -> processFaceMatches(searchFacesResponse)).get();
         } catch (Exception e) {
-            e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing image").build();
         }
     }
@@ -53,7 +53,7 @@ public class FaceRecognitionService {
 
             if (getItemResponse.hasItem()) {
                 String fullName = getItemResponse.item().get(Constants.FULL_NAME_KEY).s();
-                return Response.ok("Found Person: " + fullName).build();
+                return Response.ok(fullName).build();
             }
         }
         return Response.ok("No matching person found").build();
