@@ -41,4 +41,6 @@ export class PictureOverviewComponent {
   goToUpload() {
     this.router.navigate(['/imageUpload']);
   }
+
+  
 }
