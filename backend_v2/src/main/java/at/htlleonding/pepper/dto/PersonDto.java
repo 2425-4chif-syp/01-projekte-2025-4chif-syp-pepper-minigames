@@ -9,17 +9,27 @@ public class PersonDto{
     private LocalDate dob;
     private String roomNo;
     private Boolean isWorker;
+    private Boolean gender;
 
     public PersonDto() {
     }
 
-    public PersonDto(Long id, String firstName, String lastName, LocalDate dob, String roomNo, Boolean isWorker) {
+    public PersonDto(Long id, String firstName, String lastName, LocalDate dob, String roomNo, Boolean isWorker, Boolean gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dob = dob;
         this.roomNo = roomNo;
         this.isWorker = isWorker;
+        this.gender = gender;
+    }
+
+    public Boolean getGender() {
+        return gender;
+    }
+
+    public void setGender(Boolean gender) {
+        this.gender = gender;
     }
 
     public Long getId() {
