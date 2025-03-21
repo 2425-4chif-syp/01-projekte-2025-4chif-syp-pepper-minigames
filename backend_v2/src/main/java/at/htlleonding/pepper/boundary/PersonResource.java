@@ -43,7 +43,8 @@ public class PersonResource {
                         person.getLastName(),
                         person.getDob(),
                         person.getRoomNo(),
-                        person.getIsWorker()
+                        person.getIsWorker(),
+                        person.isGender()
                 ))
                 .collect(Collectors.toList());
 
@@ -73,7 +74,8 @@ public class PersonResource {
                 person.getLastName(),
                 person.getDob(),
                 person.getRoomNo(),
-                person.getIsWorker()
+                person.getIsWorker(),
+                person.isGender()
         );
 
         return Response.ok(safePerson).build();
