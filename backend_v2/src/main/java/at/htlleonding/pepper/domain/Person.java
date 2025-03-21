@@ -24,6 +24,26 @@ public class Person {
     private Boolean isWorker;
     @Column(name = "p_password")
     private String password;
+    // true is male, false is female
+    @Column(name = "p_gender")
+    private boolean gender;
+
+    public boolean isGender() {
+        return gender;
+    }
+
+    public void setGender(boolean gender) {
+        this.gender = gender;
+    }
+
+    public Boolean getWorker() {
+        return isWorker;
+    }
+
+    public void setWorker(Boolean worker) {
+        isWorker = worker;
+    }
+
     public Person() {
     }
 
