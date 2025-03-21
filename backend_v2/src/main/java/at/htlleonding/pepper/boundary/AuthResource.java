@@ -7,7 +7,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/auth")
+@Path("/auth")
 public class AuthResource {
     private final FaceRecognitionService faceRecognitionService = new FaceRecognitionService();
     private final TextVerificationService textVerificationService = new TextVerificationService();
