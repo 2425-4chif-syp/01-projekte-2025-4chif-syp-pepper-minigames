@@ -25,6 +25,28 @@ public class GameScore {
     @Column(name = "gs_score")
     private int score;
 
+    @Column(name = "gs_comment")
+    private String comment;
+
+    @Column(name = "gs_elapsed_time")
+    private int elapsedTime;
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(int elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
     public Game getGame() {
         return game;
     }
