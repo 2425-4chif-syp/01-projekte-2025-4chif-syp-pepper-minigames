@@ -1,27 +1,32 @@
 package at.htlleonding.pepper.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.json.bind.annotation.JsonbDateFormat;
+
 import java.time.LocalDate;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PersonDto{
     private Long id;
     private String firstName;
     private String lastName;
+    @JsonbDateFormat("yyyy-MM-dd")  // JSON-B für Quarkus
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private String roomNo;
     private Boolean isWorker;
     private Boolean gender;
 
-    public PersonDto() {
-    }
 
-    public PersonDto(Long id, String firstName, String lastName, LocalDate dob, String roomNo, Boolean isWorker, Boolean gender) {
+
+    public PersonDto(Long id, String firstName, String lastName, LocalDate dob, String roomNo, Boolean isWorker) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dob = dob;
         this.roomNo = roomNo;
         this.isWorker = isWorker;
-        this.gender = gender;
     }
 
     public Boolean getGender() {

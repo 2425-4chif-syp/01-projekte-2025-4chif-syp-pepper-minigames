@@ -1,6 +1,9 @@
 package at.htlleonding.pepper.service;
 
+<<<<<<< HEAD
 import at.htlleonding.pepper.common.Constants;
+=======
+>>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
@@ -30,13 +33,21 @@ public class TextVerificationService {
             String filterExpression = "FullName = :fullName";
 
             ScanRequest scanRequest = ScanRequest.builder()
+<<<<<<< HEAD
                     .tableName(Constants.DYNAMODB_TABLE)
+=======
+                    .tableName(collectionId)
+>>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
                     .filterExpression(filterExpression)
                     .expressionAttributeValues(expressionValues)
                     .build();
 
             System.out.println("Searching for FullName in DynamoDB: " + text);
+<<<<<<< HEAD
             System.out.println("Collection ID: " + Constants.DYNAMODB_TABLE);
+=======
+            System.out.println("Collection ID: " + collectionId);
+>>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
             ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
             List<Map<String, AttributeValue>> items = scanResponse.items();
@@ -53,4 +64,8 @@ public class TextVerificationService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing request").build();
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
