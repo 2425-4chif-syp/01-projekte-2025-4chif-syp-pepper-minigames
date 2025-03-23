@@ -1,9 +1,9 @@
 ### GET: Get all persons
-GET {{host}}}/api/person
+GET {{host}}/api/person
 Accept: application/json
 
 ### POST: Add a new person
-POST {{host}}}/api/person
+POST {{host}}/api/person
 Content-Type: application/json
 
 {

@@ -37,8 +37,4 @@ public class Converter {
         }
         return image.substring(image.indexOf(",") + 1);
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)

@@ -1,14 +1,8 @@
 package at.htlleonding.pepper.service;
 
-<<<<<<< HEAD
 import at.htlleonding.pepper.common.Constants;
 import at.htlleonding.pepper.util.AwsClientProvider;
 import jakarta.ws.rs.core.Response;
-=======
-import at.htlleonding.pepper.util.AwsClientProvider;
-import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
->>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -24,21 +18,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class FaceRecognitionService {
-<<<<<<< HEAD
-=======
-
-    @ConfigProperty(name = "authentication.collection.id")
-    String collectionId;
-
-    @ConfigProperty(name = "authentication.dynamodb.table")
-    String dynamodbTable;
-
-    @ConfigProperty(name = "authentication.fullName.key")
-    String fullNameKey;
-
-    @ConfigProperty(name = "authentication.rekognitionid.key")
-    String rekognitionIdKey;
->>>>>>> 35ca0212 (feat: Add tests for Person endpoints using AssertJ #PEP104)
 
     public Response verifyFace(byte[] fileContent) {
         try {

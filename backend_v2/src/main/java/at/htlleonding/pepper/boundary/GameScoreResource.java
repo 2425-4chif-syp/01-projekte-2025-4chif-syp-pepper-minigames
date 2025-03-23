@@ -66,8 +66,8 @@ public class GameScoreResource {
     @GET
     @Path("latest")
     public Response getLatestScores(@QueryParam("limit") @DefaultValue("10") int limit) {
-        List<GameScore> scores = gameScoreRepository.findLatestScores(limit);
-        return Response.ok(scores).build();
+            List<GameScore> scores = gameScoreRepository.findLatestScores(limit);
+            return Response.ok(scores).build();
     }
 
     // POST - Create a new game score

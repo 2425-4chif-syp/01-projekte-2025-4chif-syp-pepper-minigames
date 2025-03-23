@@ -54,7 +54,6 @@ Content-Type: application/json
   "person": {
     "dob": "1975-06-12",
     "firstName": "Markus",
-    "id": 10,
     "isWorker": false,
     "lastName": "Wolf",
     "roomNo": "110"
