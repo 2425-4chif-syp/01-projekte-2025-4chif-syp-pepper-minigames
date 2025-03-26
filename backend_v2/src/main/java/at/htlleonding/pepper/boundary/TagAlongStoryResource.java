@@ -65,7 +65,7 @@ public class TagAlongStoryResource {
         if (tagalongstory == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        GameDto gameDto = new GameDto(tagalongstory);
+        GameDto gameDto = new GameDto(tagalongstory.getName(), tagalongstory.getStoryIconType(), tagalongstory.getGameType(), tagalongstory.isEnabled());
         return Response.ok(gameDto).build();
     }
 
