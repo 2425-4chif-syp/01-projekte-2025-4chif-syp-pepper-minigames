@@ -52,7 +52,8 @@ fun LoginScreen(
     viewModel: LoginScreenViewModel = viewModel()
 ) {
     val selectedName by viewModel.selectedName
-    val context = LocalContext.current
+    val selectedGender by viewModel.selectedGender
+    val isLoading by viewModel.isLoading
     val permissionGranted = remember { mutableStateOf(false) }
 
     RequestAudioPermission {
@@ -73,13 +74,13 @@ fun LoginScreen(
 
             Text(
                 // Dynamischer Text basierend auf selectedName
-                text = "Sind sie Frau ${selectedName}?",
-                fontSize = 60.sp,
+                text = "Sind sie ${selectedGender} ${selectedName}?",
+                fontSize = 65.sp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp),
                 color = Color.Black,
-                fontWeight = FontWeight.Bold, // Fett gedruckt
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h4,
                 textAlign = TextAlign.Center
             )
@@ -97,15 +98,16 @@ fun LoginScreen(
                         .weight(0.5f)
                         .height(100.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFF4CAF50), // Grün
-                        contentColor = Color.White
+                        backgroundColor = Color.Green,
+                        contentColor = Color.Black,
                     ),
-                    enabled = viewModel.loadingSequence.value == false
+                    enabled = !isLoading
 
                 ) {
                     Text(
                         text = "Ja",
-                        fontSize = 50.sp
+                        fontSize = 50.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
                 Button(
@@ -114,14 +116,15 @@ fun LoginScreen(
                         .weight(1.5f)
                         .height(100.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFF2196F3), // Blau
-                        contentColor = Color.White
+                        backgroundColor = Color.Red,
+                        contentColor = Color.Black
                     ),
-                    enabled = viewModel.loadingSequence.value == false
+                    enabled = !isLoading
                 ) {
                     Text(
                         text = "Ohne Anmeldung weiter",
-                        fontSize = 50.sp
+                        fontSize = 50.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -134,16 +137,14 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // ScrollView für Namensauswahl
-                // ScrollView für Namensauswahl
                 Column(
                     modifier = Modifier
                         .width(400.dp)
                         .height(500.dp)
-                        .background(Color(0xFFE0E0E0)) // Hellgrau als Basis-Hintergrund
-                        .padding(16.dp)
-                        .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f), // Grau/transparent während des Ladens
+                        .background(Color.LightGray)
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     // Text "Wählen Sie Ihren Namen aus"
                     Text(
@@ -152,7 +153,7 @@ fun LoginScreen(
                         color = Color.Black,
                         modifier = Modifier.padding(bottom = 16.dp),
                         style = MaterialTheme.typography.h6.copy(
-                            fontWeight = FontWeight.Bold // Fett gedruckt
+                            fontWeight = FontWeight.Bold
                         )
                     )
 
@@ -161,7 +162,7 @@ fun LoginScreen(
                     LazyColumn(
                         state = scrollState,
                         modifier = Modifier.fillMaxSize(),
-                        userScrollEnabled = !viewModel.loadingSequence.value // Scrollen nur erlauben, wenn NICHT geladen wird
+                        userScrollEnabled = !isLoading
                     ) {
                         items(viewModel.names.value.size) { index ->
                             Button(
@@ -173,59 +174,59 @@ fun LoginScreen(
                                     .height(45.dp)
                                     .padding(vertical = 4.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = if (viewModel.names.value[index] == selectedName) Color(
-                                        0xFFFFEB3B
-                                    ) else Color.White, // Gelb für Auswahl
+                                    backgroundColor =
+                                    if (viewModel.names.value[index] == selectedName) Color.Green else Color.White,
                                     contentColor = Color.Black
                                 ),
-                                enabled = !viewModel.loadingSequence.value // Buttons nur aktivieren, wenn NICHT geladen wird
+                               enabled = !isLoading
                             ) {
-                                Text(text = viewModel.names.value[index], fontSize = 15.sp)
+                                Text(
+                                    text = viewModel.names.value[index],
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold)
                             }
                         }
                     }
                 }
 
-                // Column für Icons und Text
                 Column(
                     modifier = Modifier
                         .padding(start = 36.dp),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(13.dp)
                 ) {
                     // Gesichtserkennung
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .background(Color(0xFFE0E0E0)) // Hellgrau
+                            .background(Color.LightGray)
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable(enabled = !viewModel.loadingSequence.value) { // Klickbar nur wenn NICHT geladen wird
+                            .clickable(
+                                enabled = !isLoading
+                            ){
                                 viewModel.captureAndRecognizePerson()
                             }
-                            .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f) // Transparent während des Ladens
                     ) {
                         IconButton(
                             onClick = {},
                             modifier = Modifier
                                 .width(50.dp)
                                 .height(50.dp),
-                            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
+                            enabled = !isLoading
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
                                 contentDescription = "Gesichtserkennung",
                                 modifier = Modifier.fillMaxSize(),
-                                tint = if (viewModel.loadingSequence.value) Color.Gray else Color(
-                                    0xFFFFA500
-                                ) // Orange nur wenn NICHT geladen wird
+                                tint = if (!isLoading) Color.Blue else Color.Gray
                             )
                         }
                         Text(
                             text = "Gesichtserkennung",
                             fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp),
-                            color = if (viewModel.loadingSequence.value) Color.Gray else Color.Black // Grau während des Ladens
+                            /*color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
                         )
                     }
 
@@ -238,32 +239,31 @@ fun LoginScreen(
                             .background(Color(0xFFE0E0E0))
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable(enabled = !viewModel.loadingSequence.value) { // Klickbar nur wenn NICHT geladen wird
+                            .clickable(
+                                enabled = !isLoading
+                            ){
                                 viewModel.startSpeechRecognition()
                             }
-                            .alpha(if (viewModel.loadingSequence.value) 0.5f else 1f) // Transparent während des Ladens
                     ) {
                         IconButton(
                             onClick = {},
                             modifier = Modifier
                                 .width(50.dp)
                                 .height(50.dp),
-                            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
+                            enabled = !isLoading
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Mic,
                                 contentDescription = "Spracherkennung",
                                 modifier = Modifier.fillMaxSize(),
-                                tint = if (viewModel.loadingSequence.value) Color.Gray else Color(
-                                    0xFF4CAF50
-                                ) // Grün nur wenn NICHT geladen wird
+                                tint = if(!isLoading) Color.Blue else Color.Gray
                             )
                         }
                         Text(
                             text = "Spracherkennung",
                             fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp),
-                            color = if (viewModel.loadingSequence.value) Color.Gray else Color.Black // Grau während des Ladens
+                            /* color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
                         )
                     }
                 }
@@ -272,22 +272,23 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                navController.navigate("main_menu") // Navigiere zurück zum Hauptmenü
+                navController.navigate("main_menu")
             },
             modifier = Modifier
-                .align(Alignment.BottomEnd) // Positioniere den Button unten rechts
-                .padding(bottom = 0.dp, end = 2.dp) // Abstand vom Rand
-                .width(120.dp) // Breite des Buttons
-                .height(60.dp), // Höhe des Buttons
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 0.dp, end = 2.dp)
+                .width(120.dp)
+                .height(60.dp),
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Color(0xFFF44336), // Rot
-                contentColor = Color.White
+                contentColor = Color.Black,
             ),
-            enabled = !viewModel.loadingSequence.value // Aktiv nur wenn NICHT geladen wird
+            enabled = !isLoading
         ) {
             Text(
                 text = "Zurück",
-                fontSize = 20.sp // Schriftgröße angepasst
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }

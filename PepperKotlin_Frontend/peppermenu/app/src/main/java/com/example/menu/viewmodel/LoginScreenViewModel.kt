@@ -2,7 +2,6 @@ package com.example.menu.viewmodel
 
 import android.app.Application
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -10,7 +9,6 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.menu.RoboterActions
@@ -25,16 +23,29 @@ import java.util.*
 class LoginScreenViewModel(application: Application) : AndroidViewModel(application) {
 
     //Zustand für den ausgewählten Namen
-    var selectedName = mutableStateOf("Hermine Mayer")
+    var selectedName = mutableStateOf("Anna Müller")
         private set
 
-    var loadingSequence = mutableStateOf(false)
+    // Zustand für den ausgewähltes Geschlecht
+    var selectedGender = mutableStateOf("Frau")
+        private set
 
+    // ausgewählte Person von den Anmeldevorgang
+    var selectedPerson : Person? = null
+
+    //Personenlsite der Bewohner + Arbeiter
     var persons : List<Person>? = null
 
+    // Namenliste für das LazyColumn im Screen
     var names = mutableStateOf<List<String>>(emptyList())
         private set
 
+    var isLoading = mutableStateOf(false)
+
+    // Zusatzsatz für API-Abfrage um nur den Namen zu bekommen
+    val answerContext = "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur der Name bitte keine extra Wörter!"
+
+    // Config für Spracherkennung
     private val context = application.applicationContext
     private var speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
 
@@ -45,18 +56,17 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     init {
+        isLoading.value = true
         viewModelScope.launch {
-            loadingSequence.value = true
             try {
                 persons = HttpInstance.getPersons()
-                Log.d("Persons","$persons")
                 names.value = persons?.map { p -> p.firstName + " " + p.lastName } ?: emptyList()
-                Log.d("names","${names.value}")
+
             } catch (e: Exception) {
                 Log.e("Names", "Error loading names: ${e.message}")
                 names.value = emptyList()
             } finally {
-                loadingSequence.value = false
+                isLoading.value = false
             }
         }
 
@@ -76,28 +86,27 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
                 Log.d("Sprache","${data}")
 
-                val answerContext =
-                    "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur der Name bitte keine extra Wörter!"
+                isLoading.value = true
 
                 viewModelScope.launch {
                     try {
-                        loadingSequence.value = true
-                        val response =
-                            HttpInstance.sendPostRequestSmallTalk(data.toString() + answerContext)
-                        val answer = response ?: "Fehler bei der API-Anfrage"
+                        val response = HttpInstance.sendPostRequestSmallTalk(data.toString() + answerContext)
 
-                        if (answer.isNotEmpty()) {
+                        if(response != "" && response != null){
+                            val answer = response
                             withContext(Dispatchers.Main) {
-                                selectedName.value = answer
-                                RoboterActions.speak("Sind Sie ${selectedName.value}?")
+                                findRightPerson(response = response)
                             }
+                        }
+                        else{
+                            RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         }
                     } catch (e: Exception) {
                         RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
                     finally {
-                        loadingSequence.value = false
+                        isLoading.value = false
                     }
                 }
             }
@@ -108,18 +117,48 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun startSpeechRecognition() {
-        loadingSequence.value = true
+
         viewModelScope.launch(Dispatchers.Main) {
             speechRecognizer.startListening(speechRecognizerIntent)
         }
     }
 
+    // richitge Person von der Antwort herausfinden
+    fun findRightPerson(response: String){
+
+        val firstName = response.split(" ")[0]
+        val lastName = response.split(" ")[1]
+
+        val rightPerson : Person? = persons?.firstOrNull{ p -> p.firstName == firstName && p.lastName == lastName }
+
+        if(rightPerson == null){
+            RoboterActions.speak("Ich konnte keine richitge Person finden!")
+        }
+        else{
+            selectedPerson = rightPerson
+            setName(firstName + " " + lastName)
+            setGender(rightPerson.gender)
+        }
+    }
+
+    // Name setzen für Screen
     fun setName(name: String) {
         selectedName.value = name
     }
 
+    // Gender setzen für Screen
+    fun setGender(gender: Boolean){
+
+        if(gender == true){
+            selectedGender.value = "Mann"
+        }
+        else{
+            selectedGender.value = "Frau"
+        }
+    }
+
     fun captureAndRecognizePerson() {
-        loadingSequence.value = true
+        isLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
@@ -138,53 +177,25 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                 Log.d("Response", "${response}")
 
                 withContext(Dispatchers.Main) {
-                    if (isResponseValid(response)) {
-                        if (response != "" && response != null) {
-                            RoboterActions.speak("Sind Sie ${response}?")
-                            selectedName.value = response
-                        } else {
-                            RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
-                        }
+                    if (isResponseValid(response) && response != "" && response != null) {
+                        RoboterActions.speak("Sind Sie ${response}?")
+                        findRightPerson(response = response)
                     } else {
                         RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                    Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                }
+                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
+            }
+            finally {
+                isLoading.value = false
             }
         }
-        loadingSequence.value = false
     }
 
     private fun isResponseValid(response: String): Boolean {
         val responseUpper = response.uppercase(Locale.getDefault())
-        return responseUpper != "" &&
-                responseUpper != "NO MATCHING PERSON FOUND" &&
-                responseUpper != "ERROR PROCESSING IMAGE"
-    }
-
-    fun testConnection() {
-        viewModelScope.launch {
-            try {
-                val response = HttpInstance.sendPostRequestSmallTalk(
-                    "Hallo ich heisse Nikola Mladenovic! Ich bin 19 Jahre alt und liebe Quarkus.\n" +
-                            "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur das keine extra Wörter!"
-                )
-
-                val answer = response.takeIf { it.isNotEmpty() } ?: "Fehler bei der API-Anfrage"
-                Log.d("Antwort", ": $answer")
-
-                if (answer.isNotEmpty() && answer != "Fehler bei der API-Anfrage") {
-                    selectedName.value = answer
-                    RoboterActions.speak("Sind Sie ${selectedName.value}?")
-                    Log.d("Antwort", "API richtig")
-                }
-            } catch (e: Exception) {
-                Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-            }
-        }
+        return responseUpper != "" && responseUpper != "NO MATCHING PERSON FOUND" && responseUpper != "ERROR PROCESSING IMAGE"
     }
 }
