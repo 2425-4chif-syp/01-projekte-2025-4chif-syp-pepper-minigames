@@ -15,6 +15,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
@@ -40,14 +42,30 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                 ) {
                     // Setze den NavHost, nachdem ViewModelStore gesetzt wurde
                     NavHost(navController = navController, startDestination = "main_menu") {
+                        //Das ist user Haputmenüü
                         composable("main_menu") {
                             MainMenuScreen(navController = navController)
                         }
-                        composable("login_screen") {
+
+                        //lOginscreen mit Übergabe von Packganeame
+                        composable(
+                            route = "login_screen/{packageName}",
+                            arguments = listOf(navArgument("packageName"){
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
+                            val packageName = backStackEntry.arguments?.getString("packageName")?: ""
+
                             LoginScreen(
                                 onLoginClick = {
-                                    // Nach erfolgreichem Login, zum Hauptmenü weiterleiten
-                                    navController.navigate("main_menu")
+                                    //Starte von App mit packagename mitgeben und ID
+                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
+                                    intent?.putExtra("personId", 1234) //Eifnach nur zum testen
+                                    if(intent!=null){
+                                        startActivity(intent)
+                                    }else{
+                                        Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
+                                    }
                                 },
                                 onContinueWithoutLogin = {
                                     // Weiter ohne Anmeldung
