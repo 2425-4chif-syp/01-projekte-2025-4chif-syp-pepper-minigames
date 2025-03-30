@@ -50,7 +50,6 @@ fun MainMenuScreen(navController: NavHostController) {
         Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mitmachgeschichte"),
         Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
         Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
-    //    Pair(R.drawable.fang_den_dieb, "Fang den Dieb" to "com.example.fangdendieb"),
         Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
     )
 
