@@ -1,5 +1,6 @@
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -151,12 +152,20 @@ fun MenuItem(
     val context = LocalContext.current
     val needsLogin = title =="Memory"
 
-Box(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                // Navigiere zum LoginScreen statt direkt zur App
-                navController.navigate("login_screen") // Dies führt den Benutzer zum LoginScreen
+                if(needsLogin){
+                    navController.navigate("login_screen/${packageName}")
+                }else{
+                    val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+                    if(intent!= null){
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "App wurde nocch nicht installiert", Toast.LENGTH_SHORT).show()
+                    }
+                }
             },
         contentAlignment = Alignment.Center
     ) {
