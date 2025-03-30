@@ -263,7 +263,7 @@ fun LoginScreen(
                             text = "Spracherkennung",
                             fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp),
-                            /* color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
+                             color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
                         )
                     }
                 }

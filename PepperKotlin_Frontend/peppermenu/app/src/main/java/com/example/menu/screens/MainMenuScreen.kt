@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.runtime.*
 import androidx.compose.ui.layout.ContentScale // Import für ContentScale
+import androidx.compose.ui.platform.LocalContext
 import com.example.menu.RoboterActions
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,7 @@ fun MainMenuScreen(navController: NavHostController) {
         Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mitmachgeschichte"),
         Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
         Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
-        Pair(R.drawable.fang_den_dieb, "Fang den Dieb" to "com.example.fangdendieb"),
+    //    Pair(R.drawable.fang_den_dieb, "Fang den Dieb" to "com.example.fangdendieb"),
         Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
     )
 
@@ -94,8 +95,9 @@ fun MainMenuScreen(navController: NavHostController) {
                 MenuItem(
                     imageRes = menuItems[page].first,
                     title = menuItems[page].second.first, // Der Titel der App
-                    navController = navController,
-                    packageName = menuItems[page].second.second // Der Package-Name der App
+                    packageName = menuItems[page].second.second, // Der Package-Name der App
+                    navController = navController
+
                 )
             }
 
@@ -140,8 +142,16 @@ fun MainMenuScreen(navController: NavHostController) {
 }
 
 @Composable
-fun MenuItem(imageRes: Int, title: String, navController: NavHostController, packageName: String) {
-    Box(
+fun MenuItem(
+    imageRes: Int,
+    title: String,
+    packageName: String,
+    navController: NavHostController,
+){
+    val context = LocalContext.current
+    val needsLogin = title =="Memory"
+
+Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
