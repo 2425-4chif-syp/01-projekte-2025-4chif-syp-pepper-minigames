@@ -1,21 +1,30 @@
 package com.example.mmg.presentation
 
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mmg.viewmodel.MmgViewModel
+import java.io.ByteArrayInputStream
+import androidx.compose.ui.res.painterResource
+import com.example.mmg.R
 
 @Composable
 fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
@@ -26,7 +35,9 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
     }
 
     Column(
-        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -45,22 +56,40 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp)
-            ){
+            ) {
                 items(mmgList) { mmg ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        shape = MaterialTheme.shapes.medium
+                            .padding(vertical = 8.dp)
+                            .height(80.dp),
+                        shape = MaterialTheme.shapes.medium,
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(5.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
+                            val imageBitmap = mmg.storyIconBase64?.let { base64ToBitmap(it) }
+
+                            if (imageBitmap != null) {
+                                Image(
+                                    bitmap = imageBitmap,
+                                    contentDescription = "Story Icon",
+                                    modifier = Modifier.size(80.dp)
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.default_story_icon),
+                                    contentDescription = "Default Story Icon",
+                                    modifier = Modifier.size(80.dp)
+                                )
+                            }
+
                             Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
+
                             IconButton(onClick = { /* TODO: Play action */ }) {
                                 Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                             }
@@ -69,5 +98,19 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
                 }
             }
         }
+    }
+}
+
+fun base64ToBitmap(base64String: String): ImageBitmap? {
+    //parts[0]= data:null;base64
+    //parts[1] = base64
+    val parts = base64String.split(',');
+    Log.d("Parts","${parts}")
+    return try {
+        val decodedBytes = Base64.decode(parts[1], Base64.DEFAULT)
+        val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes))
+        bitmap?.asImageBitmap()
+    } catch (e: Exception) {
+        null
     }
 }

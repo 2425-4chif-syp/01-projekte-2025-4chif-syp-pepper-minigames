@@ -1,5 +1,6 @@
 package com.example.mmg.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mmg.dto.MmgDto
@@ -15,11 +16,12 @@ class MmgViewModel : ViewModel() {
     fun loadMmgDtos() {
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgDtos()
+            Log.d("Result:", "$result")
+
             if (result != null) {
-                result.forEach { r -> if(r.enabled == true){
-                    _mmgList.value = result
-                }
-                }
+                // val enabledMmgList = result.filter { it.enabled == true }
+
+                _mmgList.value = result //enabledMmgList
             }
         }
     }
