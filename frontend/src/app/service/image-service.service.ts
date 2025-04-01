@@ -28,4 +28,30 @@ export class ImageServiceService {
   uploadImage(imageDto: ImageModel){
     return this.http.post(this.url + 'image', imageDto, httpOptions);
   }
+
+  getImageBase64(id: number): Observable<string | null> {
+    const apiUrl = 'http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/' + id + '/steps';
+    return new Observable(observer => {
+      this.http.get<any[]>(apiUrl).subscribe(
+        response => {
+
+          for (let i = 0;response.length > 0 && response[i].imageBase64;i++ ){
+            observer.next(response[i].imageBase64);
+          }
+          observer.next(null);
+          observer.complete();
+
+          /*if (response.length > 0 && response[0].imageBase64) {
+            observer.next(response[0].imageBase64);
+          } else {
+            observer.next(null);
+          }
+          observer.complete();*/
+        },
+        error => {
+          observer.error(error);
+        }
+      );
+    });
+  }
 }

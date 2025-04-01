@@ -5,6 +5,7 @@ import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import e from 'express';
 
 interface Scene {
   speech: string;
@@ -19,6 +20,10 @@ interface Scene {
   templateUrl: './createstory.component.html',
 })
 export class CreatestoryComponent {
+  imageBase64: string | null = null;
+  scenenBilder: string[] = [];
+
+
   public duration = [5, 10, 15];
   public moves = [
     'emote_hurra',
@@ -57,6 +62,8 @@ export class CreatestoryComponent {
 
   constructor(private route: ActivatedRoute) {}
 
+  service = inject(ImageServiceService)
+
   ngOnInit(): void {
     this.loadImages();
 
@@ -81,27 +88,45 @@ export class CreatestoryComponent {
   }
 
   loadStory(storyId: number) {
+    this.service.getImageBase64(storyId).subscribe({
+      next: data => {
+        console.log("Daten von der neuen Methode:")
+        console.log(data)
+        this.imageBase64 = data
+        this.titleImage = this.imageBase64
+        if(data != null){
+          this.scenenBilder.push(data)
+        }
+      },
+      error: error => alert("fehler beim laden des bildes " + error.message)
+    })
+
+
+
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
         this.titleName = data.name;
-        this.titleImage = data.icon;
+       // this.titleImage = data.icon;
         this.loadScenes(storyId);
       })
       .catch((error) => console.error('Error loading story:', error));
   }
+  
   loadScenes(storyId: number) {
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
+        let i = 0;
         this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
           const moveIndex = scene.move.id - 1;
           return {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
             duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
-            image: scene.image ?? 'assets/images/defaultUploadPic_50.jpg',
+            image: this.scenenBilder[i++]?? 'assets/images/defaultUploadPic_50.jpg',
           };
+          
         });
       })
       .catch((error) => console.error('Error loading scenes:', error));
