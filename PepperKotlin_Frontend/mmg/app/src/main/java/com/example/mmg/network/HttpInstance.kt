@@ -1,6 +1,7 @@
 package com.example.mmg.network
 
 import com.example.mmg.dto.MmgDto
+import com.example.mmg.dto.StepDto
 import com.example.mmg.network.service.MmgApiService
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -39,6 +40,16 @@ class HttpInstance {
                 }
             }
         }
-    }
 
+        suspend fun fetchMmgSteps(id: Int): List<StepDto>?{
+            return withContext(Dispatchers.IO){
+                try {
+                    apiService.getSteps(id)
+                }catch (e: Exception){
+                    e.printStackTrace()
+                    null
+                }
+            }
+        }
+    }
 }
