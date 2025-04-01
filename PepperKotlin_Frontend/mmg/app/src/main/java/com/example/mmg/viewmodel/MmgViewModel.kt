@@ -13,15 +13,51 @@ import com.example.mmg.dto.StepDto
 import com.example.mmg.network.HttpInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 
 class MmgViewModel : ViewModel() {
+
     private val _mmgList = MutableStateFlow<List<MmgDto>>(emptyList())
     val mmgList = _mmgList.asStateFlow()
 
     private val _mmgSteps = MutableStateFlow<List<StepDto>>(emptyList())
-    val mmgSteps = _mmgSteps.asStateFlow()
+
+    val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
+
+    val _stepCount = MutableStateFlow(0)
+
+    fun incrementStepCount() {
+        _stepCount.value += 1
+    }
+
+    fun resetStepCount(){
+        _stepCount.value = 0
+    }
+
+    fun displayStep(){
+        val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
+
+        Log.d("Action","${stepDto}")
+        Log.d("Index","${_stepCount.value}")
+        Log.d("Base64","${stepDto.imageBase64}")
+
+        if(stepDto.imageBase64 != null){
+            // Image wird nicht erkannt und eine Image ist viel zu lang (Besuch Alianz Arena)
+            val decodedBytes = Base64.decode(stepDto.imageBase64, Base64.DEFAULT)
+            Log.d("Base64ToBitmap", "Länge der decodierten Bytes: ${decodedBytes.size}")
+            imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+        }
+
+        RoboterActions.speak(stepDto.text)
+
+        //Pepper macht Move
+
+        incrementStepCount()
+        Log.d("Index danach", "${_stepCount.value}")
+    }
+
 
     fun loadMmgDtos() {
         viewModelScope.launch {
@@ -31,9 +67,10 @@ class MmgViewModel : ViewModel() {
             if (result != null) {
                 // val enabledMmgList = result.filter { it.enabled == true }
                 _mmgList.value = result //enabledMmgList
+                Log.d("Mmgs","${_mmgList.value}")
             }
             else{
-                //RoboterActions.speak("Ich habe keine Mitmachgeschichten gefunden")
+                RoboterActions.speak("Ich habe keine Mitmachgeschichten gefunden")
             }
         }
     }
@@ -45,12 +82,15 @@ class MmgViewModel : ViewModel() {
 
             if(result != null){
                 _mmgSteps.value = result
+
+                if(_mmgSteps.value != null){
+                    displayStep()
+                }
             }
             else{
-                //RoboterActions.speak("Ich habe keine Informationen gefunden!")
+                RoboterActions.speak("Ich habe keine Informationen gefunden!")
             }
         }
-
     }
 
     fun base64ToBitmap(base64String: String): ImageBitmap? {
