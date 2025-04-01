@@ -7,10 +7,10 @@ data class MmgDto(
     @SerializedName("gameType")val gameType: GameType,
     @SerializedName("id")val id: Int,
     @SerializedName("name")val name: String,
-    @SerializedName("storyIcon")val storyIcon: StoryIcon? = null,
+    //@SerializedName("storyIcon")val storyIcon: StoryIcon? = null,
     @SerializedName("storyIconBase64")val storyIconBase64: String? = null,
-    @SerializedName("storyIconBinary")val storyIconBinary: List<Int>? = null,
-    @SerializedName("storyIconType")val storyIconType: String? = null
+    //@SerializedName("storyIconBinary")val storyIconBinary: List<Int>? = null,
+    //@SerializedName("storyIconType")val storyIconType: String? = null
 )
 
 data class GameType(

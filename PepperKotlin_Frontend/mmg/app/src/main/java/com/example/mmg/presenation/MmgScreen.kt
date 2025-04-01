@@ -72,7 +72,7 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            val imageBitmap = mmg.storyIconBase64?.let { base64ToBitmap(it) }
+                            val imageBitmap = mmg.storyIconBase64?.let { viewModel.base64ToBitmap(it) }
 
                             if (imageBitmap != null) {
                                 Image(
@@ -90,7 +90,9 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
 
                             Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
 
-                            IconButton(onClick = { /* TODO: Play action */ }) {
+                            IconButton(onClick = {
+                             viewModel.loadMmgSteps(mmg.id)
+                            }) {
                                 Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                             }
                         }
@@ -98,19 +100,5 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
                 }
             }
         }
-    }
-}
-
-fun base64ToBitmap(base64String: String): ImageBitmap? {
-    //parts[0]= data:null;base64
-    //parts[1] = base64
-    val parts = base64String.split(',');
-    Log.d("Parts","${parts}")
-    return try {
-        val decodedBytes = Base64.decode(parts[1], Base64.DEFAULT)
-        val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes))
-        bitmap?.asImageBitmap()
-    } catch (e: Exception) {
-        null
     }
 }
