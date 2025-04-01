@@ -1,8 +1,5 @@
 package com.example.mmg.presentation
 
-import android.graphics.BitmapFactory
-import android.util.Base64
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,20 +15,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mmg.viewmodel.MmgViewModel
-import java.io.ByteArrayInputStream
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.example.mmg.R
 
 @Composable
-fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
+fun MmgScreen(
+    viewModel: MmgViewModel = viewModel(),
+    navController: NavController
+) {
     val mmgList by viewModel.mmgList.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadMmgDtos()  // Daten beim ersten Rendern laden
+        viewModel.loadMmgDtos()
     }
 
     Column(
@@ -91,7 +89,9 @@ fun MmgScreen(viewModel: MmgViewModel = viewModel()) {
                             Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
 
                             IconButton(onClick = {
-                             viewModel.loadMmgSteps(mmg.id)
+                                navController.navigate("step")
+                                viewModel.loadMmgSteps(mmg.id)
+                                viewModel.resetStepCount()
                             }) {
                                 Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                             }
