@@ -79,4 +79,14 @@ export class TagalongstoryComponent {
       this.ngOnInit();
     });
   }
+
+  // Function to get story details and ensure correct movement and duration are displayed
+  public getStoryDetails(id: number): void {
+    this.http.get<ITagalongStory>(`${this.baseUrl}/${id}`).subscribe(story => {
+      const index = this.filteredStories.findIndex(s => s.id === id);
+      if (index !== -1) {
+        this.filteredStories[index] = { ...story };
+      }
+    });
+  }
 }

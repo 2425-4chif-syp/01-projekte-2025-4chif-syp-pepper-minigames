@@ -90,20 +90,25 @@ export class CreatestoryComponent {
       })
       .catch((error) => console.error('Error loading story:', error));
   }
-
   loadScenes(storyId: number) {
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
-        this.scenes = data.map((scene: { text: any; move: { name: any }; durationInSeconds: any; image: any }) => ({
-          speech: scene.text,
-          movement: scene.move.name,
-          duration: scene.durationInSeconds,
-          image: scene.image ?? 'assets/images/defaultUploadPic_50.jpg', // Ensure default
-        }));
+        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
+          const moveIndex = scene.move.id - 1;
+          return {
+            speech: scene.text,
+            movement: this.moveNames[moveIndex] || scene.move.name,
+            duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
+            image: scene.image ?? 'assets/images/defaultUploadPic_50.jpg',
+          };
+        });
       })
       .catch((error) => console.error('Error loading scenes:', error));
   }
+  
+  
+  
 
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
@@ -177,21 +182,28 @@ export class CreatestoryComponent {
       enabled: true,
     };
 
-    await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(storyData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Geschichte erfolgreich gespeichert:', data);
-        this.saveScenes(data.id);
-      })
-      .catch((error) => console.error('Fehler beim Speichern der Geschichte:', error));
+    try {
+      const response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(storyData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Fehler beim Speichern der Geschichte: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`Geschichte erfolgreich gespeichert mit ID: ${data.id}`);
+      
+      await this.saveScenes(data.id);
+    } catch (error) {
+      console.error('Fehler beim Speichern der Geschichte:', error);
+    }
   }
 
-  saveScenes(storyId: number) {
-    this.scenes.forEach((scene, index) => {
+  async saveScenes(storyId: number) {
+    for (const [index, scene] of this.scenes.entries()) {
       const moveIndex = this.moveNames.indexOf(scene.movement);
       const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
 
@@ -214,14 +226,23 @@ export class CreatestoryComponent {
         durationInSeconds: scene.duration,
       };
 
-      fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sceneData),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log('Szene erfolgreich gespeichert:', data))
-        .catch((error) => console.error('Fehler beim Speichern der Szene:', error));
-    });
+      try {
+        const response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sceneData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Fehler beim Speichern der Szene: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Szene ${index + 1} erfolgreich gespeichert mit ID: ${data.id}`);
+      } catch (error) {
+        console.error(`Fehler beim Speichern der Szene ${index + 1}:`, error);
+      }
+    }
   }
+
 }
