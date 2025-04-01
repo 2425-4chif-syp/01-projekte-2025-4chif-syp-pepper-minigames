@@ -1,9 +1,6 @@
 package com.example.mmg
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,8 +9,12 @@ import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import com.example.mmg.presentation.MmgScreen
-import com.example.mmg.ui.theme.MmgTheme
 import com.example.mmg.viewmodel.MmgViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.mmg.navigation.AppNavigaton
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
@@ -21,8 +22,8 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
         setContent {
-            val viewModel: MmgViewModel = viewModel()
-            MmgScreen(viewModel = viewModel)
+            val navController = rememberNavController()
+            AppNavigaton(navController = navController)
         }
     }
 
