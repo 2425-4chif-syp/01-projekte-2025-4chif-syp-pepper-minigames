@@ -16,7 +16,10 @@ class MmgViewModel : ViewModel() {
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgDtos()
             if (result != null) {
-                _mmgList.value = result
+                result.forEach { r -> if(r.enabled == true){
+                    _mmgList.value = result
+                }
+                }
             }
         }
     }
