@@ -1,15 +1,20 @@
 package com.example.mmg
 
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.aldebaran.qi.sdk.QiContext
+import com.aldebaran.qi.sdk.`object`.actuation.Animate
+import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.aldebaran.qi.sdk.`object`.camera.TakePicture
 import com.aldebaran.qi.sdk.`object`.conversation.Say
 import com.aldebaran.qi.sdk.`object`.image.EncodedImage
 import com.aldebaran.qi.sdk.`object`.image.EncodedImageHandle
+import com.aldebaran.qi.sdk.builder.AnimateBuilder
+import com.aldebaran.qi.sdk.builder.AnimationBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.builder.TakePictureBuilder
 import java.nio.ByteBuffer
@@ -21,7 +26,6 @@ class RoboterActions {
 
         var qiContext: QiContext? = null
         var robotExecute: Boolean = false
-
 
         fun speak(text: String): Future<Void>? {
             if (robotExecute) {
@@ -66,6 +70,17 @@ class RoboterActions {
 
                     onImageCaptured(pictureImageBitmap)
                 }
+            }
+        }
+
+        fun animation(ressource: Int){
+            if(robotExecute){
+                var animation: Future<Animation>?
+                var animate: Future<Animate>?
+                Log.d("ressource", "${ressource}")
+                animation = AnimationBuilder.with(qiContext).withResources(ressource).buildAsync()
+                animate = AnimateBuilder.with(qiContext).withAnimation(animation!!.get()).buildAsync()
+                animate!!.get().async().run()
             }
         }
     }

@@ -1,15 +1,20 @@
 package com.example.mmg.viewmodel
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mmg.MainActivity
 import com.example.mmg.RoboterActions
+import com.example.mmg.dto.EmoteDto
 import com.example.mmg.dto.MmgDto
 import com.example.mmg.dto.StepDto
+import com.example.mmg.dto.getEmotes
 import com.example.mmg.network.HttpInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 
-class MmgViewModel : ViewModel() {
+class MmgViewModel() : ViewModel() {
 
     private val _mmgList = MutableStateFlow<List<MmgDto>>(emptyList())
     val mmgList = _mmgList.asStateFlow()
@@ -27,6 +32,8 @@ class MmgViewModel : ViewModel() {
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
 
     val _stepCount = MutableStateFlow(0)
+
+    var emotes: List<EmoteDto> = emptyList()
 
     fun incrementStepCount() {
         _stepCount.value += 1
@@ -52,14 +59,32 @@ class MmgViewModel : ViewModel() {
 
         RoboterActions.speak(stepDto.text)
 
-        //Pepper macht Move
+        val emote = getRawResourceIdByName(stepDto = stepDto)
+
+        if(emote != -1){
+            RoboterActions.animation(emote)
+        }
 
         incrementStepCount()
         Log.d("Index danach", "${_stepCount.value}")
     }
 
+    fun getRawResourceIdByName(stepDto: StepDto): Int{
+        val emoteName = stepDto.move!!.name.split('_')[1]
+        val rightEmote : EmoteDto? = emotes.filter{e -> e.name == emoteName + "_" + stepDto.durationInSeconds.toString()}.firstOrNull()
+        Log.d("StepDto","${stepDto.move.name}")
+        Log.d("Emote","${rightEmote}")
+
+        if(rightEmote != null){
+            return rightEmote.path;
+        }
+        return -1;
+    }
+
 
     fun loadMmgDtos() {
+        emotes = getEmotes()
+        Log.d("Emotes", "${emotes}")
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgDtos()
             Log.d("Result:", "$result")
@@ -97,6 +122,7 @@ class MmgViewModel : ViewModel() {
         //parts[0]= data:null;base64
         //parts[1] = base64String
         val parts = base64String.split(',');
+        Log.d("Parts:","${parts}")
         return try {
             val decodedBytes = Base64.decode(parts[1], Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes))
