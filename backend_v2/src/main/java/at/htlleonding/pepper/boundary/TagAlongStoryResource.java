@@ -74,6 +74,7 @@ public class TagAlongStoryResource {
     @GET
     @Path("/{id}/image")
     @Produces("image/png")
+    @Transactional
     @Operation(summary = "Get one image per tag along story with id")
     public Response GetTagAlongStoriesPicById(@PathParam("id") Long id) {
         Game tagAlongStory = gameRepository.find("id = ?1 and gameType.id = ?2", id, "TAG_ALONG_STORY").firstResult();
@@ -168,6 +169,7 @@ public class TagAlongStoryResource {
 
         Game game = gameRepository.findById(id);
         step.setGame(game);
+        step.setDurationInSeconds(stepDTO.durationInSeconds());
         imageRepository.persist(step.getImage());
         stepRepository.persist(step);
         return Response.ok(step).build();
