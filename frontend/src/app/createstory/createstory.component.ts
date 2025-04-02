@@ -5,7 +5,7 @@ import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import e from 'express';
+import e, { Router } from 'express';
 
 interface Scene {
   speech: string;
@@ -22,6 +22,7 @@ interface Scene {
 export class CreatestoryComponent {
   imageBase64: string | null = null;
   scenenBilder: string[] = [];
+  
 
 
   public duration = [5, 10, 15];
@@ -75,6 +76,10 @@ export class CreatestoryComponent {
     });
   }
 
+  disableSaveButton(){
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null 
+  }
+
   loadImages(): void {
     this.imagesService.getImages().subscribe({
       next: (data) => {
@@ -88,27 +93,57 @@ export class CreatestoryComponent {
   }
 
   loadStory(storyId: number) {
+    console.log(storyId)
+
+    
+
     this.service.getImageBase64(storyId).subscribe({
       next: data => {
         console.log("Daten von der neuen Methode:")
         console.log(data)
         this.imageBase64 = data
-        this.titleImage = this.imageBase64
+       // this.titleImage = this.imageBase64
         if(data != null){
           this.scenenBilder.push(data)
         }
       },
-      error: error => alert("fehler beim laden des bildes " + error.message)
+      error: error => {
+        console.log("fehler beim titelbild")
+        alert("fehler beim laden des bildes " + error.message)}
     })
 
+    this.service.getTitleImage(storyId).subscribe({
+      next: data => {
+        console.log("Titelbild erhalten:", data);
+        if (data) {
+          this.titleImage = 'data:image/png;base64,' + data;
+        } else {
+          this.titleImage = null;
+        }
+      },
+      error: error => {
+        console.log("Fehler beim Laden des Titelbildes:", error);
+        alert("Fehler beim Laden des Titelbildes: " + error.message);
+      }
+    });
 
+
+    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.name);
+      this.titleName = data.name
+      this.loadScenes(storyId);
+
+    })
+    .catch(error => console.error('Fehler beim Abrufen:', error));
 
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
-        this.titleName = data.name;
+        //this.titleName = data.name;
        // this.titleImage = data.icon;
-        this.loadScenes(storyId);
+       // this.loadScenes(storyId);
       })
       .catch((error) => console.error('Error loading story:', error));
   }
@@ -225,6 +260,8 @@ export class CreatestoryComponent {
       console.log(`Geschichte erfolgreich gespeichert mit ID: ${data.id}`);
       
       await this.saveScenes(data.id);
+      window.location.href = '/tagalongstory';
+      
     } catch (error) {
       console.error('Fehler beim Speichern der Geschichte:', error);
     }
