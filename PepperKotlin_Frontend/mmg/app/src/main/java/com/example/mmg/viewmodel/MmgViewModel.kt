@@ -57,15 +57,17 @@ class MmgViewModel() : ViewModel() {
             Log.d("Index","${_stepCount.value}")
             Log.d("Base64","${stepDto.imageBase64}")
             Log.d("Text", "${stepDto.text}")
+            Log.d("Move","${stepDto.move}")
+            Log.d("Duration","${stepDto.durationInSeconds}")
 
             if(stepDto.imageBase64 != null){
 
                 imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
             }
 
-            RoboterActions.speak(stepDto.text)
+            /*RoboterActions.speak(stepDto.text)
 
-            /*val emote = getEmote(stepDto = stepDto)
+            val emote = getEmote(stepDto = stepDto)
 
             if(emote != -1){
                 RoboterActions.animation(emote)
@@ -83,7 +85,16 @@ class MmgViewModel() : ViewModel() {
 
     // Holt aus der List der Emotes die richtige raus
     fun getEmote(stepDto: StepDto): Int{
-        val emoteName = stepDto.move!!.name.split('_')[1]
+
+        var emoteName = " ";
+
+        if(stepDto.move!!.name.contains('_')){
+             emoteName = stepDto.move!!.name.split('_')[1]
+        }
+        else{
+            emoteName = stepDto.move!!.name
+        }
+        
         val rightEmote : EmoteDto? = emotes.filter{
                 e -> e.name == emoteName + "_" + stepDto.durationInSeconds.toString()
         }.firstOrNull()
@@ -96,7 +107,6 @@ class MmgViewModel() : ViewModel() {
         }
         return -1;
     }
-
 
     fun loadMmgDtos() {
         emotes = getEmotes()
