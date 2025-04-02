@@ -91,16 +91,15 @@
         </div>
       }
     </div>
-  </div>
-
-  <div [class.push-buttons-down]="showSuggestions" class="buttons-wrapper">
-    <div class="bg-base-200 p-5 flex justify-around">
-      <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
-        BILD SPEICHERN
-      </button>
-      <button (click)="onCancel()" class="btn btn-error w-[25%]">
-        <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
-      </button>
+    <div>
+      <div class="p-5 flex justify-around">
+        <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
+          BILD SPEICHERN
+        </button>
+        <button (click)="onCancel()" class="btn btn-error w-[25%]">
+          <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
+        </button>
+      </div>
     </div>
   </div>
 </div>
