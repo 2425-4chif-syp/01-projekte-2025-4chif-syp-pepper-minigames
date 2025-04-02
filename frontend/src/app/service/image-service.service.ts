@@ -55,7 +55,32 @@ export class ImageServiceService {
     });
   }
 
+  getTitleImage(id: number): Observable<string | null> {
+    const apiUrl = 'http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/' + id + '/image';
+    return new Observable(observer => {
+      this.http.get(apiUrl, { responseType: 'text' }).subscribe(
+        response => {
+          if (response) {
+            observer.next(response); // Der Base64-String wird direkt zurückgegeben
+          } else {
+            observer.next(null);
+          }
+          observer.complete();
+        },
+        error => {
+          observer.error(error);
+        }
+      );
+    });
+  }
+  
+  
+
   deleteStory(id: number){
     return this.http.delete("http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/" + id, httpOptions)
+  }
+
+  enablingStory(id: number, isEnabled: boolean){
+    return this.http.put("http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/" + id, {"isEnabled" : isEnabled}, httpOptions)
   }
 }
