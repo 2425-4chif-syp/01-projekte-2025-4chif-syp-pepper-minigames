@@ -42,9 +42,11 @@
           <select class="border p-2 rounded" (change)="updateMovement($event, scene)">
             <option *ngFor="let moveName of moveNames" [value]="moveName" [selected]="moveName === scene.movement">{{ moveName }}</option>
           </select>
-          <select class="border p-2 rounded" (change)="updateDuration($event, scene)">
-            <option *ngFor="let dur of duration" [value]="dur" [selected]="dur === scene.duration">{{ dur }}s</option>
+          <select class="border p-2 rounded" [(ngModel)]="scene.duration">
+            <option *ngFor="let dur of duration" [ngValue]="dur">{{ dur }}s</option>
           </select>
+          
+          
         </div>
       </div>
     
