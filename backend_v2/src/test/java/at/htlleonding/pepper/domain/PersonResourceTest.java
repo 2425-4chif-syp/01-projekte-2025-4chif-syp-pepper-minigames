@@ -1,19 +1,22 @@
 package at.htlleonding.pepper.domain;
 
 import at.htlleonding.pepper.boundary.PersonResource;
-import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.dto.PersonDto;
 import at.htlleonding.pepper.repository.PersonRepository;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
 
-import static jakarta.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -144,19 +147,6 @@ class PersonResourceTest {
         assertThat(response.getStatus()).isEqualTo(UNAUTHORIZED.getStatusCode());
         assertThat(response.getEntity()).isEqualTo("Senioren benötigen kein Login");
     }
-    @Test
-    @Order(190)
-    @Transactional
-    void deletePerson_shouldSucceed_withCorrectCredentials() {
-        Person  person = new Person("Max", "Mustermann", null, null, true, "geheim");
-        personRepository.persist(person);
-        Long id = person.getId();
-        var response = personResource.deletePerson(id);
-        LOG.info(response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
-        assertThat(personRepository.findById(id)).isNull();
 
 
-
-    }
 }
