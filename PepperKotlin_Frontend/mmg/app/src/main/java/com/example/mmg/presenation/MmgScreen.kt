@@ -23,7 +23,7 @@ import com.example.mmg.R
 
 @Composable
 fun MmgScreen(
-    viewModel: MmgViewModel = viewModel(),
+    viewModel: MmgViewModel,
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()

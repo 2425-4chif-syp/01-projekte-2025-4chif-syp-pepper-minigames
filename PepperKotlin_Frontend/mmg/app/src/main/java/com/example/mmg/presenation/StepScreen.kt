@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun StepScreen(
-    viewModel: MmgViewModel = viewModel(),
+    viewModel: MmgViewModel,
     navController: NavController
 ) {
 
@@ -70,7 +70,9 @@ fun StepScreen(
                 modifier = Modifier
                     .width(150.dp)
                     .height(50.dp),
-                onClick = {}
+                onClick = {
+                    viewModel.displayStep()
+                }
             ) {
                 Text(text = "Weiter")
             }

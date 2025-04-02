@@ -18,12 +18,17 @@ import com.example.mmg.navigation.AppNavigaton
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
+    private lateinit var mmgViewModel: MmgViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
+
+        mmgViewModel = MmgViewModel()
+
         setContent {
             val navController = rememberNavController()
-            AppNavigaton(navController = navController)
+            AppNavigaton(navController = navController, mmgViewModel = mmgViewModel)
         }
     }
 

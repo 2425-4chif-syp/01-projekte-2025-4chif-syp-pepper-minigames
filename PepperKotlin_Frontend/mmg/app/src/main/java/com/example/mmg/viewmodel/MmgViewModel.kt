@@ -46,6 +46,9 @@ class MmgViewModel() : ViewModel() {
 
     fun displayStep(){
 
+        Log.d("Count_Step","${_stepCount.value}")
+        Log.d("Mmg_Count", "${_mmgSteps.value.size}")
+
         if(_stepCount.value < _mmgSteps.value.size){
 
             val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
@@ -53,34 +56,38 @@ class MmgViewModel() : ViewModel() {
             Log.d("Action","${stepDto}")
             Log.d("Index","${_stepCount.value}")
             Log.d("Base64","${stepDto.imageBase64}")
+            Log.d("Text", "${stepDto.text}")
 
             if(stepDto.imageBase64 != null){
-                // Image wird nicht erkannt und eine Image ist viel zu lang (Besuch Alianz Arena)
-                val decodedBytes = Base64.decode(stepDto.imageBase64, Base64.DEFAULT)
-                Log.d("Base64ToBitmap", "Länge der decodierten Bytes: ${decodedBytes.size}")
+
                 imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
             }
 
             RoboterActions.speak(stepDto.text)
 
-            val emote = getRawResourceIdByName(stepDto = stepDto)
+            /*val emote = getEmote(stepDto = stepDto)
 
             if(emote != -1){
                 RoboterActions.animation(emote)
             }
+
+             */
         }
         else{
             RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie zurück um die anderen Geschichten auszuwählen")
         }
 
-
         incrementStepCount()
         Log.d("Index danach", "${_stepCount.value}")
     }
 
-    fun getRawResourceIdByName(stepDto: StepDto): Int{
+    // Holt aus der List der Emotes die richtige raus
+    fun getEmote(stepDto: StepDto): Int{
         val emoteName = stepDto.move!!.name.split('_')[1]
-        val rightEmote : EmoteDto? = emotes.filter{e -> e.name == emoteName + "_" + stepDto.durationInSeconds.toString()}.firstOrNull()
+        val rightEmote : EmoteDto? = emotes.filter{
+                e -> e.name == emoteName + "_" + stepDto.durationInSeconds.toString()
+        }.firstOrNull()
+
         Log.d("StepDto","${stepDto.move.name}")
         Log.d("Emote","${rightEmote}")
 
@@ -93,7 +100,6 @@ class MmgViewModel() : ViewModel() {
 
     fun loadMmgDtos() {
         emotes = getEmotes()
-        Log.d("Emotes", "${emotes}")
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgDtos()
             Log.d("Result:", "$result")
@@ -131,9 +137,9 @@ class MmgViewModel() : ViewModel() {
         //parts[0]= data:null;base64
         //parts[1] = base64String
         val parts = base64String.split(',');
-        Log.d("Parts:","${parts}")
+        //Log.d("Parts:","${parts}")
         return try {
-            val decodedBytes = Base64.decode(parts[1], Base64.DEFAULT)
+            val decodedBytes = Base64.decode(parts[1].trim(), Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes))
             bitmap?.asImageBitmap()
         } catch (e: Exception) {

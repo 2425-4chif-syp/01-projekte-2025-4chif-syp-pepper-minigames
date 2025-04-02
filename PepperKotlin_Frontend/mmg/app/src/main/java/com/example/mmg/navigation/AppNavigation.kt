@@ -8,14 +8,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.mmg.presentation.MmgScreen
 import com.example.mmg.presentation.StepScreen
+import com.example.mmg.viewmodel.MmgViewModel
 
 @Composable
-fun AppNavigaton(navController: NavHostController) {
+fun AppNavigaton(navController: NavHostController, mmgViewModel: MmgViewModel) {
     NavHost(
         navController = navController,
         startDestination = "home"
     ){
-        composable("home"){ MmgScreen(navController = navController)}
-        composable("step"){ StepScreen(navController = navController)}
+        composable("home"){ MmgScreen(navController = navController, viewModel = mmgViewModel)}
+        composable("step"){ StepScreen(navController = navController, viewModel = mmgViewModel)}
     }
 }
