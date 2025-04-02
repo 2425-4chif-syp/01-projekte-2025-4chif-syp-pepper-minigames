@@ -231,7 +231,9 @@ export class CreatestoryComponent {
   }
 
   deleteScene(index: number) {
-    this.scenes.splice(index, 1);
+    if(confirm("Sind Sie sicher dass Sie diese Scene löschen möchten?")){
+      this.scenes.splice(index, 1);
+    }
   }
 
   toggleSidebar() {
