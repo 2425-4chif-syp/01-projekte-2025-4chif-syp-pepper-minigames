@@ -30,6 +30,8 @@ export class ImageuploadComponent {
   images = signal<ImageModel[]>([]);
   description = signal<string>("");
   
+  showSuggestions: boolean = false;
+
   public moves = [
     'emote_hurra',
     'essen',
@@ -203,7 +205,10 @@ export class ImageuploadComponent {
       console.error("Cropper is not initialized!");
       return;
     }
-
+    this.showSuggestions = !this.showSuggestions;
+    if(!this.showSuggestions){
+      this.cropRecommans = []
+    }
     const imageData = this.cropper.getImageData();
     const naturalWidth = imageData.naturalWidth;
     const naturalHeight = imageData.naturalHeight;
