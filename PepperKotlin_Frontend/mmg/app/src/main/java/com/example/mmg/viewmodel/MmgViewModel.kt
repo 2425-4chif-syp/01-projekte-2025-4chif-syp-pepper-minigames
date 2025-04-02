@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.mmg.MainActivity
 import com.example.mmg.RoboterActions
 import com.example.mmg.dto.EmoteDto
@@ -44,26 +45,34 @@ class MmgViewModel() : ViewModel() {
     }
 
     fun displayStep(){
-        val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
 
-        Log.d("Action","${stepDto}")
-        Log.d("Index","${_stepCount.value}")
-        Log.d("Base64","${stepDto.imageBase64}")
+        if(_stepCount.value < _mmgSteps.value.size){
 
-        if(stepDto.imageBase64 != null){
-            // Image wird nicht erkannt und eine Image ist viel zu lang (Besuch Alianz Arena)
-            val decodedBytes = Base64.decode(stepDto.imageBase64, Base64.DEFAULT)
-            Log.d("Base64ToBitmap", "Länge der decodierten Bytes: ${decodedBytes.size}")
-            imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+            val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
+
+            Log.d("Action","${stepDto}")
+            Log.d("Index","${_stepCount.value}")
+            Log.d("Base64","${stepDto.imageBase64}")
+
+            if(stepDto.imageBase64 != null){
+                // Image wird nicht erkannt und eine Image ist viel zu lang (Besuch Alianz Arena)
+                val decodedBytes = Base64.decode(stepDto.imageBase64, Base64.DEFAULT)
+                Log.d("Base64ToBitmap", "Länge der decodierten Bytes: ${decodedBytes.size}")
+                imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+            }
+
+            RoboterActions.speak(stepDto.text)
+
+            val emote = getRawResourceIdByName(stepDto = stepDto)
+
+            if(emote != -1){
+                RoboterActions.animation(emote)
+            }
+        }
+        else{
+            RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie zurück um die anderen Geschichten auszuwählen")
         }
 
-        RoboterActions.speak(stepDto.text)
-
-        val emote = getRawResourceIdByName(stepDto = stepDto)
-
-        if(emote != -1){
-            RoboterActions.animation(emote)
-        }
 
         incrementStepCount()
         Log.d("Index danach", "${_stepCount.value}")
