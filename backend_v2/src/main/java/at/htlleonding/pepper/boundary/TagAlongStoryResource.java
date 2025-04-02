@@ -18,7 +18,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
-import java.util.Base64;
 import java.util.List;
 
 @Path("tagalongstories")
@@ -58,37 +57,26 @@ public class TagAlongStoryResource {
 
     @GET
     @Operation(summary = "Get one tag along story with id")
-    @Transactional
     @Path("/{id}")
-    public Response getTagAlongStoriesById(@PathParam("id") Long id) {
-        System.out.println("getTagAlongStoriesById");
+    public Response getTagAlongStoriesById(@PathParam("id") Long id)
+    {
         Game tagalongstory = gameRepository.find("id = ?1 and gameType.id = ?2", id, "TAG_ALONG_STORY").firstResult();
         if (tagalongstory == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        GameDto gameDto = new GameDto(tagalongstory.getName(), tagalongstory.getStoryIconType(), tagalongstory.getGameType(), tagalongstory.isEnabled());
-        return Response.ok(gameDto).build();
+        return Response.ok(tagalongstory).build();
     }
-
-
 
     @GET
     @Path("/{id}/image")
-    @Produces("text/plain")
-    @Transactional
+    @Produces("image/png")
     @Operation(summary = "Get one image per tag along story with id")
     public Response GetTagAlongStoriesPicById(@PathParam("id") Long id) {
         Game tagAlongStory = gameRepository.find("id = ?1 and gameType.id = ?2", id, "TAG_ALONG_STORY").firstResult();
-
         if (tagAlongStory == null || tagAlongStory.getStoryIconBinary() == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No image found for tag along story with id " + id).build();
         }
-
-        byte[] imageBytes = tagAlongStory.getStoryIconBinary();
-
-        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-
-        return Response.ok(base64Image).build();
+        return Response.ok(tagAlongStory.getStoryIconBinary()).build();
     }
 
     @POST
@@ -105,7 +93,7 @@ public class TagAlongStoryResource {
         Game tagAlongStory = Converter.convertToTagAlongStory(gameDTO);
         // create clean base64 string without the prefix
         String base64 = Converter.extractBase64String(gameDTO.icon());
-            // create image reference by saving the image to pe_image table and the foreign key to the game story icon
+        // create image reference by saving the image to pe_image table and the foreign key to the game story icon
         Image image = new Image(null, java.util.Base64.getDecoder().decode(base64), null, "Bild für mit-mach-geschichte");
         imageRepository.persist(image);
         tagAlongStory.setStoryIcon(image);
@@ -144,6 +132,7 @@ public class TagAlongStoryResource {
     }
     //endregion
 
+
     //region Steps Endpoints
     @Transactional
     @GET
@@ -176,7 +165,6 @@ public class TagAlongStoryResource {
 
         Game game = gameRepository.findById(id);
         step.setGame(game);
-        step.setDurationInSeconds(stepDTO.durationInSeconds());
         imageRepository.persist(step.getImage());
         stepRepository.persist(step);
         return Response.ok(step).build();
@@ -199,4 +187,11 @@ public class TagAlongStoryResource {
     }
     //endregion
 
+    @DELETE
+    @Path("/{id}/steps")
+    @Operation(summary = "Deletes all steps in tagalongstory")
+    public Response deleteStepsInTagalongStory(@PathParam("id") Long id){
+        stepRepository.deleteAllStepsByGameId(id);
+        return Response.ok("Steps successfully deleted").build();
+    }
 }
