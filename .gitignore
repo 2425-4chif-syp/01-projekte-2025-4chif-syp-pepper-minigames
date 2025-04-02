@@ -83,9 +83,3 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
-
-
-.idea/
-dist/
-docs/slides/revealjs
-.DS_Store

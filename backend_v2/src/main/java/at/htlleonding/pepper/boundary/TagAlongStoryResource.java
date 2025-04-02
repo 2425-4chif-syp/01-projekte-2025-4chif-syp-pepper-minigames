@@ -187,11 +187,4 @@ public class TagAlongStoryResource {
     }
     //endregion
 
-    @DELETE
-    @Path("/{id}/steps")
-    @Operation(summary = "Deletes all steps in tagalongstory")
-    public Response deleteStepsInTagalongStory(@PathParam("id") Long id){
-        stepRepository.deleteAllStepsByGameId(id);
-        return Response.ok("Steps successfully deleted").build();
-    }
 }

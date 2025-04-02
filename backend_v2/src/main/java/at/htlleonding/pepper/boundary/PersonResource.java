@@ -43,7 +43,8 @@ public class PersonResource {
                         person.getLastName(),
                         person.getDob(),
                         person.getRoomNo(),
-                        person.getIsWorker()
+                        person.getIsWorker(),
+                        person.getGender()
                 ))
                 .collect(Collectors.toList());
 
@@ -52,7 +53,8 @@ public class PersonResource {
 
     @POST
     @Transactional
-    public Response addPerson(Person person) {
+    public Response add(Person person) {
+
         if (person.getFirstName() == null || person.getLastName() == null || person.getRoomNo() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Fehlende Daten: Vorname, Nachname oder Zimmernummer").build();
         }
@@ -73,7 +75,8 @@ public class PersonResource {
                 person.getLastName(),
                 person.getDob(),
                 person.getRoomNo(),
-                person.getIsWorker()
+                person.getIsWorker(),
+                person.getGender()
         );
 
         return Response.ok(safePerson).build();
@@ -112,29 +115,27 @@ public class PersonResource {
     @POST
     @Path("/login")
     public Response login(Person loginPerson) {
-        // Suche die Person in der Datenbank
         Optional<Person> personOpt = personRepository.find("firstName = ?1 AND lastName = ?2",
                 loginPerson.getFirstName(), loginPerson.getLastName()).firstResultOptional();
 
-        // Überprüfe, ob der Benutzer gefunden wurde
+
         if (personOpt.isEmpty()) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Benutzer nicht gefunden").build();
         }
 
         Person person = personOpt.get();
 
-        // Senioren haben kein Passwort und dürfen sich nicht anmelden
+
         if (!Boolean.TRUE.equals(person.getIsWorker())) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Senioren benötigen kein Login").build();
         }
 
         boolean passwordMatches = BCrypt.checkpw(loginPerson.getPassword(), person.getPassword());
 
-        // Wenn das Passwort nicht korrekt ist, versuche, es neu zu hashen und zu speichern
+
         if (!passwordMatches) {
-            // Überprüfe, ob der Salt möglicherweise veraltet ist
+
             try {
-                // Hash das Passn das Passwort nicht korrekt ist, vewort neu, falls das Format des gespeicherten Hashs ungültig ist
                 rehashPasswordAndStore(person);
                 passwordMatches = BCrypt.checkpw(loginPerson.getPassword(), person.getPassword());
             } catch (IllegalArgumentException e) {
@@ -150,18 +151,17 @@ public class PersonResource {
     }
 
 
-    // Methode, um das Passwort neu zu hashen und in der Datenbank zu speichern, falls erforderlich
+
     public void rehashPasswordAndStore(Person person) {
-        // Hash das Passwort neu mit BCrypt
+
         String hashedPassword = BCrypt.hashpw(person.getPassword(), BCrypt.gensalt());
 
-        // Speichere das neu gehashte Passwort in der Datenbank
+
         person.setPassword(hashedPassword);
         personRepository.persist(person);
     }
     //endregion
 
 }
-
 
 

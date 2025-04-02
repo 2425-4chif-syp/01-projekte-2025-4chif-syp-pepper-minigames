@@ -51,9 +51,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         MemoryGameScreen(navController ,rows, columns)
                     }
 
-                    // High Scores
+                    // High Scores => 1 Just for Test
                     composable("high_scores") {
-                        HighScoresScreen()
+                        HighScoresScreen(1)
                     }
 
                     // Spieleinleitung

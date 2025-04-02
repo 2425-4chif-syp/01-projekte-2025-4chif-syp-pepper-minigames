@@ -20,13 +20,13 @@ Content-Type: application/json
 {
   "description": "Profile picture of Maria Bauer",
   "person": {
-    "dob": "1978-11-30",
-    "firstName": "Maria",
-    "id": 3,
+    "dob": "1985-03-15",
+    "firstName": "Anna",
+    "gender": true,
+    "id": 1,
     "isWorker": true,
-    "lastName": "Bauer",
-    "password": "$2a$10$examplehashedpassword3",
-    "roomNo": "103"
+    "lastName": "Müller",
+    "roomNo": "101"
   },
   "base64Image": "/9j/4AAQSkZJRgABAQEASABIAAA="
 }
