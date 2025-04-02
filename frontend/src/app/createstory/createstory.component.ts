@@ -22,6 +22,7 @@ interface Scene {
 export class CreatestoryComponent {
   imageBase64: string | null = null;
   scenenBilder: string[] = [];
+  
 
 
   public duration = [5, 10, 15];
@@ -88,6 +89,10 @@ export class CreatestoryComponent {
   }
 
   loadStory(storyId: number) {
+    console.log(storyId)
+
+    
+
     this.service.getImageBase64(storyId).subscribe({
       next: data => {
         console.log("Daten von der neuen Methode:")
@@ -98,15 +103,30 @@ export class CreatestoryComponent {
           this.scenenBilder.push(data)
         }
       },
-      error: error => alert("fehler beim laden des bildes " + error.message)
+      error: error => {
+        console.log("fehler beim titelbild")
+        alert("fehler beim laden des bildes " + error.message)}
     })
 
-
+    this.service.getTitleImage(storyId).subscribe({
+      next: data => {
+        console.log("Titelbild erhalten:", data);
+        if (data) {
+          this.titleImage = 'data:image/png;base64,' + data; // MIME-Typ hinzufügen
+        } else {
+          this.titleImage = null;
+        }
+      },
+      error: error => {
+        console.log("Fehler beim Laden des Titelbildes:", error);
+        alert("Fehler beim Laden des Titelbildes: " + error.message);
+      }
+    });
 
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
-        this.titleName = data.name;
+        //this.titleName = data.name;
        // this.titleImage = data.icon;
         this.loadScenes(storyId);
       })
