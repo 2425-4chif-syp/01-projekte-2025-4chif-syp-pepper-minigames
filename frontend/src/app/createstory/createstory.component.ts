@@ -5,7 +5,7 @@ import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import e from 'express';
+import e, { Router } from 'express';
 
 interface Scene {
   speech: string;
@@ -76,6 +76,10 @@ export class CreatestoryComponent {
     });
   }
 
+  disableSaveButton(){
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null 
+  }
+
   loadImages(): void {
     this.imagesService.getImages().subscribe({
       next: (data) => {
@@ -98,7 +102,7 @@ export class CreatestoryComponent {
         console.log("Daten von der neuen Methode:")
         console.log(data)
         this.imageBase64 = data
-        this.titleImage = this.imageBase64
+       // this.titleImage = this.imageBase64
         if(data != null){
           this.scenenBilder.push(data)
         }
@@ -112,7 +116,7 @@ export class CreatestoryComponent {
       next: data => {
         console.log("Titelbild erhalten:", data);
         if (data) {
-          this.titleImage = 'data:image/png;base64,' + data; // MIME-Typ hinzufügen
+          this.titleImage = 'data:image/png;base64,' + data;
         } else {
           this.titleImage = null;
         }
@@ -256,6 +260,8 @@ export class CreatestoryComponent {
       console.log(`Geschichte erfolgreich gespeichert mit ID: ${data.id}`);
       
       await this.saveScenes(data.id);
+      window.location.href = '/tagalongstory';
+      
     } catch (error) {
       console.error('Fehler beim Speichern der Geschichte:', error);
     }

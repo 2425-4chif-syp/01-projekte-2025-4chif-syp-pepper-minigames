@@ -1,8 +1,10 @@
-<div class="container h-screen relative">
+<div class="container min-h-screen relative">
   <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
     <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
     <div>
-      <button class="btn btn-primary mr-2" (click)="saveButton()">Geschichte speichern</button>
+      <button [disabled]="disableSaveButton()" class="btn btn-primary mr-2" (click)="saveButton()">
+        Geschichte speichern
+      </button>
       <button class="btn btn-secondary mr-2" (click)="toggleSidebar()">Bilder</button>
     </div>
   </div>
