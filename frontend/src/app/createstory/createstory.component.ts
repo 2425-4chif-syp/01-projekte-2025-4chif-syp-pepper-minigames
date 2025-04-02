@@ -123,12 +123,23 @@ export class CreatestoryComponent {
       }
     });
 
+
+    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.name);
+      this.titleName = data.name
+      this.loadScenes(storyId);
+
+    })
+    .catch(error => console.error('Fehler beim Abrufen:', error));
+
     fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
         //this.titleName = data.name;
        // this.titleImage = data.icon;
-        this.loadScenes(storyId);
+       // this.loadScenes(storyId);
       })
       .catch((error) => console.error('Error loading story:', error));
   }
