@@ -54,4 +54,8 @@ export class ImageServiceService {
       );
     });
   }
+
+  deleteStory(id: number){
+    return this.http.delete("http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/" + id, httpOptions)
+  }
 }

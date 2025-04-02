@@ -200,8 +200,11 @@ export class CreatestoryComponent {
   }
 
   async saveButton() {
+    console.log("titelbild:")
+    console.log(this.titleImage)
     const storyData = {
       name: this.titleName,
+      
       icon: this.titleImage,
       gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
       enabled: true,

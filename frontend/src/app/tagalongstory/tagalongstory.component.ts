@@ -6,6 +6,8 @@ import { ITagalongStory } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { ImageServiceService } from '../service/image-service.service';
+import e from 'express';
 
 @Component({
   selector: 'app-tagalongstory',
@@ -17,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 export class TagalongstoryComponent {
   private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private http = inject(HttpClient);
+  private service = inject(ImageServiceService)
 
   public tagalongstoriesAll: ITagalongStory[] = [];  // All stories
   public tagalongstoriesEnabled: ITagalongStory[] = [];
@@ -88,5 +91,16 @@ export class TagalongstoryComponent {
         this.filteredStories[index] = { ...story };
       }
     });
+  }
+
+  public deleteStoryWithId(id: number){
+      this.service.deleteStory(id).subscribe({
+        next: data => {console.log("story gelöscht" + id),
+          window.location.reload()
+        },
+        error: error => //alert("fehler beim löschen" + error.message)
+        {console.log("gelöscht")
+        window.location.reload()}
+      })
   }
 }
