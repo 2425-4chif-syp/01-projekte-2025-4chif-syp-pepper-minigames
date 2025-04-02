@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
+import java.util.Base64;
 import java.util.List;
 
 @Path("tagalongstories")
@@ -73,15 +74,21 @@ public class TagAlongStoryResource {
 
     @GET
     @Path("/{id}/image")
-    @Produces("image/png")
+    @Produces("text/plain")
     @Transactional
     @Operation(summary = "Get one image per tag along story with id")
     public Response GetTagAlongStoriesPicById(@PathParam("id") Long id) {
         Game tagAlongStory = gameRepository.find("id = ?1 and gameType.id = ?2", id, "TAG_ALONG_STORY").firstResult();
+
         if (tagAlongStory == null || tagAlongStory.getStoryIconBinary() == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No image found for tag along story with id " + id).build();
         }
-        return Response.ok(tagAlongStory.getStoryIconBinary()).build();
+
+        byte[] imageBytes = tagAlongStory.getStoryIconBinary();
+
+        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+        return Response.ok(base64Image).build();
     }
 
     @POST
