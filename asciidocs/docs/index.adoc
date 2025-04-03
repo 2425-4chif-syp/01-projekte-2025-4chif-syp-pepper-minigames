@@ -19,6 +19,15 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
+== Anleitung zur Bedienung
+
+Die Website bietet momentan aus 2 Dienste,
+
+* Mitmachgeschichten 
+* und Bildbearbeitung
+
+
+
 == Schnittstellenbeschreibung IST
 
 .storys.service.ts
