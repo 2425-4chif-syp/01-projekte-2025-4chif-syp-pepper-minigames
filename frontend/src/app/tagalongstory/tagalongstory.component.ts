@@ -6,6 +6,8 @@ import { ITagalongStory } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { ImageServiceService } from '../service/image-service.service';
+import e from 'express';
 
 @Component({
   selector: 'app-tagalongstory',
@@ -15,8 +17,10 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./tagalongstory.component.css']
 })
 export class TagalongstoryComponent {
-  private baseUrl = inject(STORY_URL) + 'tagalongstories';
+ // private baseUrl = inject(STORY_URL) + 'tagalongstories';
+  private baseUrl = "http://vm88.htl-leonding.ac.at:8080/api/tagalongstories"
   private http = inject(HttpClient);
+  private service = inject(ImageServiceService)
 
   public tagalongstoriesAll: ITagalongStory[] = [];  // All stories
   public tagalongstoriesEnabled: ITagalongStory[] = [];
@@ -28,36 +32,22 @@ export class TagalongstoryComponent {
   constructor() {}
 
   ngOnInit(): void {
-    // Fetch both enabled and disabled stories
-    forkJoin([
-      this.http.get<ITagalongStory[]>(this.baseUrl + "?withoutDisabled=false"),
-      this.http.get<ITagalongStory[]>(this.baseUrl + "?withoutDisabled=true")
-    ]).subscribe(([disabledStories, enabledStories]) => {
-      // Assign fetched data to the corresponding arrays
-      this.tagalongstoriesDisabled = disabledStories.map(story => ({
-        ...story,
-        isEnabled: 'false'
-      }));
-
-      this.tagalongstoriesEnabled = enabledStories.map(story => ({
-        ...story,
-        isEnabled: 'true'
-      }));
-
-      // Use a map to ensure no duplicates
-      const storyMap = new Map<number, ITagalongStory>();
-
-      // Add both disabled and enabled stories to the map
-      this.tagalongstoriesDisabled.forEach(story => storyMap.set(story.id, story));
-      this.tagalongstoriesEnabled.forEach(story => storyMap.set(story.id, story));
-
-      // Convert the map back to an array
-      this.tagalongstoriesAll = Array.from(storyMap.values());
-
-      // Initially, display all stories
-      this.filteredStories = this.tagalongstoriesAll;
-    });
+    this.http.get<ITagalongStory[]>(this.baseUrl).subscribe(
+      (stories) => {
+        // Setze `enabled` als Boolean-Wert
+        console.log(stories)
+        this.tagalongstoriesAll = stories.map(story => ({
+          ...story,
+          enabled: !!story.enabled // Wandelt `undefined` oder `null` in `false` um
+        }));
+        this.filteredStories = this.tagalongstoriesAll;
+      },
+      (error) => {
+        console.error("Fehler beim Laden der Geschichten:", error);
+      }
+    );
   }
+  
 
   // Function to filter the stories based on the search term
   filterStories(): void {
@@ -78,5 +68,44 @@ export class TagalongstoryComponent {
       // Fetch the stories again to reflect the changes
       this.ngOnInit();
     });
+  }
+
+  // Function to get story details and ensure correct movement and duration are displayed
+  public getStoryDetails(id: number): void {
+    this.http.get<ITagalongStory>(`${this.baseUrl}/${id}`).subscribe(story => {
+      const index = this.filteredStories.findIndex(s => s.id === id);
+      if (index !== -1) {
+        this.filteredStories[index] = { ...story };
+      }
+    });
+  }
+
+  public deleteStoryWithId(id: number, name: string){
+
+    if(confirm("Sicher das Sie die Geschichte '" + name.valueOf() + "' gelöscht werden soll?")){
+      this.service.deleteStory(id).subscribe({
+        next: data => {console.log("story gelöscht" + id),
+          window.location.reload()
+        },
+        error: error => //alert("fehler beim löschen" + error.message)
+        {console.log("gelöscht")
+        window.location.reload()}
+      })
+    }
+  }
+
+  changeEnable(id: number, currentValue: boolean){
+    if(currentValue){
+      this.service.enablingStory(id, false).subscribe({
+        next: data => window.location.reload(),
+        error: error => alert("fehler beim wechseln des anzeigezustandes " + error.message)
+      })
+    }
+    else{
+      this.service.enablingStory(id, false).subscribe({
+        next: data => window.location.reload(),
+        error: error => alert("fehler beim wechseln des anzeigezustandes " + error.message)
+      })
+    }
   }
 }

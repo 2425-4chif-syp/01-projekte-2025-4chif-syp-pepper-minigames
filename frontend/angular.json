@@ -28,8 +28,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
-            ],
+              "src/styles.css"            ],
             "scripts": [],
             "server": "src/main.server.ts",
             "prerender": true,

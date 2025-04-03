@@ -1,16 +1,45 @@
-<div class="p-8 h-screen">
-    <h1 class="text-3xl font-bold mb-4">Bilder - Überblick</h1>
-    
-    <div class="grid grid-cols-4 gap-6">
-      <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <img [src]="'data:image/png;base64,' + image.base64Image" [alt]="image.description" class="w-full h-48 object-cover" />
-        <div class="p-4 bg-blue-500 text-white text-center font-semibold">
-          {{ image.description }}
-        </div>
-      </div>
-    </div>
-    
-    <button (click)="goToUpload()" class="mt-6 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md">
-      HOCHLADEN
+<div class="p-8 min-h-screen"> <!-- Heller Hintergrund -->
+  
+  <button (click)="goToUpload()" class="mt-0 w-full py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-500">
+    NEUES BILD HOCHLADEN
+  </button>
+
+  <div class="flex justify-between items-center mt-8">
+    <h1 class="text-3xl font-bold">Bilder - Überblick</h1>
+    <h1 class="text-3xl font-bold">{{images().length}} / {{standartImages().length}} Bilder</h1>
+  </div>
+  
+  <div class="mt-0">
+    <button [ngStyle]="{ 'background-color': activeButton() === 'All' ? '#90e0ef' : '#0077b6' }" 
+            (click)="showAllImages()" 
+            class="mt-6 me-2 px-6 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-500">
+      Alle Bilder
+    </button>
+    <button [ngStyle]="{ 'background-color': activeButton() === 'People' ? '#90e0ef' : '#0077b6' }" 
+            (click)="showImageOfPersons()" 
+            class="mt-6 me-2 px-6 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-500">
+      Personenbezogene Bilder
+    </button>
+    <button [ngStyle]="{ 'background-color': activeButton() === 'Stories' ? '#90e0ef' : '#0077b6' }" 
+            (click)="showImageOfStories()" 
+            class="mt-6 px-6 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-500">
+      Bilder für Mitmachgeschichten
     </button>
   </div>
+
+  <div class="grid grid-cols-4 gap-6 mt-5">
+    <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
+      @if (image.base64Image == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
+        <img src="../assets/images/defaultIcon2.jpg" class="w-full h-48 object-cover"> 
+        <div class="p-4 bg-blue-600 text-white text-center font-semibold">
+          {{ image.description }}
+        </div>      
+      }@else {
+        <img [src]="'data:image/png;base64,' + image.base64Image" [alt]="image.description" class="w-full h-48 object-cover" />
+        <div class="p-4 bg-blue-600 text-white text-center font-semibold">
+          {{ image.description }}
+        </div>
+      }
+    </div>
+  </div>
+</div>

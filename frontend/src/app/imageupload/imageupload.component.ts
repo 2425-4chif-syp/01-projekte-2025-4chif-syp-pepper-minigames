@@ -30,6 +30,8 @@ export class ImageuploadComponent {
   images = signal<ImageModel[]>([]);
   description = signal<string>("");
   
+  showSuggestions: boolean = false;
+
   public moves = [
     'emote_hurra',
     'essen',
@@ -154,7 +156,10 @@ export class ImageuploadComponent {
       // Define the target dimensions (1280x800)
       const targetWidth = 1280;
       const targetHeight = 800;
-
+      
+      if(imageData.naturalWidth < 600){
+        alert("Das Bild ist schon relativ klein, deshalb funktioniert der Slider erst weiter rechts")
+      }
       // Scale the target dimensions to match the displayed image size
       const scaledWidth = targetWidth * scaleFactor;
       const scaledHeight = targetHeight * scaleFactor;
@@ -203,7 +208,10 @@ export class ImageuploadComponent {
       console.error("Cropper is not initialized!");
       return;
     }
-
+    this.showSuggestions = !this.showSuggestions;
+    if(!this.showSuggestions){
+      this.cropRecommans = []
+    }
     const imageData = this.cropper.getImageData();
     const naturalWidth = imageData.naturalWidth;
     const naturalHeight = imageData.naturalHeight;
@@ -323,8 +331,6 @@ export class ImageuploadComponent {
           img.onload = () => {
             this.uploadedImageSize = img.naturalWidth + " x "+ img.naturalHeight;
           }
-
-
           this.imageElement.nativeElement.src = e.target?.result as string;
           this.initializeCropper();
         } else {

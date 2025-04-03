@@ -9,7 +9,7 @@ export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }),
   {
     provide: STORY_URL,
-    useValue: 'http://localhost:8080/api/'
+    useValue: 'http://vm88.htl-leonding.ac.at:8080/api/'
   },
   provideRouter(routes), provideClientHydration(), provideHttpClient(withFetch())]
 };
