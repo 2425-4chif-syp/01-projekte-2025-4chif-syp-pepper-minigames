@@ -156,7 +156,10 @@ export class ImageuploadComponent {
       // Define the target dimensions (1280x800)
       const targetWidth = 1280;
       const targetHeight = 800;
-
+      
+      if(imageData.naturalWidth < 600){
+        alert("Das Bild ist schon relativ klein, deshalb funktioniert der Slider erst weiter rechts")
+      }
       // Scale the target dimensions to match the displayed image size
       const scaledWidth = targetWidth * scaleFactor;
       const scaledHeight = targetHeight * scaleFactor;
@@ -328,8 +331,6 @@ export class ImageuploadComponent {
           img.onload = () => {
             this.uploadedImageSize = img.naturalWidth + " x "+ img.naturalHeight;
           }
-
-
           this.imageElement.nativeElement.src = e.target?.result as string;
           this.initializeCropper();
         } else {
