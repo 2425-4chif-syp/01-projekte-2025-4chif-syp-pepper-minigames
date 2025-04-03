@@ -218,7 +218,9 @@ export class CreatestoryComponent {
   
 
   clearImage(scene: Scene) {
-    scene.image = 'assets/images/defaultUploadPic_50.jpg';
+    if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
+      scene.image = 'assets/images/defaultUploadPic_50.jpg';
+    }
   }
 
   addScene() {
