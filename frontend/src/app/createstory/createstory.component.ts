@@ -319,7 +319,7 @@ export class CreatestoryComponent {
           index: index + 1,
           image: scene.image,
           image_desc: 'Beschreibung des Bildes',
-          move: { id: moveId, name: scene.movement, description: this.moveNames[moveIndex] || 'Unbekannt' },
+          move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
           durationInSeconds: scene.duration,
         };
