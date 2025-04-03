@@ -21,11 +21,66 @@ endif::[]
 
 == Anleitung zur Bedienung
 
-Die Website bietet momentan aus 2 Dienste,
+Die Website bietet momentan 2 Dienste,
 
 * Mitmachgeschichten 
 * und Bildbearbeitung
 
+image::../images/dokuMmg/homescreen.png[]
+
+Wenn man nun über die Felder mit der Maus fährt, werden diese mit einer Farbe umrandet. Klickt man nun auf ein Bild, wechselt man zur dementsprechenden Seite. Hierbei ist die Maus auf der linken Seite geklickt worden, daraufhin gelangt man zur Übersichtsseite der Mitmachgeschichten.
+
+image::../images/dokuMmg/leereMitmachGeschichten.png[]
+
+In diesem Fall gibt es noch keine Mitmachgeschichten, um eine anzulegen muss man auf den rot umrandeten Button klicken.
+
+image::../images/dokuMmg/mmgStart.png[]
+
+Nun ist man auf einer neuen Seite, auf welcher man Geschichten erstellen kann. Dazu kann man zuerst ein Titelbild (Button im rot umrandeten Kästchen klicken) hochladen. Anschließend kann man eine Maske für eine Scene erstellen, dazu den Button im gelben Kasten klicken. 
+
+image::../images/dokuMmg/mmgTeilscene1.png[]
+
+Nach dem Klick des Buttons poppt die Maske auf. Sie beinhaltet ein Textfeld (rot umrandet), dieser Text wird dann auch vom Pepper ausgegeben. Dazu einfach in das Textfeld klicken und losschreiben. Anschließend kann man die Bewegung zu der Scene auswählen. Hierführ auf den Kasten im gelb umrandeten klicken, und die passende Bewegung aussuchen.
+
+image::../images/dokuMmg/mmgTeilscene2.png[]
+
+Daraufhin kann man auch die Zeitdauer der Scene / Bewegung anpassen. Hierführ auf das im rot umrandeten Kasten klicken. Um ein Bild zu der Scene hinzufügen zu können, muss man auf das Feld (gelber Kasten) klicken, oder es per Drag and Drop einfach in das Feld hineinziehen. Fertig ist eine Scene!
+
+image::../images/dokuMmg/mmgBildLöschen.png[]
+
+Falls man jedoch ein falsches Bild hochgeladen hat, kann man auf dem im rot umrandeten Button im Kasten klicken. Daraufhin folgt eine Sicherheitsfrage, falls man doch unabsichtlich auf den Button gekommen ist. Im gelben Kasten markiert kann man dann seine Auswahl treffen.
+
+image::../images/dokuMmg/mmgSceneLöschen.png[]
+
+Der Mistkübel ganz rechts (rot umrandet) macht dasselbe wie zuvor genannt, jedoch aber für die ganze Scene. Als Sicherheitsfrage poppt wieder ein Fenster auf, wo man im (gelben Kasten markiert) seine Antwort treffen kann.
+
+image::../images/dokuMmg/mmgSpeichern.png[]
+
+* Falls man die Reihenfolge einzelner Scenen ändern möchte, genügt es eine Scene mit der linken Maustaste zu halten, und diese dann an die gewünschte Position zu ziehen. (In kein explizites Feld der Scene klicken, sondern auf einen leeren Platz, wie zum Beispiel auf das Symbol in der oberen linken Ecke)
+
+Wenn man nun seine Geschichte fertig gebaut hat, kann man sie ganz einfach speichern, indem man auf den Button im rot umrandeten Kasten klickt. Nach einer kurzen Ladezeit kommt man wieder auf die Mitmachgeschichten-Übersichtsseite, wo dann die gerade erstellte Geschichte mit dem Titelnamen angezeigt wird.
+
+image::../images/dokuMmg/mmg1Geschichte.png[]
+
+Nach gleichem Ablauf kann man so beliebig viele Gesichten erstellen, zur Veranschaulichung wurde eine zweite Geschichte erstellt.
+
+image::../images/dokuMmg/mmg2Geschichten.png[]
+
+image::../images/dokuMmg/mmgBearbeiten.png[]
+
+Falls man nun eine Geschichte nochmal überarbeiten möchte, muss man lediglich auf das Symbol im roten Kasten klicken, und nach kurzer Ladezeit wird die Geschichte angezeigt. Wenn die Änderungen durchgeführt worden sind, muss nur der Geschichte speichern Button oben rechts geklickt werden, und man gelangt wieder zur Übersichtsseite zurück.
+
+image::../images/dokuMmg/mmgLöschen.png[]
+
+Falls eine Geschichte nicht mehr erwünscht ist, muss man auf den Mistkübel (rot umrandet) klicken. Anschließend wird wieder eine Sicherheitsabfrage erscheinen, wo man wieder mit den Buttons (im gelb umrandeten Kasten) antworten kann.
+
+image::../images/dokuMmg/mmgFilter.png[]
+
+Hat man schließlich mehrere Geschichten und möchte nach einer bestimmten Geschichte suchen, kann man in das Suchfeld (im roten Kasten) das gewünschte Filterkriterium schreiben. Es werden dann nur Geschichten angezeigt, bei welchen der Text im Titelnamen vorkommt.
+
+image::../images/dokuMmg/mmgZurück.png[]
+
+Hat man nun alles erledigt, und möchte zum Homescreen zurückkehren, muss man auf den Inhalt des rot markierten Kasten drücken, und man wechselt zurück zum Homescreen.
 
 
 == Schnittstellenbeschreibung IST
