@@ -565,28 +565,29 @@ pre.rouge .gs {
 <div class="details">
 <span id="author" class="author">The Pepper Team</span><br>
 <span id="revnumber">version 1.0,</span>
-<span id="revdate">2025-03-02</span>
+<span id="revdate">2025-04-03</span>
 <br><span id="revremark">work-in-progress</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_schnittstellenbeschreibung_ist">1. Schnittstellenbeschreibung IST</a>
+<li><a href="#_anleitung_zur_bedienung">1. Anleitung zur Bedienung</a></li>
+<li><a href="#_schnittstellenbeschreibung_ist">2. Schnittstellenbeschreibung IST</a>
 <ul class="sectlevel2">
-<li><a href="#_speichern_der_images">1.1. Speichern der Images</a></li>
-<li><a href="#_endpoint_auflisten_aller_stories">1.2. Endpoint: Auflisten aller Stories</a></li>
-<li><a href="#_endpoint_erstellen_einer_story">1.3. Endpoint: Erstellen einer Story</a></li>
-<li><a href="#_endpoint_abrufen_einer_story_durch_story_id">1.4. Endpoint: Abrufen einer Story durch Story-Id</a></li>
-<li><a href="#_endpoint_ändern_einer_story">1.5. Endpoint: Ändern einer Story</a></li>
-<li><a href="#_endpoint_löschen_einer_story">1.6. Endpoint: Löschen einer Story</a></li>
-<li><a href="#_endpoint_erstellen_von_steps">1.7. Endpoint: Erstellen von Steps</a></li>
-<li><a href="#_endpoint_abrufen_von_steps">1.8. Endpoint: Abrufen von Steps</a></li>
+<li><a href="#_speichern_der_images">2.1. Speichern der Images</a></li>
+<li><a href="#_endpoint_auflisten_aller_stories">2.2. Endpoint: Auflisten aller Stories</a></li>
+<li><a href="#_endpoint_erstellen_einer_story">2.3. Endpoint: Erstellen einer Story</a></li>
+<li><a href="#_endpoint_abrufen_einer_story_durch_story_id">2.4. Endpoint: Abrufen einer Story durch Story-Id</a></li>
+<li><a href="#_endpoint_ändern_einer_story">2.5. Endpoint: Ändern einer Story</a></li>
+<li><a href="#_endpoint_löschen_einer_story">2.6. Endpoint: Löschen einer Story</a></li>
+<li><a href="#_endpoint_erstellen_von_steps">2.7. Endpoint: Erstellen von Steps</a></li>
+<li><a href="#_endpoint_abrufen_von_steps">2.8. Endpoint: Abrufen von Steps</a></li>
 </ul>
 </li>
-<li><a href="#_datenmodell_soll">2. Datenmodell SOLL</a>
+<li><a href="#_datenmodell_soll">3. Datenmodell SOLL</a>
 <ul class="sectlevel2">
-<li><a href="#_klassendiagramm">2.1. Klassendiagramm</a></li>
-<li><a href="#_erd">2.2. ERD</a></li>
+<li><a href="#_klassendiagramm">3.1. Klassendiagramm</a></li>
+<li><a href="#_erd">3.2. ERD</a></li>
 </ul>
 </li>
 </ul>
@@ -594,7 +595,25 @@ pre.rouge .gs {
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_schnittstellenbeschreibung_ist"><a class="anchor" href="#_schnittstellenbeschreibung_ist"></a>1. Schnittstellenbeschreibung IST</h2>
+<h2 id="_anleitung_zur_bedienung"><a class="anchor" href="#_anleitung_zur_bedienung"></a>1. Anleitung zur Bedienung</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Die Website bietet momentan aus 2 Dienste,</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Mitmachgeschichten</p>
+</li>
+<li>
+<p>und Bildbearbeitung</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_schnittstellenbeschreibung_ist"><a class="anchor" href="#_schnittstellenbeschreibung_ist"></a>2. Schnittstellenbeschreibung IST</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="title">storys.service.ts</div>
@@ -671,7 +690,7 @@ Bitte im endgültigen Produkt anstelle "Storys" bitte "Stories" verwenden.
 </table>
 </div>
 <div class="sect2">
-<h3 id="_speichern_der_images"><a class="anchor" href="#_speichern_der_images"></a>1.1. Speichern der Images</h3>
+<h3 id="_speichern_der_images"><a class="anchor" href="#_speichern_der_images"></a>2.1. Speichern der Images</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -706,7 +725,7 @@ Beim Upload auf Images einschränken. Derzeit könnten auch Videos und andere Fo
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_auflisten_aller_stories"><a class="anchor" href="#_endpoint_auflisten_aller_stories"></a>1.2. Endpoint: Auflisten aller Stories</h3>
+<h3 id="_endpoint_auflisten_aller_stories"><a class="anchor" href="#_endpoint_auflisten_aller_stories"></a>2.2. Endpoint: Auflisten aller Stories</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -780,7 +799,7 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_erstellen_einer_story"><a class="anchor" href="#_endpoint_erstellen_einer_story"></a>1.3. Endpoint: Erstellen einer Story</h3>
+<h3 id="_endpoint_erstellen_einer_story"><a class="anchor" href="#_endpoint_erstellen_einer_story"></a>2.3. Endpoint: Erstellen einer Story</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -834,7 +853,7 @@ moveNameAndDuration: Dieses Feld wurde inhaltlich verändert, da die Duration nu
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_abrufen_einer_story_durch_story_id"><a class="anchor" href="#_endpoint_abrufen_einer_story_durch_story_id"></a>1.4. Endpoint: Abrufen einer Story durch Story-Id</h3>
+<h3 id="_endpoint_abrufen_einer_story_durch_story_id"><a class="anchor" href="#_endpoint_abrufen_einer_story_durch_story_id"></a>2.4. Endpoint: Abrufen einer Story durch Story-Id</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -888,7 +907,7 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_ändern_einer_story"><a class="anchor" href="#_endpoint_ändern_einer_story"></a>1.5. Endpoint: Ändern einer Story</h3>
+<h3 id="_endpoint_ändern_einer_story"><a class="anchor" href="#_endpoint_ändern_einer_story"></a>2.5. Endpoint: Ändern einer Story</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -928,7 +947,7 @@ Accept: application/json
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_löschen_einer_story"><a class="anchor" href="#_endpoint_löschen_einer_story"></a>1.6. Endpoint: Löschen einer Story</h3>
+<h3 id="_endpoint_löschen_einer_story"><a class="anchor" href="#_endpoint_löschen_einer_story"></a>2.6. Endpoint: Löschen einer Story</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -963,7 +982,7 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_erstellen_von_steps"><a class="anchor" href="#_endpoint_erstellen_von_steps"></a>1.7. Endpoint: Erstellen von Steps</h3>
+<h3 id="_endpoint_erstellen_von_steps"><a class="anchor" href="#_endpoint_erstellen_von_steps"></a>2.7. Endpoint: Erstellen von Steps</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -983,7 +1002,7 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_endpoint_abrufen_von_steps"><a class="anchor" href="#_endpoint_abrufen_von_steps"></a>1.8. Endpoint: Abrufen von Steps</h3>
+<h3 id="_endpoint_abrufen_von_steps"><a class="anchor" href="#_endpoint_abrufen_von_steps"></a>2.8. Endpoint: Abrufen von Steps</h3>
 <div class="ulist checklist">
 <ul class="checklist">
 <li>
@@ -995,10 +1014,10 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_datenmodell_soll"><a class="anchor" href="#_datenmodell_soll"></a>2. Datenmodell SOLL</h2>
+<h2 id="_datenmodell_soll"><a class="anchor" href="#_datenmodell_soll"></a>3. Datenmodell SOLL</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_klassendiagramm"><a class="anchor" href="#_klassendiagramm"></a>2.1. Klassendiagramm</h3>
+<h3 id="_klassendiagramm"><a class="anchor" href="#_klassendiagramm"></a>3.1. Klassendiagramm</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/cld.png" alt="cld">
@@ -1006,7 +1025,7 @@ Accept: application/json</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_erd"><a class="anchor" href="#_erd"></a>2.2. ERD</h3>
+<h3 id="_erd"><a class="anchor" href="#_erd"></a>3.2. ERD</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/erd.png" alt="erd">
@@ -1019,7 +1038,7 @@ Accept: application/json</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2025-03-02 19:10:08 UTC
+Last updated 2025-04-03 09:48:10 UTC
 </div>
 </div>
 </body>
