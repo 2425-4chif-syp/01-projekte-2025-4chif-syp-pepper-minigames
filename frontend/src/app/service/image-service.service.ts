@@ -30,7 +30,7 @@ export class ImageServiceService {
   }
 
   getImageBase64(id: number): Observable<string | null> {
-    const apiUrl = 'http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/' + id + '/steps';
+    const apiUrl = '/api/tagalongstories/' + id + '/steps';
     return new Observable(observer => {
       this.http.get<any[]>(apiUrl).subscribe(
         response => {
@@ -56,7 +56,7 @@ export class ImageServiceService {
   }
 
   getTitleImage(id: number): Observable<string | null> {
-    const apiUrl = 'http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/' + id + '/image';
+    const apiUrl = '/api/tagalongstories/' + id + '/image';
     return new Observable(observer => {
       this.http.get(apiUrl, { responseType: 'text' }).subscribe(
         response => {
@@ -77,10 +77,10 @@ export class ImageServiceService {
   
 
   deleteStory(id: number){
-    return this.http.delete("http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/" + id, httpOptions)
+    return this.http.delete("/api/tagalongstories/" + id, httpOptions)
   }
 
   enablingStory(id: number, isEnabled: boolean){
-    return this.http.put("http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/" + id, {"isEnabled" : isEnabled}, httpOptions)
+    return this.http.put("/api/tagalongstories/" + id, {"isEnabled" : isEnabled}, httpOptions)
   }
 }

@@ -130,7 +130,7 @@ export class CreatestoryComponent {
     });
 
 
-    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
+    fetch(`/api/tagalongstories/${storyId}`)
     .then(response => response.json())
     .then(data => {
       console.log(data.name);
@@ -140,7 +140,7 @@ export class CreatestoryComponent {
     })
     .catch(error => console.error('Fehler beim Abrufen:', error));
 
-    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
+    fetch(`/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
         //this.titleName = data.name;
@@ -153,7 +153,7 @@ export class CreatestoryComponent {
   }
   
   loadScenes(storyId: number) {
-    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`)
+    fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
         let i = 0;
@@ -260,14 +260,14 @@ export class CreatestoryComponent {
       
       if (this.storyId) {
         // **UPDATE bestehende Geschichte**
-        response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${this.storyId}`, {
+        response = await fetch(`/api/tagalongstories/${this.storyId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(storyData),
         });
       } else {
         // **NEUE Geschichte erstellen**
-        response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories`, {
+        response = await fetch(`/api/tagalongstories`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(storyData),
@@ -300,7 +300,7 @@ export class CreatestoryComponent {
   
     try {
       // **1. Alle bestehenden Szenen löschen**
-      await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${this.storyId}/steps`, {
+      await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -326,7 +326,7 @@ export class CreatestoryComponent {
           durationInSeconds: scene.duration,
         };
   
-        const response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${this.storyId}/steps`, {
+        const response = await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sceneData),
