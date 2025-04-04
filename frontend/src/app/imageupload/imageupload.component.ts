@@ -398,13 +398,25 @@ export class ImageuploadComponent {
 
   //#region Save TagAlongStory and Steps to DB
   saveToDb() : void{
-    const imageUpload: ImageModel = {
-        description: this.description(),
-        person: null,
-        base64Image: this.imageElement.nativeElement.src.split(',')[1]
-    };
-    console.log(imageUpload);
+    const croppedCanvas = this.cropper.getCroppedCanvas({
+      width: 1280,
+      height: 800,
+      fillColor: '#fff', // Background for non-image areas
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
     
+    const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
+    
+    const imageUpload: ImageModel = {
+      description: this.description(),
+      person: null,
+      base64Image: newImageBase64
+    };
+
+    const newImage = croppedCanvas.toDataURL('image/png');
+
+    console.log(croppedCanvas);
 
     this.imagesService.uploadImage(imageUpload).subscribe(
       {
