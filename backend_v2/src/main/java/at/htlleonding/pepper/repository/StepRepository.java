@@ -17,4 +17,11 @@ public class StepRepository implements PanacheRepository<Step> {
     public void deleteByGameId(Long gameId) {
         delete("game.id", gameId);
     }
+
+    @Transactional
+    public void deleteAllStepsByGameId(Long gameId) {
+        for (Step step : findByGameId(gameId)) {
+            delete(step);
+        }
+    }
 }

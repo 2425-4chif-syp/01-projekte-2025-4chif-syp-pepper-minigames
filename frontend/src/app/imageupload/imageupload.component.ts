@@ -156,7 +156,10 @@ export class ImageuploadComponent {
       // Define the target dimensions (1280x800)
       const targetWidth = 1280;
       const targetHeight = 800;
-
+      
+      if(imageData.naturalWidth < 600){
+        alert("Das Bild ist schon relativ klein, deshalb funktioniert der Slider erst weiter rechts")
+      }
       // Scale the target dimensions to match the displayed image size
       const scaledWidth = targetWidth * scaleFactor;
       const scaledHeight = targetHeight * scaleFactor;
@@ -328,8 +331,6 @@ export class ImageuploadComponent {
           img.onload = () => {
             this.uploadedImageSize = img.naturalWidth + " x "+ img.naturalHeight;
           }
-
-
           this.imageElement.nativeElement.src = e.target?.result as string;
           this.initializeCropper();
         } else {
@@ -397,13 +398,25 @@ export class ImageuploadComponent {
 
   //#region Save TagAlongStory and Steps to DB
   saveToDb() : void{
-    const imageUpload: ImageModel = {
-        description: this.description(),
-        person: null,
-        base64Image: this.imageElement.nativeElement.src.split(',')[1]
-    };
-    console.log(imageUpload);
+    const croppedCanvas = this.cropper.getCroppedCanvas({
+      width: 1280,
+      height: 800,
+      fillColor: '#fff', // Background for non-image areas
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
     
+    const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
+    
+    const imageUpload: ImageModel = {
+      description: this.description(),
+      person: null,
+      base64Image: newImageBase64
+    };
+
+    const newImage = croppedCanvas.toDataURL('image/png');
+
+    console.log(croppedCanvas);
 
     this.imagesService.uploadImage(imageUpload).subscribe(
       {
