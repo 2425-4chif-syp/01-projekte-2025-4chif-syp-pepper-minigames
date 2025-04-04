@@ -23,7 +23,7 @@ fun StepScreen(
 ) {
 
     val imageBitmap by viewModel.imageBitMap.collectAsState()
-
+    val stepsFinished by viewModel.stepsFinished.collectAsState()
 
     Column(
         modifier = Modifier

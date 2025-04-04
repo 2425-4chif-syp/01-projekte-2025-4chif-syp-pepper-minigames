@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
+import java.util.*
 
 class MmgViewModel() : ViewModel() {
 
@@ -33,6 +35,8 @@ class MmgViewModel() : ViewModel() {
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
 
     val _stepCount = MutableStateFlow(0)
+
+    val stepsFinished = MutableStateFlow<Boolean>(false)
 
     var emotes: List<EmoteDto> = emptyList()
 
@@ -65,18 +69,17 @@ class MmgViewModel() : ViewModel() {
                 imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
             }
 
-            /*RoboterActions.speak(stepDto.text)
+            RoboterActions.speak(stepDto.text)
 
             val emote = getEmote(stepDto = stepDto)
 
             if(emote != -1){
                 RoboterActions.animation(emote)
             }
-
-             */
         }
         else{
-            RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie zurück um die anderen Geschichten auszuwählen")
+            stepsFinished.value = true
+            RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie Abbrechen um alle Geschichten anzuzeigen!")
         }
 
         incrementStepCount()
@@ -86,21 +89,22 @@ class MmgViewModel() : ViewModel() {
     // Holt aus der List der Emotes die richtige raus
     fun getEmote(stepDto: StepDto): Int{
 
-        var emoteName = " ";
+        var emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + stepDto.durationInSeconds.toString()
 
-        if(stepDto.move!!.name.contains('_')){
-             emoteName = stepDto.move!!.name.split('_')[1]
+        if(stepDto.move.name == "emote_hurra"){
+            val rightEmote : EmoteDto? = emotes.filter{
+                    e -> e.name == "hurra_" + stepDto.durationInSeconds.toString()
+            }.firstOrNull()
+
+            return rightEmote!!.path
         }
-        else{
-            emoteName = stepDto.move!!.name
-        }
-        
+
         val rightEmote : EmoteDto? = emotes.filter{
-                e -> e.name == emoteName + "_" + stepDto.durationInSeconds.toString()
+                e -> e.name == emoteName
         }.firstOrNull()
 
         Log.d("StepDto","${stepDto.move.name}")
-        Log.d("Emote","${rightEmote}")
+        Log.d("Emote","${rightEmote!!.name}")
 
         if(rightEmote != null){
             return rightEmote.path;
