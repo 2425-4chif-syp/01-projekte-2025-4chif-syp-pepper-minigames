@@ -1,6 +1,7 @@
 package com.example.mmg.presentation
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -60,7 +61,12 @@ fun MmgScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .height(80.dp),
+                            .height(80.dp)
+                            .clickable {
+                                navController.navigate("step")
+                                viewModel.loadMmgSteps(mmg.id)
+                                viewModel.resetStepCount()
+                            },
                         shape = MaterialTheme.shapes.medium,
                     ) {
                         Row(
@@ -85,16 +91,9 @@ fun MmgScreen(
                                     modifier = Modifier.size(80.dp)
                                 )
                             }
-
                             Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
 
-                            IconButton(onClick = {
-                                navController.navigate("step")
-                                viewModel.loadMmgSteps(mmg.id)
-                                viewModel.resetStepCount()
-                            }) {
-                                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
-                            }
+                            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                         }
                     }
                 }

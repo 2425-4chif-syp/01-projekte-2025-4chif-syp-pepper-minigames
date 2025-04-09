@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 
 class HttpInstance {
     companion object{
-        val BACKEND_URL = "http://vm88.htl-leonding.ac.at:8080/"
+        val BACKEND_URL = "http://192.88.24.188:8080/"
 
         // Client-Objekt einmal erstellen und wiederverwenden
         private val client = OkHttpClient.Builder()
