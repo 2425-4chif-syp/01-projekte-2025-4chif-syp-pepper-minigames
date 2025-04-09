@@ -1,4 +1,4 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.lokal
 
 import androidx.room.Dao
 import androidx.room.Insert

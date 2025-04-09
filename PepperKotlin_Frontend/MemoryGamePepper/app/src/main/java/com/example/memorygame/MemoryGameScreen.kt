@@ -25,19 +25,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.memorygame.data.AppDatabase
-import com.example.memorygame.data.PlayerScore
-import com.example.memorygame.data.ScoreRepository
-import com.example.memorygame.data.ScoreRequest
+import com.example.memorygame.data.lokal.AppDatabase
+import com.example.memorygame.data.lokal.LocalPlayerScore
+import com.example.memorygame.data.model.Game
+import com.example.memorygame.data.model.GameType
+import com.example.memorygame.data.model.Person
+import com.example.memorygame.data.model.PersonIntent
+import com.example.memorygame.data.repository.ScoreRepository
+import com.example.memorygame.data.remote.ScoreRequest
 import com.example.memorygame.logic.ScoreManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) {
+fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, personIntent: PersonIntent) {
     val scoreManager = remember { ScoreManager(rows, columns) }
     val gameLogic = remember { GameLogic(scoreManager) }
 
@@ -101,38 +107,53 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         val context = LocalContext.current
         val db = AppDatabase.getInstance(context)
         val playerScoreDao = db.playerScoreDao()
-        val repository = remember { ScoreRepository() }
+        //val repository = remember { ScoreRepository() }
 
 
 
-        LaunchedEffect(isGameOver) {
-            if (isGameOver) {
-                val grid = "${rows}x${columns}"
-                val playerScore = PlayerScore( //Die Daten für Lokale-Speicherung
-                    personId = 2, // von Backend/API
-                    firstName = "Amir",          // von Backend/API
-                    lastName = "Mohamadi",  // von Backend/API
-                    grid = grid,
+        if (isGameOver) {
+            LaunchedEffect(Unit) {
+                // Scores mit Backend-Request
+                /*val scoreRequest = createScoreRequest(
                     score = scoreManager.currentScore,
-                    elapsedTime = elapsedSeconds
+                    elapsedTime = elapsedSeconds,
+                    comment = "${rows}x${columns}",
+                    person = Person( // Dummy-Daten, später dynamisch laden
+                        id = 1L,
+                        firstName = "Anna",
+                        lastName = "Beispiel",
+                        dob = "1970-01-01",
+                        gender = false,
+                        isWorker = false,
+                        roomNo = "123"
+                    ),
+                    game = Game(
+                        id = 1L,
+                        name = "Memory für Anna",
+                        enabled = true,
+                        gameType = GameType(
+                            id = "MEMORY",
+                            name = "Memory"
+                        )
+                    )
                 )
-                playerScoreDao.insertScore(playerScore) // Score in Room-Datenbank save
 
-                val scoreRequest = ScoreRequest( // ✅ Daten fürs Backend
-                    personId = playerScore.personId,
-                    firstName = playerScore.firstName,
-                    lastName = playerScore.lastName,
-                    grid = playerScore.grid,
-                    score = playerScore.score,
-                    elapsedTime = playerScore.elapsedTime
+                val success = ScoreRepository.sendScore(scoreRequest)
+                if (success) println("🎉 Score gespeichert")
+                else println("⚠️ Fehler beim Speichern")*/
+
+                val newScore = LocalPlayerScore(
+                    personId = personIntent.id,
+                    firstName = personIntent.firstName,
+                    lastName = personIntent.lastName,
+                    grid = "${rows}x${columns}",
+                    score = scoreManager.currentScore,
+                    elapsedTime = elapsedSeconds,
+                    date = getCurrentDateTimeString()
                 )
-                repository.sendScore(scoreRequest) { success ->
-                    if (success) {
-                        println("✅ Score erfolgreich ans Backend gesendet!")
-                    } else {
-                        println("❌ Fehler beim Senden des Scores.")
-                    }
-                }
+
+                playerScoreDao.insertScore(newScore)
+
             }
         }
 
@@ -232,3 +253,30 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int) 
         }
     }
 }
+
+fun createScoreRequest(
+    score: Int,
+    elapsedTime: Int,
+    comment: String,
+    person: Person,
+    game: Game
+): ScoreRequest {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val formattedDateTime = LocalDateTime.now().format(formatter)
+
+    return ScoreRequest(
+        score = score,
+        elapsedTime = elapsedTime,
+        comment = comment,
+        person = person, // jetzt vollständiges Objekt
+        game = game,
+        dateTime = formattedDateTime
+    )
+}
+
+fun getCurrentDateTimeString(): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    return LocalDateTime.now().format(formatter)
+}
+
+

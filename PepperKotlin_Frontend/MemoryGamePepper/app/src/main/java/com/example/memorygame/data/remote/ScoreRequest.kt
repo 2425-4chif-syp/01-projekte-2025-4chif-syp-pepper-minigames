@@ -1,4 +1,7 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.remote
+
+import com.example.memorygame.data.model.Game
+import com.example.memorygame.data.model.Person
 
 data class ScoreRequest(
     val comment: String,
