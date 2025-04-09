@@ -72,6 +72,23 @@ public class ImageResource {
         imageRepository.delete(image);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+    @GET
+    @Path("/person/{personId}")
+    @Transactional
+    public Response getImagesByPersonId(@PathParam("personId") Long personId) {
+        List<Image> images = imageRepository.find("person.id", personId).list();
+        if (images.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        List<ImageDto> imageDtos = new ArrayList<>();
+        for (Image image : images) {
+            imageDtos.add(Converter.convertToImageDto(image));
+        }
+
+        return Response.ok(imageDtos).build();
+    }
+
 
 }
 
