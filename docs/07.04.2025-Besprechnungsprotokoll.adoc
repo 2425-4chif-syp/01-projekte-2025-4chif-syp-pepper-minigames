@@ -1,0 +1,60 @@
+= Besprechungsprotokoll 07.04.2025
+:icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
+:toc: left
+:source-highlighter: rouge
+:docinfo: shared
+:stem: latexmath
+
+.Teilnehmer
+|===
+|Anwesend |Verteiler
+
+|Thomas Stütz
+|
+
+|Pepperonis
+|
+|===
+
+.Ort und Zeit
+[cols=2*]
+|===
+|Ort
+|4CHIF
+
+|Von-Bis
+|Montag . 07.04.2025,
+
+|Dauer
+|60 min
+|===
+
+
+== Besprochene Punkte
+
+=== Verbesserungen
+
+.Angular
+
+* Angular dockern auf VM
+* Angular Services verwenden
+* picture-overview.component.html TO-DO erledigen
+* BASE_URL soll *eine* Variable sein
+* Bildervorschau mit Herunterladen, Löschen und Edit Funktion
+
+.Allgemein
+
+* Mit https://letsencrypt.org/[Let's encrypt] ein Zertifikat für HTTPS erhalten
+* SourceMap hinzufügen
+* Reverse Proxy
+* Shellscript fürs Deployen erstellen
+
+IMPORTANT: Konfigurationsdateien in Github einfügen
+
+.Pepper
+* Beim Laden einer neuen Geschichte erscheint das letzte Bild von der vorherigen Geschichte
+* Geschichte neu laden Button
+* Websocket fürs automatische Updaten von MMG
+* App für Konfiguration Pepper URL
+
