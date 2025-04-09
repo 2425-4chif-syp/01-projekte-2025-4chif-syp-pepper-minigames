@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
 
+
         setContent {
             MenuTheme {
 
@@ -50,21 +51,26 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         //lOginscreen mit Übergabe von Packganeame
                         composable(
                             route = "login_screen/{packageName}",
-                            arguments = listOf(navArgument("packageName"){
+                            arguments = listOf(navArgument("packageName") {
                                 type = NavType.StringType
                             })
                         ) { backStackEntry ->
-                            val packageName = backStackEntry.arguments?.getString("packageName")?: ""
+                            val packageName =
+                                backStackEntry.arguments?.getString("packageName") ?: ""
 
                             LoginScreen(
                                 onLoginClick = {
                                     //Starte von App mit packagename mitgeben und ID
-                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
+                                    val intent =
+                                        packageManager.getLaunchIntentForPackage(packageName)
                                     intent?.putExtra("personId", 1234) //Eifnach nur zum testen
-                                    if(intent!=null){
+                                    if (intent != null) {
                                         startActivity(intent)
-                                    }else{
-                                        Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
+                                    } else {
+                                        Log.e(
+                                            "LoginScreen",
+                                            "App mit Package $packageName nicht gefunden"
+                                        )
                                     }
                                 },
                                 onContinueWithoutLogin = {
@@ -85,7 +91,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         RoboterActions.qiContext = qiContext
         Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
         // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
-        RoboterActions.robotExecute = false
+        RoboterActions.robotExecute = true
     }
 
     override fun onRobotFocusLost() {

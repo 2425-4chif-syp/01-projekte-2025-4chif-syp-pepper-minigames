@@ -47,7 +47,7 @@ fun MainMenuScreen(navController: NavHostController) {
 
     // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
-        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mitmachgeschichte"),
+        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mmg"),
         Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
         Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
         Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
@@ -150,19 +150,30 @@ fun MenuItem(
 ){
     val context = LocalContext.current
     val needsLogin = title =="Memory"
+    var essensplanClicked by remember { mutableStateOf(false) }
+
+    // Effekt für Essensplan-Sprachausgabe
+    if (essensplanClicked) {
+        LaunchedEffect(Unit) {
+            RoboterActions.speak("Heute gibt es nichts zum esseb bruderr bestell dir Döner")
+            essensplanClicked = false // Zurücksetzen nach der Ausführung
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                if(needsLogin){
+                if (title == "Essensplan") {
+                    essensplanClicked = true
+                } else if (needsLogin) {
                     navController.navigate("login_screen/${packageName}")
-                }else{
+                } else {
                     val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-                    if(intent!= null){
+                    if (intent != null) {
                         context.startActivity(intent)
                     } else {
-                        Toast.makeText(context, "App wurde nocch nicht installiert", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -174,7 +185,6 @@ fun MenuItem(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()

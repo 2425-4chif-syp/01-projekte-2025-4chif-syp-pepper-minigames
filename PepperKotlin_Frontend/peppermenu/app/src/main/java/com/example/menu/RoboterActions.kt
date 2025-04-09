@@ -50,7 +50,6 @@ class RoboterActions {
                     Log.i(ContentValues.TAG, "Take picture launched!")
                     takePicture.async().run()
                 }
-
                 timestampedImageHandleFuture?.andThenConsume { timestampedImageHandle ->
                     Log.i(ContentValues.TAG, "Picture taken")
                     val encodedImageHandle: EncodedImageHandle = timestampedImageHandle.image
