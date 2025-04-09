@@ -129,6 +129,10 @@ class MmgViewModel() : ViewModel() {
         }
     }
 
+    fun emptyMmgList(){
+        _mmgList.value = emptyList()
+    }
+
     fun loadMmgSteps(id: Int){
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgSteps(id)

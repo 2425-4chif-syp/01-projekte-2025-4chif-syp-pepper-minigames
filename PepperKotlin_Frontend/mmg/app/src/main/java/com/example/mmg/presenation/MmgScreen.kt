@@ -37,10 +37,29 @@ fun MmgScreen(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center
     ) {
-        Text("Mitmachgeschichten", style = MaterialTheme.typography.headlineMedium)
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Mitmachgeschichten",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+
+            Button(
+                onClick = {
+                    viewModel.emptyMmgList()
+                    viewModel.loadMmgDtos()
+                }
+            ) {
+                Text(text = "Geschichten laden")
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
