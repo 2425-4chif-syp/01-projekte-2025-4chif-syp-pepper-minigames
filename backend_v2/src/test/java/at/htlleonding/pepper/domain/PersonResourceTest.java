@@ -1,145 +1,152 @@
 package at.htlleonding.pepper.domain;
 
-import at.htlleonding.pepper.domain.Person;
-import at.htlleonding.pepper.repository.GameScoreRepository;
+import at.htlleonding.pepper.boundary.PersonResource;
+import at.htlleonding.pepper.dto.PersonDto;
 import at.htlleonding.pepper.repository.PersonRepository;
-import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.common.mapper.TypeRef;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.*;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-import static io.restassured.RestAssured.given;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PersonResourceTest {
 
+    private static final Logger LOG = Logger.getLogger(PersonResourceTest.class.getSimpleName());
+
+    @Inject
+    PersonResource personResource;
+
     @Inject
     PersonRepository personRepository;
 
-
-    @Test
-    @Order(120)
-    void createPerson_shouldPersistAndReturnPerson() {
-        var newPerson = Map.of(
-                "firstName", "Milad",
-                "lastName", "Moradi",
-                "birthDate", "1995-10-10",
-                "roomNo", "C3",
-                "isWorker", false
-        );
-
-        var response = given()
-                .contentType(APPLICATION_JSON)
-                .body(newPerson)
-                .when().post("/api/person")
-                .then().statusCode(201)
-                .extract().as(Map.class);
-
-        assertThat(response.get("firstName")).isEqualTo("Milad");
-        assertThat(response.get("lastName")).isEqualTo("Moradi");
-        assertThat(response.get("roomNo")).isEqualTo("C3");
-        assertThat(response).containsKey("id");
-
-
-    }
     @Test
     @Order(130)
-    void getPerson_shouldReturnPerson() {
-        var response = given()
-                .contentType(APPLICATION_JSON)
-                .when().get("/api/person")
-                .then().statusCode(200)
-                .extract().as(new TypeRef<List<Map<String, Object>>>() {});
+    @Transactional
+    void getAllPeople_shouldReturnList_whenNotEmpty() {
 
-        assertThat(response)
-                .isNotEmpty()
-                .anySatisfy(person -> {
-                    assertThat(person.get("firstName")).isEqualTo("Milad");
-                    assertThat(person.get("lastName")).isEqualTo("Moradi");
-                    assertThat(person.get("roomNo")).isEqualTo("C3");
-                });
+        Person person = new Person("Amir", "Mohammadi", LocalDate.of(2000, 2, 3), "101", false, null);
+        personRepository.persist(person);
+
+
+        var response = personResource.getAllPeople();
+        LOG.info(response.getEntity());
+
+
+        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+        List<?> persons = (List<?>) response.getEntity();
+        assertThat(persons).isNotEmpty();
     }
+
     @Test
     @Order(140)
-    void updatePerson_shouldPersistAndReturnPerson() {
-
-        var allPersons = given()
-                .contentType(APPLICATION_JSON)
-                .when().get("/api/person")
-                .then().statusCode(200)
-                .extract().as(new TypeRef<List<Map<String, Object>>>() {});
-
-
-        var existingPerson = allPersons.stream()
-                .filter(p -> "Milad".equals(p.get("firstName")))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Person nicht gefunden"));
-
-        var personId = existingPerson.get("id");
+    @Transactional
+    void getPersonById_shouldReturnCorrectPerson() {
+        // arrange
+        Person p = new Person("Tom", "Tester", LocalDate.of(1970, 5, 15), "Z1", false, null);
+        personRepository.persist(p);
+        Long id = p.getId();
 
 
-        var updatedPerson = Map.of(
-                "id", personId,
-                "firstName", "Milad",
-                "lastName", "Updated", // z. B. Nachname geändert
-                "birthDate", "1995-10-10",
-                "roomNo", "D5",
-                "isWorker", false
-        );
+        var response = personResource.getPersonById(id);
+        LOG.info(response.getEntity());
 
 
-        var response = given()
-                .contentType(APPLICATION_JSON)
-                .body(updatedPerson)
-                .when().put("/api/person/" + personId)
-                .then().statusCode(200)
-                .extract().as(Map.class);
-
-
-        assertThat(response.get("id")).isEqualTo(personId);
-        assertThat(response.get("lastName")).isEqualTo("Updated");
-        assertThat(response.get("roomNo")).isEqualTo("D5");
+        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+        assertThat(response.getEntity()).isInstanceOf(PersonDto.class);
+        PersonDto dto = (PersonDto) response.getEntity();
+        assertThat(dto.firstName()).isEqualTo("Tom");
+        assertThat(dto.lastName()).isEqualTo("Tester");
     }
+
     @Test
     @Order(150)
-    void deletePerson_shouldPersistAndReturnPerson() {
+    @Transactional
+    void updatePerson_shouldModifyFieldsCorrectly() {
+        // arrange
+        Person p = new Person("Karl", "Alt", LocalDate.of(1965, 4, 12), "A1", true, null);
+        personRepository.persist(p);
 
-        var allPersons = given()
-                .contentType(APPLICATION_JSON)
-                .when().get("/api/person")
-                .then().statusCode(200)
-                .extract().as(new TypeRef<List<Map<String, Object>>>() {});
+        Person updated = new Person("Karlheinz", "Alt", null, "B2", true, null);
 
+        // act
+        var response = personResource.updatePerson(p.getId(), updated);
+        LOG.info(response.getEntity());
 
-        var existingPerson = allPersons.stream()
-                .filter(p -> "Milad".equals(p.get("firstName")))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Person nicht gefunden"));
-
-        var personId = existingPerson.get("id");
-
-        given()
-                .when().delete("/api/person/" + personId)
-                .then().statusCode(200);
-
-
-        var remainingPersons = given()
-                .contentType(APPLICATION_JSON)
-                .when().get("/api/person")
-                .then().statusCode(200)
-                .extract().as(new TypeRef<List<Map<String, Object>>>() {});
-
-        assertThat(remainingPersons)
-                .noneMatch(p -> personId.equals(p.get("id")));
+        // assert
+        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+        Person result = (Person) response.getEntity();
+        assertThat(result.getFirstName()).isEqualTo("Karlheinz");
+        assertThat(result.getRoomNo()).isEqualTo("B2");
     }
+
+    @Test
+    @Order(160)
+    @Transactional
+    void deletePerson_shouldRemoveCorrectly() {
+        // arrange
+        Person p = new Person("Delete", "Me", LocalDate.of(1950, 1, 1), "X1", false, null);
+        personRepository.persist(p);
+        Long id = p.getId();
+
+        // act
+        var response = personResource.deletePerson(id);
+        LOG.info(response.getEntity());
+
+        // assert
+        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+        assertThat(personRepository.findById(id)).isNull();
+    }
+
+    @Test
+    @Order(170)
+    @Transactional
+    void login_shouldSucceed_withCorrectCredentials() {
+        // arrange
+        String password = org.mindrot.jbcrypt.BCrypt.hashpw("geheim", org.mindrot.jbcrypt.BCrypt.gensalt());
+        Person worker = new Person("Max", "Mustermann", LocalDate.of(1980, 3, 20), null, true, password);
+        personRepository.persist(worker);
+
+        Person loginAttempt = new Person("Max", "Mustermann", null, null, true, "geheim");
+
+        // act
+        var response = personResource.login(loginAttempt);
+        LOG.info(response.getEntity());
+
+        // assert
+        assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo("Erfolgreich eingeloggt");
+    }
+
+    @Test
+    @Order(180)
+    @Transactional
+    void login_shouldFail_forSenior() {
+        // arrange
+        Person senior = new Person("Opa", "Test", LocalDate.of(1945, 6, 30), "Z3", false, null);
+        personRepository.persist(senior);
+
+        Person loginAttempt = new Person("Opa", "Test", null, "Z3", false, "egal");
+
+        // act
+        var response = personResource.login(loginAttempt);
+        LOG.info(response.getEntity());
+
+        // assert
+        assertThat(response.getStatus()).isEqualTo(UNAUTHORIZED.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo("Senioren benötigen kein Login");
+    }
+
 
 }

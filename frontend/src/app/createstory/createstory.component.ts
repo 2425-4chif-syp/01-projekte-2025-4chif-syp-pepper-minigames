@@ -5,7 +5,7 @@ import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import e from 'express';
+import e, { Router } from 'express';
 
 interface Scene {
   speech: string;
@@ -22,6 +22,7 @@ interface Scene {
 export class CreatestoryComponent {
   imageBase64: string | null = null;
   scenenBilder: string[] = [];
+  
 
 
   public duration = [5, 10, 15];
@@ -60,6 +61,8 @@ export class CreatestoryComponent {
   imagesService = inject(ImageServiceService);
   images = signal<ImageModel[]>([]);
 
+  storyId: number | null = null;
+
   constructor(private route: ActivatedRoute) {}
 
   service = inject(ImageServiceService)
@@ -75,6 +78,10 @@ export class CreatestoryComponent {
     });
   }
 
+  disableSaveButton(){
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null 
+  }
+
   loadImages(): void {
     this.imagesService.getImages().subscribe({
       next: (data) => {
@@ -88,33 +95,65 @@ export class CreatestoryComponent {
   }
 
   loadStory(storyId: number) {
+    console.log(storyId)
+    this.storyId = storyId
+    
+
     this.service.getImageBase64(storyId).subscribe({
       next: data => {
         console.log("Daten von der neuen Methode:")
         console.log(data)
         this.imageBase64 = data
-        this.titleImage = this.imageBase64
+       // this.titleImage = this.imageBase64
         if(data != null){
           this.scenenBilder.push(data)
         }
       },
-      error: error => alert("fehler beim laden des bildes " + error.message)
+      error: error => {
+        console.log("fehler beim titelbild")
+        alert("fehler beim laden des bildes " + error.message)}
     })
 
+    this.service.getTitleImage(storyId).subscribe({
+      next: data => {
+        console.log("Titelbild erhalten:", data);
+        if (data) {
+          this.titleImage = 'data:image/png;base64,' + data;
+        } else {
+          this.titleImage = null;
+        }
+      },
+      error: error => {
+        console.log("Fehler beim Laden des Titelbildes:", error);
+        alert("Fehler beim Laden des Titelbildes: " + error.message);
+      }
+    });
 
 
-    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}`)
+    fetch(`/api/tagalongstories/${storyId}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.name);
+      this.titleName = data.name
+      this.loadScenes(storyId);
+
+    })
+    .catch(error => console.error('Fehler beim Abrufen:', error));
+
+    fetch(`/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
-        this.titleName = data.name;
+        //this.titleName = data.name;
        // this.titleImage = data.icon;
-        this.loadScenes(storyId);
+       // this.loadScenes(storyId);
       })
       .catch((error) => console.error('Error loading story:', error));
+
+ 
   }
   
   loadScenes(storyId: number) {
-    fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`)
+    fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
         let i = 0;
@@ -179,7 +218,9 @@ export class CreatestoryComponent {
   
 
   clearImage(scene: Scene) {
-    scene.image = 'assets/images/defaultUploadPic_50.jpg';
+    if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
+      scene.image = 'assets/images/defaultUploadPic_50.jpg';
+    }
   }
 
   addScene() {
@@ -192,7 +233,9 @@ export class CreatestoryComponent {
   }
 
   deleteScene(index: number) {
-    this.scenes.splice(index, 1);
+    if(confirm("Sind Sie sicher dass Sie diese Scene löschen möchten?")){
+      this.scenes.splice(index, 1);
+    }
   }
 
   toggleSidebar() {
@@ -200,77 +243,107 @@ export class CreatestoryComponent {
   }
 
   async saveButton() {
-    console.log("titelbild:")
-    console.log(this.titleImage)
+    if (!this.titleName || !this.titleImage) {
+      console.error('Titel oder Bild fehlen');
+      return;
+    }
+  
     const storyData = {
       name: this.titleName,
-      
       icon: this.titleImage,
       gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
       enabled: true,
     };
-
+  
     try {
-      const response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(storyData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Fehler beim Speichern der Geschichte: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(`Geschichte erfolgreich gespeichert mit ID: ${data.id}`);
+      let response;
       
-      await this.saveScenes(data.id);
+      if (this.storyId) {
+        // **UPDATE bestehende Geschichte**
+        response = await fetch(`/api/tagalongstories/${this.storyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(storyData),
+        });
+      } else {
+        // **NEUE Geschichte erstellen**
+        response = await fetch(`/api/tagalongstories`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(storyData),
+        });
+      }
+  
+      if (!response.ok) {
+        throw new Error(`Fehler beim Speichern: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log(`Geschichte gespeichert mit ID: ${data.id}`);
+  
+      this.storyId = data.id; // Speichert die ID für spätere Updates
+  
+      await this.saveScenes();
+      window.location.href = '/tagalongstory';
+  
     } catch (error) {
       console.error('Fehler beim Speichern der Geschichte:', error);
     }
   }
+  
 
-  async saveScenes(storyId: number) {
-    for (const [index, scene] of this.scenes.entries()) {
-      const moveIndex = this.moveNames.indexOf(scene.movement);
-      const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
-
-      const sceneData = {
-        game: {
-          name: this.titleName,
-          icon: this.titleImage,
-          gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
-          enabled: true,
-        },
-        index: index + 1,
-        image: scene.image,
-        image_desc: 'Beschreibung des Bildes',
-        move: {
-          id: moveId,
-          name: scene.movement,
-          description: this.moveNames[moveIndex] || 'Unbekannt',
-        },
-        text: scene.speech,
-        durationInSeconds: scene.duration,
-      };
-
-      try {
-        const response = await fetch(`http://vm88.htl-leonding.ac.at:8080/api/tagalongstories/${storyId}/steps`, {
+  async saveScenes() {
+    if (!this.storyId) {
+      console.error('Keine Story-ID vorhanden.');
+      return;
+    }
+  
+    try {
+      // **1. Alle bestehenden Szenen löschen**
+      await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      console.log('Alle alten Szenen gelöscht.');
+  
+      // **2. Neue Szenen speichern**
+      for (const [index, scene] of this.scenes.entries()) {
+        const moveIndex = this.moveNames.indexOf(scene.movement);
+        const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
+  
+        const sceneData = {
+          game: { 
+            name: this.titleName, 
+            icon: this.titleImage, 
+            gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' }, 
+            enabled: true 
+          },
+          index: index + 1,
+          image: scene.image,
+          image_desc: 'Beschreibung des Bildes',
+          move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
+          text: scene.speech,
+          durationInSeconds: scene.duration,
+        };
+  
+        const response = await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sceneData),
         });
-
+  
         if (!response.ok) {
           throw new Error(`Fehler beim Speichern der Szene: ${response.statusText}`);
         }
-
+  
         const data = await response.json();
         console.log(`Szene ${index + 1} erfolgreich gespeichert mit ID: ${data.id}`);
-      } catch (error) {
-        console.error(`Fehler beim Speichern der Szene ${index + 1}:`, error);
       }
+    } catch (error) {
+      console.error('Fehler beim Speichern der Szenen:', error);
     }
   }
+  
+  
 
 }

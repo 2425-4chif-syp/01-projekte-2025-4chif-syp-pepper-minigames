@@ -16,5 +16,5 @@ public record PersonDto(
         LocalDate dob,
         String roomNo,
         Boolean isWorker,
-        String gender
+        Boolean gender
 ) {}

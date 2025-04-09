@@ -58,6 +58,7 @@ Content-Type: application/json
     "lastName": "Wolf",
     "roomNo": "110"
   },
+  "comment": "4x3",
   "score": 250
 }
 

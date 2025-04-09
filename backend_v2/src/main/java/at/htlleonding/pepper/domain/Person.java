@@ -37,7 +37,7 @@ public class Person {
     private String password;
 
     @Column(name = "p_gender")
-    private String gender;
+    private Boolean gender;
 
 
 
@@ -88,7 +88,11 @@ public class Person {
 
     public void setPassword(String password) { this.password = password; }
 
-    public String getGender() { return gender; }
+    public Boolean getGender() {
+        return gender;
+    }
 
-    public void setGender(String gender) { this.gender = gender; }
+    public void setGender(Boolean gender) {
+        this.gender = gender;
+    }
 }
