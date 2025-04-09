@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         RoboterActions.qiContext = qiContext
         Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
         // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
-        RoboterActions.robotExecute = false
+        RoboterActions.robotExecute = true
     }
 
     override fun onRobotFocusLost() {

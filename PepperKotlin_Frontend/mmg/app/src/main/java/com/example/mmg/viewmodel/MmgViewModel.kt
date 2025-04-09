@@ -31,6 +31,7 @@ class MmgViewModel() : ViewModel() {
     val mmgList = _mmgList.asStateFlow()
 
     private val _mmgSteps = MutableStateFlow<List<StepDto>>(emptyList())
+    val mmgStep = _mmgSteps.asStateFlow()
 
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
 
@@ -134,6 +135,8 @@ class MmgViewModel() : ViewModel() {
     }
 
     fun loadMmgSteps(id: Int){
+        imageBitMap.value = null
+        _mmgSteps.value = emptyList()
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgSteps(id)
             Log.d("Steps","${result}")
@@ -155,7 +158,6 @@ class MmgViewModel() : ViewModel() {
         //parts[0]= data:null;base64
         //parts[1] = base64String
         val parts = base64String.split(',');
-        //Log.d("Parts:","${parts}")
         return try {
             val decodedBytes = Base64.decode(parts[1].trim(), Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes))

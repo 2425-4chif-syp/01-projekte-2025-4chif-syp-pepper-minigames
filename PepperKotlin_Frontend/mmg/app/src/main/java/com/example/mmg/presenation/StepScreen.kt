@@ -23,58 +23,70 @@ fun StepScreen(
 ) {
 
     val imageBitmap by viewModel.imageBitMap.collectAsState()
-    val stepsFinished by viewModel.stepsFinished.collectAsState()
+    val mmgSteps by viewModel.mmgStep.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Anzeige des Bildes
-        if(imageBitmap != null){
-            Image(
-                bitmap = imageBitmap!!,
-                contentDescription = "Step Picture",
-                modifier = Modifier.size(400.dp)
-            )
-        }
-        else{
-            Image(
-                painter = painterResource(id = R.drawable.default_step_picture),
-                contentDescription = "Default Step Picture",
-                modifier = Modifier.size(400.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Buttons
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
+    if(mmgSteps.isEmpty())
+    {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(50.dp),
-                onClick = {
-                    viewModel.resetStepCount()
-                    navController.popBackStack()
-                }
-            ) {
-                Text(text = "Abbrechen")
+            CircularProgressIndicator()
+        }
+    }
+    else
+    {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Anzeige des Bildes
+            if(imageBitmap != null){
+                Image(
+                    bitmap = imageBitmap!!,
+                    contentDescription = "Step Picture",
+                    modifier = Modifier.size(400.dp)
+                )
+            }
+            else{
+                Image(
+                    painter = painterResource(id = R.drawable.default_step_picture),
+                    contentDescription = "Default Step Picture",
+                    modifier = Modifier.size(400.dp)
+                )
             }
 
-            Button(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(50.dp),
-                onClick = {
-                    viewModel.displayStep()
-                }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(text = "Weiter")
+                Button(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(50.dp),
+                    onClick = {
+                        viewModel.resetStepCount()
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text(text = "Abbrechen")
+                }
+
+                Button(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(50.dp),
+                    onClick = {
+                        viewModel.displayStep()
+                    }
+                ) {
+                    Text(text = "Weiter")
+                }
             }
         }
     }
