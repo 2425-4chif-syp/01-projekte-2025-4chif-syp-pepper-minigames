@@ -21,70 +21,71 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.memorygame.data.AppDatabase
-import com.example.memorygame.data.ScoreRepository
-import com.example.memorygame.data.ScoreRequest
+import com.example.memorygame.data.lokal.AppDatabase
+import com.example.memorygame.data.repository.ScoreRepository
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.example.memorygame.data.HighScoreItem
+import com.example.memorygame.data.model.HighScoreItem
+import com.example.memorygame.data.lokal.LocalPlayerScore
 
 @Composable
 fun HighScoresScreen(currentPlayerId: Long) {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val playerScoreDao = db.playerScoreDao()
-    val repository = remember { ScoreRepository() }
 
     val localScores by playerScoreDao.getAllScores().collectAsState(initial = emptyList())
-    var backendScores by remember { mutableStateOf<List<ScoreRequest>>(emptyList()) }
+    //var backendScores by remember { mutableStateOf<List<HighScoreItem>>(emptyList()) }
+                                                                                            //Scores Mit Backend-Request
+    /*LaunchedEffect(Unit) {
+        val result = ScoreRepository.getScoresForPlayer(currentPlayerId)
 
-    LaunchedEffect(Unit) {
-        repository.getScores { scores ->
-            if (scores != null){
-                backendScores = scores
-                println("Backend Scores: $scores")
-            }
-            else{
-                println("Keine Backend-Scores erhalten")
-            }
+        val gson = com.google.gson.GsonBuilder().setPrettyPrinting().create()
+        result.forEach {
+            println("📥 Vollständiger Score vom Backend:\n${gson.toJson(it)}")
         }
-    }
+
+        val mapped = result.map {
+            val (rows, columns) = it.comment.split("x").let { parts ->
+                if (parts.size == 2) parts.mapNotNull { p -> p.toIntOrNull() } else listOf(0, 0)
+            }
+
+            HighScoreItem(
+                personId = it.person.id,
+                firstName = it.person.firstName,
+                lastName = it.person.lastName,
+                gridRows = rows,
+                gridColumns = columns,
+                score = it.score,
+                elapsedTime = it.elapsedTime,
+                date = it.dateTime
+            )
+        }
+
+        backendScores = mapped
+    }*/
 
     // Beide Listen (Daten) in gemeinsamen Typ umwandeln:
     val combinedScores = (
-            localScores.map {
-                val (rows, columns) = it.grid.split("x").let { parts ->
+            localScores.map { score: LocalPlayerScore ->
+                val (rows, columns) = score.grid.split("x").let { parts ->
                     if (parts.size == 2) parts.map { p -> p.toIntOrNull() ?: 0 } else listOf(0, 0)
                 }
 
                 HighScoreItem(
-                    personId = it.personId,
-                    firstName = it.firstName,
-                    lastName = it.lastName,
+                    personId = score.personId,
+                    firstName = score.firstName,
+                    lastName = score.lastName,
                     gridRows = rows,
                     gridColumns = columns,
-                    score = it.score,
-                    elapsedTime = it.elapsedTime,
-                    date = it.date
+                    score = score.score,
+                    elapsedTime = score.elapsedTime,
+                    date = score.date
                 )
-            } + backendScores.map {
-                val (rows, columns) = it.grid.split("x").let { parts ->
-                    if (parts.size == 2) parts.map { p -> p.toIntOrNull() ?: 0 } else listOf(0, 0)
-                }
-
-                HighScoreItem(
-                    personId = it.personId,
-                    firstName = it.firstName,
-                    lastName = it.lastName,
-                    gridRows = rows,
-                    gridColumns = columns,
-                    score = it.score,
-                    elapsedTime = it.elapsedTime,
-                    date = it.date
-                )
-            }
+            } //+ backendScores
             ).sortedByDescending { it.date }
+
 
 
     val bestScore = combinedScores.maxByOrNull { it.score }

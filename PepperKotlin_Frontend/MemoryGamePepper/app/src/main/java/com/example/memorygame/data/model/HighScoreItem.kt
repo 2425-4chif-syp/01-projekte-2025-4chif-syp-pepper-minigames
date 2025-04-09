@@ -1,4 +1,4 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.model
 
 data class HighScoreItem(
     val personId: Long,

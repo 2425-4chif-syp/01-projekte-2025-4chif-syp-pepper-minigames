@@ -1,4 +1,7 @@
 package com.example.memorygame.data.model
 
-class PersonIntent {
-}
+data class PersonIntent(
+    val id: Long,
+    val firstName: String,
+    val lastName: String
+)
