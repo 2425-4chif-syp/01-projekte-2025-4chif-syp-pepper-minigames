@@ -1,9 +1,9 @@
 ### GET: Get all persons
-GET http://localhost:8080/api/person
+GET {{host}}/api/person
 Accept: application/json
 
 ### POST: Add a new person
-POST http://localhost:8080/api/person
+POST {{host}}/api/person
 Content-Type: application/json
 
 {
@@ -16,11 +16,11 @@ Content-Type: application/json
 }
 
 ### GET: Get a person by ID
-GET http://localhost:8080/api/person/1
+GET {{host}}/api/person/1
 Accept: application/json
 
 ### PUT: Update a person
-PUT http://localhost:8080/api/person/1
+PUT {{host}}/api/person/1
 Content-Type: application/json
 
 {
@@ -33,7 +33,7 @@ Content-Type: application/json
 }
 
 ### DELETE: Delete a person
-DELETE http://localhost:8080/api/person/1
+DELETE {{host}}/api/person/1
 Accept: application/json
 
 
@@ -41,7 +41,7 @@ Accept: application/json
 
 
 ### POST: Login as a worker
-POST http://localhost:8080/api/person/login
+POST {{host}}/api/person/login
 Content-Type: application/json
 
 {
@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ### POST: Login as a senior (should fail)
-POST http://localhost:8080/api/person/login
+POST {{host}}/api/person/login
 Content-Type: application/json
 
 {
