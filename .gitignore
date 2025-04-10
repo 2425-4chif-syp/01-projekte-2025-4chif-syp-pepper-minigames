@@ -84,4 +84,13 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
-/node_modules
+
+.idea/
+dist/
+docs/slides/revealjs
+.DS_Store
+
+node_modules/
+.angular/
+.vscode/
+.idea
