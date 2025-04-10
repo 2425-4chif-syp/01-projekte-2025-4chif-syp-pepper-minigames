@@ -8,8 +8,8 @@ public class Image {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "i_id")
-    private Long id;
+        @Column(name = "i_id")
+        private Long id;
 
     @ManyToOne
     @JoinColumn(name = "i_p_id")

@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @IdClass(GameScoreId.class)
 @Table(name = "pe_game_score")
 public class GameScore {
-
     @Id
     @ManyToOne
     @JoinColumn(name = "gs_g_id")
@@ -16,7 +15,7 @@ public class GameScore {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "gs_p_id")
+    @JoinColumn(name = "gs_p_id", nullable = true)
     private Person person;
 
     @Column(name = "gs_date_time")
@@ -24,6 +23,28 @@ public class GameScore {
 
     @Column(name = "gs_score")
     private int score;
+
+    @Column(name = "gs_comment")
+    private String comment;
+
+    @Column(name = "gs_elapsed_time")
+    private int elapsedTime;
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(int elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
 
     public Game getGame() {
         return game;

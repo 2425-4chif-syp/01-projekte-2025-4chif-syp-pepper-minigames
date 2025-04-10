@@ -8,9 +8,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.memorygame.data.model.PersonIntent
 
 @Composable
-fun MainMenuScreen(navController: NavHostController) {
+fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent) {
+
+    val newPersonIntent = personIntent
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -18,7 +22,7 @@ fun MainMenuScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Memory Game", modifier = Modifier.padding(16.dp))
+        Text("Hallo ${personIntent.firstName}, Willkomen zu dem Memory Game", modifier = Modifier.padding((16.dp)))
 
         // Spiel starten
         Button(
