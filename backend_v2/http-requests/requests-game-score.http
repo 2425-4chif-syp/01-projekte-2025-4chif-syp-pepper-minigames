@@ -41,26 +41,14 @@ POST {{host}}/api/gamescore
 Content-Type: application/json
 
 {
-  "dateTime": "2024-03-20T12:30:00",
-  "game": {
-    "enabled": true,
-    "gameType": {
-      "id": "TAG_ALONG_STORY",
-      "name": "Mitmachgeschichten"
-    },
-    "id": 2,
-    "name": "Geschichten aus Vorarlberg"
-  },
-  "person": {
-    "dob": "1975-06-12",
-    "firstName": "Markus",
-    "isWorker": false,
-    "lastName": "Wolf",
-    "roomNo": "110"
-  },
-  "comment": "4x3",
-  "score": 250
+  "comment": "2x3",
+  "dateTime": "2025-04-06T14:45:00",
+  "elapsedTime": 420,
+  "score": 1500,
+  "person_id": 1,
+  "game_id": 1
 }
+
 
 
 ### PUT - Update an existing game score
