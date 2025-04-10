@@ -19,9 +19,52 @@ export class PictureOverviewComponent {
 
   imagesService = inject(ImageServiceService);
   images = signal<ImageModel[]>([]);
+  standartImages = signal<ImageModel[]>([])
+
+  tmpImages = this.images()
+  activeButton = signal<string>("All")
+
+  aktiverFilter = this.showAllImages
+
+  showAllImages(){
+    this.aktiverFilter = this.showAllImages
+    this.activeButton.set('All')
+    this.images.set(this.standartImages())
+  }
+
+  showImageOfStories(){
+    let saveArr: ImageModel[] = []
+    this.activeButton.set('Stories')
+
+    this.aktiverFilter = this.showImageOfStories
+
+    for (const element of this.standartImages()) {
+      if(element.person == null){
+        saveArr.push(element)
+      }
+    }
+    console.log(saveArr)
+    this.images.set(saveArr)
+  }
+
+  showImageOfPersons(){
+    let saveArr: ImageModel[] = []
+    this.activeButton.set('People')
+
+    this.aktiverFilter = this.showImageOfPersons
+
+    for (const element of this.standartImages()) {
+      if(element.person != null){
+        saveArr.push(element)
+      }
+    }
+    console.log(saveArr)
+    this.images.set(saveArr)
+  }
 
   ngOnInit(): void {
     this.loadImages();
+    this.aktiverFilter;
   }
 
   loadImages(): void {
@@ -29,6 +72,7 @@ export class PictureOverviewComponent {
       {
         next: data=>{
           this.images.set(data);
+          this.standartImages.set(data)
           console.log(data);
         },
         error: err=>{
@@ -41,4 +85,6 @@ export class PictureOverviewComponent {
   goToUpload() {
     this.router.navigate(['/imageUpload']);
   }
+
+  
 }

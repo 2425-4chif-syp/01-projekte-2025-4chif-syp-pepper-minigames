@@ -1,0 +1,128 @@
+= Besprechungsprotokoll 19.03.25
+:icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
+:toc: left
+:source-highlighter: rouge
+:docinfo: shared
+:stem: latexmath
+
+//Need this blank line after ifdef, don't know why...
+ifdef::backend-html5[]
+
+
+
+.Teilnehmer
+|===
+|anwesend |Verteiler
+
+| ganze 4CHIF (Zeugen)
+|
+
+| Prof. Stütz
+|
+
+| Prof. Steiner
+|
+| Prof. Palitsch
+|
+|Pepperonis
+|
+|===
+
+.Ort und Zeit
+[cols=2*]
+|===
+|Ort
+| Klasse 1AHIF
+
+|von-bis
+|Mi. 19.03.2025 15:00 bis 16:00
+|Dauer
+|ca. 60 min
+|===
+
+
+
+== Besprochene Themen
+
+* Sprint-Review Verbesserungen
+
+
+== Vereinbarungen und Entscheidungen
+
+.Was wurde vereinbart?
+[%autowidth]
+|===
+|wer |macht was |bis wann
+| Nikola, Obaid | Pepper Mitmachgeschichten | Montag 23.03.2025
+a|
+|
+|===
+
+== Sprint-Review Verbesserungen
+
+=== Bilder
+* Filterfunktionen für die Bilder (Personen/Titelbild, Hochladedatum)
+* Schere vom Zurücksetzen Button umändern
+* Herunterladen umändern auf *Bild herunterladen*
+* Farbe der Zoom Stufe umändern
+* Empfehlungen ausklappen
+* *Dimension des Bildes* umbenennen
+* *Aussagekräftige Buttonsbeschreibungen/Funktionsbeschreibungen* hinzufügen
+* Hochladen umbenennen auf *Bild hochladen*
+* Statusinformationen (Bilderanzahl)
+* Hochladen Button nach *Oben verschieben*
+* DragAndDrop unter *Bilder-Überblick* einfügen
+
+NOTE: *Erweiterung*: Bildernanzahl gruppieren (100 PersonenBilder, 200 Titelbilder)
+
+NOTE: *Erweiterung*: Create DateTime -> Timestamp, wann ein Bild hochgeladen wurde
+
+---
+
+IMPORTANT: stufenweise Bearbeitung
+
+* Nach Wizzard Prinzip
+    1. Bild hochladen
+    2. Weiter Button
+    3. Bild bearbeiten
+    4. Weiter Button
+    5. Bild herunterladen
+
+
+---
+
+=== Mitmachgeschichten
+
+* Beschriftung für Regel fehlt
+* Aktive Geschichte besser highlighten
+* Statt *Löschen* Button ein *Mistkübel*
+* Schrift ist zu klein
+* Bearbeitungsbutton nach rechts machen und beschriften
+* Checkbox (*Gmail*) => Filterkritieren um die Geschichten zu filtern
+* *Erstelle eine Geschichte Button* farblich markieren
+* Gleiche Bildereinfügmethode wie *4.1*
+* *Geschichte speichern*
+* *Mistkübel Icon* muss besser sein => *HERO ICON*
+* *Szene + Titelbild* rechts neben dem Bild hinstellen statt darunter
+* Lautsprecher damit es den *Gesprochenen Text* vorliest
+* *Text beim Buttonhover* einfügen wenn man eine Szene löscht
+* *Titelbild* soll auch skalierbar sein => *Bildbearbeitungstool modal* machen
+* *Sind Sie sicher* Pop-up, wenn man eine Szene löschen
+* Bild nicht löschen sondern *Bild aus Szene entfernen*
+
+=== Pepper Menu
+
+* Annna Müller größer
+* Schriftart muss gleich sein
+* Sortierung nach Nachnamen
+* Fang den Dieb entfernen
+* Beim Essensplan Klick => Pepper sagt: Bei uns ist das Essen sehr gut. Leider kann ich keine Auskunft geben
+* Mitmachgeschichte, Tic Tac Toe = keine Anmeldung
+* Essensplannung, Memory = Anmeldung
+
+---
+IMPORTANT: 6.4.2025 Präsentation
+
+* Mitmachgeschichte muss funktionieren
+

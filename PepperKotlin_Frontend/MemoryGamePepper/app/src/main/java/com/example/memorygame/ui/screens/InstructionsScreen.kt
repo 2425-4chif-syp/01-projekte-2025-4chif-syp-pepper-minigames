@@ -102,7 +102,7 @@ fun InstructionsScreen(
             onClick = {
                 textToSpeech.stop()
                 navController.navigate("main_menu")
-                      },
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp),
