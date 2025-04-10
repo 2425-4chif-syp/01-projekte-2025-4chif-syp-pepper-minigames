@@ -1,15 +1,28 @@
 package at.htlleonding.pepper.util;
 
+import at.htlleonding.pepper.boundary.dto.GameScoreDto;
 import at.htlleonding.pepper.domain.Game;
+import at.htlleonding.pepper.domain.GameScore;
 import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.domain.Step;
 import at.htlleonding.pepper.dto.GameDto;
 import at.htlleonding.pepper.dto.StepDto;
+import at.htlleonding.pepper.repository.GameRepository;
+import at.htlleonding.pepper.repository.GameScoreRepository;
+import at.htlleonding.pepper.repository.PersonRepository;
 import io.smallrye.common.ref.StrongReference;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.util.Base64;
 
+@ApplicationScoped
 public class Converter {
+    @Inject
+    GameRepository gameRepository;
+    @Inject
+    PersonRepository personRepository;
+
     public static Game convertToTagAlongStory(GameDto gameDTO)
     {
         Game game = new Game();
@@ -36,5 +49,15 @@ public class Converter {
             return image; // Return as is if it's null or doesn't contain a prefix
         }
         return image.substring(image.indexOf(",") + 1);
+    }
+
+    public GameScore convertToGameScore(GameScoreDto gameScoreDto) {
+        GameScore gameScore = new GameScore();
+        gameScore.setScore(gameScoreDto.score());
+        gameScore.setDateTime(gameScoreDto.dateTime());
+        gameScore.setComment(gameScoreDto.comment());
+        gameScore.setPerson(personRepository.findById(gameScoreDto.person_id()));
+        gameScore.setElapsedTime(gameScore.getElapsedTime());
+        return gameScore;
     }
 }
