@@ -89,3 +89,8 @@ lint/tmp/
 dist/
 docs/slides/revealjs
 .DS_Store
+
+node_modules/
+.angular/
+.vscode/
+.idea

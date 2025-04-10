@@ -1,0 +1,22 @@
+<div class="h-screen container p-8">
+    <button class="btn btn-primary" (click)="getAllResidents()">Alle Bewohner Laden</button>
+
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Raum Nr.</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (resident of residents(); track $index) {
+            <tr>
+                <td>{{resident.firstName}}</td>
+                <td>{{resident.lastName}}</td>
+                <td>{{resident.roomNo}}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
