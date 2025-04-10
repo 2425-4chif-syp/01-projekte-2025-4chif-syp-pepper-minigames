@@ -16,8 +16,6 @@ import java.util.List;
 
 @Path("/chat")
 public class GreetingResource {
-
-    //  private static final String API_KEY2 = System.getenv("mp.rest.client.chatgpt-api.auth-token");
     private static final String API_KEY = System.getenv("CHATGBT_API_KEY");
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -44,14 +42,13 @@ public class GreetingResource {
 
             if (response.getStatus() == 200) {
                 ChatGPTResponse chatResponse = response.readEntity(ChatGPTResponse.class);
-                String value = chatResponse.getChoices().get(0).getMessage().getContent();
+                String value = chatResponse.getChoices().getFirst().getMessage().getContent();
                 System.out.println(value);
                 return value;
             } else {
                 return "Fehler: " + response.getStatusInfo().toString();
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return "Fehler beim Abrufen der Antwort: " + e.getMessage();
         }
     }

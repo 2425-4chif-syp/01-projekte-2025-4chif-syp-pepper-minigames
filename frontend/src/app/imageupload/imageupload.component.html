@@ -29,7 +29,7 @@
       <table class="table bg-red-400 rounded-md">
         <tbody>
           <tr>
-            <td class="font-bold text-lg">Dimension von dem HOCHGELADENEM BILD</td>
+            <td class="font-bold text-lg">Dimension vom BILD</td>
             <td class="font-semibold text-lg">{{uploadedImageSize}}</td>
           </tr>
         </tbody>
@@ -43,40 +43,44 @@
       </div>
     
       <!-- Text Input Fields -->
-      <div class="pt-1 pl-4 col-span-1">
-        <input [(ngModel)]="description" type="text" placeholder="Bezeichnung" class="w-full p-2 mb-4 border rounded" />
-        <input type="text" placeholder="Vorname" class="w-full p-2 mb-4 border rounded" />
-        <input type="text" placeholder="Lastname" class="w-full p-2 border rounded" />
+      <div class="pt-1 pl-4 col-span-1 mt-6">
+        <input title="Bezeichnung des Bildes eingeben" [(ngModel)]="description" type="text" placeholder="Bezeichnung" class="w-full p-2 mb-12 border rounded" />
+        <!--<input title="Vorname der Person zu der das Bild gehört" type="text" placeholder="Vorname" class="w-full p-2 mb-4 border rounded" />
+        <input title="Nachname der Person zu der das Bild gehört" type="text" placeholder="Lastname" class="w-full p-2 border rounded" /> -->
     
         <!-- Cropper Functions Buttons using flexbox -->
-        <div class="flex flex-col gap-5 mt-10">
-          <button (click)="reset()" class="btn btn-outline btn-primary w-full h-20">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m7.848 8.25 1.536.887M7.848 8.25a3 3 0 1 1-5.196-3 3 3 0 0 1 5.196 3Zm1.536.887a2.165 2.165 0 0 1 1.083 1.839c.005.351.054.695.14 1.024M9.384 9.137l2.077 1.199M7.848 15.75l1.536-.887m-1.536.887a3 3 0 1 1-5.196 3 3 3 0 0 1 5.196-3Zm1.536-.887a2.165 2.165 0 0 0 1.083-1.838c.005-.352.054-.695.14-1.025m-1.223 2.863 2.077-1.199m0-3.328a4.323 4.323 0 0 1 2.068-1.379l5.325-1.628a4.5 4.5 0 0 1 2.48-.044l.803.215-7.794 4.5m-2.882-1.664A4.33 4.33 0 0 0 10.607 12m3.736 0 7.794 4.5-.802.215a4.5 4.5 0 0 1-2.48-.043l-5.326-1.629a4.324 4.324 0 0 1-2.068-1.379M14.343 12l-2.882 1.664" />
+        <div class="flex flex-col gap-5 mt-20">
+          <button title="Setzt alles zurück" (click)="reset()" class="btn btn-outline btn-primary w-full h-20 flex items-center justify-center gap-2 transition-all hover:bg-primary hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+              <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z" clip-rule="evenodd" />
             </svg>
-            ZURÜCKSETZEN                      
+            <span class="text-lg font-semibold">ZURÜCKSETZEN</span>
           </button>
           
-          <button (click)="cropTo1280x800()" class="w-full h-20 btn btn-outline btn-primary">
+          
+          <button title="Lade das aktuelle Bild gecroppt runter" (click)="cropTo1280x800()" class="w-full h-20 btn btn-outline btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
             </svg>
-            HERUNTERLADEN          
+            BILD HERUNTERLADEN          
           </button>
         </div>
       </div>
     </div>
     
     <div class="mt-4">
-      <label for="zoomRange" class="block text-sm font-medium text-gray-700">ZOOM STUFE </label>
-      <input type="range" #zoomRange min="0.01" max="0.5" step="0.01" value="0.2" class="w-full custom-range" />
+      <label for="zoomRange" class="block text-sm font-medium text-gray-700">ZOOM STUFE</label>
+      <input for="zoomRange" #zoomRange type="range" min="0.05" max="2" step="0.05" value="0" class="zoom-range w-full custom-range" />
+
     </div>
     
-    <button (click)="cropVariants()" class="btn btn-primary w-full">EMPFEHLUNGEN ANZEIGEN</button>
+    <button title="Zeige vom Bild ein Paar Vorschläge" (click)="cropVariants()" class="btn btn-primary w-full">
+      <span >{{ showSuggestions && (cropRecommans.length != 0) ? 'VORSCHLÄGE AUSBLENDEN' : 'VORSCHLÄGE ANZEIGEN' }}</span>
+    </button>
     
     <div class="grid grid-cols-5 mt-5 p-5 gap-10 bg-base-200 rounded-md">
       @for (item of cropRecommans; track $index) {
-        <div class="group relative hover:drop-shadow-2xl rounded-md overflow-hidden" (click)="downloadCropRecommans(item)">
+        <div *ngIf="showSuggestions" class="group relative hover:drop-shadow-2xl rounded-md overflow-hidden" (click)="downloadCropRecommans(item)">
           <img src="{{item}}" alt="Pizza" class="block w-full h-full object-cover" />
           <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
             <span class="text-white font-bold text-lg cursor-pointer">
@@ -88,15 +92,16 @@
         </div>
       }
     </div>
-  </div>
-
-  <div class="bg-base-200 p-5 flex justify-around ">
-    <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
-      SPREICHERN
-    </button>
-    <button (click)="onCancel()" class="btn btn-error w-[25%]">
-      <a href="/tagalongstory" class="text-white">ABBRECHEN</a>
-    </button>
+    <div>
+      <div class="p-5 flex justify-around">
+        <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
+          BILD SPEICHERN
+        </button>
+        <button (click)="onCancel()" class="btn btn-error w-[25%]">
+          <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -119,5 +124,28 @@
     cursor: pointer;
     appearance: none;
     margin-top: -4px; /* Align thumb to track */
+  }
+
+  .buttons-wrapper {
+  margin-top: 2rem; /* Standard-Abstand */
+  transition: margin-top 0.3s ease-in-out; /* Flüssige Animation */
+  }
+
+  /* Wenn die Vorschläge angezeigt werden */
+  .push-buttons-down {
+    margin-top: 6rem; /* Größerer Abstand, um Platz für die Vorschläge zu schaffen */
+  }
+
+  /* Flexbox für den Hauptcontainer */
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Inhalte am Anfang des Containers ausrichten */
+    align-items: stretch; /* Vollständige Breite nutzen */
+  }
+
+  /* Verhindern, dass die Buttons fixiert sind */
+  .buttons-wrapper {
+    position: static; /* Entfernt eventuelle Fixierung */
   }
 </style>

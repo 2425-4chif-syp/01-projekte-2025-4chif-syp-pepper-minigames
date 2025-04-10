@@ -1,0 +1,61 @@
+= Pepper Dokumentation
+
+== Hardware-Details
+
+=== Android Version
+
+* Android 6.0
+
+=== Verfügbare Hardware-Versionen von Pepper:
+
+* **Pepper v3** (aktuellste Version)
+* **Pepper v2** (ältere Version)
+
+=== Verwendete Hardware:
+
+* **Pepper v3** (derzeit in Nutzung)
+
+=== Technische Spezifikationen:
+
+* **Prozessor**: Intel Atom, 1.91 GHz
+* **RAM**: 4 GB DDR3
+* **Speicher**: 32 GB
+* **Kameras**:
+** 2x HD Kameras (Gesichtserkennung, visuelle Objekterkennung)
+** 1x 3D Tiefenkamera
+* **Sensoren**:
+** 2x Sonar-Sensoren
+** 4x Bumper-Sensoren
+** 1x Gyroskop
+** 1x Beschleunigungssensor
+** 1x Infrarotsensor
+* **Akku**: Lithium-Ionen-Akku, bis zu 12 Stunden Betriebsdauer
+* **Audio**:
+** Stereo Lautsprecher
+** 4 Mikrofone für Sprachsteuerung
+
+== Programmierdetails
+
+=== Entwicklungsumgebungen und Werkzeuge:
+
+* **Android Studio**: Bumblebee | 2021.1.1 Patch 3
+* **Pepper SDK Plugin**: 1.5.3
+* **Programmiersprache**: Kotlin
+
+=== Pepper-Plugin:
+
+* **Kompatibilität**: Funktioniert bis Android API Level 7
+
+== Hauptfunktionen und APIs
+
+* **Spracherkennung und -synthese**: Erkennung von menschlicher Sprache, Sprachsynthese zur Antwortgenerierung
+* **Bewegung und Navigation**: Steuerung der Motoren und Gelenke, Navigation mit Hindernisvermeidung
+* **Vision und Bildverarbeitung**: Gesichtserkennung, Objekterkennung, 3D Tiefenkamera
+* **Touch-Sensoren**: Reagieren auf Berührungen an bestimmten Körperstellen
+* **Event-Handling**: Event-Listener für Bewegungen, Interaktionen und Sensorwerte
+* **Multithreading-Unterstützung**: Gleichzeitige Verarbeitung mehrerer Tasks
+
+== Quellen
+link:https://qisdk.softbankrobotics.com/sdk-beta/doc/pepper-sdk/ch1_gettingstarted/installation.html[Pepper SDK Dokumentation]
+
+link:https://support.unitedrobotics.group/en/support/solutions/articles/80000958735-pepper-technical-specifications[United Robotics Group - Pepper Technical Specifications]
