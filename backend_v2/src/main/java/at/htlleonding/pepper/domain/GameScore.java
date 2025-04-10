@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @IdClass(GameScoreId.class)
 @Table(name = "pe_game_score")
 public class GameScore {
-
     @Id
     @ManyToOne
     @JoinColumn(name = "gs_g_id")
@@ -16,7 +15,7 @@ public class GameScore {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "gs_p_id")
+    @JoinColumn(name = "gs_p_id", nullable = true)
     private Person person;
 
     @Column(name = "gs_date_time")

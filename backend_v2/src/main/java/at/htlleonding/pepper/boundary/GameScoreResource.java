@@ -1,7 +1,9 @@
 package at.htlleonding.pepper.boundary;
 
+import at.htlleonding.pepper.boundary.dto.GameScoreDto;
 import at.htlleonding.pepper.domain.GameScore;
 import at.htlleonding.pepper.repository.GameScoreRepository;
+import at.htlleonding.pepper.util.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,6 +19,9 @@ import java.util.List;
 public class GameScoreResource {
     @Inject
     GameScoreRepository gameScoreRepository;
+
+    @Inject
+    Converter converter;
 
     @GET
     public Response getGameScores() {
@@ -73,7 +78,8 @@ public class GameScoreResource {
     // POST - Create a new game score
     @POST
     @Transactional
-    public Response createGameScore(GameScore gameScore) {
+    public Response createGameScore(GameScoreDto gameScoreDto) {
+        GameScore gameScore = converter.convertToGameScore(gameScoreDto);
         gameScoreRepository.persist(gameScore);
         return Response.status(Response.Status.CREATED).entity(gameScore).build();
     }
