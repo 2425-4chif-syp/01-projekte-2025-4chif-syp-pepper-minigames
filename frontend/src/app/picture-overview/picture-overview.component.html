@@ -29,6 +29,7 @@
 
   <div class="grid grid-cols-4 gap-6 mt-5">
     <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <!--TODO: if ändern-->
       @if (image.base64Image == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
         <img src="../assets/images/defaultIcon2.jpg" class="w-full h-48 object-cover"> 
         <div class="p-4 bg-blue-600 text-white text-center font-semibold">

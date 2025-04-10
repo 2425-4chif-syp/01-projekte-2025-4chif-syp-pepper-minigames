@@ -18,7 +18,7 @@ import e from 'express';
 })
 export class TagalongstoryComponent {
  // private baseUrl = inject(STORY_URL) + 'tagalongstories';
-  private baseUrl = "http://vm88.htl-leonding.ac.at:8080/api/tagalongstories"
+  private baseUrl = "/api/tagalongstories/"
   private http = inject(HttpClient);
   private service = inject(ImageServiceService)
 
@@ -32,10 +32,13 @@ export class TagalongstoryComponent {
   constructor() {}
 
   ngOnInit(): void {
-    this.http.get<ITagalongStory[]>(this.baseUrl).subscribe(
+    const url = `${this.baseUrl}?v=${Math.random()}`
+
+    this.http.get<ITagalongStory[]>(url).subscribe(
       (stories) => {
         // Setze `enabled` als Boolean-Wert
-        console.log(stories)
+
+        console.log("MMG: ", stories)
         this.tagalongstoriesAll = stories.map(story => ({
           ...story,
           enabled: !!story.enabled // Wandelt `undefined` oder `null` in `false` um
