@@ -1,5 +1,6 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.repository
 
+import com.example.memorygame.data.model.PlayerScore
 import com.example.memorygame.data.remote.NetworkModule
 import com.example.memorygame.data.remote.ScoreApi
 import com.example.memorygame.data.remote.ScoreRequest
@@ -17,7 +18,6 @@ object ScoreRepository {
     }
 
     suspend fun sendScore(scoreRequest: ScoreRequest): Boolean {
-        // 🧪 Logge den ScoreRequest als JSON (hilfreich für Diagnose)
         val gson = com.google.gson.Gson()
         println("📤 Sende ScoreRequest als JSON:\n${gson.toJson(scoreRequest)}")
 

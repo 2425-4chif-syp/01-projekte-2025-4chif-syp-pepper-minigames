@@ -65,3 +65,31 @@ VALUES
     (215, '2024-03-17 17:45:00', 3, 8, 185, '2x4'),
     (225, '2024-03-18 18:55:00', 1, 9, 195, '3x4'),
     (235, '2024-03-19 19:05:00', 2, 10, 205, '4x4');
+
+
+
+INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) VALUES
+                                                                       (4, 3, 'rot', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGD4DwABBAEAHRW1rgAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (5, 3, 'grün', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGDwDwABBAEAebcCvAAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (6, 3, 'blau', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGBgDwABBAEAk14xTAAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (7, 3, 'gelb', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGBYDwABBAEAzSgZdAAAAABJRU5ErkJggg==', 'base64')));
+
+
+INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) VALUES
+                                                                       (8, 4, 'grau', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGCYDwABBAEA88MZDAAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (9, 4, 'pink', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGB4DwABBAEAx45mNwAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (10, 4, 'orange', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGA4DwABBAEAI7RqgQAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (11, 4, 'hellblau', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGCADwABBAEAilRUVgAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (12, 4, 'violett', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGBIDwABBAEA2I3+OQAAAABJRU5ErkJggg==', 'base64')));
+
+
+INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) VALUES
+                                                                       (13, 5, 'cyan', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGAIDwABBAEAU3X9+AAAAABJRU5ErkJggg==', 'base64'))),
+                                                                       (14, 5, 'dunkelgrün', NULL, lo_from_bytea(0, decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGNgYGBoDwABBAEAU+bshwAAAABJRU5ErkJggg==', 'base64')));
+
+
+
+INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) VALUES
+    (3, 2, 'weiß', NULL, lo_from_bytea(0, decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/5/hPwAF/AKnJmTJ3gAAAABJRU5ErkJggg==', 'base64')));
+

@@ -1,4 +1,4 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

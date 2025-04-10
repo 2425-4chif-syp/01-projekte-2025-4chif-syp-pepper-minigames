@@ -13,6 +13,8 @@ import com.example.memorygame.ui.menu.MainMenuScreen
 import com.example.memorygame.ui.screens.*
 import com.example.memorygame.ui.theme.MemoryGameTheme
 import java.util.Locale
+import com.example.memorygame.data.repository.IntentPersonProvider
+import com.example.memorygame.data.repository.MockPersonProvider
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
@@ -24,13 +26,18 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         // Initialisiere TextToSpeech
         textToSpeech = TextToSpeech(this, this)
 
+        val mockPersonProvider = MockPersonProvider()
+        val personProvider = IntentPersonProvider(intent)
+        val personIntent = mockPersonProvider.getPerson()
+
+
         setContent {
             MemoryGameTheme {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "main_menu") {
                     // Hauptmenü
                     composable("main_menu") {
-                        MainMenuScreen(navController)
+                        MainMenuScreen(navController, personIntent)
                     }
 
                     // Grid-Auswahl
@@ -48,12 +55,12 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     ) { backStackEntry ->
                         val rows = backStackEntry.arguments?.getInt("rows") ?: 4
                         val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-                        MemoryGameScreen(navController ,rows, columns)
+                        MemoryGameScreen(navController ,rows, columns, personIntent)
                     }
 
                     // High Scores => 1 Just for Test
                     composable("high_scores") {
-                        HighScoresScreen(1)
+                        HighScoresScreen(personIntent.id)
                     }
 
                     // Spieleinleitung

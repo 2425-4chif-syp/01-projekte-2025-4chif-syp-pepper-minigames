@@ -9,7 +9,7 @@ Content-Type: */*
 
 ###
 ### Not implemented rn
-GET {{host}}/api/image/person/3
+GET {{host}}/api/image/person/1
 Content-Type: */*
 
 ###
@@ -23,12 +23,12 @@ Content-Type: application/json
     "dob": "1985-03-15",
     "firstName": "Anna",
     "gender": true,
-    "id": 1,
     "isWorker": true,
     "lastName": "Müller",
     "roomNo": "101"
   },
-  "base64Image": "/9j/4AAQSkZJRgABAQEASABIAAA="
+  "base64Image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAF/wKdc3UAAAAASUVORK5CYII="
+
 }
 
 ###

@@ -1,4 +1,4 @@
-package com.example.memorygame.data
+package com.example.memorygame.data.lokal
 
 import android.content.Context
 import androidx.room.Database
@@ -18,8 +18,9 @@ abstract class AppDatabase : RoomDatabase() {
             }
 
         private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(context, AppDatabase::class.java, "memory_game_db")
+            Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
                 .fallbackToDestructiveMigration()
                 .build()
+
     }
 }
