@@ -34,7 +34,7 @@ fun MmgScreen(
     }
 
     Column(
-        modifier = Modifier1
+        modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Center

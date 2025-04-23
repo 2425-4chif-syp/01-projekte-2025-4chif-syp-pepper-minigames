@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,30 +41,40 @@ fun StepScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Anzeige des Bildes
-            if(imageBitmap != null){
-                Image(
-                    bitmap = imageBitmap!!,
-                    contentDescription = "Step Picture",
-                    modifier = Modifier.size(400.dp)
-                )
-            }
-            else{
-                Image(
-                    painter = painterResource(id = R.drawable.default_step_picture),
-                    contentDescription = "Default Step Picture",
-                    modifier = Modifier.size(400.dp)
-                )
+            // Bild nimmt so viel Platz wie möglich ein
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Step Picture",
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.default_step_picture),
+                        contentDescription = "Default Step Picture",
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons
+            // Buttons immer unten
             Row(
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
             ) {
                 Button(
                     modifier = Modifier
@@ -89,5 +100,6 @@ fun StepScreen(
                 }
             }
         }
+
     }
 }
