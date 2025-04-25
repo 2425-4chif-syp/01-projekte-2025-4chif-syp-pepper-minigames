@@ -10,4 +10,8 @@ object NetworkModule {
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+
+    fun providePersonApi(): PersonApi {
+        return retrofit.create(PersonApi::class.java)
+    }
 }
