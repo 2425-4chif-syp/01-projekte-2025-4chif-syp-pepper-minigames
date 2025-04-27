@@ -15,7 +15,7 @@ class PepperFuncs{
 
         var onPepper: Boolean = true
 
-        fun speakAsync(text: String): Future<Void>? {
+        fun speak(text: String): Future<Void>? {
             if (onPepper) {
                 val say: Future<Say>? = SayBuilder.with(qiContext)
                     .withText(text)

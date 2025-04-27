@@ -57,14 +57,14 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
 
                         if(response != "" && response != null){
                             withContext(Dispatchers.Main) {
-                                PepperFuncs.speakAsync("${response}")
+                                PepperFuncs.speak("${response}")
                             }
                         }
                         else{
-                            PepperFuncs.speakAsync("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                            PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         }
                     } catch (e: Exception) {
-                        PepperFuncs.speakAsync("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
                     finally {

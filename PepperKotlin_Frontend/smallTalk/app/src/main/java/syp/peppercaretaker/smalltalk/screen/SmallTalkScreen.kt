@@ -31,7 +31,6 @@ fun SmallTalkScreen(viewModel: SmallTalkViewModel) {
         Log.d("LoginScreen", "Audio-Berechtigung wurde erteilt.")
     }
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
