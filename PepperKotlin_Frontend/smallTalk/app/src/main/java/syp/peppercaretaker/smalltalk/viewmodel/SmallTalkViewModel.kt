@@ -22,6 +22,7 @@ import java.util.*
 class SmallTalkViewModel(application: Application): AndroidViewModel(application) {
 
     var isLoading = mutableStateOf(false)
+    var isSpeaking = mutableStateOf(false)
 
     // Config für Spracherkennung
     private val context = application.applicationContext
@@ -57,14 +58,29 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
 
                         if(response != "" && response != null){
                             withContext(Dispatchers.Main) {
-                                PepperFuncs.speak("${response}")
+                                isSpeaking.value = true
+                                val future = PepperFuncs.speak("${response}")
+                                future?.thenConsume { 
+                                    isSpeaking.value = false
+                                    Log.d("PepperSpeak", "Speech completed")
+                                }
                             }
                         }
                         else{
-                            PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                            isSpeaking.value = true
+                            val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                            future?.thenConsume { 
+                                isSpeaking.value = false
+                                Log.d("PepperSpeak", "Speech completed")
+                            }
                         }
                     } catch (e: Exception) {
-                        PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        isSpeaking.value = true
+                        val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        future?.thenConsume { 
+                            isSpeaking.value = false
+                            Log.d("PepperSpeak", "Speech completed")
+                        }
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     }
                     finally {
@@ -79,7 +95,6 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
     }
 
     fun startSpeechRecognition() {
-
         viewModelScope.launch(Dispatchers.Main) {
             speechRecognizer.startListening(speechRecognizerIntent)
         }

@@ -43,8 +43,10 @@ fun SmallTalkScreen(viewModel: SmallTalkViewModel) {
             },
             modifier = Modifier.size(300.dp),
             shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(if (viewModel.isLoading.value == true) Color.Red else Color.Blue),
-            enabled = viewModel.isLoading.value == false
+            colors = ButtonDefaults.buttonColors(
+                if (viewModel.isLoading.value == true) Color.Red else Color.Blue),
+            // Button is disabled when loading or when Pepper is speaking
+            enabled = !(viewModel.isLoading.value == true || viewModel.isSpeaking.value == true)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_microphone),
