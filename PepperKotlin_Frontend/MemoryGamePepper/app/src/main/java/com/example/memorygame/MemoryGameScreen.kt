@@ -31,9 +31,13 @@ import com.example.memorygame.data.model.Game
 import com.example.memorygame.data.model.GameType
 import com.example.memorygame.data.model.Person
 import com.example.memorygame.data.model.PersonIntent
+import com.example.memorygame.data.remote.PersonApi
 import com.example.memorygame.data.repository.ScoreRepository
 import com.example.memorygame.data.remote.ScoreRequest
 import com.example.memorygame.logic.ScoreManager
+import com.example.memorygame.logic.image.GameImageProvider
+import com.example.memorygame.logic.image.ImageData
+import com.example.memorygame.logic.image.ImageDecoder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
@@ -43,14 +47,38 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, personIntent: PersonIntent) {
+fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, personIntent: PersonIntent, personId: Long?, personApi: PersonApi) {
+
     val scoreManager = remember { ScoreManager(rows, columns) }
     val gameLogic = remember { GameLogic(scoreManager) }
 
-    val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
+    /*val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
     val cards = remember {
         mutableStateListOf(*selectedImages.flatMap { listOf(MemoryCard(it.hashCode(), it), MemoryCard(it.hashCode(), it)) }.shuffled().toTypedArray())
+    }*/
+
+    val neededPairs = (rows * columns) / 2
+    var imageList by remember { mutableStateOf<List<ImageData>>(emptyList()) }
+
+    val cards = remember {
+        mutableStateListOf<MemoryCard>()
     }
+
+    LaunchedEffect(personId) {
+        val images = GameImageProvider.getImages(
+            neededPairs = neededPairs,
+            personId = personId,
+            api = personApi
+        )
+
+        val newCards = images
+            .flatMap { image -> listOf(MemoryCard(image.hashCode(), image), MemoryCard(image.hashCode(), image)) }
+            .shuffled()
+
+        cards.clear()
+        cards.addAll(newCards)
+    }
+
 
     val flippedCards by remember { derivedStateOf { gameLogic.flippedCards } }
     val matchedCards by remember { derivedStateOf { gameLogic.matchedCards } }
@@ -92,7 +120,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
         if (isGameOver) {
             WinDialog(
                 onRestart = {
-                    restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager)
+                    restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager, imageList)
                     gameLogic.isGameOver = false
                 },
                 onGoToMainMenu = {
@@ -108,7 +136,6 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
         val db = AppDatabase.getInstance(context)
         val playerScoreDao = db.playerScoreDao()
         //val repository = remember { ScoreRepository() }
-
 
 
         if (isGameOver) {
@@ -189,7 +216,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                         .border(borderWidth, borderColor, RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (isFlipped) {
+                    /*if (isFlipped) {
                         Image(
                             painter = painterResource(id = card.image),
                             contentDescription = null,
@@ -198,6 +225,44 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                                 .background(Color.Transparent),
                             contentScale = ContentScale.Fit
                         )
+                    }*/
+                    if (isFlipped) {
+                        when (val image = card.image) {
+                            is ImageData.DrawableImage -> {
+                                Image(
+                                    painter = painterResource(id = image.resId),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Transparent),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+
+                            is ImageData.Base64Image -> {
+                                val imageBitmap = remember(image.base64) {
+                                    ImageDecoder.decodeBase64ToImageBitmap(image.base64)
+                                }
+                                if (imageBitmap != null) {
+                                    println("Bild erfolgreich decodiert")
+                                    Image(
+                                        bitmap = imageBitmap,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Transparent),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                } else {
+                                    println("Base64 konnte nicht decodiert werden.")
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Gray)
+                                    )
+                                }
+                            }
+                        }
                     } else {
                         Box(
                             modifier = Modifier
@@ -232,8 +297,8 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                 style = TextStyle(
                     shadow = Shadow(
                         color = Color.White,
-                        offset = Offset(4f, 10f), // Verschiebt den Schatten nach rechts und unten
-                        blurRadius = 1f // Erzeugt eine weichere Kante
+                        offset = Offset(4f, 10f),
+                        blurRadius = 1f
                     )
                 )
             )
@@ -268,7 +333,7 @@ fun createScoreRequest(
         score = score,
         elapsedTime = elapsedTime,
         comment = comment,
-        person = person, // jetzt vollständiges Objekt
+        person = person,
         game = game,
         dateTime = formattedDateTime
     )

@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         // Per Intent die person holen und einstezten
         val personApi = NetworkModule.providePersonApi()
 
-        val mockPersonProvider = MockPersonProvider(4L, personApi)
+        val mockPersonProvider = MockPersonProvider(2L, personApi)
         val personProviderMock = runBlocking { mockPersonProvider.getPerson() }
 
         val personProvider = IntentPersonProvider(intent, personApi)
@@ -62,10 +62,17 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     ) { backStackEntry ->
                         val rows = backStackEntry.arguments?.getInt("rows") ?: 4
                         val columns = backStackEntry.arguments?.getInt("columns") ?: 4
-                        MemoryGameScreen(navController ,rows, columns, personProviderMock)
+                        MemoryGameScreen(
+                            navController = navController,
+                            rows = rows,
+                            columns = columns,
+                            personIntent = personProviderMock,
+                            personId = personProviderMock.id,
+                            personApi = personApi
+                        )
+
                     }
 
-                    // High Scores => 1 Just for Test
                     composable("high_scores") {
                         HighScoresScreen(personProviderMock.id)
                     }

@@ -9,4 +9,10 @@ interface PersonApi {
     @GET("/api/person/{id}")
     suspend fun getPersonById(@Path("id") id: Long): PersonIntent
 
+    @GET("api/image/person/{personId}")
+    suspend fun getPersonImages(
+        @Path("personId") personId: Long
+    ): List<PersonImageDto>
+
+
 }
