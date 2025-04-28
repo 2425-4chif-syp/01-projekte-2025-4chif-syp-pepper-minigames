@@ -23,8 +23,8 @@ import com.example.memorygame.data.model.PersonIntent
 fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFe0e0e0),
-            Color(0xFFf5f5f5),
+            Color(0xFFF5F5DC),
+            Color(0xFFFAF0E6),
             Color.White
         )
     )
