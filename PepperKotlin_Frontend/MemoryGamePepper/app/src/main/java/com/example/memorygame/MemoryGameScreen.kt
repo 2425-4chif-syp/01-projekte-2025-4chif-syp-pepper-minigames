@@ -120,8 +120,19 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
         if (isGameOver) {
             WinDialog(
                 onRestart = {
-                    restartGame(cards, matchedCards, flippedCards, rows, columns, scoreManager, imageList)
-                    gameLogic.isGameOver = false
+                    coroutineScope.launch {
+                        restartGame(
+                            cards = cards,
+                            matchedCards = matchedCards,
+                            flippedCards = flippedCards,
+                            rows = rows,
+                            columns = columns,
+                            scoreManager = scoreManager,
+                            personId = personId,
+                            personApi = personApi
+                        )
+                        gameLogic.isGameOver = false
+                    }
                 },
                 onGoToMainMenu = {
                     navController.navigate("main_menu")

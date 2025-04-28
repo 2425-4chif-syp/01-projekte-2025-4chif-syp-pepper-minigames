@@ -2,25 +2,34 @@ package com.example.memorygame.logic
 
 import com.example.memorygame.MemoryCard
 import com.example.memorygame.cardImages
+import com.example.memorygame.data.remote.PersonApi
+import com.example.memorygame.logic.image.GameImageProvider
 import com.example.memorygame.logic.image.ImageData
 
-fun restartGame(
+suspend fun restartGame(
     cards: MutableList<MemoryCard>,
     matchedCards: MutableSet<Int>,
     flippedCards: MutableList<Int>,
     rows: Int,
     columns: Int,
     scoreManager: ScoreManager,
-    images: List<ImageData>
+    personId: Long?,
+    personApi: PersonApi
 ) {
     matchedCards.clear()
     flippedCards.clear()
 
     val neededPairs = (rows * columns) / 2
-    val selectedImages = images.shuffled().take(neededPairs)
+
+    // neue zufällige Bilder holen
+    val images = GameImageProvider.getImages(
+        neededPairs = neededPairs,
+        personId = personId,
+        api = personApi
+    )
 
     cards.clear()
-    cards.addAll(selectedImages.flatMap { image ->
+    cards.addAll(images.flatMap { image ->
         listOf(
             MemoryCard(id = image.hashCode(), image = image),
             MemoryCard(id = image.hashCode(), image = image)
@@ -30,6 +39,7 @@ fun restartGame(
     cards.forEach { it.isFlipped = false }
     scoreManager.resetScore()
 }
+
 
 /*fun restartGame(
     cards: MutableList<MemoryCard>,  // Das Karten-Deck
