@@ -68,7 +68,7 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
                         }
                         else{
                             isSpeaking.value = true
-                            val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                            val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht verstehen.")
                             future?.thenConsume { 
                                 isSpeaking.value = false
                                 Log.d("PepperSpeak", "Speech completed")
@@ -76,7 +76,7 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
                         }
                     } catch (e: Exception) {
                         isSpeaking.value = true
-                        val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht verstehen.")
                         future?.thenConsume { 
                             isSpeaking.value = false
                             Log.d("PepperSpeak", "Speech completed")
