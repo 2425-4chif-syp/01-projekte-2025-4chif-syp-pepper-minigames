@@ -46,7 +46,7 @@ fun StepScreen(
             // Bild nimmt so viel Platz wie möglich ein
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(2f) // // erhöht den Platz, den das Bild einnimmt
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
@@ -54,8 +54,9 @@ fun StepScreen(
                     Image(
                         bitmap = imageBitmap!!,
                         contentDescription = "Step Picture",
-                        modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Fit
+                        modifier = Modifier.
+                        fillMaxWidth().fillMaxHeight(),
+                        contentScale = ContentScale.Crop //Von Fit zu Crop
                     )
                 } else {
                     Image(

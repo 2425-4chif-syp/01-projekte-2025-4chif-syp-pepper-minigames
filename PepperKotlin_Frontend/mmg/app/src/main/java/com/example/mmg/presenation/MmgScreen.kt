@@ -50,7 +50,6 @@ fun MmgScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
-
             Button(
                 onClick = {
                     viewModel.emptyMmgList()
