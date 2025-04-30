@@ -1,16 +1,11 @@
 package syp.peppercaretaker.smalltalk.model
 
-import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import syp.peppercaretaker.smalltalk.BuildConfig
-import syp.peppercaretaker.smalltalk.model.Api.Companion.BACKEND_URL
-import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 
 class Api {
@@ -57,6 +52,5 @@ class Api {
                 ""
             }
         }
-
     }
 }

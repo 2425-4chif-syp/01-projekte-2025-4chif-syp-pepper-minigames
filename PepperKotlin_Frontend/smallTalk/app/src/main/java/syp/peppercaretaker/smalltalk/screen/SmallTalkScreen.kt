@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import java.util.*
 import syp.peppercaretaker.smalltalk.R
 import syp.peppercaretaker.smalltalk.viewmodel.SmallTalkViewModel
 
@@ -44,9 +43,8 @@ fun SmallTalkScreen(viewModel: SmallTalkViewModel) {
             modifier = Modifier.size(300.dp),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
-                if (viewModel.isLoading.value == true) Color.Red else Color.Blue),
-            // Button is disabled when loading or when Pepper is speaking
-            enabled = !(viewModel.isLoading.value == true || viewModel.isSpeaking.value == true)
+                if (viewModel.buttonPressed.value == true) Color.Red else Color.Blue),
+            enabled = !(viewModel.isSpeaking.value == true)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_microphone),

@@ -8,12 +8,10 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import syp.peppercaretaker.smalltalk.PepperFuncs
 import syp.peppercaretaker.smalltalk.model.Api
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,13 +19,12 @@ import java.util.*
 
 class SmallTalkViewModel(application: Application): AndroidViewModel(application) {
 
-    var isLoading = mutableStateOf(false)
     var isSpeaking = mutableStateOf(false)
+    var buttonPressed = mutableStateOf(false)
 
     // Config für Spracherkennung
     private val context = application.applicationContext
     private var speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
-
 
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
         putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -35,56 +32,55 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
     }
 
     init {
-
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
-            override fun onBeginningOfSpeech() {}
+            override fun onBeginningOfSpeech() {buttonPressed.value = true}
             override fun onRmsChanged(rmsdB: Float) {}
             override fun onBufferReceived(buffer: ByteArray?) {}
             override fun onEndOfSpeech() {}
             override fun onError(error: Int) {
+                buttonPressed.value = false
                 Log.d("Spracherkennung", "Fehler: $error")
             }
 
             override fun onResults(results: Bundle?) {
-                val data = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                Log.d("Sprache","${data}")
+                val heardText = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                Log.d("Gehörter Text","${heardText}")
 
-                isLoading.value = true
+                if(heardText.isNullOrEmpty()){
+                    ActionOnError("Tut mir Leid ich konnte Sie nicht verstehen. Können Sie die Frage wiederholen?","")
+                    buttonPressed.value = false
+                    return;
+                }
 
                 viewModelScope.launch {
                     try {
-                        val response = Api.sendPostRequestSmallTalk(data.toString())
+                        val response = Api.sendPostRequestSmallTalk(heardText.toString())
 
                         if(response != "" && response != null){
                             withContext(Dispatchers.Main) {
+                                buttonPressed.value = false
                                 isSpeaking.value = true
+
                                 val future = PepperFuncs.speak("${response}")
-                                future?.thenConsume { 
+
+                                if (future == null) {
+                                    Log.e("SmallTalkViewModel", "Failed to initiate speech")
                                     isSpeaking.value = false
-                                    Log.d("PepperSpeak", "Speech completed")
+                                }
+                                else {
+                                    future.thenConsume {
+                                        isSpeaking.value = false
+                                        Log.d("PepperSpeak", "Speech completed")
+                                    }
                                 }
                             }
                         }
-                        else{
-                            isSpeaking.value = true
-                            val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht verstehen.")
-                            future?.thenConsume { 
-                                isSpeaking.value = false
-                                Log.d("PepperSpeak", "Speech completed")
-                            }
-                        }
+
                     } catch (e: Exception) {
-                        isSpeaking.value = true
-                        val future = PepperFuncs.speak("Tut mir Leid. Ich kann sie leider nicht verstehen.")
-                        future?.thenConsume { 
-                            isSpeaking.value = false
-                            Log.d("PepperSpeak", "Speech completed")
-                        }
-                        Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                    }
-                    finally {
-                        isLoading.value = false
+                        ActionOnError("Die Internetverbindung ist schlecht","Fehler beim API-Aufruf: ${e.message}")
+                        buttonPressed.value = false
+                        isSpeaking. value = false
                     }
                 }
             }
@@ -100,26 +96,21 @@ class SmallTalkViewModel(application: Application): AndroidViewModel(application
         }
     }
 
-    fun testConnection(){
-        viewModelScope.launch {
-            try {
-                val response = Api.sendPostRequestSmallTalk("Was ist 5x5?")
+    fun ActionOnError(speakText:String, errorText: String ){
+        val future = PepperFuncs.speak(speakText)
 
-                if(response != "" && response != null){
-                    withContext(Dispatchers.Main){
-                        Log.d("Response","${response}")
-                    }
-                }
-                else
-                {
-                    Log.d("Response","Leere Response")
-                }
-
-
-            }catch (e:Exception)
-            {
-                Log.d("Respone","${e.message}")
+        if (future == null) {
+            Log.e("Speak", "Qi-Context Fehler!")
+        }
+        else {
+            future.thenConsume {
+                Log.d("Fehler",errorText)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        speechRecognizer.destroy()
     }
 }

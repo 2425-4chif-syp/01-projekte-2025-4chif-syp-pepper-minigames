@@ -12,17 +12,23 @@ import syp.peppercaretaker.smalltalk.viewmodel.SmallTalkViewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
+    private lateinit var smallTalkViewModel: SmallTalkViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
+
+        smallTalkViewModel = SmallTalkViewModel(this.application)
+        
         setContent {
-            SmallTalkScreen(viewModel = SmallTalkViewModel(this.application))
+            SmallTalkScreen(viewModel = smallTalkViewModel)
         }
     }
+    
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        // Context für Pepper um seine Funktionen aufrufen zu können
+        // Kontext, damit Pepper reden kann
         PepperFuncs.qiContext = qiContext
-        Log.d("QiContext:", "Focus: ${PepperFuncs.qiContext}")
+        Log.d("QiContext:", "Focus gained: ${PepperFuncs.qiContext}")
         // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
         PepperFuncs.onPepper = true
     }
@@ -35,15 +41,16 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
     override fun onRobotFocusLost() {
         // The robot focus is lost.
-        QiSDK.unregister(this,this)
+        Log.d("QiContext:", "Focus lost")
+        PepperFuncs.qiContext = null
+        QiSDK.unregister(this, this)
         super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {
-
         // Im Logcat werden Fehlermeldungen ausgeben, falls die Verbindung unterbrochen wird
         if(reason != null){
-            Log.d("Reason:",reason)
+            Log.d("Reason:", reason)
         }
     }
 }

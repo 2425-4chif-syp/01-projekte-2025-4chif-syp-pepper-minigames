@@ -4,9 +4,6 @@ import com.aldebaran.qi.Future
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.`object`.conversation.Say
 import com.aldebaran.qi.sdk.builder.SayBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 class PepperFuncs{
     companion object {
@@ -31,19 +28,6 @@ class PepperFuncs{
                 }
             }
             return null;
-        }
-
-        fun speakSync(text: String) {
-            if (onPepper) {
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        val say = SayBuilder.with(qiContext)
-                            .withText(text)
-                            .build()
-                        say.run()
-                    }
-                }
-            }
         }
     }
 }
