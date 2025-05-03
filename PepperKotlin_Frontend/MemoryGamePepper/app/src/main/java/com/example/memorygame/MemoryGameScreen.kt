@@ -42,8 +42,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.memorygame.ui.dialogs.WinDialog
 import com.example.memorygame.logic.restartGame
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 @Composable
@@ -337,8 +339,8 @@ fun createScoreRequest(
     person: Person,
     game: Game
 ): ScoreRequest {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-    val formattedDateTime = LocalDateTime.now().format(formatter)
+    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    val formattedDateTime = formatter.format(Date())
 
     return ScoreRequest(
         score = score,
@@ -351,8 +353,7 @@ fun createScoreRequest(
 }
 
 fun getCurrentDateTimeString(): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-    return LocalDateTime.now().format(formatter)
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return dateFormat.format(Date())
 }
-
 
