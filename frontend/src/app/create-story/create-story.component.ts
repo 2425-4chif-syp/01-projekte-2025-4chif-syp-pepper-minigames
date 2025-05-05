@@ -1,11 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { ImageServiceService } from '../service/image-service.service';
-import { ImageModel } from '../models/image.model';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import e, { Router } from 'express';
+import { ImageModel } from '../models/image.model';
+import { ImageService } from '../services/image.service';
 
 interface Scene {
   speech: string;
@@ -15,11 +14,12 @@ interface Scene {
 }
 
 @Component({
-  selector: 'app-createstory',
+  selector: 'app-create-story',
   imports: [DragDropModule, CommonModule, FormsModule],
-  templateUrl: './createstory.component.html',
+  templateUrl: './create-story.component.html',
+  styleUrl: './create-story.component.css'
 })
-export class CreatestoryComponent {
+export class CreateStoryComponent {
   imageBase64: string | null = null;
   scenenBilder: string[] = [];
 
@@ -58,14 +58,14 @@ export class CreatestoryComponent {
   titleImage: string | null = null;
   titleName: string = '';
 
-  imagesService = inject(ImageServiceService);
+  imagesService = inject(ImageService);
   images = signal<ImageModel[]>([]);
 
   storyId: number | null = null;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute) { }
 
-  service = inject(ImageServiceService)
+  service = inject(ImageService)
 
   ngOnInit(): void {
     this.loadImages();
@@ -78,7 +78,7 @@ export class CreatestoryComponent {
     });
   }
 
-  disableSaveButton(){
+  disableSaveButton() {
     return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null
   }
 
@@ -104,14 +104,15 @@ export class CreatestoryComponent {
         console.log("Daten von der neuen Methode:")
         console.log(data)
         this.imageBase64 = data
-       // this.titleImage = this.imageBase64
-        if(data != null){
+        // this.titleImage = this.imageBase64
+        if (data != null) {
           this.scenenBilder.push(data)
         }
       },
       error: error => {
         console.log("fehler beim titelbild")
-        alert("fehler beim laden des bildes " + error.message)}
+        alert("fehler beim laden des bildes " + error.message)
+      }
     })
 
     this.service.getTitleImage(storyId).subscribe({
@@ -131,21 +132,21 @@ export class CreatestoryComponent {
 
 
     fetch(`/api/tagalongstories/${storyId}`)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.name);
-      this.titleName = data.name
-      this.loadScenes(storyId);
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.name);
+        this.titleName = data.name
+        this.loadScenes(storyId);
 
-    })
-    .catch(error => console.error('Fehler beim Abrufen:', error));
+      })
+      .catch(error => console.error('Fehler beim Abrufen:', error));
 
     fetch(`/api/tagalongstories/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
         //this.titleName = data.name;
-       // this.titleImage = data.icon;
-       // this.loadScenes(storyId);
+        // this.titleImage = data.icon;
+        // this.loadScenes(storyId);
       })
       .catch((error) => console.error('Error loading story:', error));
 
@@ -163,7 +164,7 @@ export class CreatestoryComponent {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
             duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
-            image: this.scenenBilder[i++]?? 'assets/images/defaultUploadPic_50.jpg',
+            image: this.scenenBilder[i++] ?? 'assets/images/defaultUploadPic_50.jpg',
           };
 
         });
@@ -218,7 +219,7 @@ export class CreatestoryComponent {
 
 
   clearImage(scene: Scene) {
-    if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
+    if (confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")) {
       scene.image = 'assets/images/defaultUploadPic_50.jpg';
     }
   }
@@ -233,7 +234,7 @@ export class CreatestoryComponent {
   }
 
   deleteScene(index: number) {
-    if(confirm("Sind Sie sicher dass Sie diese Scene löschen möchten?")){
+    if (confirm("Sind Sie sicher dass Sie diese Scene löschen möchten?")) {
       this.scenes.splice(index, 1);
     }
   }
@@ -343,7 +344,5 @@ export class CreatestoryComponent {
       console.error('Fehler beim Speichern der Szenen:', error);
     }
   }
-
-
 
 }

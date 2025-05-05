@@ -1,35 +1,32 @@
-import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { RouterOutlet, RouterModule } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { STORY_URL } from '../app.config';
-import { IGameType, IStep, ITagalongStory, MoveHandler } from '../../models/tagalongstories.model';
+import { ImageModel } from '../models/image.model';
+import { IGameType, ITagalongStory } from '../models/tagalongstory.model';
+import { ImageService } from '../services/image.service';
+import Cropper from 'cropperjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { map, Observable } from 'rxjs';
-import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
-import Cropper from 'cropperjs';
-import { ImageServiceService } from '../service/image-service.service';
-import { ImageModel } from '../models/image.model';
-import { log } from 'console';
+import { RouterModule } from '@angular/router';
+
 
 @Component({
-  selector: 'app-imageupload',
-  standalone: true,
+  selector: 'app-image-upload',
   imports: [RouterModule, CommonModule, FormsModule],
-  templateUrl: './imageupload.component.html',
-  styleUrl: './imageupload.component.css'
+  templateUrl: './image-upload.component.html',
+  styleUrl: './image-upload.component.css'
 })
-export class ImageuploadComponent {
- private baseUrl = inject(STORY_URL) + 'tagalongstories';
+export class ImageUploadComponent {
+  private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private http = inject(HttpClient);
   public duration = [5, 10, 15];
   public uploadedImageSize = "0 x 0";
   public cropRecommans:string[] = [];
-  imagesService = inject(ImageServiceService);
+  imagesService = inject(ImageService);
   images = signal<ImageModel[]>([]);
   description = signal<string>("");
-  
+
   showSuggestions: boolean = false;
 
   public moves = [
@@ -156,7 +153,7 @@ export class ImageuploadComponent {
       // Define the target dimensions (1280x800)
       const targetWidth = 1280;
       const targetHeight = 800;
-      
+
       if(imageData.naturalWidth < 600){
         alert("Das Bild ist schon relativ klein, deshalb funktioniert der Slider erst weiter rechts")
       }
@@ -405,9 +402,9 @@ export class ImageuploadComponent {
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high',
     });
-    
+
     const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
-    
+
     const imageUpload: ImageModel = {
       description: this.description(),
       person: null,
@@ -437,5 +434,5 @@ export class ImageuploadComponent {
     window.location.reload();
   }
 
-  
+
 }

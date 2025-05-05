@@ -1,17 +1,15 @@
-import { Component } from '@angular/core';
-import { IStep } from '../../models/tagalongstories.model';
-import { FormsModule } from '@angular/forms';
-import { MoveHandler } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { IStep, MoveHandler } from '../models/tagalongstory.model';
 
 @Component({
-  selector: 'app-addstep',
-  standalone: true,
+  selector: 'app-add-step',
   imports: [FormsModule, CommonModule],
-  templateUrl: './addstep.component.html',
-  styleUrl: './addstep.component.css'
+  templateUrl: './add-step.component.html',
+  styleUrl: './add-step.component.css'
 })
-export class AddstepComponent {
+export class AddStepComponent {
   public steps: IStep[] = [];
   public duration = [5, 10, 15];
   public moves = [

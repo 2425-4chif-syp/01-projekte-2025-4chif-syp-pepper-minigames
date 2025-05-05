@@ -1,11 +1,8 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { CommonEngine } from '@angular/ssr/node';
-import { get } from 'http';
-import { ImageServiceService } from '../service/image-service.service';
+import { Router, RouterModule } from '@angular/router';
 import { ImageModel } from '../models/image.model';
-import { Router } from '@angular/router';
-import { RouterModule } from '@angular/router';
+import { ImageService } from '../services/image.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-picture-overview',
@@ -14,10 +11,10 @@ import { RouterModule } from '@angular/router';
   styleUrl: './picture-overview.component.css'
 })
 export class PictureOverviewComponent {
-  
+
   constructor(private router: Router) {}
 
-  imagesService = inject(ImageServiceService);
+  imagesService = inject(ImageService);
   images = signal<ImageModel[]>([]);
   standartImages = signal<ImageModel[]>([])
 
@@ -86,5 +83,4 @@ export class PictureOverviewComponent {
     this.router.navigate(['/imageUpload']);
   }
 
-  
 }
