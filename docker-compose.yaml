@@ -1,7 +1,9 @@
 services:
   backend:
     container_name: backend
-    image: pepper/backend
+    build:
+      context: ./backend_v2
+      dockerfile: Dockerfile
     env_file:
       - .env
     environment:
@@ -10,6 +12,19 @@ services:
       - postgres
     ports:
       - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    networks:
+      - postgres
+    ports:
+      - "80:80"
     restart: unless-stopped
 
   db:

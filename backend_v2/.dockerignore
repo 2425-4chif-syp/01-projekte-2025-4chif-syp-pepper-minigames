@@ -1,0 +1,27 @@
+# IDE and editor folders
+.idea
+.mvn
+*.iml
+
+# Build output
+target
+
+# Local scripts
+*.sh
+
+# Database folders
+db-postgres
+
+# Request collections
+http-requests
+
+# Git and config
+.git
+.gitignore
+docker-compose.yml
+.env
+.env.*
+
+# OS-specific
+.DS_Store
+Thumbs.db

@@ -1,12 +1,10 @@
-FROM eclipse-temurin:21-jdk-alpine
-
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+COPY . .
+RUN mvn package -DskipTests
 
-# Kopiere das erstellte JAR in das Container-Verzeichnis
-COPY target/backend-1.0.0-SNAPSHOT-runner.jar /app/app.jar
-
-# Setze den Startbefehl für die Java-Anwendung
-CMD ["java", "-jar", "/app/app.jar"]
-
-# Der Container lauscht auf Port 8080
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*-runner.jar app.jar
 EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
