@@ -9,7 +9,7 @@ services:
     environment:
       - QUARKUS_PROFILE=prod
     networks:
-      - postgres
+      - peppernet
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -22,7 +22,7 @@ services:
     depends_on:
       - backend
     networks:
-      - postgres
+      - peppernet
     ports:
       - "80:80"
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
       - ./db-postgres/db:/var/lib/postgresql/data
       - ./db-postgres/import:/import
     networks:
-      - postgres
+      - peppernet
 
   pgadmin:
     container_name: pgadmin
@@ -55,9 +55,9 @@ services:
     ports:
       - 8090:80
     networks:
-      - postgres
+      - peppernet
     restart: unless-stopped
 
 networks:
-  postgres:
+  peppernet:
     driver: bridge
