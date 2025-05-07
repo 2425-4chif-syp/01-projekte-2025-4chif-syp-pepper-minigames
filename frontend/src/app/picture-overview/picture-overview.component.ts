@@ -6,6 +6,7 @@ import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { ImageDto } from '../models/imageDto.model';
 
 @Component({
   selector: 'app-picture-overview',
@@ -18,8 +19,8 @@ export class PictureOverviewComponent {
   constructor(private router: Router) {}
 
   imagesService = inject(ImageServiceService);
-  images = signal<ImageModel[]>([]);
-  standartImages = signal<ImageModel[]>([])
+  images = signal<ImageDto[]>([]);
+  standartImages = signal<ImageDto[]>([])
 
   tmpImages = this.images()
   activeButton = signal<string>("All")
@@ -33,7 +34,7 @@ export class PictureOverviewComponent {
   }
 
   showImageOfStories(){
-    let saveArr: ImageModel[] = []
+    let saveArr: ImageDto[] = []
     this.activeButton.set('Stories')
 
     this.aktiverFilter = this.showImageOfStories
@@ -48,7 +49,7 @@ export class PictureOverviewComponent {
   }
 
   showImageOfPersons(){
-    let saveArr: ImageModel[] = []
+    let saveArr: ImageDto[] = []
     this.activeButton.set('People')
 
     this.aktiverFilter = this.showImageOfPersons
@@ -86,5 +87,23 @@ export class PictureOverviewComponent {
     this.router.navigate(['/imageUpload']);
   }
 
-  
+  selectedImage = signal<ImageDto | null>(null);
+
+  openPreview(image: ImageDto) {
+    this.selectedImage.set(image);
+  }
+
+  closePreview() {
+    this.selectedImage.set(null);
+  }
+
+  downloadImage() {
+    const image = this.selectedImage();
+    if (!image || !image.base64Image) return;
+
+    const a = document.createElement('a');
+    a.href = 'data:image/png;base64,' + image.base64Image;
+    a.download = image.description?.replace(/\s+/g, '_') + '.png';
+    a.click();
+  }
 }
