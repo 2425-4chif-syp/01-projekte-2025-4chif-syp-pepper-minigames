@@ -91,6 +91,7 @@ export class PictureOverviewComponent {
 
   openPreview(image: ImageDto) {
     this.selectedImage.set(image);
+    console.log(this.selectedImage());
   }
 
   closePreview() {
@@ -105,5 +106,20 @@ export class PictureOverviewComponent {
     a.href = 'data:image/png;base64,' + image.base64Image;
     a.download = image.description?.replace(/\s+/g, '_') + '.png';
     a.click();
+  }
+
+  deleteImage() {
+    const image = this.selectedImage();
+    if (!image || !image.base64Image) return;
+
+    this.imagesService.deleteImage(image.id).subscribe({
+      next: () => {
+        this.closePreview()
+        this.loadImages();
+      },
+      error: err => {
+        console.error('Error deleting image:', err);
+      }
+    });
   }
 }
