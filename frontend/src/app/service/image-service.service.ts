@@ -75,7 +75,9 @@ export class ImageServiceService {
     });
   }
   
-  
+  deleteImage(id: number){
+    return this.http.delete("/api/image/" + id, httpOptions)
+  }
 
   deleteStory(id: number){
     return this.http.delete("/api/tagalongstories/" + id, httpOptions)
