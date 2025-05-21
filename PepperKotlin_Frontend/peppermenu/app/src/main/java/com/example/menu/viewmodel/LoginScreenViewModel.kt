@@ -126,8 +126,9 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     // richitge Person von der Antwort herausfinden
     fun findRightPerson(response: String){
 
-        val firstName = response.split(" ")[0]
-        val lastName = response.split(" ")[1]
+        val parts = response.split(" ")
+        val firstName = parts[0]
+        val lastName = parts[1]
 
         val rightPerson : Person? = persons?.firstOrNull{ p -> p.firstName == firstName && p.lastName == lastName }
 

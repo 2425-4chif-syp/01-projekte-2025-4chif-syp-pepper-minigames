@@ -167,7 +167,7 @@ fun LoginScreen(
                         items(viewModel.names.value.size) { index ->
                             Button(
                                 onClick = {
-                                    viewModel.setName(viewModel.names.value[index])
+                                    viewModel.findRightPerson(viewModel.names.value[index])
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
