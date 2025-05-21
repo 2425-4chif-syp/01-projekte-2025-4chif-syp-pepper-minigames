@@ -20,6 +20,9 @@ import androidx.navigation.navArgument
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.menu.viewmodel.LoginScreenViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
@@ -30,7 +33,6 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
         setContent {
             MenuTheme {
-
                 // Initialisiere NavController
                 val navController = rememberNavController()
 
@@ -49,6 +51,8 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         }
 
                         //lOginscreen mit Übergabe von Packganeame
+
+
                         composable(
                             route = "login_screen/{packageName}",
                             arguments = listOf(navArgument("packageName") {
@@ -57,13 +61,13 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         ) { backStackEntry ->
                             val packageName =
                                 backStackEntry.arguments?.getString("packageName") ?: ""
+                            val viewModel: LoginScreenViewModel = viewModel()
 
                             LoginScreen(
                                 onLoginClick = {
-                                    //Starte von App mit packagename mitgeben und ID
-                                    val intent =
-                                        packageManager.getLaunchIntentForPackage(packageName)
-                                    intent?.putExtra("personId", 1234) //Eifnach nur zum testen
+                                    val personId = viewModel.selectedPerson?.pid ?: -1 // 👈 echte ID oder -1 fallback
+                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
+                                    intent?.putExtra("personId", personId)
                                     if (intent != null) {
                                         startActivity(intent)
                                     } else {
@@ -74,11 +78,11 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                                     }
                                 },
                                 onContinueWithoutLogin = {
-                                    // Weiter ohne Anmeldung
                                     navController.navigate("main_menu")
                                 },
-                                navController = navController // NavController übergeben
+                                navController = navController
                             )
+
                         }
                     }
                 }
