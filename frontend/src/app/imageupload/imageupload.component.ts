@@ -12,6 +12,10 @@ import Cropper from 'cropperjs';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
 import { log } from 'console';
+import { sign } from 'crypto';
+import { ResidentServiceService } from '../service/resident-service.service';
+import { Person } from '../models/person.model';
+import { get } from 'http';
 
 @Component({
   selector: 'app-imageupload',
@@ -29,8 +33,27 @@ export class ImageuploadComponent {
   imagesService = inject(ImageServiceService);
   images = signal<ImageModel[]>([]);
   description = signal<string>("");
-  
+  firstName = signal<string>('');
+  lastName = signal<string>('');
+
+  personService = inject(ResidentServiceService)
+  persons = signal<Person[]>([]);
+  personForPost = signal<Person | null>(null);
   showSuggestions: boolean = false;
+
+  getIdOfPerson(){
+    this.personService.getResidents().subscribe({
+      next: data => {this.persons.set(data)},
+      error: err => {alert("Fehler beim Laden der Bewohner: " + err.message)}
+    })
+
+    for (const person of this.persons()) {
+      if (person.firstName === this.firstName() && person.lastName === this.lastName()) {
+        this.personForPost.set(person);
+        break;
+      }
+    }
+  }
 
   public moves = [
     'emote_hurra',
@@ -407,12 +430,22 @@ export class ImageuploadComponent {
     });
     
     const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
-    
-    const imageUpload: ImageModel = {
-      description: this.description(),
-      person: null,
-      base64Image: newImageBase64
-    };
+    let imageUpload: ImageModel;
+    if(this.firstName() === '' && this.lastName() === ''){
+      imageUpload = {
+        description: this.description(),
+        person: null,
+        base64Image: newImageBase64};
+
+    }else{
+        this.getIdOfPerson();
+
+        imageUpload = {
+        description: this.description(),
+        person: this.personForPost(),
+        base64Image: newImageBase64};
+        
+    }
 
     const newImage = croppedCanvas.toDataURL('image/png');
 
@@ -436,6 +469,4 @@ export class ImageuploadComponent {
     // Seite neu laden
     window.location.reload();
   }
-
-  
 }
