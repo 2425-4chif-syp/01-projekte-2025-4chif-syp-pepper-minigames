@@ -50,13 +50,17 @@ export class CreatestoryComponent {
     'Umher sehen',
     'Winken',
   ];
-
   scenes: Scene[] = [];
   isSidebarVisible = false;
   selectedScene: Scene | null = null;
 
   titleImage: string | null = null;
   titleName: string = '';
+
+  // For drag and drop functionality
+  isDraggingOver = false;
+  dragTargetScene: Scene | null = null;
+  currentDraggedImage: ImageModel | null = null;
 
   imagesService = inject(ImageServiceService);
   images = signal<ImageModel[]>([]);
@@ -341,9 +345,90 @@ export class CreatestoryComponent {
       }
     } catch (error) {
       console.error('Fehler beim Speichern der Szenen:', error);
+    }  }
+  // Drag and Drop functionality for images
+  onDragStart(event: DragEvent, image: ImageModel) {
+    if (event.dataTransfer) {
+      try {
+        console.log('Drag started with image:', image);
+        // Store the dragged image data to use later
+        this.currentDraggedImage = image;
+          // Set data in multiple formats for better cross-browser compatibility
+        event.dataTransfer.effectAllowed = 'copy';
+        event.dataTransfer.setData('application/json', JSON.stringify({imageData: 'image-data'}));
+        event.dataTransfer.setData('text/plain', 'drag-image');
+        
+        // Add a ghost image to make dragging more visible
+        if (event.target instanceof HTMLImageElement) {
+          const img = event.target;
+          event.dataTransfer.setDragImage(img, 20, 20);
+          // Add a custom class to the dragged element for styling
+          img.classList.add('dragging');
+          img.style.opacity = '0.7';
+        }
+      } catch (err) {
+        console.error('Error starting drag:', err);
+      }
     }
   }
 
+  onDragOver(event: DragEvent, scene: Scene) {
+    // Always prevent default to allow drop
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Set the drop effect
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+    
+    // Change UI to show this is a valid drop target
+    this.isDraggingOver = true;
+    this.dragTargetScene = scene;
+  }
 
+  onDragLeave(event: DragEvent) {
+    // Reset UI when dragging leaves the drop zone
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver = false;
+    this.dragTargetScene = null;
+  }
+
+  onDrop(event: DragEvent, scene: Scene) {
+    // Prevent default browser behavior
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Drop event triggered on scene');
+    
+    // Reset UI states
+    this.isDraggingOver = false;
+    this.dragTargetScene = null;
+    
+    // If we have a valid image being dragged
+    if (this.currentDraggedImage) {
+      console.log('Setting image to scene:', this.currentDraggedImage);
+      
+      // Set the image to the scene
+      scene.image = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      
+      // Set this as the selected scene (useful for later operations)
+      this.selectedScene = scene;
+      
+      // Reset the dragged image reference
+      this.currentDraggedImage = null;
+      
+      // Remove any styling classes from dragged elements
+      document.querySelectorAll('.dragging').forEach(el => {
+        if (el instanceof HTMLElement) {
+          el.classList.remove('dragging');
+          el.style.opacity = '';
+        }
+      });
+    } else {
+      console.warn('Drop occurred but no image was being dragged');
+    }
+  }
 
 }

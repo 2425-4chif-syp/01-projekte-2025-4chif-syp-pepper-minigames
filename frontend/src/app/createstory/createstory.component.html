@@ -1,13 +1,17 @@
-<div class="container min-h-screen relative">
-  <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
-    <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
-    <div>
-      <button [disabled]="disableSaveButton()" class="btn btn-primary mr-2" (click)="saveButton()">
-        Geschichte speichern
-      </button>
-     <!-- <button class="btn btn-secondary mr-2" (click)="toggleSidebar()">Bilder</button> -->
+<div class="min-h-screen relative flex">
+  <!-- Main Content -->
+  <div class="flex-1 transition-all duration-300" [ngClass]="{'mr-64': isSidebarVisible}">
+    <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
+      <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
+      <div>
+        <button [disabled]="disableSaveButton()" class="btn btn-primary mr-2" (click)="saveButton()">
+          Geschichte speichern
+        </button>
+        <button class="btn btn-secondary mr-2" [ngClass]="{'bg-gray-500': isSidebarVisible}" (click)="toggleSidebar()">
+          {{ isSidebarVisible ? 'Bilder ausblenden' : 'Bilder anzeigen' }}
+        </button>
+      </div>
     </div>
-  </div>
 
   <div class="flex flex-col items-center mt-10 mx-6 gap-4">
     <!-- Titel Eingabefeld -->
@@ -50,11 +54,18 @@
 
 
         </div>
-      </div>
-
-      <div class="flex flex-col items-center">
-        <div class="w-24 h-25 overflow-hidden rounded border-2 border-gray-500 relative">
+      </div>      <div class="flex flex-col items-center">
+        <div class="w-24 h-25 overflow-hidden rounded border-2 border-dashed relative cursor-pointer"
+             [ngClass]="{'border-gray-500': !isDraggingOver || scene.image, 'border-green-500 bg-green-50': isDraggingOver && scene === dragTargetScene}"
+             (click)="selectedScene = scene" 
+             (dragover)="onDragOver($event, scene)" 
+             (dragenter)="onDragOver($event, scene)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event, scene)">
           <img [src]="scene.image" class="w-full h-full object-cover" alt="Bild reinziehen oder mit Klicken hinzufügen"/>
+          <div *ngIf="!scene.image" class="absolute inset-0 flex items-center justify-center text-center text-xs text-gray-500 p-1">
+            <span>Bild hierher ziehen</span>
+          </div>
           <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
         </div>
         <div class="tooltip" data-tip="Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.">
@@ -74,13 +85,21 @@
 
     </div>
   </div>
-<!--
-  Sidebar --
-<div [class.hidden]="!isSidebarVisible" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
-  <h3 class="text-lg font-semibold mb-4">Hochgeladene Bilder</h3>
-  <div *ngFor="let image of images()" class="mb-4 cursor-pointer" (click)="setSceneImage(selectedScene, image)">
-    <img [src]="'data:image/png;base64,' + image.base64Image" class="w-full h-auto rounded" [alt]="image.description"/>
+
+  </div>  <!-- Sidebar -->
+  <div class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-40 p-4 overflow-y-auto transform transition-transform duration-300"
+       [ngClass]="{'translate-x-0': isSidebarVisible, 'translate-x-full': !isSidebarVisible}">
+    <div class="sticky top-0 bg-white pb-2 border-b mb-4">
+      <h3 class="text-lg font-semibold">Hochgeladene Bilder</h3>
+      <p class="text-sm text-gray-500 mt-1">Ziehe ein Bild auf eine Szene oder klicke darauf</p>
+    </div>
+    <div *ngFor="let image of images()" class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+         (click)="setSceneImage(selectedScene, image)">
+      <img [src]="'data:image/png;base64,' + image.base64Image" 
+           class="w-full h-auto rounded shadow" 
+           [alt]="image.description"
+           draggable="true" 
+           (dragstart)="onDragStart($event, image)"/>
+    </div>
   </div>
-</div>
--->
 </div>
