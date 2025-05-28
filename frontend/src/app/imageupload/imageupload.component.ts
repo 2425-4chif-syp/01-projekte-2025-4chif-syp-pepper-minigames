@@ -42,17 +42,26 @@ export class ImageuploadComponent {
   showSuggestions: boolean = false;
 
   getIdOfPerson(){
-    this.personService.getResidents().subscribe({
-      next: data => {this.persons.set(data)},
-      error: err => {alert("Fehler beim Laden der Bewohner: " + err.message)}
-    })
-
-    for (const person of this.persons()) {
-      if (person.firstName === this.firstName() && person.lastName === this.lastName()) {
-        this.personForPost.set(person);
-        break;
-      }
-    }
+    return new Promise<void>((resolve) => {
+      this.personService.getResidents().subscribe({
+        next: data => {
+          this.persons.set(data);
+          
+          for (const person of this.persons()) {
+            if (person.firstName === this.firstName() && person.lastName === this.lastName()) {
+              this.personForPost.set(person);
+              console.log('Found matching person:', person);
+              break;
+            }
+          }
+          resolve();
+        },
+        error: err => {
+          alert("Fehler beim Laden der Bewohner: " + err.message);
+          resolve();
+        }
+      });
+    });
   }
 
   public moves = [
@@ -420,7 +429,7 @@ export class ImageuploadComponent {
 
 
   //#region Save TagAlongStory and Steps to DB
-  saveToDb() : void{
+  async saveToDb() : Promise<void>{
     const croppedCanvas = this.cropper.getCroppedCanvas({
       width: 1280,
       height: 800,
@@ -431,20 +440,22 @@ export class ImageuploadComponent {
     
     const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
     let imageUpload: ImageModel;
+    
     if(this.firstName() === '' && this.lastName() === ''){
       imageUpload = {
         description: this.description(),
         person: null,
-        base64Image: newImageBase64};
-
-    }else{
-        this.getIdOfPerson();
-
-        imageUpload = {
+        base64Image: newImageBase64
+      };
+    } else {
+      // Wait for the person to be fetched and set
+      await this.getIdOfPerson();
+      console.log('Person after fetch:', this.personForPost());
+      imageUpload = {
         description: this.description(),
         person: this.personForPost(),
-        base64Image: newImageBase64};
-        
+        base64Image: newImageBase64
+      };
     }
 
     const newImage = croppedCanvas.toDataURL('image/png');
