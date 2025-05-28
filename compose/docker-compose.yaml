@@ -2,10 +2,10 @@ services:
   backend:
     container_name: backend
     build:
-      context: ./backend_v2
-      dockerfile: Dockerfile
+      context: ../backend_v2
+      dockerfile: ../backend_v2/src/main/docker/Dockerfile
     env_file:
-      - .env
+      - ../backend_v2/.env
     environment:
       - QUARKUS_PROFILE=prod
     networks:
@@ -17,8 +17,8 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ../frontend
+      dockerfile: ../frontend/docker/Dockerfile
     depends_on:
       - backend
     networks:
