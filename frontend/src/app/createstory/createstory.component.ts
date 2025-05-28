@@ -2,16 +2,16 @@ import { Component, inject, signal } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { ImageServiceService } from '../service/image-service.service';
-import { ImageModel } from '../models/image.model';
+import { ImageDto } from '../models/imageDto.model';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import e, { Router } from 'express';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Scene {
   speech: string;
   movement: string;
   duration: number;
   image: string;
+  isDragOver?: boolean;
 }
 
 @Component({
@@ -50,6 +50,7 @@ export class CreatestoryComponent {
     'Umher sehen',
     'Winken',
   ];
+
   scenes: Scene[] = [];
   isSidebarVisible = false;
   selectedScene: Scene | null = null;
@@ -57,17 +58,15 @@ export class CreatestoryComponent {
   titleImage: string | null = null;
   titleName: string = '';
 
-  // For drag and drop functionality
-  isDraggingOver = false;
-  dragTargetScene: Scene | null = null;
-  currentDraggedImage: ImageModel | null = null;
-
   imagesService = inject(ImageServiceService);
-  images = signal<ImageModel[]>([]);
+  images = signal<ImageDto[]>([]);
 
   storyId: number | null = null;
+    // Drag & Drop properties
+  currentDraggedImage: ImageDto | null = null;
+  isDragOverTitle: boolean = false;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private router: Router) {}
 
   service = inject(ImageServiceService)
 
@@ -160,14 +159,14 @@ export class CreatestoryComponent {
     fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
-        let i = 0;
-        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
+        let i = 0;        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
           const moveIndex = scene.move.id - 1;
           return {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
             duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
             image: this.scenenBilder[i++]?? 'assets/images/defaultUploadPic_50.jpg',
+            isDragOver: false,
           };
 
         });
@@ -213,8 +212,7 @@ export class CreatestoryComponent {
       reader.readAsDataURL(input.files[0]);
     }
   }
-
-  setSceneImage(scene: Scene | null, image: ImageModel) {
+  setSceneImage(scene: Scene | null, image: ImageDto) {
     if (scene) {
       scene.image = 'data:image/png;base64,' + image.base64Image;
     }
@@ -226,13 +224,13 @@ export class CreatestoryComponent {
       scene.image = 'assets/images/defaultUploadPic_50.jpg';
     }
   }
-
   addScene() {
     this.scenes.push({
       speech: '',
       movement: this.moveNames[0],
       duration: this.duration[0],
       image: 'assets/images/defaultUploadPic_50.jpg',
+      isDragOver: false,
     });
   }
 
@@ -345,89 +343,48 @@ export class CreatestoryComponent {
       }
     } catch (error) {
       console.error('Fehler beim Speichern der Szenen:', error);
-    }  }
-  // Drag and Drop functionality for images
-  onDragStart(event: DragEvent, image: ImageModel) {
-    if (event.dataTransfer) {
-      try {
-        console.log('Drag started with image:', image);
-        // Store the dragged image data to use later
-        this.currentDraggedImage = image;
-          // Set data in multiple formats for better cross-browser compatibility
-        event.dataTransfer.effectAllowed = 'copy';
-        event.dataTransfer.setData('application/json', JSON.stringify({imageData: 'image-data'}));
-        event.dataTransfer.setData('text/plain', 'drag-image');
-        
-        // Add a ghost image to make dragging more visible
-        if (event.target instanceof HTMLImageElement) {
-          const img = event.target;
-          event.dataTransfer.setDragImage(img, 20, 20);
-          // Add a custom class to the dragged element for styling
-          img.classList.add('dragging');
-          img.style.opacity = '0.7';
-        }
-      } catch (err) {
-        console.error('Error starting drag:', err);
-      }
     }
   }
 
-  onDragOver(event: DragEvent, scene: Scene) {
-    // Always prevent default to allow drop
+  // Drag & Drop Methoden
+  onDragStart(event: DragEvent, image: ImageDto) {
+    this.currentDraggedImage = image;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'copy';
+      event.dataTransfer.setData('text/plain', 'image');
+    }
+  }
+  onDragOver(event: DragEvent) {
     event.preventDefault();
-    event.stopPropagation();
-    
-    // Set the drop effect
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'copy';
     }
-    
-    // Change UI to show this is a valid drop target
-    this.isDraggingOver = true;
-    this.dragTargetScene = scene;
   }
 
-  onDragLeave(event: DragEvent) {
-    // Reset UI when dragging leaves the drop zone
+  onDropToScene(event: DragEvent, scene: Scene) {
     event.preventDefault();
-    event.stopPropagation();
-    this.isDraggingOver = false;
-    this.dragTargetScene = null;
-  }
-
-  onDrop(event: DragEvent, scene: Scene) {
-    // Prevent default browser behavior
-    event.preventDefault();
-    event.stopPropagation();
-    
-    console.log('Drop event triggered on scene');
-    
-    // Reset UI states
-    this.isDraggingOver = false;
-    this.dragTargetScene = null;
-    
-    // If we have a valid image being dragged
+    scene.isDragOver = false;
     if (this.currentDraggedImage) {
-      console.log('Setting image to scene:', this.currentDraggedImage);
-      
-      // Set the image to the scene
       scene.image = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
-      
-      // Set this as the selected scene (useful for later operations)
-      this.selectedScene = scene;
-      
-      // Reset the dragged image reference
       this.currentDraggedImage = null;
-      
-      // Remove any styling classes from dragged elements
-      document.querySelectorAll('.dragging').forEach(el => {
-        if (el instanceof HTMLElement) {
-          el.classList.remove('dragging');
-          el.style.opacity = '';
-        }
-      });
-    } else {
-      console.warn('Drop occurred but no image was being dragged');
+    }
+  }
+
+  onDragEnterScene(event: DragEvent, scene: Scene) {
+    event.preventDefault();
+    scene.isDragOver = true;
+  }
+
+  onDragLeaveScene(event: DragEvent, scene: Scene) {
+    event.preventDefault();
+    scene.isDragOver = false;
+  }
+
+  onDropToTitle(event: DragEvent) {
+    event.preventDefault();
+    if (this.currentDraggedImage) {
+      this.titleImage = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      this.currentDraggedImage = null;
     }
   }
 

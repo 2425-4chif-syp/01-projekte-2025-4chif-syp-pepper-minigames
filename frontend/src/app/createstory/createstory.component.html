@@ -17,13 +17,15 @@
     <!-- Titel Eingabefeld -->
     <label class="input input-bordered flex items-center gap-2 w-[50%]">
       <input type="text" class="grow text-lg p-2" placeholder="Titel der Geschichte" [(ngModel)]="titleName" />
-    </label>
-
-    <!-- Titelbild-Upload-Bereich -->
+    </label>    <!-- Titelbild-Upload-Bereich -->
     <div class="flex flex-col items-center">
-      <div class="w-[300px] h-[200px] border-2 border-gray-400 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md">
+      <div class="w-[300px] h-[200px] border-2 border-gray-400 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md transition-colors"
+           [ngClass]="{'border-blue-500 bg-blue-50': isDragOverTitle}"
+           (dragover)="onDragOver($event); isDragOverTitle = true"
+           (dragleave)="isDragOverTitle = false"
+           (drop)="onDropToTitle($event); isDragOverTitle = false">
         <img *ngIf="titleImage" [src]="titleImage" class="w-full h-full object-cover" alt="Titelbild Vorschau"/>
-        <span *ngIf="!titleImage" class="text-gray-500">Noch kein Bild hochgeladen</span>
+        <span *ngIf="!titleImage" class="text-gray-500 text-center">Noch kein Bild hochgeladen<br><small>Bilder hierher ziehen</small></span>
       </div>
 
       <!-- Upload-Button -->
@@ -55,18 +57,17 @@
 
         </div>
       </div>      <div class="flex flex-col items-center">
-        <div class="w-24 h-25 overflow-hidden rounded border-2 border-dashed relative cursor-pointer"
-             [ngClass]="{'border-gray-500': !isDraggingOver || scene.image, 'border-green-500 bg-green-50': isDraggingOver && scene === dragTargetScene}"
-             (click)="selectedScene = scene" 
-             (dragover)="onDragOver($event, scene)" 
-             (dragenter)="onDragOver($event, scene)"
-             (dragleave)="onDragLeave($event)"
-             (drop)="onDrop($event, scene)">
+        <div class="w-24 h-25 overflow-hidden rounded border-2 relative transition-all duration-200"
+             [ngClass]="{'border-blue-500 bg-blue-50': scene.isDragOver, 'border-gray-500': !scene.isDragOver}"
+             (dragover)="onDragOver($event)"
+             (dragenter)="onDragEnterScene($event, scene)"
+             (dragleave)="onDragLeaveScene($event, scene)"
+             (drop)="onDropToScene($event, scene)">
           <img [src]="scene.image" class="w-full h-full object-cover" alt="Bild reinziehen oder mit Klicken hinzufügen"/>
-          <div *ngIf="!scene.image" class="absolute inset-0 flex items-center justify-center text-center text-xs text-gray-500 p-1">
-            <span>Bild hierher ziehen</span>
-          </div>
           <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
+          <div *ngIf="scene.isDragOver" class="absolute inset-0 bg-blue-200 bg-opacity-50 flex items-center justify-center">
+            <span class="text-blue-800 text-xs font-semibold">Drop hier</span>
+          </div>
         </div>
         <div class="tooltip" data-tip="Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.">
           <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded">
@@ -86,20 +87,21 @@
     </div>
   </div>
 
-  </div>  <!-- Sidebar -->
+  </div>
+  <!-- Sidebar -->
   <div class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-40 p-4 overflow-y-auto transform transition-transform duration-300"
-       [ngClass]="{'translate-x-0': isSidebarVisible, 'translate-x-full': !isSidebarVisible}">
-    <div class="sticky top-0 bg-white pb-2 border-b mb-4">
+       [ngClass]="{'translate-x-0': isSidebarVisible, 'translate-x-full': !isSidebarVisible}">    <div class="sticky top-0 bg-white pb-2 border-b mb-4">
       <h3 class="text-lg font-semibold">Hochgeladene Bilder</h3>
-      <p class="text-sm text-gray-500 mt-1">Ziehe ein Bild auf eine Szene oder klicke darauf</p>
-    </div>
-    <div *ngFor="let image of images()" class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+      <p class="text-sm text-gray-500 mt-1">Bilder per Drag & Drop auf das Titelbild oder Bild der Scenen ziehen.</p>
+    </div><div *ngFor="let image of images()" 
+         class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+         draggable="true"
+         (dragstart)="onDragStart($event, image)"
          (click)="setSceneImage(selectedScene, image)">
       <img [src]="'data:image/png;base64,' + image.base64Image" 
-           class="w-full h-auto rounded shadow" 
-           [alt]="image.description"
-           draggable="true" 
-           (dragstart)="onDragStart($event, image)"/>
+           class="w-full h-auto rounded shadow pointer-events-none" 
+           [alt]="image.description"/>
+      <p class="text-xs text-gray-600 mt-1 text-center">{{ image.description }}</p>
     </div>
   </div>
 </div>
