@@ -10,6 +10,6 @@ interface MmgApiService {
     @GET("/api/tagalongstories")
     suspend fun getMmgDtos():List<MmgDto>
 
-    @GET("api/tagalongstories/{storyId}/steps")
+    @GET("/api/tagalongstories/{storyId}/steps")
     suspend fun getSteps(@Path("storyId") storyId: Int): List<StepDto>
 }
