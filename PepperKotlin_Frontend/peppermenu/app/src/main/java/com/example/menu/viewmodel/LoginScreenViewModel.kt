@@ -139,6 +139,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
             selectedPerson = rightPerson
             setName(firstName + " " + lastName)
             setGender(rightPerson.gender)
+            RoboterActions.speak("Sind Sie ${rightPerson.firstName + rightPerson.lastName}")
         }
     }
 
@@ -179,7 +180,6 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
                 withContext(Dispatchers.Main) {
                     if (isResponseValid(response) && response != "" && response != null) {
-                        RoboterActions.speak("Sind Sie ${response}?")
                         findRightPerson(response = response)
                     } else {
                         RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")

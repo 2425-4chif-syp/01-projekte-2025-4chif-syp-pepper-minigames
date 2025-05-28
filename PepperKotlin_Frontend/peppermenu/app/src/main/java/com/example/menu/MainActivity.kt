@@ -21,7 +21,6 @@ import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.menu.viewmodel.LoginScreenViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
@@ -49,7 +48,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                             MainMenuScreen(navController = navController)
                         }
 
-                        //lOginscreen mit Übergabe von Packganeame
+                        //loginscreen mit Übergabe von Packganeame
 
 
                         composable(
@@ -64,7 +63,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
                             LoginScreen(
                                 onLoginClick = {
-                                    val personId = viewModel.selectedPerson?.pid ?: -1 // 👈 echte ID oder -1 fallback
+                                    val personId = viewModel.selectedPerson?.pid ?: -1
                                     val intent = packageManager.getLaunchIntentForPackage(packageName)
                                     intent?.putExtra("personId", personId)
                                     if (intent != null) {
@@ -77,7 +76,14 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                                     }
                                 },
                                 onContinueWithoutLogin = {
-                                    navController.navigate("main_menu")
+                                    val personId = -1
+                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
+                                    intent?.putExtra("default", personId)
+
+                                    if(intent != null){
+                                        startActivity(intent)
+                                    }
+
                                 },
                                 navController = navController
                             )

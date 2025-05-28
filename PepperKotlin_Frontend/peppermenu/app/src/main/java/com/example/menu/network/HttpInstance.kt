@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class HttpInstance {
     companion object {
-        val BACKEND_URL = "http://vm88.htl-leonding.ac.at:8080/"
+        val BACKEND_URL = "http://vm107.htl-leonding.ac.at:8080/"
 
         // Client-Objekt einmal erstellen und wiederverwenden
         private val client = OkHttpClient.Builder()
@@ -97,41 +97,41 @@ class HttpInstance {
             }
         }
 
-            // GET Request, um alle Personen zu erhalten
-            suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
+        // GET Request, um alle Personen zu erhalten
+        suspend fun getPersons(): List<Person> = withContext(Dispatchers.IO) {
 
-                //URL ist grad local !! Löschen wenn es auf VM ist
-                //val url = "http://localhost:8080/api/person"
+            //URL ist grad local !! Löschen wenn es auf VM ist
+            //val url = "http://localhost:8080/api/person"
 
-                // Auskommentieren, wenn Backend in VM ist!!
-                val url = BACKEND_URL + "api/person"
+            // Auskommentieren, wenn Backend in VM ist!!
+            val url = BACKEND_URL + "api/person"
 
-                val request = Request.Builder()
-                    .url(url)
-                    .get()
-                    .addHeader("Accept", "application/json")
-                    .build()
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("Accept", "application/json")
+                .build()
 
-                try {
-                    val response: Response = client.newCall(request).execute()
-                    val responseBody = response.body?.string()
+            try {
+                val response: Response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
 
-                    Log.d("GET", "Status Code: ${response.code}")
-                    Log.d("GET", "Response Body: $responseBody")
+                Log.d("GET", "Status Code: ${response.code}")
+                Log.d("GET", "Response Body: $responseBody")
 
-                    if (responseBody.isNullOrEmpty()) {
-                        Log.e("GET", "Error: Response is empty or null!")
-                        emptyList()
-                    } else {
-                        // Verwende Gson, um die JSON-Antwort in eine Liste von Personen zu konvertieren
-                        val gson = Gson()
-                        gson.fromJson(responseBody, Array<Person>::class.java).toList()
-                    }
-                } catch (e: Exception) {
-                    Log.e("GET", "Exception: ${e.message}")
-                    e.printStackTrace()
+                if (responseBody.isNullOrEmpty()) {
+                    Log.e("GET", "Error: Response is empty or null!")
                     emptyList()
+                } else {
+                    // Verwende Gson, um die JSON-Antwort in eine Liste von Personen zu konvertieren
+                    val gson = Gson()
+                    gson.fromJson(responseBody, Array<Person>::class.java).toList()
                 }
+            } catch (e: Exception) {
+                Log.e("GET", "Exception: ${e.message}")
+                e.printStackTrace()
+                emptyList()
             }
         }
+    }
 }
