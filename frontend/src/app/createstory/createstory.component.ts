@@ -54,8 +54,8 @@ export class CreatestoryComponent {
   scenes: Scene[] = [];
   isSidebarVisible = false;
   selectedScene: Scene | null = null;
-
-  titleImage: string | null = null;
+  // bild von pngtree => gratis
+  titleImage: string = 'assets/images/imageNotFound.png';
   titleName: string = '';
 
   imagesService = inject(ImageServiceService);
@@ -66,7 +66,13 @@ export class CreatestoryComponent {
   currentDraggedImage: ImageDto | null = null;
   isDragOverTitle: boolean = false;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  // Standard-Bild als base64 String
+  private defaultImageBase64: string = '';
+
+  constructor(private route: ActivatedRoute, private router: Router) {
+    // Standard-Bild beim Start laden
+    this.loadDefaultImage();
+  }
 
   service = inject(ImageServiceService)
 
@@ -79,10 +85,8 @@ export class CreatestoryComponent {
         this.loadStory(Number(storyId));
       }
     });
-  }
-
-  disableSaveButton(){
-    return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null
+  }  disableSaveButton(){
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
   }
 
   loadImages(): void {
@@ -118,12 +122,10 @@ export class CreatestoryComponent {
     })
 
     this.service.getTitleImage(storyId).subscribe({
-      next: data => {
-        console.log("Titelbild erhalten:", data);
+      next: data => {        console.log("Titelbild erhalten:", data);
         if (data) {
-          this.titleImage = 'data:image/png;base64,' + data;
-        } else {
-          this.titleImage = null;
+          this.titleImage = 'data:image/png;base64,' + data;        } else {
+          this.titleImage = 'assets/images/imageNotFound.png';
         }
       },
       error: error => {
@@ -165,7 +167,7 @@ export class CreatestoryComponent {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
             duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
-            image: this.scenenBilder[i++]?? 'assets/images/defaultUploadPic_50.jpg',
+            image: this.scenenBilder[i++]?? 'assets/images/imageNotFound.png',
             isDragOver: false,
           };
 
@@ -217,19 +219,16 @@ export class CreatestoryComponent {
       scene.image = 'data:image/png;base64,' + image.base64Image;
     }
   }
-
-
   clearImage(scene: Scene) {
     if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
-      scene.image = 'assets/images/defaultUploadPic_50.jpg';
+      scene.image = 'assets/images/imageNotFound.png';
     }
-  }
-  addScene() {
+  }  addScene() {
     this.scenes.push({
       speech: '',
       movement: this.moveNames[0],
       duration: this.duration[0],
-      image: 'assets/images/defaultUploadPic_50.jpg',
+      image: 'assets/images/imageNotFound.png',
       isDragOver: false,
     });
   }
@@ -243,16 +242,18 @@ export class CreatestoryComponent {
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
   }
-
   async saveButton() {
     if (!this.titleName || !this.titleImage) {
       console.error('Titel oder Bild fehlen');
       return;
     }
 
+    // Konvertiere das Titelbild zu base64, falls es das Standard-Bild ist
+    const convertedTitleImage = await this.convertImageToBase64(this.titleImage);
+
     const storyData = {
       name: this.titleName,
-      icon: this.titleImage,
+      icon: convertedTitleImage,
       gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
       enabled: true,
     };
@@ -306,22 +307,24 @@ export class CreatestoryComponent {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
-      console.log('Alle alten Szenen gelöscht.');
-
-      // **2. Neue Szenen speichern**
+      console.log('Alle alten Szenen gelöscht.');      // **2. Neue Szenen speichern**
       for (const [index, scene] of this.scenes.entries()) {
         const moveIndex = this.moveNames.indexOf(scene.movement);
         const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
 
+        // Konvertiere das Bild zu base64, falls es das Standard-Bild ist
+        const convertedImage = await this.convertImageToBase64(scene.image);        // Konvertiere das Titelbild auch zu base64, falls es das Standard-Bild ist
+        const convertedTitleImage = await this.convertImageToBase64(this.titleImage);
+
         const sceneData = {
           game: {
             name: this.titleName,
-            icon: this.titleImage,
+            icon: convertedTitleImage,
             gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
             enabled: true
           },
           index: index + 1,
-          image: scene.image,
+          image: convertedImage,
           image_desc: 'Beschreibung des Bildes',
           move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
@@ -387,5 +390,52 @@ export class CreatestoryComponent {
       this.currentDraggedImage = null;
     }
   }
+  // Methode zum Laden des Standard-Bildes als base64
+  private loadDefaultImage() {
+    this.loadDefaultImageAsBase64()
+      .then(base64 => {
+        this.defaultImageBase64 = base64;
+        // Nur setzen, wenn es das Standard-Bild ist (falls bereits ein anderes Titelbild geladen wurde)
+        if (this.titleImage === 'assets/images/imageNotFound.png') {
+          this.titleImage = base64;
+        }
+      })
+      .catch(err => {
+        console.error('Fehler beim Laden des Standard-Bildes:', err);
+      });
+  }
 
+  // Methode zum Laden des Standard-Bildes als base64
+  private loadDefaultImageAsBase64(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      fetch('assets/images/imageNotFound.png')
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (typeof reader.result === 'string') {
+              resolve(reader.result);
+            } else {
+              reject('Failed to convert to base64');
+            }
+          };
+          reader.onerror = () => reject('Error reading file');
+          reader.readAsDataURL(blob);
+        })
+        .catch(error => reject(error));
+    });
+  }
+
+  // Methode zum Konvertieren von Asset-Pfad zu base64
+  private async convertImageToBase64(imagePath: string): Promise<string> {
+    if (imagePath.startsWith('data:')) {
+      return imagePath; // Bereits base64
+    }
+    
+    if (imagePath === 'assets/images/imageNotFound.png') {
+      return await this.loadDefaultImageAsBase64();
+    }
+    
+    return imagePath; // Fallback
+  }
 }
