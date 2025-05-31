@@ -27,10 +27,9 @@
       </div>
 
       <!-- Upload-Button -->
-      <label class="mt-2 px-6 py-3 bg-blue-500 text-white text-lg rounded-lg cursor-pointer shadow-md hover:bg-blue-600 transition">
+      <button (click)="navigateToImageUpload()" class="mt-2 px-6 py-3 bg-blue-500 text-white text-lg rounded-lg cursor-pointer shadow-md hover:bg-blue-600 transition">
         📷 Titelbild hochladen
-        <input type="file" class="hidden" (change)="uploadTitleImage($event)" />
-      </label>
+      </button>
     </div>
 
     <!-- Szene hinzufügen Button -->
@@ -68,10 +67,9 @@
         </div>
         
         <!-- Bild hochladen Button -->
-        <label class="mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer shadow hover:bg-blue-600 transition">
+        <button (click)="navigateToSceneImageUpload(i)" class="mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer shadow hover:bg-blue-600 transition">
           📷 Bild hochladen
-          <input type="file" class="hidden" (change)="updateImage($event, scene)" />
-        </label>
+        </button>
         
         <div class="tooltip" data-tip="Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.">
           <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded text-sm">

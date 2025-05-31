@@ -94,12 +94,35 @@
     </div>
     <div>
       <div class="p-5 flex justify-around">
-        <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
-          BILD SPEICHERN
-        </button>
-        <button (click)="onCancel()" class="btn btn-error w-[25%]">
-          <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
-        </button>
+        <!-- Show different buttons based on context -->
+        <ng-container *ngIf="isFromCreateStory; else normalUpload">
+          <!-- Buttons for story creation flow -->
+          <ng-container *ngIf="getImageType() === 'title'; else sceneImageButtons">
+            <button (click)="saveAndReturnTitleImage()" class="btn btn-primary font-extrabold w-[25%]">
+              TITELBILD ÜBERNEHMEN
+            </button>
+          </ng-container>
+          
+          <ng-template #sceneImageButtons>
+            <button (click)="saveAndReturnSceneImage()" class="btn btn-primary font-extrabold w-[25%]">
+              SZENENBILD ÜBERNEHMEN
+            </button>
+          </ng-template>
+          
+          <button (click)="onCancel()" class="btn btn-error w-[25%]">
+            ZURÜCK ZUR GESCHICHTE
+          </button>
+        </ng-container>
+        
+        <ng-template #normalUpload>
+          <!-- Original buttons for normal image upload -->
+          <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
+            BILD SPEICHERN
+          </button>
+          <button (click)="onCancel()" class="btn btn-error w-[25%]">
+            <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
+          </button>
+        </ng-template>
       </div>
     </div>
   </div>

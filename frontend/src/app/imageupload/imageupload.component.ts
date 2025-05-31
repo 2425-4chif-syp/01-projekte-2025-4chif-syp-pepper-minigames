@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, ViewChild, OnDestroy, AfterViewInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { STORY_URL } from '../app.config';
@@ -340,9 +340,15 @@ export class ImageuploadComponent {
     enabled: true,
   };
 
+  // State management for story creation flow
+  isFromCreateStory: boolean = false;
+
   constructor(
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private router: Router
   ) {
+    // Check if coming from createstory
+    this.isFromCreateStory = !!sessionStorage.getItem('pendingStoryState');
   }
 
   //#region Handling File when clicked on Text
@@ -476,8 +482,76 @@ export class ImageuploadComponent {
   }
   //#endregion
 
+  // Neue Methode für Titel-Bild Upload aus CreateStory
+  saveAndReturnTitleImage() {
+    if (!this.cropper) {
+      console.error('Cropper not initialized');
+      return;
+    }
+
+    // Get the cropped canvas with exact dimensions
+    const croppedCanvas = this.cropper.getCroppedCanvas({
+      width: 1280,
+      height: 800,
+      fillColor: '#fff',
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+
+    // Convert to data URL
+    const dataURL = croppedCanvas.toDataURL('image/png');
+    
+    // Store the cropped image in sessionStorage
+    sessionStorage.setItem('croppedTitleImage', dataURL);
+    
+    // Navigate back to createstory
+    this.router.navigate(['/createstory']);
+  }
+
+  // Neue Methode für Szenen-Bild Upload aus CreateStory
+  saveAndReturnSceneImage() {
+    if (!this.cropper) {
+      console.error('Cropper not initialized');
+      return;
+    }
+
+    // Get the cropped canvas with exact dimensions
+    const croppedCanvas = this.cropper.getCroppedCanvas({
+      width: 1280,
+      height: 800,
+      fillColor: '#fff',
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+
+    // Convert to data URL
+    const dataURL = croppedCanvas.toDataURL('image/png');
+    
+    // Store the cropped image in sessionStorage
+    sessionStorage.setItem('croppedSceneImage', dataURL);
+    
+    // Navigate back to createstory
+    this.router.navigate(['/createstory']);
+  }
+
   onCancel() {
-    // Seite neu laden
-    window.location.reload();
+    if (this.isFromCreateStory) {
+      // If coming from createstory, clean up and return without saving
+      sessionStorage.removeItem('pendingStoryState');
+      this.router.navigate(['/createstory']);
+    } else {
+      // Original behavior for regular image upload
+      window.location.href = '/tagalongstory';
+    }
+  }
+
+  // Helper method to get the image type from session storage
+  getImageType(): string {
+    const pendingState = sessionStorage.getItem('pendingStoryState');
+    if (pendingState) {
+      const storyState = JSON.parse(pendingState);
+      return storyState.imageType || 'title';
+    }
+    return 'title';
   }
 }

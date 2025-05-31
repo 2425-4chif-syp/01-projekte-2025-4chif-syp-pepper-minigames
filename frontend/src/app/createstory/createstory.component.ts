@@ -79,12 +79,50 @@ export class CreatestoryComponent {
   ngOnInit(): void {
     this.loadImages();
 
+    // Check for returning state from image upload
+    this.checkForReturnState();
+
     this.route.paramMap.subscribe((params) => {
       const storyId = params.get('id');
       if (storyId) {
         this.loadStory(Number(storyId));
       }
     });
+  }
+
+  // Neue Methode zum Prüfen und Wiederherstellen des States nach Rückkehr
+  private checkForReturnState() {
+    const pendingState = sessionStorage.getItem('pendingStoryState');
+    const returnedImage = sessionStorage.getItem('croppedTitleImage');
+    const returnedSceneImage = sessionStorage.getItem('croppedSceneImage');
+    
+    if (pendingState && (returnedImage || returnedSceneImage)) {
+      // State wiederherstellen
+      const storyState = JSON.parse(pendingState);
+      this.titleName = storyState.titleName;
+      this.scenes = storyState.scenes;
+      this.storyId = storyState.storyId;
+      
+      if (returnedImage && storyState.imageType === 'title') {
+        // Neues Titelbild setzen
+        this.titleImage = returnedImage;
+        console.log('Title image updated from image upload');
+      } else if (returnedSceneImage && storyState.imageType === 'scene') {
+        // Neues Szenenbild setzen
+        const sceneIndex = storyState.sceneIndex;
+        if (sceneIndex >= 0 && sceneIndex < this.scenes.length) {
+          this.scenes[sceneIndex].image = returnedSceneImage;
+          console.log(`Scene ${sceneIndex} image updated from image upload`);
+        }
+      }
+      
+      // Cleanup
+      sessionStorage.removeItem('pendingStoryState');
+      sessionStorage.removeItem('croppedTitleImage');
+      sessionStorage.removeItem('croppedSceneImage');
+      
+      console.log('Story state restored with new image');
+    }
   }  disableSaveButton(){
     return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
   }
@@ -213,6 +251,43 @@ export class CreatestoryComponent {
       };
       reader.readAsDataURL(input.files[0]);
     }
+  }
+
+  // Neue Methode für Navigation zur Image Upload Seite für Titelbild
+  navigateToImageUpload() {
+    // Story-Daten im SessionStorage zwischenspeichern
+    const storyState = {
+      titleName: this.titleName,
+      titleImage: this.titleImage,
+      scenes: this.scenes,
+      storyId: this.storyId,
+      returnTo: 'createstory',
+      imageType: 'title'
+    };
+    
+    sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
+    
+    // Zur Image Upload Seite navigieren
+    this.router.navigate(['/imageUpload']);
+  }
+
+  // Neue Methode für Navigation zur Image Upload Seite für Szenenbild
+  navigateToSceneImageUpload(sceneIndex: number) {
+    // Story-Daten im SessionStorage zwischenspeichern
+    const storyState = {
+      titleName: this.titleName,
+      titleImage: this.titleImage,
+      scenes: this.scenes,
+      storyId: this.storyId,
+      returnTo: 'createstory',
+      imageType: 'scene',
+      sceneIndex: sceneIndex
+    };
+    
+    sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
+    
+    // Zur Image Upload Seite navigieren
+    this.router.navigate(['/imageUpload']);
   }
   setSceneImage(scene: Scene | null, image: ImageDto) {
     if (scene) {
