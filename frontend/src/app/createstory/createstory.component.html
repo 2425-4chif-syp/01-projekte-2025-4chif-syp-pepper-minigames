@@ -61,15 +61,21 @@
              (dragenter)="onDragEnterScene($event, scene)"
              (dragleave)="onDragLeaveScene($event, scene)"
              (drop)="onDropToScene($event, scene)">
-          <img [src]="scene.image" class="w-full h-full object-cover" alt="Bild reinziehen oder mit Klicken hinzufügen"/>
-          <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" (change)="updateImage($event, scene)" />
+          <img [src]="scene.image" class="w-full h-full object-cover" alt="Szenenbild"/>
           <div *ngIf="scene.isDragOver" class="absolute inset-0 bg-blue-200 bg-opacity-50 flex items-center justify-center">
             <span class="text-blue-800 text-xs font-semibold">Drop hier</span>
           </div>
         </div>
+        
+        <!-- Bild hochladen Button -->
+        <label class="mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer shadow hover:bg-blue-600 transition">
+          📷 Bild hochladen
+          <input type="file" class="hidden" (change)="updateImage($event, scene)" />
+        </label>
+        
         <div class="tooltip" data-tip="Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.">
-          <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded">
-            Bild aus der Scene entfernen
+          <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded text-sm">
+            Bild entfernen
           </button>
         </div>
       </div>
