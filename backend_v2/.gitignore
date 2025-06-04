@@ -44,3 +44,5 @@ db-postgres/.env
 # TLS Certificates
 .certs/
 db-postgres/
+
+.env
