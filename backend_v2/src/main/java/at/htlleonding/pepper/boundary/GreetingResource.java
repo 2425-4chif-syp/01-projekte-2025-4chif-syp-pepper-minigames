@@ -16,7 +16,7 @@ import java.util.List;
 
 @Path("/chat")
 public class GreetingResource {
-    private static final String API_KEY = System.getenv("CHATGBT_API_KEY");
+    private static final String API_KEY = System.getenv("CHATGPT_API_KEY");
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
 
     @POST

@@ -94,3 +94,6 @@ node_modules/
 .angular/
 .vscode/
 .idea
+backend_v2/.env
+
+db-postgres

@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-person-entry',
+  imports: [],
   templateUrl: './person-entry.component.html',
-  styleUrls: ['./person-entry.component.css']
+  styleUrl: './person-entry.component.css'
 })
 export class PersonEntryComponent {
   person = {
