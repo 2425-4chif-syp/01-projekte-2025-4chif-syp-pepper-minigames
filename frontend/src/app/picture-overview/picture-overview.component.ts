@@ -1,8 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { ImageModel } from '../models/image.model';
-import { ImageService } from '../services/image.service';
 import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { CommonEngine } from '@angular/ssr/node';
+import { get } from 'http';
+import { ImageServiceService } from '../service/image-service.service';
+import { ImageModel } from '../models/image.model';
+import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { ImageDto } from '../models/imageDto.model';
 
 @Component({
   selector: 'app-picture-overview',
@@ -11,12 +15,12 @@ import { CommonModule } from '@angular/common';
   styleUrl: './picture-overview.component.css'
 })
 export class PictureOverviewComponent {
-
+  
   constructor(private router: Router) {}
 
-  imagesService = inject(ImageService);
-  images = signal<ImageModel[]>([]);
-  standartImages = signal<ImageModel[]>([])
+  imagesService = inject(ImageServiceService);
+  images = signal<ImageDto[]>([]);
+  standartImages = signal<ImageDto[]>([])
 
   tmpImages = this.images()
   activeButton = signal<string>("All")
@@ -30,7 +34,7 @@ export class PictureOverviewComponent {
   }
 
   showImageOfStories(){
-    let saveArr: ImageModel[] = []
+    let saveArr: ImageDto[] = []
     this.activeButton.set('Stories')
 
     this.aktiverFilter = this.showImageOfStories
@@ -45,7 +49,7 @@ export class PictureOverviewComponent {
   }
 
   showImageOfPersons(){
-    let saveArr: ImageModel[] = []
+    let saveArr: ImageDto[] = []
     this.activeButton.set('People')
 
     this.aktiverFilter = this.showImageOfPersons
@@ -83,4 +87,39 @@ export class PictureOverviewComponent {
     this.router.navigate(['/imageUpload']);
   }
 
+  selectedImage = signal<ImageDto | null>(null);
+
+  openPreview(image: ImageDto) {
+    this.selectedImage.set(image);
+    console.log(this.selectedImage());
+  }
+
+  closePreview() {
+    this.selectedImage.set(null);
+  }
+
+  downloadImage() {
+    const image = this.selectedImage();
+    if (!image || !image.base64Image) return;
+
+    const a = document.createElement('a');
+    a.href = 'data:image/png;base64,' + image.base64Image;
+    a.download = image.description?.replace(/\s+/g, '_') + '.png';
+    a.click();
+  }
+
+  deleteImage() {
+    const image = this.selectedImage();
+    if (!image || !image.base64Image) return;
+
+    this.imagesService.deleteImage(image.id).subscribe({
+      next: () => {
+        this.closePreview()
+        this.loadImages();
+      },
+      error: err => {
+        console.error('Error deleting image:', err);
+      }
+    });
+  }
 }

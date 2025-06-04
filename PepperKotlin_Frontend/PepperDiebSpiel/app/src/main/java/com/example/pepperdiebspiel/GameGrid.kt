@@ -15,34 +15,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
-import android.util.Log
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
-import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.min
+import com.example.pepperdiebspiel.game.GameViewModel
 import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameGrid() {
-    // Liste von Bildern für die Gitterelemente
+    val gameViewModel: GameViewModel = viewModel()
+
+    // Zugriff auf die Zustände aus dem ViewModel
+    val gridItems by gameViewModel.gridItems
+    val thiefPosition by gameViewModel.thiefPosition
+    val gameWon by gameViewModel.gameWon
+    val elapsedTime by gameViewModel.elapsedTime
+
+    // Hier werden die Bilder definiert
     val images = listOf(
         R.drawable.water,
         R.drawable.church,
@@ -51,77 +56,9 @@ fun GameGrid() {
         R.drawable.bird
     )
 
-    // Liste der zugehörigen Sounds
-    val sounds = listOf(
-        R.raw.water_sound,
-        R.raw.church_bells,
-        R.raw.sheep_bleat,
-        R.raw.witch_laugh,
-        R.raw.bird_chirp
-    )
-
-    val thiefImage = R.drawable.thief // Bild des Diebes
-    val context = LocalContext.current // Zugriff auf den aktuellen Kontext
-
-    // Initialisierung der Spielvariablen
-    var gridItems by remember { mutableStateOf(List(48) { images.random() }) } // 8x6 Gitter
-    var thiefPosition by remember { mutableStateOf((0 until 48).random()) } // Zufällige Dieb-Position
-    var gameWon by remember { mutableStateOf(false) } // Überprüfung, ob das Spiel gewonnen wurde
-    var elapsedTime by remember { mutableStateOf(0L) } // Zeit, die seit Spielstart vergangen ist
-    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) } // MediaPlayer für Sounds
-
-    var isTimerRunning by remember { mutableStateOf(true) } // Kontrolliert den Timer
-
-    // Timer für die Anzeige der verstrichenen Zeit
-    var startTime by remember { mutableStateOf(0L) }
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            startTime = System.currentTimeMillis()
-            while (isTimerRunning && isActive) {
-                elapsedTime = System.currentTimeMillis() - startTime
-                delay(500) // Aktualisierung alle 500ms
-                val row = thiefPosition / 8
-                val column = thiefPosition % 8
-                Log.d("GameGrid", "Current thief position: [${row + 1}|${column + 1}]")
-            }
-        }
-    }
-
-    // Bewegung des Diebs und Abspielen von Sounds
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (!gameWon && isActive) {
-                delay(4000) // Bewegung alle 4 Sekunden
-                if (gameWon) break
-
-                thiefPosition = moveThief(thiefPosition) // Dieb bewegt sich
-                val row = thiefPosition / 8
-                val column = thiefPosition % 8
-                Log.d("GameGrid", "Thief position updated: [${row + 1}|${column + 1}]")
-
-                withContext(Dispatchers.Main) {
-                    try {
-                        val soundIndex = images.indexOf(gridItems[thiefPosition])
-                        if (soundIndex in sounds.indices) {
-                            mediaPlayer.value?.release() // Vorherigen Sound stoppen
-                            mediaPlayer.value = MediaPlayer.create(context, sounds[soundIndex])
-                            mediaPlayer.value?.start() // Neuen Sound starten
-                        } else {
-                            Log.w("GameGrid", "Invalid sound index: $soundIndex, no sound will be played.")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("GameGrid", "Error playing sound: ${e.message}")
-                    }
-                }
-            }
-        }
-    }
-
     // Anzeige, wenn das Spiel gewonnen wurde
     if (gameWon) {
-        isTimerRunning = false // Timer stoppen
-        mediaPlayer.value?.release() // Audio stoppen
-        mediaPlayer.value = null
+        gameViewModel.stopTimer()
 
         Box(
             contentAlignment = Alignment.Center,
@@ -139,9 +76,8 @@ fun GameGrid() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Anzeige des Dieb-Bildes
                 Image(
-                    painter = painterResource(id = thiefImage),
+                    painter = painterResource(id = R.drawable.thief),
                     contentDescription = "Gefundener Dieb",
                     modifier = Modifier
                         .size(300.dp)
@@ -152,7 +88,6 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Anzeige der benötigten Zeit
                 Text(
                     text = "Zeit benötigt: ${(elapsedTime / 1000)} Sekunden",
                     fontSize = 30.sp,
@@ -164,7 +99,6 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Nachricht "Dieb gefunden"
                 Text(
                     text = "Dieb wurde gefunden!",
                     fontSize = 36.sp,
@@ -176,14 +110,9 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Neustart-Button
                 Button(
                     onClick = {
-                        gameWon = false
-                        gridItems = List(48) { images.random() }
-                        thiefPosition = (0 until 48).random()
-                        elapsedTime = 0L
-                        isTimerRunning = true
+                        gameViewModel.resetGame()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1976D2)),
                     modifier = Modifier
@@ -196,13 +125,9 @@ fun GameGrid() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Beenden-Button
                 Button(
                     onClick = {
-                        isTimerRunning = false
-                        mediaPlayer.value?.release()
-                        mediaPlayer.value = null
-                        Log.d("GameGrid", "Game beendet.")
+                        gameViewModel.stopGame()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
                     modifier = Modifier
@@ -237,30 +162,27 @@ fun GameGrid() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(gridItems.size) { index ->
-                    GridItem(imageResId = gridItems[index], size = cellSize) {
+                    GridItem(imageResId = images[gridItems[index]], size = cellSize) {
                         if (thiefPosition == index) {
-                            gameWon = true
+                            gameViewModel.setGameWon(true)
                         }
                     }
                 }
             }
         }
     }
+
+    // Bewege den Dieb alle paar Sekunden
+    LaunchedEffect(gameWon) {
+        if (!gameWon) {
+            while (isActive) {
+                delay(4000)  // Warte 4 Sekunden für die Bewegung des Diebes
+                gameViewModel.moveThief() // Bewege den Dieb
+            }
+        }
+    }
 }
 
-// Logik für die Bewegung des Diebes
-fun moveThief(currentPosition: Int): Int {
-    val possibleMoves = mutableListOf<Int>()
-
-    if (currentPosition % 8 != 0) possibleMoves.add(currentPosition - 1) // Links
-    if (currentPosition % 8 != 7) possibleMoves.add(currentPosition + 1) // Rechts
-    if (currentPosition >= 8) possibleMoves.add(currentPosition - 8) // Oben
-    if (currentPosition < 40) possibleMoves.add(currentPosition + 8) // Unten
-
-    return possibleMoves.random() // Zufällige Bewegung
-}
-
-// Einzelnes Grid-Element
 @Composable
 fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
     Box(

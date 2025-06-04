@@ -1,6 +1,7 @@
 package at.htlleonding.pepper.domain;
 
 import at.htlleonding.pepper.boundary.ImageResource;
+import at.htlleonding.pepper.boundary.dto.ImageDto;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.common.mapper.TypeRef;
 import jakarta.inject.Inject;
@@ -25,8 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ImageRessourceTest {
 
     private static final Logger log = LoggerFactory.getLogger(ImageRessourceTest.class);
-    static Long personId;
-    static Long imageId;
+    static Person person;
+    static Image image;
+    static long imageId;
 
     @Inject
     ImageResource imageResource;
@@ -44,17 +46,20 @@ public class ImageRessourceTest {
         );
 
         // Act
-        var created = given()
+        person = given()
                 .contentType(APPLICATION_JSON)
                 .body(newPerson)
                 .when().post("/api/person")
                 .then().statusCode(201)
-                .extract().as(Map.class);
+                .extract().as(Person.class);
 
-        personId = ((Number) created.get("id")).longValue();
+
 
         // Assert
-        assertThat(personId).isNotNull();
+        assertThat(person).isNotNull();
+        assertThat(person.getFirstName()).isEqualTo("Milad");
+        assertThat(person.getLastName()).isEqualTo("Moradi");
+        assertThat(person.getRoomNo()).isEqualTo("C3");
     }
 
     @Test
@@ -62,26 +67,31 @@ public class ImageRessourceTest {
     void createImage_shouldPersistAndReturn201(){
         // Arrange
         var base64Image = Base64.getEncoder().encodeToString("Hallo".getBytes());
-        var imageDto = Map.of(
-                "base64Image", base64Image,
-                "person", personId,
-                "description", "Test image"
-        );
+        ImageDto imageDto = new ImageDto(null, person, base64Image, null, "Test image");
 
-        // Act + Assert
-        given()
+        image = given()
                 .contentType(APPLICATION_JSON)
                 .body(imageDto)
                 .when().post("/api/image")
                 .then().statusCode(201)
-                .extract().as(new TypeRef<Map<String, Object>>() {});
+                .extract().as(Image.class);
+
+        assertThat(image).isNotNull();
+        assertThat(image.getDescription()).isEqualTo("Test image");
+        // Act + Assert
+        // Act: Erstelle das Bild
+         image = given()
+                .contentType(APPLICATION_JSON)
+                .body(imageDto)
+                .when().post("/api/image")
+                .then().statusCode(201)
+                .extract().as(Image.class);
     }
 
     @Test
     @Order(140)
     void getAllImages_shouldReturnCreatedImage() {
-        // Arrange
-        // (nichts notwendig, weil die Daten vorher schon erstellt wurden)
+
 
         // Act
         var response = given()
@@ -161,7 +171,7 @@ public class ImageRessourceTest {
         var invalidDto = Map.of(
                 "description", "Missing base64",
                 "imageUrl", "http://example.com/missing.jpg",
-                "person", personId
+                "person", Map.of("id", person.getId())
         );
 
         // Act + Assert

@@ -1,8 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { STORY_URL } from '../app.config';
+import { Person } from '../models/person.model';
 import { ImageModel } from '../models/image.model';
+import { Observable } from 'rxjs';
+import { ImageDto } from '../models/imageDto.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -13,15 +15,15 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root'
 })
-export class ImageService {
+export class ImageServiceService {
 
   constructor() { }
 
   private url = inject(STORY_URL);
   private http = inject(HttpClient);
-
+  
   getImages(){
-    return this.http.get<ImageModel[]>(this.url + 'image');
+    return this.http.get<ImageDto[]>(this.url + 'image');
   }
 
   uploadImage(imageDto: ImageModel){
@@ -71,5 +73,17 @@ export class ImageService {
         }
       );
     });
+  }
+  
+  deleteImage(id: number){
+    return this.http.delete("/api/image/" + id, httpOptions)
+  }
+
+  deleteStory(id: number){
+    return this.http.delete("/api/tagalongstories/" + id, httpOptions)
+  }
+
+  enablingStory(id: number, isEnabled: boolean){
+    return this.http.put("/api/tagalongstories/" + id, {"isEnabled" : isEnabled}, httpOptions)
   }
 }
