@@ -1,15 +1,15 @@
+import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -24,39 +24,48 @@ import com.google.accompanist.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.runtime.*
+import androidx.compose.ui.layout.ContentScale // Import für ContentScale
+import androidx.compose.ui.platform.LocalContext
+import com.example.menu.RoboterActions
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainMenuScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(initialPage = 0)
-    val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope() // Coroutine-Scope für suspend-Funktionen
 
-    // Liste mit Bildquellen und dazugehörigen Titeln
+    LaunchedEffect(key1 = Unit){
+        Log.d("QiContext:","${RoboterActions.qiContext}")
+        RoboterActions.speak("Was wollen Sie machen?")
+    }
+
+    // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
-        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte"),
-        Pair(R.drawable.memory_game, "Memory Spiel"),
-        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe"),
-        Pair(R.drawable.fang_den_dieb, "Fang den Dieb"),
-        Pair(R.drawable.essensplan, "Essensplan")
+        Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mmg"),
+        Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
+        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
+        Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
     )
 
-    // Animation für den Hintergrund
+    // Animation für die Farben
     val infiniteTransition = rememberInfiniteTransition()
     val color1 by infiniteTransition.animateColor(
-        initialValue = Color(0xFF2196F3),
-        targetValue = Color(0xFF64B5F6),
+        initialValue = Color(0xFF2196F3), // Blau
+        targetValue = Color(0xFF64B5F6), // Hellblau
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2999, easing = LinearEasing),
+            animation = tween(durationMillis = 30001, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
     val color2 by infiniteTransition.animateColor(
-        initialValue = Color(0xFFFF8A65),
-        targetValue = Color(0xFFBBDEFB),
+        initialValue = Color(0xFFFF8A65), // Korallorange
+        targetValue = Color(0xFFBBDEFB), // Sehr helles Blau
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 3000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
@@ -67,12 +76,17 @@ fun MainMenuScreen(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.horizontalGradient(colors = listOf(color1, color2))
-            ),
+                Brush.horizontalGradient(
+                    colors = listOf(color1, color2)
+                )
+            )
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Horizontaler Pager für die Bilder
-        Box(modifier = Modifier.fillMaxSize()) {
+        // Horizontaler Pager für Programme
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             HorizontalPager(
                 count = menuItems.size,
                 state = pagerState,
@@ -80,29 +94,24 @@ fun MainMenuScreen(navController: NavHostController) {
             ) { page ->
                 MenuItem(
                     imageRes = menuItems[page].first,
-                    title = menuItems[page].second,
-                    navController = navController,
-                    route = when (page) {
-                        0 -> "mitmachgeschichte_screen"
-                        1 -> "memory_screen"
-                        2 -> "tic_tac_toe_screen"
-                        3 -> "fang_den_dieb_screen"
-                        4 -> "essensplan_screen"
-                        else -> "main_menu"
-                    }
+                    title = menuItems[page].second.first, // Der Titel der App
+                    packageName = menuItems[page].second.second, // Der Package-Name der App
+                    navController = navController
+
                 )
             }
 
-            // Pfeil rechts (zur nächsten Seite, mit Rotation)
+            // Pfeil-Icon für "nächste Seite"
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Swipe Right",
                 tint = Color.White,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 32.dp)
-                    .size(60.dp)
+                    .padding(end = 16.dp)
+                    .size(100.dp)
                     .clickable {
+                        // Zur nächsten Seite navigieren (innerhalb einer Coroutine)
                         coroutineScope.launch {
                             val nextPage = (pagerState.currentPage + 1) % menuItems.size
                             pagerState.animateScrollToPage(nextPage)
@@ -110,18 +119,20 @@ fun MainMenuScreen(navController: NavHostController) {
                     }
             )
 
-            // Pfeil links (zur vorherigen Seite, mit Rotation)
+            // Pfeil-Icon für "vorherige Seite"
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Swipe Left",
                 tint = Color.White,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(start = 32.dp)
-                    .size(60.dp)
+                    .padding(start = 16.dp)
+                    .size(100.dp)
                     .clickable {
+                        // Zur vorherigen Seite navigieren (innerhalb einer Coroutine)
                         coroutineScope.launch {
-                            val previousPage = if (pagerState.currentPage - 1 < 0) menuItems.size - 1 else pagerState.currentPage - 1
+                            val previousPage =
+                                (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
                             pagerState.animateScrollToPage(previousPage)
                         }
                     }
@@ -131,11 +142,41 @@ fun MainMenuScreen(navController: NavHostController) {
 }
 
 @Composable
-fun MenuItem(imageRes: Int, title: String, navController: NavHostController, route: String) {
+fun MenuItem(
+    imageRes: Int,
+    title: String,
+    packageName: String,
+    navController: NavHostController,
+){
+    val context = LocalContext.current
+    val needsLogin = title =="Memory"
+    var essensplanClicked by remember { mutableStateOf(false) }
+
+    // Effekt für Essensplan-Sprachausgabe
+    if (essensplanClicked) {
+        LaunchedEffect(Unit) {
+            RoboterActions.speak("Heute gibt es nichts zum esseb bruderr bestell dir Döner")
+            essensplanClicked = false // Zurücksetzen nach der Ausführung
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable { navController.navigate(route) },
+            .clickable {
+                if (title == "Essensplan") {
+                    essensplanClicked = true
+                } else if (needsLogin) {
+                    navController.navigate("login_screen/${packageName}")
+                } else {
+                    val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+                    if (intent != null) {
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -144,19 +185,17 @@ fun MenuItem(imageRes: Int, title: String, navController: NavHostController, rou
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
-        // Halbtransparenter Hintergrund für besseren Kontrast
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.6f))
+                .background(Color.Black.copy(alpha = 0.5f))
                 .align(Alignment.TopCenter)
                 .padding(8.dp)
         ) {
             Text(
                 text = title,
                 color = Color.White,
-                fontSize = 80.sp,
+                fontSize = 70.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
             )

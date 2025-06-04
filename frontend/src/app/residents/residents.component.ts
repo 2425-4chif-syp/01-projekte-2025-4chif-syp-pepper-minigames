@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Person } from '../models/person.model';
-import { ResidentServiceService } from '../service/resident-service.service';
-import { error } from 'console';
+import { ResidentService } from '../services/resident.service';
 
 @Component({
   selector: 'app-residents',
@@ -10,9 +9,8 @@ import { error } from 'console';
   styleUrl: './residents.component.css'
 })
 export class ResidentsComponent {
-
   residents = signal<Person[]>([])
-  residentService = inject(ResidentServiceService)
+  residentService = inject(ResidentService)
 
   getAllResidents(){
     this.residentService.getResidents().subscribe({
@@ -20,7 +18,7 @@ export class ResidentsComponent {
         this.residents.set(data)
       },
       error: error=>
-        {"Laden der Personen fehlgeschlagen." 
+        {"Laden der Personen fehlgeschlagen."
           + error.name}
     })
   }
