@@ -2,16 +2,16 @@ import { Component, inject, signal } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { ImageServiceService } from '../service/image-service.service';
-import { ImageModel } from '../models/image.model';
+import { ImageDto } from '../models/imageDto.model';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import e, { Router } from 'express';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Scene {
   speech: string;
   movement: string;
   duration: number;
   image: string;
+  isDragOver?: boolean;
 }
 
 @Component({
@@ -54,21 +54,33 @@ export class CreatestoryComponent {
   scenes: Scene[] = [];
   isSidebarVisible = false;
   selectedScene: Scene | null = null;
-
-  titleImage: string | null = null;
+  // bild von pngtree => gratis
+  titleImage: string = 'assets/images/imageNotFound.png';
   titleName: string = '';
 
   imagesService = inject(ImageServiceService);
-  images = signal<ImageModel[]>([]);
+  images = signal<ImageDto[]>([]);
 
   storyId: number | null = null;
+    // Drag & Drop properties
+  currentDraggedImage: ImageDto | null = null;
+  isDragOverTitle: boolean = false;
 
-  constructor(private route: ActivatedRoute) {}
+  // Standard-Bild als base64 String
+  private defaultImageBase64: string = '';
+
+  constructor(private route: ActivatedRoute, private router: Router) {
+    // Standard-Bild beim Start laden
+    this.loadDefaultImage();
+  }
 
   service = inject(ImageServiceService)
 
   ngOnInit(): void {
     this.loadImages();
+
+    // Check for returning state from image upload
+    this.checkForReturnState();
 
     this.route.paramMap.subscribe((params) => {
       const storyId = params.get('id');
@@ -78,8 +90,41 @@ export class CreatestoryComponent {
     });
   }
 
-  disableSaveButton(){
-    return this.scenes.length === 0 || this.titleName === "" || this.titleImage == null
+  // Neue Methode zum Prüfen und Wiederherstellen des States nach Rückkehr
+  private checkForReturnState() {
+    const pendingState = sessionStorage.getItem('pendingStoryState');
+    const returnedImage = sessionStorage.getItem('croppedTitleImage');
+    const returnedSceneImage = sessionStorage.getItem('croppedSceneImage');
+    
+    if (pendingState && (returnedImage || returnedSceneImage)) {
+      // State wiederherstellen
+      const storyState = JSON.parse(pendingState);
+      this.titleName = storyState.titleName;
+      this.scenes = storyState.scenes;
+      this.storyId = storyState.storyId;
+      
+      if (returnedImage && storyState.imageType === 'title') {
+        // Neues Titelbild setzen
+        this.titleImage = returnedImage;
+        console.log('Title image updated from image upload');
+      } else if (returnedSceneImage && storyState.imageType === 'scene') {
+        // Neues Szenenbild setzen
+        const sceneIndex = storyState.sceneIndex;
+        if (sceneIndex >= 0 && sceneIndex < this.scenes.length) {
+          this.scenes[sceneIndex].image = returnedSceneImage;
+          console.log(`Scene ${sceneIndex} image updated from image upload`);
+        }
+      }
+      
+      // Cleanup
+      sessionStorage.removeItem('pendingStoryState');
+      sessionStorage.removeItem('croppedTitleImage');
+      sessionStorage.removeItem('croppedSceneImage');
+      
+      console.log('Story state restored with new image');
+    }
+  }  disableSaveButton(){
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
   }
 
   loadImages(): void {
@@ -115,12 +160,10 @@ export class CreatestoryComponent {
     })
 
     this.service.getTitleImage(storyId).subscribe({
-      next: data => {
-        console.log("Titelbild erhalten:", data);
+      next: data => {        console.log("Titelbild erhalten:", data);
         if (data) {
-          this.titleImage = 'data:image/png;base64,' + data;
-        } else {
-          this.titleImage = null;
+          this.titleImage = 'data:image/png;base64,' + data;        } else {
+          this.titleImage = 'assets/images/imageNotFound.png';
         }
       },
       error: error => {
@@ -156,14 +199,14 @@ export class CreatestoryComponent {
     fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
-        let i = 0;
-        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
+        let i = 0;        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
           const moveIndex = scene.move.id - 1;
           return {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
             duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
-            image: this.scenenBilder[i++]?? 'assets/images/defaultUploadPic_50.jpg',
+            image: this.scenenBilder[i++]?? 'assets/images/imageNotFound.png',
+            isDragOver: false,
           };
 
         });
@@ -210,25 +253,58 @@ export class CreatestoryComponent {
     }
   }
 
-  setSceneImage(scene: Scene | null, image: ImageModel) {
+  // Neue Methode für Navigation zur Image Upload Seite für Titelbild
+  navigateToImageUpload() {
+    // Story-Daten im SessionStorage zwischenspeichern
+    const storyState = {
+      titleName: this.titleName,
+      titleImage: this.titleImage,
+      scenes: this.scenes,
+      storyId: this.storyId,
+      returnTo: 'createstory',
+      imageType: 'title'
+    };
+    
+    sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
+    
+    // Zur Image Upload Seite navigieren
+    this.router.navigate(['/imageUpload']);
+  }
+
+  // Neue Methode für Navigation zur Image Upload Seite für Szenenbild
+  navigateToSceneImageUpload(sceneIndex: number) {
+    // Story-Daten im SessionStorage zwischenspeichern
+    const storyState = {
+      titleName: this.titleName,
+      titleImage: this.titleImage,
+      scenes: this.scenes,
+      storyId: this.storyId,
+      returnTo: 'createstory',
+      imageType: 'scene',
+      sceneIndex: sceneIndex
+    };
+    
+    sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
+    
+    // Zur Image Upload Seite navigieren
+    this.router.navigate(['/imageUpload']);
+  }
+  setSceneImage(scene: Scene | null, image: ImageDto) {
     if (scene) {
       scene.image = 'data:image/png;base64,' + image.base64Image;
     }
   }
-
-
   clearImage(scene: Scene) {
     if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
-      scene.image = 'assets/images/defaultUploadPic_50.jpg';
+      scene.image = 'assets/images/imageNotFound.png';
     }
-  }
-
-  addScene() {
+  }  addScene() {
     this.scenes.push({
       speech: '',
       movement: this.moveNames[0],
       duration: this.duration[0],
-      image: 'assets/images/defaultUploadPic_50.jpg',
+      image: 'assets/images/imageNotFound.png',
+      isDragOver: false,
     });
   }
 
@@ -241,16 +317,18 @@ export class CreatestoryComponent {
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
   }
-
   async saveButton() {
     if (!this.titleName || !this.titleImage) {
       console.error('Titel oder Bild fehlen');
       return;
     }
 
+    // Konvertiere das Titelbild zu base64, falls es das Standard-Bild ist
+    const convertedTitleImage = await this.convertImageToBase64(this.titleImage);
+
     const storyData = {
       name: this.titleName,
-      icon: this.titleImage,
+      icon: convertedTitleImage,
       gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
       enabled: true,
     };
@@ -304,22 +382,24 @@ export class CreatestoryComponent {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
-      console.log('Alle alten Szenen gelöscht.');
-
-      // **2. Neue Szenen speichern**
+      console.log('Alle alten Szenen gelöscht.');      // **2. Neue Szenen speichern**
       for (const [index, scene] of this.scenes.entries()) {
         const moveIndex = this.moveNames.indexOf(scene.movement);
         const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
 
+        // Konvertiere das Bild zu base64, falls es das Standard-Bild ist
+        const convertedImage = await this.convertImageToBase64(scene.image);        // Konvertiere das Titelbild auch zu base64, falls es das Standard-Bild ist
+        const convertedTitleImage = await this.convertImageToBase64(this.titleImage);
+
         const sceneData = {
           game: {
             name: this.titleName,
-            icon: this.titleImage,
+            icon: convertedTitleImage,
             gameType: { id: 'TAG_ALONG_STORY', name: 'Mitmachgeschichten' },
             enabled: true
           },
           index: index + 1,
-          image: scene.image,
+          image: convertedImage,
           image_desc: 'Beschreibung des Bildes',
           move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
@@ -344,6 +424,93 @@ export class CreatestoryComponent {
     }
   }
 
+  // Drag & Drop Methoden
+  onDragStart(event: DragEvent, image: ImageDto) {
+    this.currentDraggedImage = image;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'copy';
+      event.dataTransfer.setData('text/plain', 'image');
+    }
+  }
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }
 
+  onDropToScene(event: DragEvent, scene: Scene) {
+    event.preventDefault();
+    scene.isDragOver = false;
+    if (this.currentDraggedImage) {
+      scene.image = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      this.currentDraggedImage = null;
+    }
+  }
 
+  onDragEnterScene(event: DragEvent, scene: Scene) {
+    event.preventDefault();
+    scene.isDragOver = true;
+  }
+
+  onDragLeaveScene(event: DragEvent, scene: Scene) {
+    event.preventDefault();
+    scene.isDragOver = false;
+  }
+
+  onDropToTitle(event: DragEvent) {
+    event.preventDefault();
+    if (this.currentDraggedImage) {
+      this.titleImage = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      this.currentDraggedImage = null;
+    }
+  }
+  // Methode zum Laden des Standard-Bildes als base64
+  private loadDefaultImage() {
+    this.loadDefaultImageAsBase64()
+      .then(base64 => {
+        this.defaultImageBase64 = base64;
+        // Nur setzen, wenn es das Standard-Bild ist (falls bereits ein anderes Titelbild geladen wurde)
+        if (this.titleImage === 'assets/images/imageNotFound.png') {
+          this.titleImage = base64;
+        }
+      })
+      .catch(err => {
+        console.error('Fehler beim Laden des Standard-Bildes:', err);
+      });
+  }
+
+  // Methode zum Laden des Standard-Bildes als base64
+  private loadDefaultImageAsBase64(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      fetch('assets/images/imageNotFound.png')
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (typeof reader.result === 'string') {
+              resolve(reader.result);
+            } else {
+              reject('Failed to convert to base64');
+            }
+          };
+          reader.onerror = () => reject('Error reading file');
+          reader.readAsDataURL(blob);
+        })
+        .catch(error => reject(error));
+    });
+  }
+
+  // Methode zum Konvertieren von Asset-Pfad zu base64
+  private async convertImageToBase64(imagePath: string): Promise<string> {
+    if (imagePath.startsWith('data:')) {
+      return imagePath; // Bereits base64
+    }
+    
+    if (imagePath === 'assets/images/imageNotFound.png') {
+      return await this.loadDefaultImageAsBase64();
+    }
+    
+    return imagePath; // Fallback
+  }
 }

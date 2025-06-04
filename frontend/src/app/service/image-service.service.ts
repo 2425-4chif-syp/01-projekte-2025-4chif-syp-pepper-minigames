@@ -4,6 +4,7 @@ import { STORY_URL } from '../app.config';
 import { Person } from '../models/person.model';
 import { ImageModel } from '../models/image.model';
 import { Observable } from 'rxjs';
+import { ImageDto } from '../models/imageDto.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -22,7 +23,7 @@ export class ImageServiceService {
   private http = inject(HttpClient);
   
   getImages(){
-    return this.http.get<ImageModel[]>(this.url + 'image');
+    return this.http.get<ImageDto[]>(this.url + 'image');
   }
 
   uploadImage(imageDto: ImageModel){
@@ -74,7 +75,9 @@ export class ImageServiceService {
     });
   }
   
-  
+  deleteImage(id: number){
+    return this.http.delete("/api/image/" + id, httpOptions)
+  }
 
   deleteStory(id: number){
     return this.http.delete("/api/tagalongstories/" + id, httpOptions)
