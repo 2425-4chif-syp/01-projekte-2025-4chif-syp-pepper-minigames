@@ -1,0 +1,20 @@
+# Node modules and dist output
+node_modules
+dist
+out-tsc
+
+# Environment files
+.env
+.env.*
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+
+# Logs
+*.log
+
+# Tests and specs
+**/*.spec.ts

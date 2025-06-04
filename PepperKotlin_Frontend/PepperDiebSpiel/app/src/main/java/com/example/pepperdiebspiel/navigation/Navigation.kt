@@ -10,11 +10,7 @@ import com.example.pepperdiebspiel.screens.DifficultySelectionScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController, onDifficultySelected: (String) -> Unit) {
-    NavHost(navController = navController, startDestination = "start") {
-        // Schwierigkeitsauswahl-Bildschirm
-        composable("start") {
-            DifficultySelectionScreen(navController = navController, onDifficultySelected = onDifficultySelected)
-        }
+    NavHost(navController = navController, startDestination = "difficulty_selection") { // Korrigiert!
         // Schwierigkeitsauswahl-Bildschirm
         composable("difficulty_selection") {
             DifficultySelectionScreen(navController = navController, onDifficultySelected = onDifficultySelected)

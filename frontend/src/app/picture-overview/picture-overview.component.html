@@ -28,7 +28,7 @@
   </div>
 
   <div class="grid grid-cols-4 gap-6 mt-5">
-    <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden" (click)="openPreview(image)">
       <!--TODO: if ändern-->
       @if (image.base64Image == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
         <img src="../assets/images/defaultIcon2.jpg" class="w-full h-48 object-cover"> 
@@ -43,4 +43,67 @@
       }
     </div>
   </div>
+
+  <div *ngIf="selectedImage()" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl overflow-hidden shadow-2xl max-w-3xl w-full p-4 relative">
+      <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
+  
+      <img
+        [src]="'data:image/png;base64,' + selectedImage()?.base64Image"
+        [alt]="selectedImage()?.description"
+        class="w-full max-h-[60vh] object-contain mb-4"
+      />
+      <div class="text-center font-semibold text-xl mb-4">
+        {{ selectedImage()?.description }} 
+      </div>
+      <div class="flex justify-center gap-4">
+        <button
+          (click)="downloadImage()"
+          class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-500"
+        >
+          Download
+        </button>
+        <button
+          class="px-6 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-500"
+          (click)="deleteImage()"
+        >
+          Löschen
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
