@@ -17,9 +17,9 @@ interface Scene {
 @Component({
   selector: 'app-createstory',
   imports: [DragDropModule, CommonModule, FormsModule],
-  templateUrl: './createstory.component.html',
+  templateUrl: './create-story.component.html',
 })
-export class CreatestoryComponent {
+export class CreateStoryComponent {
   imageBase64: string | null = null;
   scenenBilder: string[] = [];
 
@@ -95,14 +95,14 @@ export class CreatestoryComponent {
     const pendingState = sessionStorage.getItem('pendingStoryState');
     const returnedImage = sessionStorage.getItem('croppedTitleImage');
     const returnedSceneImage = sessionStorage.getItem('croppedSceneImage');
-    
+
     if (pendingState && (returnedImage || returnedSceneImage)) {
       // State wiederherstellen
       const storyState = JSON.parse(pendingState);
       this.titleName = storyState.titleName;
       this.scenes = storyState.scenes;
       this.storyId = storyState.storyId;
-      
+
       if (returnedImage && storyState.imageType === 'title') {
         // Neues Titelbild setzen
         this.titleImage = returnedImage;
@@ -115,12 +115,12 @@ export class CreatestoryComponent {
           console.log(`Scene ${sceneIndex} image updated from image upload`);
         }
       }
-      
+
       // Cleanup
       sessionStorage.removeItem('pendingStoryState');
       sessionStorage.removeItem('croppedTitleImage');
       sessionStorage.removeItem('croppedSceneImage');
-      
+
       console.log('Story state restored with new image');
     }
   }  disableSaveButton(){
@@ -264,9 +264,9 @@ export class CreatestoryComponent {
       returnTo: 'createstory',
       imageType: 'title'
     };
-    
+
     sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
-    
+
     // Zur Image Upload Seite navigieren
     this.router.navigate(['/imageUpload']);
   }
@@ -283,9 +283,9 @@ export class CreatestoryComponent {
       imageType: 'scene',
       sceneIndex: sceneIndex
     };
-    
+
     sessionStorage.setItem('pendingStoryState', JSON.stringify(storyState));
-    
+
     // Zur Image Upload Seite navigieren
     this.router.navigate(['/imageUpload']);
   }
@@ -506,11 +506,11 @@ export class CreatestoryComponent {
     if (imagePath.startsWith('data:')) {
       return imagePath; // Bereits base64
     }
-    
+
     if (imagePath === 'assets/images/imageNotFound.png') {
       return await this.loadDefaultImageAsBase64();
     }
-    
+
     return imagePath; // Fallback
   }
 }
