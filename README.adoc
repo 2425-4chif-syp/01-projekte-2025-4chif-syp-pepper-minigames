@@ -60,11 +60,11 @@ Pepper offers a selection of games such as Memory (Personalized), Tag along stor
 
 == System Architecture
 
-image::SYS_ARC.png[System Architecture, width=500]
+image::docs/slides/SYS_ARC.png[System Architecture, width=500]
 
 == Diagrams
 
-image::./Documentation/images/Pepper_ERD.png[PeperERDs, width=500]
+image::docs/images/Pepper_ERD.png[PeperERDs, width=500]
 
 
 == Test Section
