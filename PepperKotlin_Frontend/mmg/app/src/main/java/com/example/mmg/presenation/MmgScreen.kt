@@ -26,6 +26,9 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.material.icons.filled.Refresh
+
+
 @Composable
 fun MmgScreen(
     viewModel: MmgViewModel,
@@ -61,9 +64,19 @@ fun MmgScreen(
                 onClick = {
                     viewModel.emptyMmgList()
                     viewModel.loadMmgDtos()
-                }
+                },
+                modifier = Modifier.height(56.dp)
             ) {
-                Text(text = "Geschichten laden")
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Reload",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Geschichten laden",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
