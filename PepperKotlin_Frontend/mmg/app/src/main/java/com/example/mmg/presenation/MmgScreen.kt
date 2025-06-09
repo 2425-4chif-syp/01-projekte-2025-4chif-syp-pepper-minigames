@@ -21,7 +21,11 @@ import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.mmg.R
-
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.geometry.Offset
 @Composable
 fun MmgScreen(
     viewModel: MmgViewModel,
@@ -47,8 +51,11 @@ fun MmgScreen(
         ) {
             Text(
                 text = "Mitmachgeschichten",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.weight(1f),
+
             )
             Button(
                 onClick = {

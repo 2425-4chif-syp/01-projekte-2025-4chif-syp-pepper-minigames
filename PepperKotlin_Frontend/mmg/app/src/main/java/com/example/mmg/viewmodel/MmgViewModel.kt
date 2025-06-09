@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 import java.util.*
+import java.util.Collections.emptyList
 
 class MmgViewModel() : ViewModel() {
 
