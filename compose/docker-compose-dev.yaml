@@ -2,5 +2,6 @@
 # The syntax error below is reported due to a bug in the docker compose sepc.
 include:
   - postgres.yaml
-  - backend.yaml
-  #- frontend.yaml
+  - keycloak.yaml
+#  - backend.yaml
+#  - frontend.yaml
