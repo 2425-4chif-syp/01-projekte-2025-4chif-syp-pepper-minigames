@@ -15,7 +15,7 @@ class HttpInstance {
     companion object{
         val BACKEND_URL = "http://vm88.htl-leonding.ac.at"
 
-        // Client-Objekt einmal erstellen und wiederverwenden
+        // Client-Objekt
         private val client = OkHttpClient.Builder()
             .connectTimeout(90, TimeUnit.SECONDS)
             .readTimeout(90, TimeUnit.SECONDS)

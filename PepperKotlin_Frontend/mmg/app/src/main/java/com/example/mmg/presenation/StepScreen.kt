@@ -1,6 +1,5 @@
 package com.example.mmg.presentation
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -15,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mmg.R
 import com.example.mmg.viewmodel.MmgViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun StepScreen(
@@ -43,10 +41,9 @@ fun StepScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Bild nimmt so viel Platz wie möglich ein
             Box(
                 modifier = Modifier
-                    .weight(2f) // // erhöht den Platz, den das Bild einnimmt
+                    .weight(2f)
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
@@ -56,7 +53,7 @@ fun StepScreen(
                         contentDescription = "Step Picture",
                         modifier = Modifier.
                         fillMaxWidth().fillMaxHeight(),
-                        contentScale = ContentScale.Crop //Von Fit zu Crop
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Image(
@@ -70,7 +67,6 @@ fun StepScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons immer unten
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

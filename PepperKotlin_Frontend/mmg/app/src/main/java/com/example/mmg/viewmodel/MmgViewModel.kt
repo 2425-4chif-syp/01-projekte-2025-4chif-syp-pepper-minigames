@@ -1,17 +1,12 @@
 package com.example.mmg.viewmodel
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.example.mmg.MainActivity
 import com.example.mmg.RoboterActions
 import com.example.mmg.dto.EmoteDto
 import com.example.mmg.dto.MmgDto
@@ -20,7 +15,6 @@ import com.example.mmg.dto.getEmotes
 import com.example.mmg.network.HttpInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 import java.util.*
