@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'frontend/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
@@ -23,27 +24,37 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: frontend/angular-demo
+
 
       - name: Build Angular project
         run: npm run build -- --configuration=production
+        working-directory: frontend/angular-demo
 
       - name: Zip build directory
-        run: zip -r dist.zip dist/
+        run: |
+          tar -zcvf ../../../../../dist.tar.gz ./
+        working-directory: frontend/angular-demo/dist/angular-demo/browser
 
       - name: Copy zip to server via SCP
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: dist.zip
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: dist.tar.gz
           target: /tmp/
+          strip_components: 0
 
       - name: Unzip on server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            unzip -o /tmp/dist.zip -d /var/www/html/
+            cd /var/www/html/
+            rm -rf *
+            tar -xzf /tmp/dist.tar.gz
+            tar -tf /tmp/dist.tar.gz
+            rm /tmp/dist.tar.gz
