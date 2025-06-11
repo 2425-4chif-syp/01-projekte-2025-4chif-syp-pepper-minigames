@@ -1,2 +1,7 @@
 #!/usr/bin/env bash
-docker build -f ./src/main/docker/Dockerfile -t ghcr.io/2425-4chif-syp/backend:latest .
+
+set -e
+
+rm -rf target
+mvn -B clean package -DskipTests
+docker build --tag ghcr.io/2425-4chif-syp/backend --file ./src/main/docker/Dockerfile .
