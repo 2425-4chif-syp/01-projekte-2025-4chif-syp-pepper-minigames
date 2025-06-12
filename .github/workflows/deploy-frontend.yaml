@@ -42,19 +42,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: frontend/dist/pepper-angular/dist.tar.gz
           target: /tmp/
-
-      - name: Deploy on server via SSH
+          
+      - name: Unzip on server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "📦 Inhalt der .tar.gz prüfen..."
+            cd /var/www/html/
+            rm -rf *
+            tar -xzf /tmp/dist.tar.gz
             tar -tf /tmp/dist.tar.gz
-            echo "📁 Vorherige Dateien löschen..."
-            rm -rf /var/www/html/*
-            echo "📂 Entpacken..."
-            tar -xzf /tmp/dist.tar.gz -C /var/www/html/
-            echo "🧹 Aufräumen..."
             rm /tmp/dist.tar.gz
