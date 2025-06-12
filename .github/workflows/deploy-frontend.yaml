@@ -31,7 +31,7 @@ jobs:
         working-directory: frontend/
 
       - name: Create deployment archive
-        run: tar -zcvf dist.tar.gz ./ || [[ $? -eq 1 ]]
+        run: tar -xzvf /tmp/frontend/dist/pepper-angular/dist.tar.gz -C /var/www/html/ || [[ $? -eq 1 ]]
         working-directory: frontend/dist/pepper-angular
 
       - name: Upload archive via SCP
