@@ -24,17 +24,17 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: frontend/angular-demo
+        working-directory: frontend/
 
 
       - name: Build Angular project
         run: npm run build -- --configuration=production
-        working-directory: frontend/angular-demo
+        working-directory: frontend/
 
       - name: Zip build directory
         run: |
           tar -zcvf ../../../../../dist.tar.gz ./
-        working-directory: frontend/angular-demo/dist/angular-demo/browser
+        working-directory: frontend/dist/pepper-angular/browser
 
       - name: Copy zip to server via SCP
         uses: appleboy/scp-action@v1
