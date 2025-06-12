@@ -15,13 +15,13 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root'
 })
-export class ImageService {
+export class ImageServiceService {
 
   constructor() { }
 
   private url = inject(STORY_URL);
   private http = inject(HttpClient);
-
+  
   getImages(){
     return this.http.get<ImageDto[]>(this.url + 'image');
   }
@@ -74,7 +74,7 @@ export class ImageService {
       );
     });
   }
-
+  
   deleteImage(id: number){
     return this.http.delete("/api/image/" + id, httpOptions)
   }

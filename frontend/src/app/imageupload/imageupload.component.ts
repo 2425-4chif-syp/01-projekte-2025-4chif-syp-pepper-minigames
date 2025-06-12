@@ -24,7 +24,7 @@ import { get } from 'http';
   templateUrl: './imageupload.component.html',
   styleUrl: './imageupload.component.css'
 })
-export class ImageUploadComponent {
+export class ImageuploadComponent {
  private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private http = inject(HttpClient);
   public duration = [5, 10, 15];
@@ -46,7 +46,7 @@ export class ImageUploadComponent {
       this.personService.getResidents().subscribe({
         next: data => {
           this.persons.set(data);
-
+          
           for (const person of this.persons()) {
             if (person.firstName === this.firstName() && person.lastName === this.lastName()) {
               this.personForPost.set(person);
@@ -188,7 +188,7 @@ export class ImageUploadComponent {
       // Define the target dimensions (1280x800)
       const targetWidth = 1280;
       const targetHeight = 800;
-
+      
       if(imageData.naturalWidth < 600){
         alert("Das Bild ist schon relativ klein, deshalb funktioniert der Slider erst weiter rechts")
       }
@@ -443,10 +443,10 @@ export class ImageUploadComponent {
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high',
     });
-
+    
     const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
     let imageUpload: ImageModel;
-
+    
     if(this.firstName() === '' && this.lastName() === ''){
       imageUpload = {
         description: this.description(),
@@ -500,10 +500,10 @@ export class ImageUploadComponent {
 
     // Convert to data URL
     const dataURL = croppedCanvas.toDataURL('image/png');
-
+    
     // Store the cropped image in sessionStorage
     sessionStorage.setItem('croppedTitleImage', dataURL);
-
+    
     // Navigate back to createstory
     this.router.navigate(['/createstory']);
   }
@@ -526,10 +526,10 @@ export class ImageUploadComponent {
 
     // Convert to data URL
     const dataURL = croppedCanvas.toDataURL('image/png');
-
+    
     // Store the cropped image in sessionStorage
     sessionStorage.setItem('croppedSceneImage', dataURL);
-
+    
     // Navigate back to createstory
     this.router.navigate(['/createstory']);
   }

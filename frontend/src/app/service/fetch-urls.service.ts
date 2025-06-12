@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { STORY_URL } from '../app.config';
 import { TagAlongStory } from '../models/tag-along-story.model';
+import { STORY_URL } from '../app.config';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -13,6 +13,7 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class FetchUrlsService {
+
   private base_url = inject(STORY_URL) + 'tagalongstory';
   private http = inject(HttpClient)
   constructor() { }

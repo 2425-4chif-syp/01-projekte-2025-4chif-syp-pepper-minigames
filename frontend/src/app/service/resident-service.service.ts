@@ -1,12 +1,12 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, ɵgetInjectableDef } from '@angular/core';
 import { STORY_URL } from '../app.config';
+import { HttpClient } from '@angular/common/http';
 import { Person } from '../models/person.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ResidentService {
+export class ResidentServiceService {
 
   constructor() { }
   BASE_URL = inject(STORY_URL) + 'person'

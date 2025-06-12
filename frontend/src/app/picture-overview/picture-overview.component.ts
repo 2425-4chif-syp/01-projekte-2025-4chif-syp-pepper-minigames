@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { CommonEngine } from '@angular/ssr/node';
 import { get } from 'http';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
@@ -15,7 +14,7 @@ import { ImageDto } from '../models/imageDto.model';
   styleUrl: './picture-overview.component.css'
 })
 export class PictureOverviewComponent {
-  
+
   constructor(private router: Router) {}
 
   imagesService = inject(ImageServiceService);
