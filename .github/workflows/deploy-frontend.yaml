@@ -26,35 +26,35 @@ jobs:
         run: npm ci
         working-directory: frontend/
 
-
       - name: Build Angular project
         run: npm run build -- --configuration=production
         working-directory: frontend/
 
-      - name: Zip build directory
-        run: |
-          tar -zcvf ../../../../../dist.tar.gz ./
-        working-directory: frontend/dist/pepper-angular/browser
+      - name: Create deployment archive
+        run: tar -zcvf dist.tar.gz ./
+        working-directory: frontend/dist/pepper-angular
 
-      - name: Copy zip to server via SCP
+      - name: Upload archive via SCP
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: dist.tar.gz
+          source: frontend/dist/pepper-angular/dist.tar.gz
           target: /tmp/
-          strip_components: 0
 
-      - name: Unzip on server
+      - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/html/
-            rm -rf *
-            tar -xzf /tmp/dist.tar.gz
+            echo "📦 Inhalt der .tar.gz prüfen..."
             tar -tf /tmp/dist.tar.gz
+            echo "📁 Vorherige Dateien löschen..."
+            rm -rf /var/www/html/*
+            echo "📂 Entpacken..."
+            tar -xzf /tmp/dist.tar.gz -C /var/www/html/
+            echo "🧹 Aufräumen..."
             rm /tmp/dist.tar.gz
