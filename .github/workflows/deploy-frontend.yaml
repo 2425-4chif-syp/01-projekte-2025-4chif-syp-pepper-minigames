@@ -31,8 +31,7 @@ jobs:
         working-directory: frontend/
 
       - name: Create deployment archive
-        run: tar -xzvf /tmp/frontend/dist/pepper-angular/dist.tar.gz -C /var/www/html/ || [[ $? -eq 1 ]]
-        working-directory: frontend/dist/pepper-angular
+        run: tar -czvf dist.tar.gz -C frontend/dist/pepper-angular .
 
       - name: Upload archive via SCP
         uses: appleboy/scp-action@v1
@@ -40,9 +39,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: frontend/dist/pepper-angular/dist.tar.gz
+          source: dist.tar.gz
           target: /tmp/
-          
+
       - name: Unzip on server
         uses: appleboy/ssh-action@v1
         with:
@@ -53,5 +52,5 @@ jobs:
             cd /var/www/html/
             rm -rf *
             tar -xzf /tmp/dist.tar.gz
-            tar -tf /tmp/dist.tar.gz
             rm /tmp/dist.tar.gz
+        
