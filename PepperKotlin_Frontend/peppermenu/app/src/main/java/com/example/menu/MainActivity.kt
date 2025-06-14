@@ -76,15 +76,12 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                                     }
                                 },
                                 onContinueWithoutLogin = {
-                                    val personId = -1
                                     val intent = packageManager.getLaunchIntentForPackage(packageName)
-                                    intent?.putExtra("default", personId)
-
-                                    if(intent != null){
+                                    if (intent != null) {
                                         startActivity(intent)
                                     }
-
-                                },
+                                }
+                                ,
                                 navController = navController
                             )
 
