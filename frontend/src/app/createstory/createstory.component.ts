@@ -298,7 +298,15 @@ export class CreatestoryComponent {
     if(confirm("Sind Sie sicher dass Sie das Bild entfernen möchten?")){
       scene.image = 'assets/images/imageNotFound.png';
     }
-  }  addScene() {
+  }
+
+  // Hilfsmethode um zu prüfen, ob eine Szene das Standard-Bild verwendet
+  isDefaultImage(scene: Scene): boolean {
+    return scene.image === 'assets/images/imageNotFound.png' || 
+           scene.image === this.defaultImageBase64;
+  }
+
+  addScene() {
     this.scenes.push({
       speech: '',
       movement: this.moveNames[0],

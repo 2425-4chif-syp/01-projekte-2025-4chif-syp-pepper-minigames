@@ -71,8 +71,11 @@
           📷 Bild hochladen
         </button>
         
-        <div class="tooltip" data-tip="Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.">
-          <button (click)="clearImage(scene)" class="mt-2 bg-red-500 text-white p-2 rounded text-sm">
+        <div class="tooltip" [attr.data-tip]="isDefaultImage(scene) ? 'Bereits Standard-Bild verwendet' : 'Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.'">
+          <button 
+            (click)="clearImage(scene)" 
+            [disabled]="isDefaultImage(scene)"
+            [class]="isDefaultImage(scene) ? 'mt-2 bg-gray-400 text-gray-600 p-2 rounded text-sm cursor-not-allowed' : 'mt-2 bg-red-500 text-white p-2 rounded text-sm hover:bg-red-600 transition'">
             Bild entfernen
           </button>
         </div>
