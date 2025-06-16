@@ -1,1 +1,106 @@
-<p>resident-details works!</p>
+<div class="h-screen container p-8">
+    <div class="bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-3xl font-bold mb-6">Person - Detail</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="flex justify-center items-start">
+                <div class="border-2 border-gray-300 w-64 h-64 rounded-md overflow-hidden">
+                    <div class="bg-sky-500 w-full h-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-48 h-48 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col space-y-4">
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Vorname:</label>
+                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                        {{residentOfId()?.firstName}}
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Nachname:</label>
+                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                        {{residentOfId()?.lastName}}
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Zustädnigkeit:</label>
+                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                        {{residentOfId()?.isWorker ? 'Arbeiter' : 'Bewohner'}}
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Zimmer-Nr.:</label>
+                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                        {{residentOfId()?.roomNo}}
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div class="flex items-center mt-4">
+                        <button [routerLink]="['/residents']" routerLinkActive="router-link-active"  class="btn btn-secondary">Zur Übersicht</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #e83e8c;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+</style>

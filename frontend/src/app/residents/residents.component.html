@@ -16,7 +16,7 @@
         </div>
         
         <div>
-            @for (resident of filteredResidents(); track resident.id) {
+            @for (resident of residents(); track resident.id) {
             <div class="grid grid-cols-2 border-b py-3">
                 <div class="flex items-center">
                     {{resident.firstName}} {{resident.lastName}}
@@ -25,7 +25,7 @@
                     <button [routerLink]="['/residentDetails', resident.id]" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded">Ändern</button>
                     
                     <label class="switch ml-4">
-                        <input type="checkbox" [(ngModel)]="resident.memoryActive">
+                        <input type="checkbox">
                         <span class="slider round"></span>
                     </label>
                     

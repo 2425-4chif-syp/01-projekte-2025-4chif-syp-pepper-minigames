@@ -19,31 +19,20 @@ interface PersonWithMemory extends Person {
 })
 export class ResidentsComponent {
 
-  residents = signal<PersonWithMemory[]>([]);
+  residents = signal<Person[]>([]);
   memoryFilterActive = signal<boolean>(false);
   residentService = inject(ResidentServiceService);
 
-  constructor() {
+  ngOnInit() {
     this.getAllResidents();
   }
-
-  // Computed property zum Filtern der Bewohner
-  filteredResidents = computed(() => {
-    if (!this.memoryFilterActive()) {
-      return this.residents();
-    }
-    return this.residents().filter(resident => resident.memoryActive);
-  });
 
   getAllResidents(){
     this.residentService.getResidents().subscribe({
       next: data => {
-        // Erweitere die Person-Objekte um die memoryActive-Eigenschaft
-        const personsWithMemory = data.map(person => ({
-          ...person,
-          memoryActive: Math.random() > 0.5 // Zufällige Memory-Aktivierung für das Beispiel
-        }));
-        this.residents.set(personsWithMemory);
+    
+        this.residents.set(data);
+        console.log(this.residents())
       },
       error: error=> {
         console.error("Laden der Personen fehlgeschlagen." + error.name);
@@ -53,6 +42,5 @@ export class ResidentsComponent {
 
   onMemoryFilterChange(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    //this.memoryFilter = checked;
 }
 }
