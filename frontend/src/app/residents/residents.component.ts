@@ -4,6 +4,7 @@ import { ResidentServiceService } from '../service/resident-service.service';
 import { error } from 'console';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 // Erweitere das Person-Interface mit der Memory-Eigenschaft
 interface PersonWithMemory extends Person {
@@ -12,7 +13,7 @@ interface PersonWithMemory extends Person {
 
 @Component({
   selector: 'app-residents',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './residents.component.html',
   styleUrl: './residents.component.css'
 })
