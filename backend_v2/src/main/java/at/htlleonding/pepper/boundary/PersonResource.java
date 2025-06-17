@@ -25,7 +25,7 @@
         @Inject
         PersonRepository personRepository;
 
-        //region Person Endpoints
+        //region Person Endpoint
         @GET
         @Operation(summary = "Get all people")
         @Transactional

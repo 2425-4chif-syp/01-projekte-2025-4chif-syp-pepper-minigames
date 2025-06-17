@@ -64,8 +64,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Current working dir:"
             pwd
-            ls -la
+            echo "Content of dir:"
+            ls -lah
             docker compose down --rmi all
             docker compose build --no-cache
             docker compose up -d
