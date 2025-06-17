@@ -22,7 +22,7 @@
     @Consumes(MediaType.APPLICATION_JSON)
     @ApplicationScoped
     public class PersonResource {
-
+        //Inject Repo
         @Inject
         PersonRepository personRepository;
 
