@@ -29,7 +29,6 @@ jobs:
 
       - name: Build with Maven
         run: |
-          cd backend_v2
           mvn -B clean package -DskipTests
 
       - name: Set up docker buildx
