@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend_v2/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
