@@ -65,13 +65,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            cd /home/${{ secrets.SSH_USER }}/backend_v2  # ← oder wo deine docker-compose.yml liegt
             echo "Current working dir:"
             pwd
             echo "Content of dir:"
-            ls -lah /home/
-            docker compose down --rmi all
-            docker compose build --no-cache
-            docker compose up -d
+            ls -lah
+#            docker compose down --rmi all
+#            docker compose build --no-cache
+#            docker compose up -d
 
 #            if [ $(docker ps -q -f name=backend) ]; then
 #              docker stop backend
