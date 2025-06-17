@@ -64,7 +64,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            ls -lah
+            pwd
+            ls -la
             docker compose down --rmi all
             docker compose build --no-cache
             docker compose up -d
