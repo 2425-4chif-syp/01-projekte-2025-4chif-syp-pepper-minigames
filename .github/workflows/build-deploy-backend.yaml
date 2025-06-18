@@ -65,7 +65,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/stuetzadm/deploy
+            cd /home/stuetzadm/deploy/compose
             echo "Current working dir:"
             pwd
             echo "Content of dir:"
