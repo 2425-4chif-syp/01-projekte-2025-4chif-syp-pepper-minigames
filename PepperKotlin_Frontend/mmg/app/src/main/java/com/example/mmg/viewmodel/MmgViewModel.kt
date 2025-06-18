@@ -1,17 +1,13 @@
 package com.example.mmg.viewmodel
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.example.mmg.MainActivity
 import com.example.mmg.RoboterActions
 import com.example.mmg.dto.EmoteDto
 import com.example.mmg.dto.MmgDto
@@ -20,14 +16,14 @@ import com.example.mmg.dto.getEmotes
 import com.example.mmg.network.HttpInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.Collections.emptyList
 
-class MmgViewModel() : ViewModel() {
+class MmgViewModel(private val navController: NavController) : ViewModel() {
 
+    // Fields
     private val _mmgList = MutableStateFlow<List<MmgDto>>(emptyList())
     val mmgList = _mmgList.asStateFlow()
 
@@ -36,14 +32,24 @@ class MmgViewModel() : ViewModel() {
 
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
 
-    val _stepCount = MutableStateFlow(0)
+    val _stepCount = MutableStateFlow(-1)
 
     val stepsFinished = MutableStateFlow<Boolean>(false)
+    
+    // State für Animation-Status
+    private val _isAnimationRunning = MutableStateFlow(false)
+    val isAnimationRunning = _isAnimationRunning.asStateFlow()
 
     var emotes: List<EmoteDto> = emptyList()
 
     fun incrementStepCount() {
         _stepCount.value += 1
+        displayStep()
+    }
+
+    fun decrementStepCount(){
+        _stepCount.value -= 1
+        displayStep()
     }
 
     fun resetStepCount(){
@@ -67,7 +73,6 @@ class MmgViewModel() : ViewModel() {
             Log.d("Duration","${stepDto.durationInSeconds}")
 
             if(stepDto.imageBase64 != null){
-
                 imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
             }
 
@@ -76,15 +81,30 @@ class MmgViewModel() : ViewModel() {
             val emote = getEmote(stepDto = stepDto)
 
             if(emote != -1){
+                // Setze Animation-Status auf "läuft"
+                _isAnimationRunning.value = true
+                
+                // Starte die Animation
                 RoboterActions.animation(emote)
+                
+                // Starte Timer für die Dauer der Animation
+                viewModelScope.launch {
+                    try {
+                        // Warte für die Dauer der Animation (in Sekunden)
+                        kotlinx.coroutines.delay(stepDto.durationInSeconds * 1000L)
+                    } finally {
+                        // Nach Ablauf der Zeit Animation-Status zurücksetzen
+                        _isAnimationRunning.value = false
+                    }
+                }
             }
         }
         else{
             stepsFinished.value = true
-            RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie Abbrechen um alle Geschichten anzuzeigen!")
+            RoboterActions.speak("Die Geschichte ist zu Ende!")
+            navController.popBackStack()
         }
 
-        incrementStepCount()
         Log.d("Index danach", "${_stepCount.value}")
     }
 

@@ -129,7 +129,7 @@ fun MmgScreen(
                                     modifier = Modifier.size(80.dp)
                                 )
                             }
-                            Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
+                            Text(text = mmg.name, style = MaterialTheme.typography.displaySmall)
 
                             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
                         }
