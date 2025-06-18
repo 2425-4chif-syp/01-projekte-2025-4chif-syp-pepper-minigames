@@ -8,6 +8,7 @@ import { CreatestoryComponent } from './createstory/createstory.component';
 import { PictureOverviewComponent } from './picture-overview/picture-overview.component';
 import { ImageuploadComponent } from './imageupload/imageupload.component';
 import { ResidentsComponent } from './residents/residents.component';
+import { ResidentDetailsComponent } from './resident-details/resident-details.component';
 
 export const routes: Routes = [
   {path: 'tagalongstory', component: TagalongstoryComponent},
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'createstory/:id', component: CreatestoryComponent },
   { path: 'pictures', component: PictureOverviewComponent },
   {path: 'imageUpload', component: ImageuploadComponent},
-  {path: 'residents', component: ResidentsComponent}
+  {path: 'residents', component: ResidentsComponent},
+  {path: 'residentDetails/:id', component: ResidentDetailsComponent}
 ];
 
