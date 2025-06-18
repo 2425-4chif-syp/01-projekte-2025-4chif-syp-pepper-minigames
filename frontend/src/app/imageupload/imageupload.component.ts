@@ -336,6 +336,7 @@ export class ImageuploadComponent {
     id: 0,
     name: '',
     icon: 'string',
+    storyIconBase64: '',
     gameType: this.defaultGameType,
     enabled: true,
   };

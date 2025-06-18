@@ -14,7 +14,29 @@
     <div *ngFor="let story of filteredStories; let i = index" role="alert"
       class="alert mt-5 lg:w-[75%] flex items-center gap-4">
      
-      <span style="font-size: 18px; font-weight: bold;">{{story.name}}</span>
+      <!-- Titelbild anzeigen -->
+      <div class="flex-shrink-0">
+        <ng-container *ngIf="hasValidIcon(story.storyIconBase64); else defaultImage">
+          <img 
+            [src]="getImageSrc(story.storyIconBase64)" 
+            [alt]="story.name + ' Titelbild'"
+            class="w-16 h-16 rounded-lg object-cover shadow-md border border-gray-200"
+            (error)="onImageError($event)"
+          />
+        </ng-container>
+        <ng-template #defaultImage>
+          <div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center shadow-md border border-gray-300">
+            <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Geschichtenname -->
+      <div class="flex-grow">
+        <span class="text-lg font-bold text-gray-800">{{story.name || 'Unbenannte Geschichte'}}</span>
+      </div>
 
       <div class="flex items-center gap-2 ml-auto">
         <div class="tooltip" data-tip="Die Geschichte kann bearbeitet werden.">

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { STORY_URL } from '../app.config';
 import { ITagalongStory } from '../../models/tagalongstories.model';
@@ -12,7 +12,7 @@ import e from 'express';
 @Component({
   selector: 'app-tagalongstory',
   standalone: true,
-  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './tagalongstory.component.html',
   styleUrls: ['./tagalongstory.component.css']
 })
@@ -39,11 +39,13 @@ export class TagalongstoryComponent {
         // Setze `enabled` als Boolean-Wert
 
         console.log("MMG: ", stories)
+        console.log("Erste Geschichte Details:", stories[0]); // Debug: Schaue erste Geschichte im Detail an
         this.tagalongstoriesAll = stories.map(story => ({
           ...story,
           enabled: !!story.enabled // Wandelt `undefined` oder `null` in `false` um
         }));
         this.filteredStories = this.tagalongstoriesAll;
+        console.log("Gefilterte Geschichten:", this.filteredStories); // Debug: Schaue gefilterte Geschichten an
       },
       (error) => {
         console.error("Fehler beim Laden der Geschichten:", error);
@@ -110,5 +112,40 @@ export class TagalongstoryComponent {
         error: error => alert("fehler beim wechseln des anzeigezustandes " + error.message)
       })
     }
+  }
+  
+  // Hilfsmethode um den korrekten Bild-Src zu generieren
+  getImageSrc(icon: string): string {
+    console.log('getImageSrc called with icon:', icon?.substring(0, 50) + '...'); // Zeige nur die ersten 50 Zeichen
+    console.log('Icon type:', typeof icon, 'Length:', icon?.length); // Debug: Type und Länge
+    
+    if (!icon || icon.trim() === '') {
+      console.log('Icon ist leer, verwende Standard-Bild');
+      return 'assets/images/imageNotFound.png';
+    }
+    
+    // Wenn es bereits ein vollständiger data:image URL ist (wie storyIconBase64)
+    if (icon.startsWith('data:')) {
+      console.log('Icon ist bereits vollständige data: URL');
+      return icon;
+    }
+    
+    // Wenn es nur der Base64 Teil ist
+    console.log('Icon wird als Base64 behandelt');
+    return `data:image/png;base64,${icon}`;
+  }
+
+  // Fehlerbehandlung für Bilder
+  onImageError(event: any) {
+    console.log('Bild konnte nicht geladen werden, verwende Fallback');
+    event.target.src = 'assets/images/imageNotFound.png';
+  }
+  
+  // Prüft ob ein gültiges Icon vorhanden ist
+  hasValidIcon(icon: string): boolean {
+    console.log('hasValidIcon called with:', icon);
+    const isValid = !!(icon && icon.trim() !== '' && icon !== 'string' && icon.length > 10);
+    console.log('Icon is valid:', isValid);
+    return isValid;
   }
 }

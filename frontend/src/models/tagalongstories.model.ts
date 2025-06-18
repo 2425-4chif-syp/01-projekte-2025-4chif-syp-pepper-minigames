@@ -2,6 +2,7 @@ export interface ITagalongStory {
   id: number;
   name: string;
   icon: string;
+  storyIconBase64: string; // Das neue Feld für Base64-Icon-Daten - immer vorhanden
   gameType: IGameType;
   enabled: boolean;
 }
