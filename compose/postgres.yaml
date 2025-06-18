@@ -21,14 +21,7 @@ services:
     networks:
       - custom_net
 
-volumes:
-  postgres:
-  setup:
-
 networks:
   custom_net:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.30.0.0/24
+    external: true
+    name: pep-db_custom_net
