@@ -40,6 +40,9 @@ class MmgViewModel(private val navController: NavController) : ViewModel() {
     private val _isAnimationRunning = MutableStateFlow(false)
     val isAnimationRunning = _isAnimationRunning.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     var emotes: List<EmoteDto> = emptyList()
 
     fun incrementStepCount() {
@@ -136,6 +139,7 @@ class MmgViewModel(private val navController: NavController) : ViewModel() {
 
     fun loadMmgDtos() {
         emotes = getEmotes()
+        _isLoading.value = true // Setze Loading-Status auf true
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgDtos()
             Log.d("Result:", "$result")
@@ -148,11 +152,13 @@ class MmgViewModel(private val navController: NavController) : ViewModel() {
             else{
                 RoboterActions.speak("Ich habe keine Mitmachgeschichten gefunden")
             }
+            _isLoading.value = false // Setze Loading-Status wieder auf false
         }
     }
 
     fun emptyMmgList(){
         _mmgList.value = emptyList()
+        _isLoading.value = true // Setze Loading-Status beim Leeren der Liste
     }
 
     fun loadMmgSteps(id: Int){

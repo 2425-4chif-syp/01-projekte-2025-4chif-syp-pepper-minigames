@@ -35,6 +35,7 @@ fun MmgScreen(
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadMmgDtos()
@@ -65,7 +66,8 @@ fun MmgScreen(
                     viewModel.emptyMmgList()
                     viewModel.loadMmgDtos()
                 },
-                modifier = Modifier.height(56.dp)
+                modifier = Modifier.height(56.dp),
+                enabled = !isLoading
             ) {
                 Icon(
                     imageVector = Icons.Filled.Refresh,
