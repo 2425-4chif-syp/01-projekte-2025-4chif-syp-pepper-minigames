@@ -1,4 +1,5 @@
-# docker compose file for our standalone postgres database
+version: '3.8'
+
 services:
   postgres:
     container_name: postgres
@@ -8,9 +9,6 @@ services:
     volumes:
       - ./db-postgres/db:/var/lib/postgresql/data
       - ./db-postgres/import:/import
-    #      - postgres:/var/lib/postgresql/data
-    #      - setup:/docker-entrypoint-initdb.d
-    #      - ./postgres/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql volume mounts don't work on windows
     environment:
       - POSTGRES_PASSWORD=app
       - POSTGRES_USER=app
@@ -22,6 +20,8 @@ services:
       retries: 3
       start_period: 30s
       start_interval: 2s
+    networks:
+      - custom_net
 
 volumes:
   postgres:
@@ -29,6 +29,7 @@ volumes:
 
 networks:
   custom_net:
+    driver: bridge
     ipam:
       driver: default
       config:
