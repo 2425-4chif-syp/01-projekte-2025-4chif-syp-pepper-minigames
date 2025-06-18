@@ -100,7 +100,7 @@ jobs:
 #            docker compose down --rmi all
 #            docker compose build --no-cache
 #            docker compose up -d
-
+#
 #            if [ $(docker ps -q -f name=backend) ]; then
 #              docker stop backend
 #              docker rm backend
