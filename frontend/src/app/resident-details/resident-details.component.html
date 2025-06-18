@@ -50,6 +50,29 @@
             </div>
         </div>
     </div>
+
+    <div class="mt-6 p-4 bg-gray-100 rounded-lg shadow-inner">
+        <h2 class="text-xl font-bold mb-4 text-gray-700">Bilder-Galerie</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            @for (image of imagesOfPerson(); track $index) {
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <div class="bg-white p-2 rounded-lg shadow-md border-2 border-pink-200 hover:border-pink-500">
+                        <img [src]="'data:image/png;base64,' + image.base64Image" 
+                             alt="Person Image" 
+                             class="w-full h-48 object-cover rounded-md">
+                    </div>
+                </div>
+            }
+            @empty {
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p>Keine Bilder vorhanden</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 <style>
 
