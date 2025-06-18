@@ -52,6 +52,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Looking file"
+            ls -lah
             cd /home/${{ secrets.SSH_USER }}/deploy/compose
             docker compose down --rmi all
             docker compose build --no-cache
