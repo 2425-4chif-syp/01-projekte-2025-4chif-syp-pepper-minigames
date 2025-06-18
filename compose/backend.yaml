@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: backend
-    image: ghcr.io/2425-4chif-syp/backend:latest
+    image: ghcr.io/2425-4chif-syp/01-projekte-2025-4chif-syp-pepper-minigames/pepper-backend:latest
     depends_on:
       postgres:
         condition: service_healthy

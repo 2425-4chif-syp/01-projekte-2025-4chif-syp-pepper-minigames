@@ -73,7 +73,7 @@ jobs:
             docker compose -f docker-compose.yaml down --rmi all
             docker compose -f docker-compose.yaml build --no-cache
             docker compose -f docker-compose.yaml up -d
-#
+
 #            if [ $(docker ps -q -f name=backend) ]; then
 #              docker stop backend
 #              docker rm backend
