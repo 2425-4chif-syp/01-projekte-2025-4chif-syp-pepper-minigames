@@ -1,4 +1,4 @@
-name: Build and Deploy Backend with Compose
+name: TEMP Backend
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "deploy/*"
+          source: "deploy"
           target: "/home/${{ secrets.SSH_USER }}/"
 
       - name: Run docker compose on server
@@ -52,7 +52,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.SSH_USER }}/compose
+            cd /home/${{ secrets.SSH_USER }}/deploy/compose
             docker compose down --rmi all
             docker compose build --no-cache
             docker compose up -d
+      
