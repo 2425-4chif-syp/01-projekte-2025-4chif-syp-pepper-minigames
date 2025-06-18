@@ -4,3 +4,10 @@ include:
   - postgres.yaml
   - backend.yaml
   #- frontend.yaml
+
+networks:
+  pepper_net:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1

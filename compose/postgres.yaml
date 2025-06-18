@@ -19,9 +19,11 @@ services:
       start_period: 30s
       start_interval: 2s
     networks:
-      - custom_net
+      - pepper_net
 
 networks:
-  custom_net:
-    external: true
-    name: pep-db_custom_net
+  pepper_net:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.1

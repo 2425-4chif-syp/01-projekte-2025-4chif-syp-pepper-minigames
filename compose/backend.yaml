@@ -16,3 +16,5 @@ services:
       - quarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/db
     env_file:
       - ../backend_v2/.env
+    networks:
+      - pepper_net
