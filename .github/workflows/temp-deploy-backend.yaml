@@ -1,0 +1,58 @@
+name: Build and Deploy Backend with Compose
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend_v2/**'
+      - 'compose/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build Quarkus backend
+        run: mvn clean package -DskipTests
+        working-directory: backend_v2
+
+      - name: Prepare deployment folder
+        run: |
+          mkdir -p deploy/backend_v2
+          mkdir -p deploy/compose
+          cp -r backend_v2/* deploy/backend_v2/
+          cp -r compose/* deploy/compose/
+
+      - name: Upload backend and compose folders via SCP
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "deploy/*"
+          target: "/home/${{ secrets.SSH_USER }}/"
+
+      - name: Run docker compose on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.SSH_USER }}/compose
+            docker compose down --rmi all
+            docker compose build --no-cache
+            docker compose up -d
