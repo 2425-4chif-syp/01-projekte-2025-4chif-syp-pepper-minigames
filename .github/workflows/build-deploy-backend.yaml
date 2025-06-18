@@ -58,6 +58,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+
+
+
       - name: Deploy to VM (SSH)
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -65,16 +68,38 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/root/compose
-            echo "Current working dir:"
-            pwd
-            echo "Content of dir:"
-            ls -lah
-            echo "Searching for docker-compose.yaml:"
-            find . -name "docker-compose.yaml"
-            docker compose down --rmi all
-            docker compose build --no-cache
-            docker compose up -d
+            echo "Logging in to ghcr.io..."
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.TEMP_GHCR_PAT }}
+            
+            echo "Pulling Docker image..."
+            docker pull ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}
+            
+            echo "Stopping and removing old container..."
+            docker stop pepper-backend || true
+            docker rm pepper-backend || true
+            
+            echo "Running new container..."
+            docker run -d \
+              --name pepper-backend \
+              -p 8080:8080 \
+              ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}
+
+#      - name: Deploy to VM (SSH)
+#        uses: appleboy/ssh-action@v0.1.5
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          username: ${{ secrets.SSH_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            echo "Current working dir:"
+#            pwd
+#            echo "Content of dir:"
+#            ls -lah
+#            echo "Searching for docker-compose.yaml:"
+#            find . -name "docker-compose.yaml"
+#            docker compose down --rmi all
+#            docker compose build --no-cache
+#            docker compose up -d
 
 #            if [ $(docker ps -q -f name=backend) ]; then
 #              docker stop backend
