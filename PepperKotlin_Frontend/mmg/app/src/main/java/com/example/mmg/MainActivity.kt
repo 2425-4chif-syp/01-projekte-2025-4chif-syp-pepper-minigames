@@ -24,10 +24,9 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
 
-        mmgViewModel = MmgViewModel()
-
         setContent {
             val navController = rememberNavController()
+            mmgViewModel = MmgViewModel(navController = navController)
             AppNavigaton(navController = navController, mmgViewModel = mmgViewModel)
         }
     }

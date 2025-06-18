@@ -22,9 +22,10 @@ fun StepScreen(
     viewModel: MmgViewModel,
     navController: NavController
 ) {
-
     val imageBitmap by viewModel.imageBitMap.collectAsState()
     val mmgSteps by viewModel.mmgStep.collectAsState()
+    val stepCount by viewModel._stepCount.collectAsState()
+    val isAnimationRunning by viewModel.isAnimationRunning.collectAsState()
 
     if(mmgSteps.isEmpty())
     {
@@ -43,10 +44,9 @@ fun StepScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Bild nimmt so viel Platz wie möglich ein
             Box(
                 modifier = Modifier
-                    .weight(2f) // // erhöht den Platz, den das Bild einnimmt
+                    .weight(2f)
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
@@ -56,7 +56,7 @@ fun StepScreen(
                         contentDescription = "Step Picture",
                         modifier = Modifier.
                         fillMaxWidth().fillMaxHeight(),
-                        contentScale = ContentScale.Crop //Von Fit zu Crop
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Image(
@@ -70,37 +70,58 @@ fun StepScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons immer unten
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                    .padding(bottom = 16.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(50.dp),
+                        onClick = {
+                            viewModel.decrementStepCount()
+                        },
+                        enabled = stepCount > 0 && !isAnimationRunning
+                    ) {
+                        Text(text = "Zurück")
+                    }
+
+                    Button(
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(50.dp),
+                        onClick = {
+                            viewModel.incrementStepCount()
+                        },
+                        enabled = !isAnimationRunning
+
+                    ) {
+                        Text(text = "Weiter")
+                    }
+                }
+
                 Button(
                     modifier = Modifier
+                        .align(Alignment.BottomEnd)
                         .width(150.dp)
                         .height(50.dp),
                     onClick = {
                         viewModel.resetStepCount()
                         navController.popBackStack()
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    enabled = !isAnimationRunning
                 ) {
-                    Text(text = "Abbrechen")
-                }
-
-                Button(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(50.dp),
-                    onClick = {
-                        viewModel.displayStep()
-                    }
-                ) {
-                    Text(text = "Weiter")
+                    Text(text = "Abbrechen", style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
-
     }
 }
