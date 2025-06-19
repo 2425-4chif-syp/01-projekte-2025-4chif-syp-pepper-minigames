@@ -18,11 +18,17 @@ Kyaw, Obaid, Amir, Milad
 |`backend_v2`
 |Das derzeitige Backend
 
-|`PepperAngular`
-|Das Legacy-Frontend (System der vorjährigen Schülergruppe)
+|`frontend`
+|Angular Frontend
 
-|`PepperAngularNeu`
-|Das neu zu entwickelnde Frontend
+|`compose`
+|
+
+|`PepperKotlin_Frontend`
+|
+
+|`person-entry-app`
+|
 |===
 
 
