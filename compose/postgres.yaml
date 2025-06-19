@@ -2,6 +2,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:17-alpine
+    restart: unless-stopped
     ports:
       - 5432:5432
     volumes:
@@ -20,10 +21,3 @@ services:
       start_interval: 2s
     networks:
       - pepper_net
-
-networks:
-  pepper_net:
-    ipam:
-      config:
-        - subnet: 10.5.0.0/24
-          gateway: 10.5.0.1

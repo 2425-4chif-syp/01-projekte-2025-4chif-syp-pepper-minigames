@@ -1,7 +1,7 @@
 services:
   nginx:
     container_name: www
-    image: www
+    image: ghcr.io/2425-4chif-syp/01-projekte-2025-4chif-syp-pepper-minigames/pepper-frontend:latest
     ports:
       - 4200:80
     healthcheck:
@@ -13,3 +13,5 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - pepper_net

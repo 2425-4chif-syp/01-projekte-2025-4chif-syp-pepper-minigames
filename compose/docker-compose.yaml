@@ -3,7 +3,7 @@
 include:
   - postgres.yaml
   - backend.yaml
-  #- frontend.yaml
+  - frontend.yaml
 
 networks:
   pepper_net:
