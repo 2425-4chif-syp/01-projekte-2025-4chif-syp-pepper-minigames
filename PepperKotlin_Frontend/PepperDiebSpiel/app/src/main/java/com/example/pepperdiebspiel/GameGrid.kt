@@ -1,153 +1,143 @@
 package com.example.pepperdiebspiel
 
-import android.media.MediaPlayer
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.*
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.min
+import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.pepperdiebspiel.game.GameViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlin.math.min
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun GameGrid() {
+fun GameGrid(navController: NavController, difficulty: String, theme: String) {
     val gameViewModel: GameViewModel = viewModel()
 
-    // Zugriff auf die Zustände aus dem ViewModel
+    LaunchedEffect(Unit) {
+        gameViewModel.setDifficultyAndTheme(difficulty, theme)
+    }
+
     val gridItems by gameViewModel.gridItems
     val thiefPosition by gameViewModel.thiefPosition
     val gameWon by gameViewModel.gameWon
     val elapsedTime by gameViewModel.elapsedTime
+    val images by gameViewModel.images
 
-    // Hier werden die Bilder definiert
-    val images = listOf(
-        R.drawable.water,
-        R.drawable.church,
-        R.drawable.sheep,
-        R.drawable.witch,
-        R.drawable.bird
-    )
+    if (images.isEmpty() || gridItems.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
-    // Anzeige, wenn das Spiel gewonnen wurde
+    val (columns, rows) = when (difficulty) {
+        "easy" -> 4 to 4
+        "medium" -> 5 to 6
+        "hard" -> 6 to 8
+        else -> 5 to 6
+    }
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
+    val cellSize = with(LocalDensity.current) {
+        min(screenWidth / columns, screenHeight / rows) - 4.dp
+    }
+
     if (gameWon) {
         gameViewModel.stopTimer()
 
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
                 .background(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0xFFFFEB3B), Color(0xFFF57C00)),
-                        radius = 600f
+                        colors = listOf(Color(0xFF1B1B1B), Color(0xFF121212)),
+                        radius = 1000f
                     )
-                )
+                ),
+            contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.thief),
                     contentDescription = "Gefundener Dieb",
                     modifier = Modifier
-                        .size(300.dp)
-                        .padding(bottom = 24.dp)
-                        .shadow(10.dp, shape = RectangleShape),
+                        .size(220.dp)
+                        .shadow(8.dp, RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Zeit benötigt: ${(elapsedTime / 1000)} Sekunden",
-                    fontSize = 30.sp,
-                    color = Color.Blue,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.shadow(5.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Text(
                     text = "Dieb wurde gefunden!",
-                    fontSize = 36.sp,
-                    color = Color.Red,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.shadow(5.dp)
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFF5252)
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Benötigte Zeit: ${(elapsedTime / 1000)} Sekunden",
+                    fontSize = 20.sp,
+                    color = Color(0xFF64B5F6)
+                )
 
-                Button(
-                    onClick = {
-                        gameViewModel.resetGame()
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1976D2)),
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .border(2.dp, Color.White)
-                        .shadow(8.dp, shape = RectangleShape)
-                ) {
-                    Text("Neustart", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Button(
+                        onClick = { gameViewModel.resetGame(difficulty, theme) },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1E88E5)),
+                        modifier = Modifier
+                            .width(130.dp)
+                            .height(50.dp)
+                            .shadow(4.dp, RoundedCornerShape(12.dp))
+                    ) {
+                        Text("Neustart", fontSize = 18.sp, color = Color.White)
+                    }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        gameViewModel.stopGame()
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .border(2.dp, Color.White)
-                        .shadow(8.dp, shape = RectangleShape)
-                ) {
-                    Text("Beenden", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Button(
+                        onClick = {
+                            gameViewModel.stopGame()
+                            navController.navigate("difficulty_selection") {
+                                popUpTo("game") { inclusive = true }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
+                        modifier = Modifier
+                            .width(130.dp)
+                            .height(50.dp)
+                            .shadow(4.dp, RoundedCornerShape(12.dp))
+                    ) {
+                        Text("Beenden", fontSize = 18.sp, color = Color.White)
+                    }
                 }
             }
         }
-    } else {
-        val configuration = LocalConfiguration.current
-        val screenWidth = configuration.screenWidthDp.dp
-        val screenHeight = configuration.screenHeightDp.dp
-
-        val cellSize = with(LocalDensity.current) {
-            min(screenWidth / 8, screenHeight / 6) - 4.dp
+    }
+    else if (gameViewModel.gameOver.value) {
+        LaunchedEffect(Unit) {
+            navController.navigate("gameOver") {
+                popUpTo("game") { inclusive = true }
+            }
         }
-
+    } else {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -158,7 +148,7 @@ fun GameGrid() {
                 )
         ) {
             LazyVerticalGrid(
-                cells = GridCells.Fixed(8),
+                cells = GridCells.Fixed(columns),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(gridItems.size) { index ->
@@ -172,15 +162,16 @@ fun GameGrid() {
         }
     }
 
-    // Bewege den Dieb alle paar Sekunden
-    LaunchedEffect(gameWon) {
-        if (!gameWon) {
+
+    LaunchedEffect(gameWon, gameViewModel.gameOver.value) {
+        if (!gameWon && !gameViewModel.gameOver.value) {
             while (isActive) {
-                delay(4000)  // Warte 4 Sekunden für die Bewegung des Diebes
-                gameViewModel.moveThief() // Bewege den Dieb
+                delay(4000)
+                gameViewModel.moveThief()
             }
         }
     }
+
 }
 
 @Composable
@@ -202,8 +193,10 @@ fun GridItem(imageResId: Int, size: Dp, onClick: () -> Unit) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize().padding(4.dp),
-            contentScale = ContentScale.Crop
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
+            contentScale = ContentScale.Fit
         )
     }
 }

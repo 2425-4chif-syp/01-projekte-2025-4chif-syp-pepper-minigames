@@ -11,59 +11,109 @@ import kotlinx.coroutines.*
 import kotlin.random.Random
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    val gridItems = mutableStateOf(List(48) { Random.nextInt(0, 5) })
-    val thiefPosition = mutableStateOf(Random.nextInt(0, 48))
+
+    val gridItems = mutableStateOf(emptyList<Int>())
+    val thiefPosition = mutableStateOf(0)
     val gameWon = mutableStateOf(false)
     val elapsedTime = mutableStateOf(0L)
+    val gameOver = mutableStateOf(false)
+    val timeLimit = mutableStateOf(60_000L)
+
+    val images = mutableStateOf<List<Int>>(emptyList())
+    val sounds = mutableStateOf<List<Int>>(emptyList())
+
     private var mediaPlayer: MediaPlayer? = null
     private var isTimerRunning = mutableStateOf(true)
+    private var gridSize = 48
 
-    val images = listOf(
-        R.drawable.water,
-        R.drawable.church,
-        R.drawable.sheep,
-        R.drawable.witch,
-        R.drawable.bird
-    )
+    fun setDifficultyAndTheme(difficulty: String, theme: String) {
+        gridSize = when (difficulty) {
+            "easy" -> 16
+            "medium" -> 30
+            "hard" -> 48
+            else -> 30
+        }
 
-    val sounds = listOf(
-        R.raw.water_sound,
-        R.raw.church_bells,
-        R.raw.sheep_bleat,
-        R.raw.witch_laugh,
-        R.raw.bird_chirp
-    )
+        timeLimit.value = when (difficulty) {
+            "easy" -> 30_000L
+            "medium" -> 30_000L
+            "hard" -> 45_000L
+            else -> 60_000L
+        }
 
-    init {
-        startTimer()
-    }
+        when (theme) {
+            "classic" -> {
+                images.value = listOf(
+                    R.drawable.water, R.drawable.church, R.drawable.sheep,
+                    R.drawable.witch, R.drawable.bird
+                )
+                sounds.value = listOf(
+                    R.raw.water_sound, R.raw.church_bells, R.raw.sheep_bleat,
+                    R.raw.witch_laugh, R.raw.bird_chirp
+                )
+            }
 
-    fun startTimer() {
-        viewModelScope.launch(Dispatchers.Main) {
-            while (!gameWon.value) {
-                delay(1000)
-                elapsedTime.value += 1000
+            "scary" -> {
+                images.value = listOf(
+                    R.drawable.wolf, R.drawable.vampir, R.drawable.monster,
+                    R.drawable.zombie, R.drawable.skeleton
+                )
+                sounds.value = listOf(
+                    R.raw.wolf_howl, R.raw.vampire, R.raw.monster,
+                    R.raw.zombie, R.raw.skeleton
+                )
+            }
+
+            "night" -> {
+                images.value = listOf(
+                    R.drawable.owl, R.drawable.wolf, R.drawable.bird,
+                    R.drawable.sheep, R.drawable.water
+                )
+                sounds.value = listOf(
+                    R.raw.owl, R.raw.wolf_howl, R.raw.bird_chirp,
+                    R.raw.sheep_bleat, R.raw.water_sound
+                )
+            }
+
+            "chaos" -> {
+                images.value = listOf(
+                    R.drawable.cow, R.drawable.skeleton, R.drawable.monster,
+                    R.drawable.witch, R.drawable.alarm
+                )
+                sounds.value = listOf(
+                    R.raw.cow, R.raw.skeleton, R.raw.monster,
+                    R.raw.witch_laugh, R.raw.alarm
+                )
+            }
+
+            else -> {
+                images.value = emptyList()
+                sounds.value = emptyList()
             }
         }
-    }
 
-    // Stoppt den Timer
-    fun stopTimer() {
-        isTimerRunning.value = false
-    }
+        if (images.value.isEmpty() || sounds.value.isEmpty()) {
+            Log.e("GameViewModel", "Fehler: Kein Thema gesetzt oder leere Bild-/Soundliste!")
+            return
+        }
 
-    // Setzt das Spiel zurück
-    fun resetGame() {
-        gridItems.value = List(48) { Random.nextInt(0, images.size) }
-        thiefPosition.value = (0 until 48).random()
+        gridItems.value = List(gridSize) { Random.nextInt(images.value.size) }
+        thiefPosition.value = Random.nextInt(gridSize)
         gameWon.value = false
+        gameOver.value = false
         elapsedTime.value = 0L
         isTimerRunning.value = true
+
+        Log.d("GameViewModel", "Spiel gestartet mit $gridSize Feldern, Thema: $theme")
         startTimer()
     }
 
 
-    // Stoppt das Spiel
+    fun resetGame(difficulty: String, theme: String) {
+        stopTimer()
+        setDifficultyAndTheme(difficulty, theme)
+    }
+
     fun stopGame() {
         stopTimer()
         mediaPlayer?.release()
@@ -71,55 +121,81 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("GameViewModel", "Game beendet.")
     }
 
+    fun stopTimer() {
+        isTimerRunning.value = false
+    }
+
     fun setGameWon(won: Boolean) {
         gameWon.value = won
     }
 
-    // Logik für die Bewegung des Diebes
+    fun startTimer() {
+        viewModelScope.launch(Dispatchers.Main) {
+            while (!gameWon.value && isTimerRunning.value) {
+                delay(1000)
+                elapsedTime.value += 1000
+
+                if (elapsedTime.value >= timeLimit.value) {
+                    gameOver.value = true
+                    isTimerRunning.value = false
+                    break
+                }
+            }
+        }
+    }
+
+
+
     fun moveThief(): Int {
-        val possibleMoves = mutableListOf<Int>()
-        if (thiefPosition.value % 8 != 0) possibleMoves.add(thiefPosition.value - 1)
-        if (thiefPosition.value % 8 != 7) possibleMoves.add(thiefPosition.value + 1)
-        if (thiefPosition.value >= 8) possibleMoves.add(thiefPosition.value - 8)
-        if (thiefPosition.value < 40) possibleMoves.add(thiefPosition.value + 8)
-        thiefPosition.value = possibleMoves.random() // Zufällige Bewegung des Diebes
+        if (images.value.isEmpty() || gridItems.value.isEmpty()) return thiefPosition.value
 
-        // Berechne die Zeile und Spalte basierend auf der Position des Diebes (1-basiert)
-        val row = thiefPosition.value / 8 + 1 // Zeile 1-basiert
-        val column = thiefPosition.value % 8 + 1 // Spalte 1-basiert
+        val cols = when (gridSize) {
+            30 -> 5
+            48 -> 6
+            80 -> 8
+            else -> 6
+        }
 
-        // Logge die Position des Diebes
-        Log.d("GameViewModel", "Der Dieb befindet sich in Grid [$row][$column]")
+        val moves = mutableListOf<Int>()
+        val pos = thiefPosition.value
 
-        // Sofort den Sound des neuen Grid abspielen
+        if (pos % cols != 0) moves.add(pos - 1)
+        if (pos % cols != cols - 1) moves.add(pos + 1)
+        if (pos >= cols) moves.add(pos - cols)
+        if (pos < gridSize - cols) moves.add(pos + cols)
+
+        if (moves.isNotEmpty()) {
+            thiefPosition.value = moves.random()
+        }
+
+        Log.d("GameViewModel", "Dieb bewegt zu Position ${thiefPosition.value}")
+
         viewModelScope.launch {
-            playSound(thiefPosition.value) // Spiele den entsprechenden Sound ab
+            playSound(thiefPosition.value)
         }
 
         return thiefPosition.value
     }
 
-    // Methode zum Abspielen von Sounds
+
     suspend fun playSound(thiefPosition: Int) {
         try {
             val imageIndex = gridItems.value[thiefPosition]
-            val soundResId = sounds[imageIndex]
+            val soundResId = sounds.value.getOrNull(imageIndex) ?: return
 
             mediaPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
+                if (isPlaying) stop()
                 release()
             }
 
             mediaPlayer = MediaPlayer.create(getApplication(), soundResId)
             mediaPlayer?.setOnCompletionListener {
-                mediaPlayer?.release() // Release nach Beendigung
+                mediaPlayer?.release()
                 mediaPlayer = null
             }
-            mediaPlayer?.start() // Starte den neuen Sound
+            mediaPlayer?.start()
         } catch (e: Exception) {
-            Log.e("GameViewModel", "Error playing sound: ${e.message}")
+            Log.e("GameViewModel", "Fehler beim Abspielen: ${e.message}")
         }
     }
 }
