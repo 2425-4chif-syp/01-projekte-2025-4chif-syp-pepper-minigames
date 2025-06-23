@@ -86,4 +86,8 @@ export class ImageServiceService {
   enablingStory(id: number, isEnabled: boolean){
     return this.http.put("/api/tagalongstories/" + id, {"isEnabled" : isEnabled}, httpOptions)
   }
+
+  getImageById(id: number){
+    return this.http.get<ImageDto[]>(`${this.url}/image/person/${id}`);
+  }
 }

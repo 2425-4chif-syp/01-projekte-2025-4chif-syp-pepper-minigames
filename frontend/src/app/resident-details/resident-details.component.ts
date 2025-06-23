@@ -4,6 +4,7 @@ import { Person } from '../models/person.model';
 import { ResidentServiceService } from '../service/resident-service.service';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageModel } from '../models/image.model';
+import { ImageDto } from '../models/imageDto.model';
 
 @Component({
   selector: 'app-resident-details',
@@ -23,9 +24,9 @@ export class ResidentDetailsComponent implements OnInit {
   residentOfId = signal<Person | undefined>(undefined);
 
   imageService = inject(ImageServiceService)
-  images = signal<ImageModel[]>([]);
+  images = signal<ImageDto[]>([]);
 
-  imagesOfPerson = signal<ImageModel[]>([]);
+  imagesOfPerson = signal<ImageDto[]>([]);
 
   ngOnInit() {  
     this.activatedRoute.params.subscribe(
@@ -44,6 +45,7 @@ export class ResidentDetailsComponent implements OnInit {
         this.getResidentById(this.actId);
         console.log(this.residents());
         this.loadImages();
+        console.log(this.imagesOfPerson());
       },
       error: error=> {
         console.error("Laden der Personen fehlgeschlagen." + error.name);
@@ -58,11 +60,11 @@ export class ResidentDetailsComponent implements OnInit {
   }
 
   loadImages(){
-    this.imageService.getImages().subscribe({
+    this.imageService.getImageById(this.actId).subscribe({
       next: data => {
-        this.images.set(data);
-        console.log(this.images());
-        this.imagesOfPerson.set(this.images().filter(image => image.person?.id === this.actId));
+        //this.images.set(data);
+        //console.log(this.images());
+        this.imagesOfPerson.set(data);
       },
       error: error => {
         console.error("Laden der Bilder fehlgeschlagen." + error.name);
