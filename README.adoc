@@ -29,10 +29,14 @@ Kyaw, Obaid, Amir, Milad
 
 == Contributors
 
-- Kyaw
-- Obaid
-- Amir
-- Milad
+- Kyaw (DevOps)
+- David (DevOps)
+- Emil (Angular-Frontend)
+- Moritz (Angular-Frontend)
+- Nikola (Android-Frontend)
+- Obaid (Android-Frontend)
+- Amir (Andorid-Frontend)
+- Milad (Android-Frontend)
 
 
 == 🎮 Games
