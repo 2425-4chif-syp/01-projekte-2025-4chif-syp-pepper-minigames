@@ -3,10 +3,10 @@ package at.htlleonding.pepper.domain;
 import at.htlleonding.pepper.boundary.PersonResource;
 import at.htlleonding.pepper.dto.PersonDto;
 import at.htlleonding.pepper.repository.PersonRepository;
+import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.jboss.logging.Logger;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PersonResourceTest {
-
-    private static final Logger LOG = Logger.getLogger(PersonResourceTest.class.getSimpleName());
-
+public class PersonResourceTest {
+    
     @Inject
     PersonResource personResource;
 
@@ -41,7 +39,7 @@ class PersonResourceTest {
 
 
         var response = personResource.getAllPeople();
-        LOG.info(response.getEntity());
+        Log.info(response.getEntity());
 
 
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
@@ -60,7 +58,7 @@ class PersonResourceTest {
 
 
         var response = personResource.getPersonById(id);
-        LOG.info(response.getEntity());
+        Log.info(response.getEntity());
 
 
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
@@ -82,7 +80,7 @@ class PersonResourceTest {
 
         // act
         var response = personResource.updatePerson(p.getId(), updated);
-        LOG.info(response.getEntity());
+        Log.info(response.getEntity());
 
         // assert
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
@@ -102,7 +100,7 @@ class PersonResourceTest {
 
         // act
         var response = personResource.deletePerson(id);
-        LOG.info(response.getEntity());
+        Log.info(response.getEntity());
 
         // assert
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
@@ -112,36 +110,36 @@ class PersonResourceTest {
     @Test
     @Order(170)
     @Transactional
-    void login_shouldSucceed_withCorrectCredentials() {
+    void Login_shouldSucceed_withCorrectCredentials() {
         // arrange
         String password = org.mindrot.jbcrypt.BCrypt.hashpw("geheim", org.mindrot.jbcrypt.BCrypt.gensalt());
         Person worker = new Person("Max", "Mustermann", LocalDate.of(1980, 3, 20), null, true, password);
         personRepository.persist(worker);
 
-        Person loginAttempt = new Person("Max", "Mustermann", null, null, true, "geheim");
+        Person LoginAttempt = new Person("Max", "Mustermann", null, null, true, "geheim");
 
         // act
-        var response = personResource.login(loginAttempt);
-        LOG.info(response.getEntity());
+        var response = personResource.login(LoginAttempt);
+        Log.info(response.getEntity());
 
         // assert
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
-        assertThat(response.getEntity()).isEqualTo("Erfolgreich eingeloggt");
+        assertThat(response.getEntity()).isEqualTo("Erfolgreich eingeLoggt");
     }
 
     @Test
     @Order(180)
     @Transactional
-    void login_shouldFail_forSenior() {
+    void Login_shouldFail_forSenior() {
         // arrange
         Person senior = new Person("Opa", "Test", LocalDate.of(1945, 6, 30), "Z3", false, null);
         personRepository.persist(senior);
 
-        Person loginAttempt = new Person("Opa", "Test", null, "Z3", false, "egal");
+        Person LoginAttempt = new Person("Opa", "Test", null, "Z3", false, "egal");
 
         // act
-        var response = personResource.login(loginAttempt);
-        LOG.info(response.getEntity());
+        var response = personResource.login(LoginAttempt);
+        Log.info(response.getEntity());
 
         // assert
         assertThat(response.getStatus()).isEqualTo(UNAUTHORIZED.getStatusCode());
