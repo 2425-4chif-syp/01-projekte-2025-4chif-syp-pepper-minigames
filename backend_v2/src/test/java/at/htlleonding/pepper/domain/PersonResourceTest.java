@@ -32,7 +32,7 @@ public class PersonResourceTest {
     @Test
     @Order(130)
     @Transactional
-    void getAllPeople_shouldReturnList_whenNotEmpty() {
+    void getAllPeople_shouldReturnSList_whenNotEmpty() {
 
         Person person = new Person("Amir", "Mohammadi", LocalDate.of(2000, 2, 3), "101", false, null);
         personRepository.persist(person);

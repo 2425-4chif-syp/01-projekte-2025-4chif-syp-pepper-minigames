@@ -33,7 +33,7 @@ public class Converter {
     }
 
     public static ImageDto convertToImageDto(Image image){
-        return new ImageDto(image.getId(), image.getPerson(), Base64.getEncoder().encodeToString(image.getImage()), image.getUrl(), image.getDescription());
+        return new ImageDto(image.getId(), image.getPerson().getId(), Base64.getEncoder().encodeToString(image.getImage()), image.getUrl(), image.getDescription());
     }
 
     public static String extractBase64String(String dataUrl) {

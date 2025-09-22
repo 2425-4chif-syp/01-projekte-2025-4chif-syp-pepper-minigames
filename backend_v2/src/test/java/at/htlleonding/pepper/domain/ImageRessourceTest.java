@@ -67,7 +67,7 @@ public class ImageRessourceTest {
     void createImage_shouldPersistAndReturn201(){
         // Arrange
         var base64Image = Base64.getEncoder().encodeToString("Hallo".getBytes());
-        ImageDto imageDto = new ImageDto(null, person, base64Image, null, "Test image");
+        ImageDto imageDto = new ImageDto(null, person.getId(), base64Image, null, "Test image");
 
         image = given()
                 .contentType(APPLICATION_JSON)

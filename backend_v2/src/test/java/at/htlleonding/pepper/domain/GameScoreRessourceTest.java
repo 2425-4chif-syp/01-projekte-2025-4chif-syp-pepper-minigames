@@ -39,7 +39,6 @@
                     "roomNo", "C3",
                     "isWorker", false
             );
-
             person = given()
                     .contentType(APPLICATION_JSON)
                     .body(newPerson)

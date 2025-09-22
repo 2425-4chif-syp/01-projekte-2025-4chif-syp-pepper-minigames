@@ -3,8 +3,10 @@ package at.htlleonding.pepper.boundary;
 import at.htlleonding.pepper.boundary.dto.ImageDto;
 import at.htlleonding.pepper.common.Converter;
 import at.htlleonding.pepper.domain.Image;
+import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.repository.ImageRepository;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,7 +23,8 @@ import java.util.List;
 public class ImageResource {
     @Inject
     ImageRepository imageRepository;
-
+    @Inject
+    EntityManager em;
     @GET
     @Transactional
     public Response getAllImages(){
@@ -45,6 +48,36 @@ public class ImageResource {
         ImageDto imageDto = Converter.convertToImageDto(imageRepository.findById(id));
         return Response.ok(imageDto).build();
     }
+    @GET
+    @Transactional
+    @Path("/picture/{id}")
+    public Response getPictureById(@PathParam("id") Long id){
+        ImageDto imageDto = Converter.convertToImageDto(imageRepository.findById(id));
+        var base = imageDto.base64Image();
+        byte[] imageBytes = Base64.getDecoder().decode(base);
+        String mime = detectMime(imageBytes);
+        return Response.ok(imageBytes)
+                .type(mime) // <<— entscheidend für „fertiges Bild“ im Browser
+                .header("Content-Disposition", "inline; filename=\"image-" + id + extFromMime(mime) + "\"")
+                .build();
+    }
+    private String detectMime(byte[] b) {
+        if (b.length>=8 && (b[0]&0xFF)==0x89 && b[1]==0x50 && b[2]==0x4E && b[3]==0x47) return "image/png";
+        if (b.length>=3 && (b[0]&0xFF)==0xFF && (b[1]&0xFF)==0xD8 && (b[2]&0xFF)==0xFF) return "image/jpeg";
+        if (b.length>=6 && b[0]==0x47 && b[1]==0x49 && b[2]==0x46 && b[3]==0x38) return "image/gif";
+        if (b.length>=12 && b[0]==0x52 && b[1]==0x49 && b[2]==0x46 && b[3]==0x46 &&
+                b[8]==0x57 && b[9]==0x45 && b[10]==0x42 && b[11]==0x50) return "image/webp";
+        return "application/octet-stream";
+    }
+    private String extFromMime(String mime) {
+        return switch (mime) {
+            case "image/png" -> ".png";
+            case "image/jpeg" -> ".jpg";
+            case "image/gif" -> ".gif";
+            case "image/webp" -> ".webp";
+            default -> "";
+        };
+    }
 
     @POST
     @Transactional
@@ -52,9 +85,10 @@ public class ImageResource {
         if (imageDto.base64Image() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        Person personRef = em.getReference(Person.class, imageDto.personId()); // managed Proxy
         Image image = new Image();
         image.setImage(Base64.getDecoder().decode(imageDto.base64Image()));
-        image.setPerson(imageDto.person());
+        image.setPerson(personRef);
         image.setDescription(imageDto.description());
         image.setUrl(imageDto.imageUrl());
         imageRepository.persist(image);
@@ -88,6 +122,7 @@ public class ImageResource {
 
         return Response.ok(imageDtos).build();
     }
+
 
 
 }
