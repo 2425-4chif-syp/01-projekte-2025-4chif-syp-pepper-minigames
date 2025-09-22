@@ -12,25 +12,42 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.logging.HttpLoggingInterceptor
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 
 class HttpInstance {
     companion object {
         private const val BACKEND_URL = "https://vm107.htl-leonding.ac.at/"
 
+        private val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+
+        private val sslContext = SSLContext.getInstance("SSL").apply {
+            init(null, trustAllCerts, SecureRandom())
+        }
+
         private val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .protocols(listOf(Protocol.HTTP_1_1))
+            .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = HttpLoggingInterceptor.Level.BASIC
             })
             .build()
 
         private val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(BACKEND_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
+            .client(client) 
             .build()
 
         private val apiService: MmgApiService = retrofit.create(MmgApiService::class.java)
