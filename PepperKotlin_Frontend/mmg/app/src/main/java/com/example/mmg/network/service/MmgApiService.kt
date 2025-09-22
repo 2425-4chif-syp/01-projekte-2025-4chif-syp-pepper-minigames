@@ -7,9 +7,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface MmgApiService {
-    @GET("/api/tagalongstories")
-    suspend fun getMmgDtos():List<MmgDto>
+    @GET("api/tagalongstories")
+    suspend fun getMmgDtos(): Response<List<MmgDto>>
 
-    @GET("/api/tagalongstories/{storyId}/steps")
-    suspend fun getSteps(@Path("storyId") storyId: Int): List<StepDto>
+    @GET("api/tagalongstories/{storyId}/steps")
+    suspend fun getSteps(@Path("storyId") storyId: Int): Response<List<StepDto>>
 }
