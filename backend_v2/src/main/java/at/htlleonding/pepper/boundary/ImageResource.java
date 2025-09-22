@@ -64,7 +64,7 @@ public class ImageResource {
         byte[] imageBytes = Base64.getDecoder().decode(base);
         String mime = detectMime(imageBytes);
         return Response.ok(imageBytes)
-                .type(mime) // <<— entscheidend für „fertiges Bild“ im Browser
+                .type(mime)
                 .header("Content-Disposition", "inline; filename=\"image-" + id + extFromMime(mime) + "\"")
                 .build();
     }
@@ -77,7 +77,8 @@ public class ImageResource {
         var items = images.stream().map(img -> Map.of(
                 "id", img.getId(),
                 "description", img.getDescription(),
-                "href", "http://localhost:8080/picture/" + img.getId()
+                "href", "http://localhost:8080/api/image/picture/" + img.getId(),
+                "personId",img.getPerson()
         )).toList();
 
         return Response.ok(Map.of(
