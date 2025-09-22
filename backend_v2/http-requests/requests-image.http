@@ -31,3 +31,7 @@ Content-Type: application/json
 
 DELETE {{host}}/api/image/1
 Content-Type: application/json
+
+###
+GET vm107.htl-leonding.ac.at/api/image/pictures
+Content-Type: application/json
