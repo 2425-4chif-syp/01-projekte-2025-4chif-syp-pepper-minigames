@@ -81,7 +81,6 @@ class MmgViewModel() : ViewModel() {
         Log.d("Index danach", "${_stepCount.value}")
     }
 
-    // Holt aus der List der Emotes die richtige raus
     fun getEmote(stepDto: StepDto): Int{
 
         var emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + stepDto.durationInSeconds.toString()
