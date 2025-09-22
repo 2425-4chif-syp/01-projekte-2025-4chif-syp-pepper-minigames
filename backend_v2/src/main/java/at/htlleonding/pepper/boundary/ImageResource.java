@@ -78,7 +78,7 @@ public class ImageResource {
                 "id", img.getId(),
                 "description", img.getDescription(),
                 "href", "http://localhost:8080/api/image/picture/" + img.getId(),
-                "personId",img.getPerson()
+                "person",img.getPerson()
         )).toList();
 
         return Response.ok(Map.of(
