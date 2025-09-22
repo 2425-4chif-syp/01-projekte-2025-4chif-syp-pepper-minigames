@@ -38,7 +38,7 @@ export class ImageuploadComponent {
 
   personService = inject(ResidentServiceService)
   persons = signal<Person[]>([]);
-  personForPost = signal<Person | null>(null);
+  personForPost = signal<number | null>(null);
   showSuggestions: boolean = false;
 
   getIdOfPerson(){
@@ -49,7 +49,7 @@ export class ImageuploadComponent {
           
           for (const person of this.persons()) {
             if (person.firstName === this.firstName() && person.lastName === this.lastName()) {
-              this.personForPost.set(person);
+              this.personForPost.set( person.id );
               console.log('Found matching person:', person);
               break;
             }

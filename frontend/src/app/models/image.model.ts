@@ -2,6 +2,6 @@ import { Person } from "./person.model";
 
 export interface ImageModel {
     description: string;
-    person: Person | null;
+    person: number | null;
     base64Image: string;
 }

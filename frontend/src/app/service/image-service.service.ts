@@ -5,6 +5,7 @@ import { Person } from '../models/person.model';
 import { ImageModel } from '../models/image.model';
 import { Observable } from 'rxjs';
 import { ImageDto } from '../models/imageDto.model';
+import { ImageJson } from '../models/image-json.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -89,5 +90,9 @@ export class ImageServiceService {
 
   getImageById(id: number){
     return this.http.get<ImageDto[]>(`${this.url}/image/person/${id}`);
+  }
+
+  getImageNew(){
+    return this.http.get<ImageJson[]>(this.url + 'image/pictures');
   }
 }

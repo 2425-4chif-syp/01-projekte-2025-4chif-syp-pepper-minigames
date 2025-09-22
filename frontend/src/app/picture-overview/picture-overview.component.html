@@ -30,13 +30,13 @@
   <div class="grid grid-cols-4 gap-6 mt-5">
     <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden" (click)="openPreview(image)">
       <!--TODO: if ändern-->
-      @if (image.base64Image == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
+      @if (image.description == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
         <img src="../assets/images/defaultIcon2.jpg" class="w-full h-48 object-cover"> 
         <div class="p-4 bg-blue-600 text-white text-center font-semibold">
           {{ image.description }}
         </div>      
       }@else {
-        <img [src]="'data:image/png;base64,' + image.base64Image" [alt]="image.description" class="w-full h-48 object-cover" />
+        <img [src]="'data:image/png;base64,' + image.description" [alt]="image.description" class="w-full h-48 object-cover" />
         <div class="p-4 bg-blue-600 text-white text-center font-semibold">
           {{ image.description }}
         </div>
@@ -49,9 +49,9 @@
       <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
   
       <img
-        [src]="'data:image/png;base64,' + selectedImage()?.base64Image"
+        [src]="'data:image/png;base64,' + selectedImage()?.description"
         [alt]="selectedImage()?.description"
-        class="w-full max-h-[60vh] object-contain mb-4"
+        class="w-full max-h-[60vh] object-contain mb-4" 
       />
       <div class="text-center font-semibold text-xl mb-4">
         {{ selectedImage()?.description }} 
