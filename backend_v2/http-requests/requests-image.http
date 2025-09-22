@@ -4,7 +4,7 @@ Content-Type: */*
 
 ###
 
-GET {{host}}/api/image/picture/2
+GET {{host}}/api/image/picture/5
 Content-Type: */*
 
 ###
@@ -33,5 +33,5 @@ DELETE {{host}}/api/image/1
 Content-Type: application/json
 
 ###
-GET vm107.htl-leonding.ac.at/api/image/pictures
+GET vm107.htl-leonding.ac.at/api/image/picture/316
 Content-Type: application/json

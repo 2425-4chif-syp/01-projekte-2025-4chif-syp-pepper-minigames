@@ -5,7 +5,6 @@ import at.htlleonding.pepper.common.Converter;
 import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.repository.ImageRepository;
-import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -19,7 +18,6 @@ import jakarta.ws.rs.core.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 @Path("image")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -63,12 +61,6 @@ public class ImageResource {
         if (image == null) {
             throw new NotFoundException("Image " + id + " not found");
         }
-
-        // Falls Person Pflicht sein soll:
-        if (image.getPerson() == null) {
-            throw new NotFoundException("Image " + id + " has no person");
-        }
-
         byte[] bytes = image.getImage();
         if (bytes == null || bytes.length == 0) {
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -80,7 +72,6 @@ public class ImageResource {
                 .header("Content-Disposition", "inline; filename=\"image-" + id + extFromMime(mime) + "\"")
                 .build();
     }
-
     @GET
     @Path("/pictures")
     @Produces(MediaType.APPLICATION_JSON)
