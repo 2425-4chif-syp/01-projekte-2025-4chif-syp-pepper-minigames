@@ -80,7 +80,7 @@ public class ImageResource {
             m.put("id", img.getId());
             m.put("description", img.getDescription());
             m.put("href", uriInfo.getBaseUriBuilder()
-                    .path("api/image/picture/" + img.getId())
+                    .path("image/picture/" + img.getId())
                     .build()
                     .toString());
             m.put("person", img.getPerson() != null ? img.getPerson().getId() : null);
