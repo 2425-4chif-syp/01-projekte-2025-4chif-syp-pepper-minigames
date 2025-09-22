@@ -65,7 +65,6 @@ public class ImageResource {
         if (bytes == null || bytes.length == 0) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
-
         String mime = detectMime(bytes);
         return Response.ok(bytes)
                 .type(mime)
@@ -87,7 +86,7 @@ public class ImageResource {
                     .path("image/picture/" + img.getId())
                     .build()
                     .toString());
-            m.put("person", img.getPerson() != null ? img.getPerson().getId() : null);
+            m.put("person", img.getPerson());
             return m;
         }).toList();
 
@@ -123,12 +122,16 @@ public class ImageResource {
         if (imageDto.base64Image() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Person personRef = em.getReference(Person.class, imageDto.personId()); // managed Proxy
+        Person personRef = null;
+        if(imageDto.personId() != null){
+            personRef = em.find(Person.class, imageDto.personId());
+        }
         Image image = new Image();
         image.setImage(Base64.getDecoder().decode(imageDto.base64Image()));
         image.setPerson(personRef);
         image.setDescription(imageDto.description());
         image.setUrl(imageDto.imageUrl());
+
         imageRepository.persist(image);
         return Response.status(Response.Status.CREATED).build();
     }
