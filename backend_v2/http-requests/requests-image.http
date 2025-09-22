@@ -4,10 +4,11 @@ Content-Type: */*
 
 ###
 
-GET {{host}}/api/image/picture/1
+GET {{host}}/api/image/pictures
 Content-Type: */*
 
 ###
+
 ### Not implemented rn
 GET {{host}}/api/image/person/1
 Content-Type: */*

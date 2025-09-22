@@ -5,17 +5,21 @@ import at.htlleonding.pepper.common.Converter;
 import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.domain.Person;
 import at.htlleonding.pepper.repository.ImageRepository;
+import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import jakarta.ws.rs.core.*;
+
+
 
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Path("image")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -25,6 +29,9 @@ public class ImageResource {
     ImageRepository imageRepository;
     @Inject
     EntityManager em;
+    @Inject
+    UriInfo uriInfo;
+
     @GET
     @Transactional
     public Response getAllImages(){
@@ -61,6 +68,24 @@ public class ImageResource {
                 .header("Content-Disposition", "inline; filename=\"image-" + id + extFromMime(mime) + "\"")
                 .build();
     }
+    @GET
+    @Path("/pictures")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response listAll() {
+        var images = imageRepository.listAll();
+        var items = images.stream().map(img -> Map.of(
+                "id", img.getId(),
+                "description", img.getDescription(),
+                "href", "http://localhost:8080/picture/" + img.getId()
+        )).toList();
+
+        return Response.ok(Map.of(
+                "total", items.size(),
+                "items", items
+        )).build();
+    }
+
     private String detectMime(byte[] b) {
         if (b.length>=8 && (b[0]&0xFF)==0x89 && b[1]==0x50 && b[2]==0x4E && b[3]==0x47) return "image/png";
         if (b.length>=3 && (b[0]&0xFF)==0xFF && (b[1]&0xFF)==0xD8 && (b[2]&0xFF)==0xFF) return "image/jpeg";
