@@ -41,6 +41,7 @@ export class ImageuploadComponent {
   personForPost = signal<number | null>(null);
   showSuggestions: boolean = false;
 
+  selectedPersonId = signal<number | null>(null);
   getIdOfPerson(){
     return new Promise<void>((resolve) => {
       this.personService.getResidents().subscribe({
@@ -113,6 +114,17 @@ export class ImageuploadComponent {
     this.initializeCropper();
   }
 
+  ngOnInit(): void{
+    this.personService.getResidents().subscribe({
+      next: data=>{
+        this.persons.set(data);
+        console.log(data);
+      },
+      error: err=>{
+        "Laden fehlgeschlagen" + err.message;
+      },
+    })
+  }
   //#region CROPPER JS
 
   initializeCropper(): void {

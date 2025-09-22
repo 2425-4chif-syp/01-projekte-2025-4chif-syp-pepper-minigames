@@ -45,9 +45,15 @@
       <!-- Text Input Fields -->
       <div class="pt-1 pl-4 col-span-1 mt-0">
         <input title="Bezeichnung des Bildes eingeben" [(ngModel)]="description" type="text" placeholder="Bezeichnung" class="w-full p-2 mb-2 border rounded" />
-        <input title="Vorname der Person zu der das Bild gehört" [(ngModel)]="firstName" type="text" placeholder="Vorname" class="w-full p-2 mb-2 border rounded" />
+        <!--<input title="Vorname der Person zu der das Bild gehört" [(ngModel)]="firstName" type="text" placeholder="Vorname" class="w-full p-2 mb-2 border rounded" />
         <input title="Nachname der Person zu der das Bild gehört" [(ngModel)]="lastName" type="text" placeholder="Lastname" class="w-full p-2 mb-2 border rounded" /> 
-    
+      -->
+        <select title="Person auswählen" [(ngModel)]="selectedPersonId" class="w-full p-2 mb-2 border rounded">
+          <option value="" disabled selected>Person auswählen</option>
+          <option *ngFor="let person of persons()" [value]="person.id">
+            {{ person.firstName }} {{ person.lastName }}
+          </option>
+        </select>
         <!-- Cropper Functions Buttons using flexbox -->
         <div class="flex flex-col gap-5 mt-12">
           <button title="Setzt alles zurück" (click)="reset()" class="btn btn-outline btn-primary w-full h-20 flex items-center justify-center gap-2 transition-all hover:bg-primary hover:text-white">
