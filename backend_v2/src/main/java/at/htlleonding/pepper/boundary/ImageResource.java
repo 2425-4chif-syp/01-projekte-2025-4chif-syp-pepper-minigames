@@ -72,20 +72,28 @@ public class ImageResource {
     @Path("/pictures")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response listAll() {
+    public Response listAll(@Context UriInfo uriInfo) {
         var images = imageRepository.listAll();
-        var items = images.stream().map(img -> Map.of(
-                "id", img.getId(),
-                "description", img.getDescription(),
-                "href", "http://localhost:8080/api/image/picture/" + img.getId(),
-                "person", img.getPerson() != null ? img.getPerson().getId() : null
-        )).toList();
 
-        return Response.ok(Map.of(
+        var items = images.stream().map(img -> {
+            var m = new java.util.HashMap<String, Object>();
+            m.put("id", img.getId());
+            m.put("description", img.getDescription());
+            m.put("href", uriInfo.getBaseUriBuilder()
+                    .path("api/image/picture/" + img.getId())
+                    .build()
+                    .toString());
+            m.put("person", img.getPerson() != null ? img.getPerson().getId() : null);
+            return m;
+        }).toList();
+
+
+        return Response.ok(java.util.Map.of(
                 "total", items.size(),
                 "items", items
         )).build();
     }
+
 
     private String detectMime(byte[] b) {
         if (b.length>=8 && (b[0]&0xFF)==0x89 && b[1]==0x50 && b[2]==0x4E && b[3]==0x47) return "image/png";
