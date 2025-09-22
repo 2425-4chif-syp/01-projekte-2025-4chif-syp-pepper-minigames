@@ -58,16 +58,29 @@ public class ImageResource {
     @GET
     @Transactional
     @Path("/picture/{id}")
-    public Response getPictureById(@PathParam("id") Long id){
-        ImageDto imageDto = Converter.convertToImageDto(imageRepository.findById(id));
-        var base = imageDto.base64Image();
-        byte[] imageBytes = Base64.getDecoder().decode(base);
-        String mime = detectMime(imageBytes);
-        return Response.ok(imageBytes)
+    public Response getPictureById(@PathParam("id") Long id) {
+        Image image = imageRepository.findById(id);
+        if (image == null) {
+            throw new NotFoundException("Image " + id + " not found");
+        }
+
+        // Falls Person Pflicht sein soll:
+        if (image.getPerson() == null) {
+            throw new NotFoundException("Image " + id + " has no person");
+        }
+
+        byte[] bytes = image.getImage();
+        if (bytes == null || bytes.length == 0) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+
+        String mime = detectMime(bytes);
+        return Response.ok(bytes)
                 .type(mime)
                 .header("Content-Disposition", "inline; filename=\"image-" + id + extFromMime(mime) + "\"")
                 .build();
     }
+
     @GET
     @Path("/pictures")
     @Produces(MediaType.APPLICATION_JSON)

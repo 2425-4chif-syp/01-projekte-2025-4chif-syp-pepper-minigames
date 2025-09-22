@@ -4,7 +4,7 @@ Content-Type: */*
 
 ###
 
-GET {{host}}/api/image/pictures
+GET {{host}}/api/image/picture/2
 Content-Type: */*
 
 ###
