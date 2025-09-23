@@ -58,6 +58,11 @@ export class ImageServiceService {
     });
   }
 
+  // Lade einzelnes Bild über Image-Server anhand der ID
+  getImageFromServer(imageId: number): Observable<ImageJson> {
+    return this.http.get<ImageJson>(`https://vm107.htl-leonding.ac.at/api/image/pictures/${imageId}`);
+  }
+
   getTitleImage(id: number): Observable<string | null> {
     const apiUrl = '/api/tagalongstories/' + id + '/image';
     return new Observable(observer => {

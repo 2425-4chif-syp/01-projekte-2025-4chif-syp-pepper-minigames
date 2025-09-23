@@ -21,10 +21,9 @@ interface Scene {
   templateUrl: './createstory.component.html',
 })
 export class CreatestoryComponent {
-  imageBase64: string | null = null;
-  scenenBilder: string[] = [];
-
-
+  // Entferne alte Base64-Properties
+  // imageBase64: string | null = null;
+  // scenenBilder: string[] = [];
 
   public duration = [5, 10, 15];
   public moves = [
@@ -63,6 +62,10 @@ export class CreatestoryComponent {
   images = signal<ImageJson[]>([]);
 
   storyId: number | null = null;
+  
+  // Variable um Scene-Daten zu speichern für späteres Upgrade
+  private pendingSceneData: any[] = [];
+  
     // Drag & Drop properties
   currentDraggedImage: ImageJson | null = null;
   isDragOverTitle: boolean = false;
@@ -78,17 +81,20 @@ export class CreatestoryComponent {
   service = inject(ImageServiceService)
 
   ngOnInit(): void {
-    this.loadImages();
-
-    // Check for returning state from image upload
-    this.checkForReturnState();
-
     this.route.paramMap.subscribe((params) => {
       const storyId = params.get('id');
       if (storyId) {
         this.loadStory(Number(storyId));
       }
     });
+
+    // ❌ NICHT hier laden! Bilder werden später in loadScenes() bei Bedarf geladen
+    // this.loadImages();
+
+    // Check for returning state from image upload
+    this.checkForReturnState();
+
+
   }
 
   // Neue Methode zum Prüfen und Wiederherstellen des States nach Rückkehr
@@ -133,7 +139,14 @@ loadImages(): void {
     next: (data) => {
       // Direktes Setzen der ImageJson[] ohne Konvertierung
       this.images.set(data.items);
-      console.log('Images loaded via new image server:', data.items);
+      console.log(`✅ Loaded ${data.items.length} images from image server (background)`);
+      
+      // Jetzt die wartenden Scene-Bilder upgraden
+      if (this.pendingSceneData.length > 0) {
+        console.log('🔄 Upgrading scene images now...');
+        this.upgradeSceneImagesFromServer(this.pendingSceneData);
+        this.pendingSceneData = []; // Reset nach Upgrade
+      }
     },
     error: (err) => {
       console.error('Laden fehlgeschlagen: ' + err.message);
@@ -155,7 +168,7 @@ private loadImagesOld(): void {
         person: imageDto.person
       }));
       this.images.set(convertedImages);
-      console.log('Images loaded via old method (converted):', convertedImages);
+      console.log(`⚠️ Fallback: Loaded ${convertedImages.length} images via old method`);
     },
     error: (err) => {
       console.error('Laden fehlgeschlagen (old method): ' + err.message);
@@ -167,79 +180,91 @@ private loadImagesOld(): void {
     console.log(storyId)
     this.storyId = storyId
 
+    // 🚀 OPTIMIERUNG: Szenen sofort laden (höchste Priorität)
+    this.loadScenes(storyId);
 
-    this.service.getImageBase64(storyId).subscribe({
-      next: data => {
-        console.log("Daten von der neuen Methode:")
-        console.log(data)
-        this.imageBase64 = data
-       // this.titleImage = this.imageBase64
-        if(data != null){
-          this.scenenBilder.push(data)
-        }
-      },
-      error: error => {
-        console.log("fehler beim titelbild")
-        alert("fehler beim laden des bildes " + error.message)}
-    })
-
-    this.service.getTitleImage(storyId).subscribe({
-      next: data => {        console.log("Titelbild erhalten:", data);
-        if (data) {
-          this.titleImage = 'data:image/png;base64,' + data;        } else {
-          this.titleImage = 'assets/images/imageNotFound.png';
-        }
-      },
-      error: error => {
-        console.log("Fehler beim Laden des Titelbildes:", error);
-        alert("Fehler beim Laden des Titelbildes: " + error.message);
-      }
-    });
-
-
+    // Titel parallel laden (niedrigere Priorität)
     fetch(`/api/tagalongstories/${storyId}`)
     .then(response => response.json())
     .then(data => {
       console.log(data.name);
       this.titleName = data.name
-      this.loadScenes(storyId);
-
     })
     .catch(error => console.error('Fehler beim Abrufen:', error));
 
-    fetch(`/api/tagalongstories/${storyId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        //this.titleName = data.name;
-       // this.titleImage = data.icon;
-       // this.loadScenes(storyId);
-      })
-      .catch((error) => console.error('Error loading story:', error));
+    // Titelbild parallel laden (niedrigste Priorität)
+    this.service.getTitleImage(storyId).subscribe({
+      next: data => {        
+        console.log("Titelbild erhalten:", data);
+        if (data) {
+          this.titleImage = 'data:image/png;base64,' + data;        
+        } else {
+          this.titleImage = 'assets/images/imageNotFound.png';
+        }
+      },
+      error: error => {
+        console.warn("Fehler beim Laden des Titelbildes:", error);
+        this.titleImage = 'assets/images/imageNotFound.png';
+      }
+    });
 
-
+    // Diese alten Base64 Aufrufe entfernen wir
+    // this.service.getImageBase64(storyId).subscribe(...)
   }
 
   loadScenes(storyId: number) {
     fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
-        let i = 0;        this.scenes = data.map((scene: { text: any; move: { id: number; name: string }; durationInSeconds: any; image: any }) => {
+        // 🚀 SOFORTIGE Anzeige: Szenen ohne Bilder erstellen
+        this.scenes = data.map((scene: any, index: number) => {
           const moveIndex = scene.move.id - 1;
+          
           return {
             speech: scene.text,
             movement: this.moveNames[moveIndex] || scene.move.name,
-            duration: +scene.durationInSeconds, // Konvertiere explizit zu einer Zahl
-            image: this.scenenBilder[i++]?? 'assets/images/imageNotFound.png',
+            duration: +scene.durationInSeconds,
+            image: 'assets/images/imageNotFound.png', // Platzhalter - KEIN Base64!
             isDragOver: false,
           };
-
         });
+        
+        console.log(`🚀 SOFORT: ${this.scenes.length} scenes visible (no images yet)`);
+        
+        // Scene-Daten für späteres Upgrade speichern
+        this.pendingSceneData = data;
+        
+        // Jetzt erst die Bilder laden für die Upgrades
+        console.log('📡 Loading images for scene upgrades...');
+        this.loadImages();
       })
       .catch((error) => console.error('Error loading scenes:', error));
   }
 
+  private waitForImageServerAndUpgrade(sceneData: any[]) {
+    const checkImageServer = () => {
+      if (this.images().length > 0) {
+        console.log('📡 Image server ready, upgrading scene images');
+        this.upgradeSceneImagesFromServer(sceneData);
+      } else {
+        setTimeout(checkImageServer, 50); // Check every 50ms
+      }
+    };
+    checkImageServer();
+  }
 
-
+  private upgradeSceneImagesFromServer(sceneData: any[]) {
+    sceneData.forEach((scene: any, index: number) => {
+      const imageId = scene.image?.id;
+      if (imageId) {
+        const imageFromServer = this.images().find(img => img.id === imageId);
+        if (imageFromServer) {
+          this.scenes[index].image = imageFromServer.href;
+          console.log(`Scene ${index}: ⚡ Upgraded to image server (ID: ${imageId})`);
+        }
+      }
+    });
+  }
 
   drop(event: CdkDragDrop<Scene[]>) {
     moveItemInArray(this.scenes, event.previousIndex, event.currentIndex);
