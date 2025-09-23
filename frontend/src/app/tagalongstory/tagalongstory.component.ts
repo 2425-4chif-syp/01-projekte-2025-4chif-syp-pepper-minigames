@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { STORY_URL } from '../app.config';
 import { ITagalongStory } from '../../models/tagalongstories.model';
@@ -20,7 +20,8 @@ export class TagalongstoryComponent {
  // private baseUrl = inject(STORY_URL) + 'tagalongstories';
   private baseUrl = "/api/tagalongstories/"
   private http = inject(HttpClient);
-  private service = inject(ImageServiceService)
+  private service = inject(ImageServiceService);
+  private router = inject(Router);
 
   public tagalongstoriesAll: ITagalongStory[] = [];  // All stories
   public tagalongstoriesEnabled: ITagalongStory[] = [];
@@ -148,5 +149,29 @@ export class TagalongstoryComponent {
   // Neue Methode für Imageserver-Validierung
   hasValidImageFromStory(story: any): boolean {
     return !!(story.storyIcon?.id);
+  }
+
+  // 🚀 PERFORMANCE BOOST: Daten direkt übergeben statt API-Calls
+  editStory(story: ITagalongStory): void {
+    console.log(`🚀 Editiere Geschichte "${story.name}" mit vorhandenen Daten`);
+    
+    // Bereite die Daten für CreateStory vor
+    const storyData = {
+      id: story.id,
+      name: story.name,
+      imageUrl: this.hasValidImageFromStory(story) 
+        ? this.getImageSrcFromStory(story) 
+        : null,
+      storyIconId: story.storyIcon?.id || null
+    };
+
+    console.log('📦 Übertrage Story-Daten:', storyData);
+
+    // Navigation mit State-Übergabe
+    this.router.navigate(['/createstory', story.id], {
+      state: {
+        existingStoryData: storyData
+      }
+    });
   }
 }

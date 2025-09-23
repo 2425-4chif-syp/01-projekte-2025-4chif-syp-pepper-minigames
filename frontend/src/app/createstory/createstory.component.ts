@@ -66,6 +66,10 @@ export class CreatestoryComponent {
   // Variable um Scene-Daten zu speichern für späteres Upgrade
   private pendingSceneData: any[] = [];
   
+  // 🚀 PERFORMANCE: Eigenschaften für übertragene Daten
+  private hasExistingData: boolean = false;
+  private existingStoryData: any = null;
+  
     // Drag & Drop properties
   currentDraggedImage: ImageJson | null = null;
   isDragOverTitle: boolean = false;
@@ -76,6 +80,27 @@ export class CreatestoryComponent {
   constructor(private route: ActivatedRoute, private router: Router) {
     // Standard-Bild beim Start laden
     this.loadDefaultImage();
+
+    // 🚀 PERFORMANCE: Check für übertragene Story-Daten
+    const navigation = this.router.getCurrentNavigation();
+    const existingStoryData = navigation?.extras?.state?.['existingStoryData'];
+    
+    if (existingStoryData) {
+      console.log('🚀 PERFORMANCE BOOST: Verwende übertragene Story-Daten:', existingStoryData);
+      
+      // Sofort verfügbare Daten setzen
+      this.titleName = existingStoryData.name;
+      this.storyId = existingStoryData.id;
+      
+      // Titelbild wenn verfügbar sofort setzen
+      if (existingStoryData.imageUrl) {
+        this.titleImage = existingStoryData.imageUrl;
+      }
+      
+      // Flag setzen, dass Daten bereits vorhanden sind
+      this.hasExistingData = true;
+      this.existingStoryData = existingStoryData;
+    }
   }
 
   service = inject(ImageServiceService)
@@ -180,33 +205,52 @@ private loadImagesOld(): void {
     console.log(storyId)
     this.storyId = storyId
 
+    // 🚀 PERFORMANCE CHECK: Verwende bereits vorhandene Daten wenn verfügbar
+    if (this.hasExistingData && this.existingStoryData) {
+      
+      // Nur Szenen laden, Titel und Bild sind bereits gesetzt
+      this.loadScenes(storyId);
+      
+      // Titelbild-API-Call überspringen wenn bereits vorhanden
+      if (this.existingStoryData.imageUrl) {
+        return; // Früh beenden, da alle Daten bereits vorhanden
+      }
+    }
+
     // 🚀 OPTIMIERUNG: Szenen sofort laden (höchste Priorität)
     this.loadScenes(storyId);
 
-    // Titel parallel laden (niedrigere Priorität)
-    fetch(`/api/tagalongstories/${storyId}`)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.name);
-      this.titleName = data.name
-    })
-    .catch(error => console.error('Fehler beim Abrufen:', error));
+    // Titel parallel laden (niedrigere Priorität) - nur wenn nicht bereits vorhanden
+    if (!this.hasExistingData || !this.titleName) {
+      fetch(`/api/tagalongstories/${storyId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.name);
+        this.titleName = data.name
+      })
+      .catch(error => console.error('Fehler beim Abrufen:', error));
+    } else {
+      console.log('✅ Story-Titel bereits verfügbar, API-Call übersprungen');
+    }
 
-    // Titelbild parallel laden (niedrigste Priorität)
-    this.service.getTitleImage(storyId).subscribe({
-      next: data => {        
-        console.log("Titelbild erhalten:", data);
-        if (data) {
-          this.titleImage = 'data:image/png;base64,' + data;        
-        } else {
+    // Titelbild parallel laden (niedrigste Priorität) - nur wenn nicht bereits vorhanden
+    if (!this.hasExistingData || !this.existingStoryData?.imageUrl) {
+      this.service.getTitleImage(storyId).subscribe({
+        next: data => {        
+          console.log("Titelbild erhalten:", data);
+          if (data) {
+            this.titleImage = 'data:image/png;base64,' + data;        
+          } else {
+            this.titleImage = 'assets/images/imageNotFound.png';
+          }
+        },
+        error: error => {
+          console.warn("Fehler beim Laden des Titelbildes:", error);
           this.titleImage = 'assets/images/imageNotFound.png';
         }
-      },
-      error: error => {
-        console.warn("Fehler beim Laden des Titelbildes:", error);
-        this.titleImage = 'assets/images/imageNotFound.png';
-      }
-    });
+      });
+    } else {
+    }
 
     // Diese alten Base64 Aufrufe entfernen wir
     // this.service.getImageBase64(storyId).subscribe(...)
