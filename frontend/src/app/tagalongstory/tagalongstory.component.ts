@@ -32,20 +32,20 @@ export class TagalongstoryComponent {
   constructor() {}
 
   ngOnInit(): void {
-    const url = `${this.baseUrl}?v=${Math.random()}`
+    const startTime = performance.now();
+    const url = `${this.baseUrl}?v=${Math.random()}`;
 
     this.http.get<ITagalongStory[]>(url).subscribe(
       (stories) => {
-        // Setze `enabled` als Boolean-Wert
+        const loadTime = Math.round(performance.now() - startTime);
+        console.log(`⚡ PERFORMANCE: ${stories.length} Geschichten in ${loadTime}ms geladen`);
+        console.log(`🗂️ Erste Geschichte hat storyIcon:`, stories[0]?.storyIcon);
 
-        console.log("MMG: ", stories)
-        console.log("Erste Geschichte Details:", stories[0]); // Debug: Schaue erste Geschichte im Detail an
         this.tagalongstoriesAll = stories.map(story => ({
           ...story,
-          enabled: !!story.enabled // Wandelt `undefined` oder `null` in `false` um
+          enabled: !!story.enabled
         }));
         this.filteredStories = this.tagalongstoriesAll;
-        console.log("Gefilterte Geschichten:", this.filteredStories); // Debug: Schaue gefilterte Geschichten an
       },
       (error) => {
         console.error("Fehler beim Laden der Geschichten:", error);
@@ -114,25 +114,23 @@ export class TagalongstoryComponent {
     }
   }
   
-  // Hilfsmethode um den korrekten Bild-Src zu generieren
+  // IMAGESERVER: Verwende direkt den neuen Imageserver
   getImageSrc(icon: string): string {
-    console.log('getImageSrc called with icon:', icon?.substring(0, 50) + '...'); // Zeige nur die ersten 50 Zeichen
-    console.log('Icon type:', typeof icon, 'Length:', icon?.length); // Debug: Type und Länge
-    
-    if (!icon || icon.trim() === '') {
-      console.log('Icon ist leer, verwende Standard-Bild');
-      return 'assets/images/imageNotFound.png';
+    // Ignoriere Base64 komplett - wird über storyIcon.id geholt
+    return 'assets/images/imageNotFound.png';
+  }
+
+  // Neue Methode für Imageserver basierend auf Story-Objekt
+  getImageSrcFromStory(story: any): string {
+    // Prüfe ob storyIcon.id vorhanden (neues Backend)
+    if (story.storyIcon?.id) {
+      const imageUrl = `https://vm107.htl-leonding.ac.at/api/image/picture/${story.storyIcon.id}`;
+      console.log(`� IMAGESERVER: Loading image ${story.storyIcon.id} from server`);
+      return imageUrl;
     }
     
-    // Wenn es bereits ein vollständiger data:image URL ist (wie storyIconBase64)
-    if (icon.startsWith('data:')) {
-      console.log('Icon ist bereits vollständige data: URL');
-      return icon;
-    }
-    
-    // Wenn es nur der Base64 Teil ist
-    console.log('Icon wird als Base64 behandelt');
-    return `data:image/png;base64,${icon}`;
+    // Fallback: Standard-Bild
+    return 'assets/images/imageNotFound.png';
   }
 
   // Fehlerbehandlung für Bilder
@@ -141,11 +139,14 @@ export class TagalongstoryComponent {
     event.target.src = 'assets/images/imageNotFound.png';
   }
   
-  // Prüft ob ein gültiges Icon vorhanden ist
+  // IMAGESERVER: Prüfe ob Story eine Image-ID hat
   hasValidIcon(icon: string): boolean {
-    console.log('hasValidIcon called with:', icon);
-    const isValid = !!(icon && icon.trim() !== '' && icon !== 'string' && icon.length > 10);
-    console.log('Icon is valid:', isValid);
-    return isValid;
+    // Wird nicht mehr verwendet - siehe hasValidImageFromStory
+    return false;
+  }
+
+  // Neue Methode für Imageserver-Validierung
+  hasValidImageFromStory(story: any): boolean {
+    return !!(story.storyIcon?.id);
   }
 }
