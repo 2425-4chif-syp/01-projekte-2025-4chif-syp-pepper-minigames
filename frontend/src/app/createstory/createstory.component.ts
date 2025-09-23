@@ -424,8 +424,12 @@ private loadImagesOld(): void {
       return;
     }
 
+    console.log('🚀 SAVE: Verarbeite Titelbild:', this.titleImage.substring(0, 50) + '...');
+
     // Konvertiere das Titelbild zu base64, falls es das Standard-Bild ist
     const convertedTitleImage = await this.convertImageToBase64(this.titleImage);
+    
+    console.log('✅ SAVE: Konvertiertes Titelbild:', convertedTitleImage.substring(0, 50) + '...');
 
     const storyData = {
       name: this.titleName,
@@ -434,11 +438,17 @@ private loadImagesOld(): void {
       enabled: true,
     };
 
+    console.log('📦 SAVE: Sende Daten an Backend:', {
+      ...storyData,
+      icon: storyData.icon.substring(0, 50) + '... [' + storyData.icon.length + ' chars]'
+    });
+
     try {
       let response;
 
       if (this.storyId) {
         // **UPDATE bestehende Geschichte**
+        console.log(`🔄 UPDATE: Aktualisiere Geschichte ID ${this.storyId}`);
         response = await fetch(`/api/tagalongstories/${this.storyId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -446,6 +456,7 @@ private loadImagesOld(): void {
         });
       } else {
         // **NEUE Geschichte erstellen**
+        console.log('🆕 CREATE: Erstelle neue Geschichte');
         response = await fetch(`/api/tagalongstories`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -454,6 +465,8 @@ private loadImagesOld(): void {
       }
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Backend Error:', response.status, errorText);
         throw new Error(`Fehler beim Speichern: ${response.statusText}`);
       }
 
@@ -604,14 +617,53 @@ private loadImagesOld(): void {
 
   // Methode zum Konvertieren von Asset-Pfad zu base64
   private async convertImageToBase64(imagePath: string): Promise<string> {
+    console.log('🔄 convertImageToBase64 Input:', imagePath);
+    
     if (imagePath.startsWith('data:')) {
+      console.log('✅ Bereits base64, keine Konvertierung nötig');
       return imagePath; // Bereits base64
     }
     
     if (imagePath === 'assets/images/imageNotFound.png') {
+      console.log('🔄 Lade Standard-Bild als base64');
       return await this.loadDefaultImageAsBase64();
     }
     
+    // 🚨 FIX: Imageserver URLs zu base64 konvertieren (mit und ohne Port)
+    if (imagePath.includes('vm107.htl-leonding.ac.at') && imagePath.includes('/api/image/picture/')) {
+      console.log('🔄 Konvertiere Imageserver-URL zu base64:', imagePath);
+      
+      try {
+        const response = await fetch(imagePath);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const blob = await response.blob();
+        console.log('📦 Blob erhalten, Größe:', blob.size, 'bytes, Typ:', blob.type);
+        
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            console.log('✅ Base64 konvertiert, Länge:', result.length, 'chars');
+            console.log('🔍 Base64 Anfang:', result.substring(0, 50) + '...');
+            resolve(result);
+          };
+          reader.onerror = () => {
+            console.error('❌ FileReader Fehler');
+            reject(new Error('FileReader Fehler'));
+          };
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('❌ Fehler beim Konvertieren der Imageserver-URL:', error);
+        console.log('🔙 Fallback zu Standard-Bild');
+        return await this.loadDefaultImageAsBase64(); // Fallback
+      }
+    }
+    
+    console.log('⚠️ Keine Konvertierung durchgeführt, gebe Original zurück');
     return imagePath; // Fallback
   }
 }
