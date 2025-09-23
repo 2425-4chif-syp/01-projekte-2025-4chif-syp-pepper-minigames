@@ -110,16 +110,15 @@ export class CreatestoryComponent {
       const storyId = params.get('id');
       if (storyId) {
         this.loadStory(Number(storyId));
+      } else {
+        // 🚀 FIX: Auch bei neuen Geschichten Bilder für Drag & Drop laden
+        console.log('🆕 Neue Geschichte: Lade Bilder für Drag & Drop');
+        this.loadImages();
       }
     });
 
-    // ❌ NICHT hier laden! Bilder werden später in loadScenes() bei Bedarf geladen
-    // this.loadImages();
-
     // Check for returning state from image upload
     this.checkForReturnState();
-
-
   }
 
   // Neue Methode zum Prüfen und Wiederherstellen des States nach Rückkehr
