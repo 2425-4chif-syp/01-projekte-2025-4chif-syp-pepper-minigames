@@ -469,7 +469,7 @@ export class ImageuploadComponent {
     if(this.selectedPersonId()){
       imageUpload = {
         description: this.description(),
-        person: this.selectedPersonId(),
+        personId: this.selectedPersonId(),
         base64Image: newImageBase64
       };
     } else {
@@ -477,7 +477,7 @@ export class ImageuploadComponent {
       console.log('Person after fetch:', this.selectedPersonId());
       imageUpload = {
         description: this.description(),
-        person: null,
+        personId: null,
         base64Image: newImageBase64
       };
     }
