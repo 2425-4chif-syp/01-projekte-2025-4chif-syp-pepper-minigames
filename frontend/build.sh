@@ -7,5 +7,4 @@ pushd frontend
 popd
 
 mkdir -p dist/frontend
-cp -r frontend/dist/PepperAngular/browser/* dist/frontend
-
+cp -r frontend/dist/pepper-angular/* dist/frontend
