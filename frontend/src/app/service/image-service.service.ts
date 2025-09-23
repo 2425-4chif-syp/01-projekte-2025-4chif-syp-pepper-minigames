@@ -3,9 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { STORY_URL } from '../app.config';
 import { Person } from '../models/person.model';
 import { ImageModel } from '../models/image.model';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ImageDto } from '../models/imageDto.model';
 import { ImageJson } from '../models/image-json.model';
+import { ImageResponse } from '../models/image-response.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -93,6 +94,6 @@ export class ImageServiceService {
   }
 
   getImageNew(){
-    return this.http.get<ImageJson[]>(this.url + 'image/pictures');
+    return this.http.get<ImageResponse>(this.url + 'image/pictures');
   }
 }

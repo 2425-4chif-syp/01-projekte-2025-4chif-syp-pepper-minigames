@@ -72,9 +72,9 @@ export class PictureOverviewComponent {
     this.imagesService.getImageNew().subscribe(
       {
         next: data=>{
-          this.images.set(data);
-          this.standartImages.set(data)
-          console.log(data);
+          this.images.set(data.items);
+          this.standartImages.set(data.items);
+          console.log(this.images());
         },
         error: err=>{
           "Laden fehlgeschlagen" + err.message;
