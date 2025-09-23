@@ -103,7 +103,7 @@
          draggable="true"
          (dragstart)="onDragStart($event, image)"
          (click)="setSceneImage(selectedScene, image)">
-      <img [src]="'data:image/png;base64,' + image.base64Image" 
+      <img [src]="image.href" 
            class="w-full h-auto rounded shadow pointer-events-none" 
            [alt]="image.description"/>
       <p class="text-xs text-gray-600 mt-1 text-center">{{ image.description }}</p>

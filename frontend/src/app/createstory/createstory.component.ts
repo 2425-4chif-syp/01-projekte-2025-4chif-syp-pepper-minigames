@@ -3,6 +3,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { CommonModule } from '@angular/common';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageDto } from '../models/imageDto.model';
+import { ImageJson } from '../models/image-json.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -59,11 +60,11 @@ export class CreatestoryComponent {
   titleName: string = '';
 
   imagesService = inject(ImageServiceService);
-  images = signal<ImageDto[]>([]);
+  images = signal<ImageJson[]>([]);
 
   storyId: number | null = null;
     // Drag & Drop properties
-  currentDraggedImage: ImageDto | null = null;
+  currentDraggedImage: ImageJson | null = null;
   isDragOverTitle: boolean = false;
 
   // Standard-Bild als base64 String
@@ -127,17 +128,40 @@ export class CreatestoryComponent {
     return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
   }
 
-  loadImages(): void {
-    this.imagesService.getImages().subscribe({
-      next: (data) => {
-        this.images.set(data);
-        console.log(data);
-      },
-      error: (err) => {
-        console.error('Laden fehlgeschlagen: ' + err.message);
-      },
-    });
-  }
+loadImages(): void {
+  this.imagesService.getImageNew().subscribe({
+    next: (data) => {
+      // Direktes Setzen der ImageJson[] ohne Konvertierung
+      this.images.set(data.items);
+      console.log('Images loaded via new image server:', data.items);
+    },
+    error: (err) => {
+      console.error('Laden fehlgeschlagen: ' + err.message);
+      // Fallback zur alten Methode
+      this.loadImagesOld();
+    },
+  });
+}
+
+// Fallback-Methode (die alte Implementierung)
+private loadImagesOld(): void {
+  this.imagesService.getImages().subscribe({
+    next: (data) => {
+      // Konvertiere ImageDto[] zu ImageJson[] für Kompatibilität
+      const convertedImages: ImageJson[] = data.map((imageDto: ImageDto) => ({
+        id: imageDto.id,
+        description: imageDto.description,
+        href: '', // Dummy-Wert für href
+        person: imageDto.person
+      }));
+      this.images.set(convertedImages);
+      console.log('Images loaded via old method (converted):', convertedImages);
+    },
+    error: (err) => {
+      console.error('Laden fehlgeschlagen (old method): ' + err.message);
+    },
+  });
+}
 
   loadStory(storyId: number) {
     console.log(storyId)
@@ -289,9 +313,9 @@ export class CreatestoryComponent {
     // Zur Image Upload Seite navigieren
     this.router.navigate(['/imageUpload']);
   }
-  setSceneImage(scene: Scene | null, image: ImageDto) {
+  setSceneImage(scene: Scene | null, image: ImageJson) {
     if (scene) {
-      scene.image = 'data:image/png;base64,' + image.base64Image;
+      scene.image = image.href;
     }
   }
   clearImage(scene: Scene) {
@@ -433,7 +457,7 @@ export class CreatestoryComponent {
   }
 
   // Drag & Drop Methoden
-  onDragStart(event: DragEvent, image: ImageDto) {
+  onDragStart(event: DragEvent, image: ImageJson) {
     this.currentDraggedImage = image;
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'copy';
@@ -451,7 +475,7 @@ export class CreatestoryComponent {
     event.preventDefault();
     scene.isDragOver = false;
     if (this.currentDraggedImage) {
-      scene.image = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      scene.image = this.currentDraggedImage.href;
       this.currentDraggedImage = null;
     }
   }
@@ -469,7 +493,7 @@ export class CreatestoryComponent {
   onDropToTitle(event: DragEvent) {
     event.preventDefault();
     if (this.currentDraggedImage) {
-      this.titleImage = 'data:image/png;base64,' + this.currentDraggedImage.base64Image;
+      this.titleImage = this.currentDraggedImage.href;
       this.currentDraggedImage = null;
     }
   }
