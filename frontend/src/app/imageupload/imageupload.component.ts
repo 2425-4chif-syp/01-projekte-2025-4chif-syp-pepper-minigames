@@ -56,6 +56,8 @@ export class ImageuploadComponent {
             }
           }
           resolve();
+
+        
         },
         error: err => {
           alert("Fehler beim Laden der Bewohner: " + err.message);
@@ -445,7 +447,11 @@ export class ImageuploadComponent {
       console.warn('Invalid file type');
     }
   }
-
+  onPersonSelected(event: any) {
+    const value = event.target.value;
+    this.selectedPersonId.set(value);
+    console.log('Selected Person ID:', this.selectedPersonId());
+  }
 
   //#region Save TagAlongStory and Steps to DB
   async saveToDb() : Promise<void>{
@@ -460,19 +466,18 @@ export class ImageuploadComponent {
     const newImageBase64 = croppedCanvas.toDataURL('image/png').split(',')[1];
     let imageUpload: ImageModel;
     
-    if(this.firstName() === '' && this.lastName() === ''){
+    if(this.selectedPersonId()){
       imageUpload = {
         description: this.description(),
-        person: null,
+        person: this.selectedPersonId(),
         base64Image: newImageBase64
       };
     } else {
       // Wait for the person to be fetched and set
-      await this.getIdOfPerson();
-      console.log('Person after fetch:', this.personForPost());
+      console.log('Person after fetch:', this.selectedPersonId());
       imageUpload = {
         description: this.description(),
-        person: this.personForPost(),
+        person: null,
         base64Image: newImageBase64
       };
     }
@@ -481,6 +486,7 @@ export class ImageuploadComponent {
 
     console.log(croppedCanvas);
 
+    console.log('Image to upload:', imageUpload);
     this.imagesService.uploadImage(imageUpload).subscribe(
       {
         next: data=>{

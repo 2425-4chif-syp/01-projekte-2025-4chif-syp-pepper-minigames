@@ -48,7 +48,7 @@
         <!--<input title="Vorname der Person zu der das Bild gehört" [(ngModel)]="firstName" type="text" placeholder="Vorname" class="w-full p-2 mb-2 border rounded" />
         <input title="Nachname der Person zu der das Bild gehört" [(ngModel)]="lastName" type="text" placeholder="Lastname" class="w-full p-2 mb-2 border rounded" /> 
       -->
-        <select title="Person auswählen" [(ngModel)]="selectedPersonId" class="w-full p-2 mb-2 border rounded">
+        <select  (change)="onPersonSelected($event)" title="Person auswählen" [(ngModel)]="selectedPersonId" class="w-full p-2 mb-2 border rounded">
           <option value="" disabled selected>Person auswählen</option>
           <option *ngFor="let person of persons()" [value]="person.id">
             {{ person.firstName }} {{ person.lastName }}
@@ -122,7 +122,7 @@
         
         <ng-template #normalUpload>
           <!-- Original buttons for normal image upload -->
-          <button (click)="saveToDb()" class="btn btn-primary font-extrabold w-[25%]">
+          <button (click)="saveToDb()" [disabled]="!description()" class="btn btn-primary font-extrabold w-[25%]">
             BILD SPEICHERN
           </button>
           <button (click)="onCancel()" class="btn btn-error w-[25%]">
