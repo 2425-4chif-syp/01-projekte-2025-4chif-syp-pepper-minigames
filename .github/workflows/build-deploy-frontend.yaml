@@ -53,3 +53,15 @@ jobs:
           tags: ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
+            docker stop www || true
+            docker rm www || true
+            docker run -d --name www -p 80:80 ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
