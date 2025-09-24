@@ -61,7 +61,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
-            docker stop www || true
-            docker rm www || true
-            docker run -d --name www -p 4200:80 ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
+             cd /home/stuetzadm/deploy/compose
+              echo "Current working dir:"
+              pwd
+              echo "Content of dir:"
+              ls -lah
+              docker compose -f docker-compose.yaml down --rmi all
+              docker compose -f docker-compose.yaml build --no-cache
+              docker compose -f docker-compose.yaml up -d
