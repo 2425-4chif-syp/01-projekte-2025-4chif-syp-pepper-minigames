@@ -27,7 +27,7 @@ export class CreatestoryComponent {
 
   public duration = [5, 10, 15];
   public moves = [
-    'emote_hurra',
+    'hurra',
     'essen',
     'gehen',
     'hand_heben',
@@ -320,7 +320,19 @@ private loadImagesOld(): void {
 
   updateDuration(event: Event, scene: Scene) {
     const selectElement = event.target as HTMLSelectElement;
-    scene.duration = Number(selectElement.value);
+    const newDuration = Number(selectElement.value);
+    
+    console.log(`🕐 Duration Update:`, {
+      oldDuration: scene.duration,
+      newDuration: newDuration,
+      selectValue: selectElement.value,
+      sceneIndex: this.scenes.indexOf(scene)
+    });
+    
+    scene.duration = newDuration;
+    
+    // Verification
+    console.log(`✅ Scene duration nach Update: ${scene.duration}`);
   }
 
   updateImage(event: Event, scene: Scene) {
@@ -399,13 +411,15 @@ private loadImagesOld(): void {
   }
 
   addScene() {
-    this.scenes.push({
+    const newScene = {
       speech: '',
       movement: this.moveNames[0],
-      duration: this.duration[0],
+      duration: this.duration[0], // Should be 5
       image: 'assets/images/imageNotFound.png',
       isDragOver: false,
-    });
+    };
+    console.log(`Adding new scene with duration: ${newScene.duration}`);
+    this.scenes.push(newScene);
   }
 
   deleteScene(index: number) {
@@ -489,6 +503,12 @@ private loadImagesOld(): void {
       return;
     }
 
+    // 🔍 DEBUG: Aktuelle Scene-Werte anzeigen
+    console.log('🔍 Scenes vor dem Speichern:');
+    this.scenes.forEach((scene, index) => {
+      console.log(`Scene ${index + 1}: duration = ${scene.duration}, movement = ${scene.movement}`);
+    });
+
     try {
       // **1. Alle bestehenden Szenen löschen**
       await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
@@ -497,8 +517,26 @@ private loadImagesOld(): void {
       });
       console.log('Alle alten Szenen gelöscht.');      // **2. Neue Szenen speichern**
       for (const [index, scene] of this.scenes.entries()) {
+        console.log(`🔍 Raw scene object:`, scene);
+        
         const moveIndex = this.moveNames.indexOf(scene.movement);
         const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
+
+        // 🔍 DEBUG: Scene-Duration vor Speichern
+        console.log(`Scene ${index + 1} vor Speichern:`, {
+          duration: scene.duration,
+          type: typeof scene.duration,
+          isValid: scene.duration > 0,
+          rawValue: scene.duration
+        });
+
+        // 🚀 FIX: Duration validieren und Default-Wert setzen
+        const duration = (scene.duration && scene.duration > 0) ? Number(scene.duration) : 5;
+        console.log(`Scene ${index + 1}: Using duration = ${duration} (original: ${scene.duration}, type: ${typeof scene.duration})`);
+
+        // Test: Hardcode 15 to see if backend accepts it
+        const testDuration = 15;
+        console.log(`🧪 TEST: Sending hardcoded duration = ${testDuration}`);
 
         // Konvertiere das Bild zu base64, falls es das Standard-Bild ist
         const convertedImage = await this.convertImageToBase64(scene.image);        // Konvertiere das Titelbild auch zu base64, falls es das Standard-Bild ist
@@ -516,8 +554,11 @@ private loadImagesOld(): void {
           image_desc: 'Beschreibung des Bildes',
           move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
-          durationInSeconds: scene.duration,
+          durationInSeconds: testDuration, // 🧪 TEST: Use hardcoded value
         };
+
+        console.log(`📤 Sending scene ${index + 1} with durationInSeconds: ${sceneData.durationInSeconds}`);
+        console.log('📤 Full payload:', JSON.stringify(sceneData, null, 2));
 
         const response = await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
           method: 'POST',
@@ -526,11 +567,14 @@ private loadImagesOld(): void {
         });
 
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ Backend Error:', response.status, errorText);
           throw new Error(`Fehler beim Speichern der Szene: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log(`Szene ${index + 1} erfolgreich gespeichert mit ID: ${data.id}`);
+        console.log(`✅ Scene ${index + 1} saved with ID: ${data.id}`);
+        console.log('📥 Backend response:', JSON.stringify(data, null, 2));
       }
     } catch (error) {
       console.error('Fehler beim Speichern der Szenen:', error);
