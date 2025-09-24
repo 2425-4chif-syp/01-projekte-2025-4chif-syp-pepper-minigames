@@ -41,6 +41,7 @@ public class Converter {
         step.setMove(stepDTO.move());
         step.setIndex(stepDTO.index());
         step.setText(stepDTO.text());
+        step.setDurationInSeconds(stepDTO.durationInSeconds());
         return step;
     }
 
