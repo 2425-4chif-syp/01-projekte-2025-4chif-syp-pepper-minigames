@@ -27,7 +27,7 @@ export class CreatestoryComponent {
 
   public duration = [5, 10, 15];
   public moves = [
-    'emote_hurra',
+    'hurra',
     'essen',
     'gehen',
     'hand_heben',
