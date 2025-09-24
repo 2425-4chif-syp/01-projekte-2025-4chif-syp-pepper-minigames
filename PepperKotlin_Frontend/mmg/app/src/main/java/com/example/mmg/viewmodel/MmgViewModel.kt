@@ -84,19 +84,19 @@ class MmgViewModel() : ViewModel() {
     // Holt aus der List der Emotes die richtige raus
     fun getEmote(stepDto: StepDto): Int{
 
-        var emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + stepDto.durationInSeconds.toString()
+        var emoteName = ""
 
-        if(stepDto.move.name == "emote_hurra"){
-            val rightEmote : EmoteDto? = emotes.filter{
-                    e -> e.name == "hurra_" + stepDto.durationInSeconds.toString()
-            }.firstOrNull()
-
-            return rightEmote!!.path
+        if(stepDto.durationInSeconds == 0){
+            emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + "5"
+        }
+        else{
+            emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + stepDto.durationInSeconds.toString()
         }
 
         val rightEmote : EmoteDto? = emotes.filter{
                 e -> e.name == emoteName
         }.firstOrNull()
+
 
         Log.d("StepDto","${stepDto.move.name}")
         Log.d("Emote","${rightEmote!!.name}")
