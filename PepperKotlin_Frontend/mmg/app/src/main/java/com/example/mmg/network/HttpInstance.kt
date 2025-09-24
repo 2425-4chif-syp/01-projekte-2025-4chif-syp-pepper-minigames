@@ -6,12 +6,12 @@ import com.example.mmg.dto.StepDto
 import com.example.mmg.network.service.MmgApiService
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.logging.HttpLoggingInterceptor
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -29,25 +29,29 @@ class HttpInstance {
             override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
         })
 
-        private val sslContext = SSLContext.getInstance("SSL").apply {
+        private val sslContext = SSLContext.getInstance("TLS").apply {
             init(null, trustAllCerts, SecureRandom())
+        }
+
+        // Create logging interceptor with NONE level to disable verbose logs
+        private val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.NONE
         }
 
         private val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .protocols(listOf(Protocol.HTTP_1_1))
             .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .hostnameVerifier { _, _ -> true }
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BASIC
-            })
+            .addInterceptor(loggingInterceptor)
             .build()
 
         private val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(BACKEND_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client) 
+            .client(client)
             .build()
 
         private val apiService: MmgApiService = retrofit.create(MmgApiService::class.java)

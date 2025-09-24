@@ -74,6 +74,7 @@ class MmgViewModel() : ViewModel() {
         }
         else{
             stepsFinished.value = true
+
             RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie Abbrechen um alle Geschichten anzuzeigen!")
         }
 
@@ -136,7 +137,6 @@ class MmgViewModel() : ViewModel() {
 
             if(result != null){
                 _mmgSteps.value = result
-
                 if(_mmgSteps.value != null){
                     displayStep()
                 }
