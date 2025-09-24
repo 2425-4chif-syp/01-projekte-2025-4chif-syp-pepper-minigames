@@ -8,7 +8,7 @@ import com.aldebaran.qi.sdk.`object`.conversation.Say
 import com.aldebaran.qi.sdk.builder.AnimateBuilder
 import com.aldebaran.qi.sdk.builder.AnimationBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
-import com.aldebaran.qi.Future // <-- wichtig, das ist die richtige Future-Klasse von Pepper!
+import java.util.concurrent.Future
 
 class RoboterActions {
 
@@ -17,41 +17,32 @@ class RoboterActions {
         var qiContext: QiContext? = null
         var robotExecute: Boolean = false
 
-        private var currentSayFuture: Future<Void>? = null
-
         fun speak(text: String): Future<Void>? {
-            if (!robotExecute || qiContext == null) return null
+            if (robotExecute) {
+                val say: Future<Say>? = SayBuilder.with(qiContext)
+                    .withText(text)
+                    .buildAsync()
 
-            currentSayFuture?.let {
-                if (!it.isDone) {
-                    it.requestCancellation()
+                while (!say!!.isDone) {
+                }
+
+                return try {
+                    say.get().async().run()
+                } catch (e: Exception) {
+                    null
                 }
             }
-
-            return try {
-                val say: Say = SayBuilder.with(qiContext)
-                    .withText(text)
-                    .build()
-                currentSayFuture = say.async().run()
-                currentSayFuture
-            } catch (e: Exception) {
-                Log.e("RoboterActions", "Fehler beim Sprechen: ${e.message}")
-                null
-            }
+            return null;
         }
 
-        fun animation(resource: Int) {
-            if (!robotExecute || qiContext == null) return
-            try {
-                val animation: Animation = AnimationBuilder.with(qiContext)
-                    .withResources(resource)
-                    .build()
-                val animate: Animate = AnimateBuilder.with(qiContext)
-                    .withAnimation(animation)
-                    .build()
-                animate.async().run()
-            } catch (e: Exception) {
-                Log.e("RoboterActions", "Fehler bei Animation: ${e.message}")
+        fun animation(ressource: Int){
+            if(robotExecute){
+                var animation: Future<Animation>?
+                var animate: Future<Animate>?
+                Log.d("ressource", "${ressource}")
+                animation = AnimationBuilder.with(qiContext).withResources(ressource).buildAsync()
+                animate = AnimateBuilder.with(qiContext).withAnimation(animation!!.get()).buildAsync()
+                animate!!.get().async().run()
             }
         }
     }

@@ -22,7 +22,6 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
         setContent {
             mmgViewModel = viewModel()
-
             val navController = rememberNavController()
             AppNavigaton(navController = navController, mmgViewModel = mmgViewModel)
         }
@@ -30,16 +29,21 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
         RoboterActions.qiContext = qiContext
-        Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
         RoboterActions.robotExecute = true
+        Log.d("QiContext","${RoboterActions.robotExecute} / ${RoboterActions.qiContext}")
     }
 
     override fun onRobotFocusLost() {
+        RoboterActions.robotExecute = false
+        RoboterActions.qiContext = null
+    }
+
+    override fun onDestroy() {
         QiSDK.unregister(this, this)
         super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {
-        reason?.let { Log.d("Reason:", it) }
+        // Robot focus was refused
     }
 }
