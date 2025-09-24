@@ -39,7 +39,6 @@ class RoboterActions {
             if(robotExecute){
                 var animation: Future<Animation>?
                 var animate: Future<Animate>?
-                Log.d("ressource", "${ressource}")
                 animation = AnimationBuilder.with(qiContext).withResources(ressource).buildAsync()
                 animate = AnimateBuilder.with(qiContext).withAnimation(animation!!.get()).buildAsync()
                 animate!!.get().async().run()

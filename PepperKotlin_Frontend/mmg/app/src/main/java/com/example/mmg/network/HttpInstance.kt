@@ -18,7 +18,6 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-
 class HttpInstance {
     companion object {
         private const val BACKEND_URL = "https://vm107.htl-leonding.ac.at/"
@@ -33,11 +32,6 @@ class HttpInstance {
             init(null, trustAllCerts, SecureRandom())
         }
 
-        // Create logging interceptor with NONE level to disable verbose logs
-        private val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.NONE
-        }
-
         private val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -45,7 +39,6 @@ class HttpInstance {
             .protocols(listOf(Protocol.HTTP_1_1))
             .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .hostnameVerifier { _, _ -> true }
-            .addInterceptor(loggingInterceptor)
             .build()
 
         private val retrofit: Retrofit = Retrofit.Builder()
