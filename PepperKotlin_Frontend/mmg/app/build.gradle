@@ -20,9 +20,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            // Disable verbose native SSL logging
+            buildConfigField "boolean", "ENABLE_LOGGING", "false"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "ENABLE_LOGGING", "false"
         }
     }
     compileOptions {
