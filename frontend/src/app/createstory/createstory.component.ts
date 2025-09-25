@@ -554,7 +554,7 @@ private loadImagesOld(): void {
           image_desc: 'Beschreibung des Bildes',
           move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
-          durationInSeconds: testDuration, // 🧪 TEST: Use hardcoded value
+          durationInSeconds: scene.duration, 
         };
 
         console.log(`📤 Sending scene ${index + 1} with durationInSeconds: ${sceneData.durationInSeconds}`);
