@@ -108,7 +108,7 @@ export class PictureOverviewComponent {
     if (!image || !image.description) return;
 
     const a = document.createElement('a');
-    a.href =  (image as any).originalHref || decodeURIComponent(image.href);
+    a.href =  this.selectedImage()?.href || decodeURIComponent(image.href);
     a.download = image.description?.replace(/\s+/g, '_') + '.png';
     a.click();
   }

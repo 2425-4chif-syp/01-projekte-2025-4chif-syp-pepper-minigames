@@ -36,7 +36,12 @@
           {{ image.description }}
         </div>      
       }@else -->
-        <img [src]="'http://vm107.htl-leonding.ac.at:8000/unsafe/200x200/' + image.href" [alt]="image.description" class="w-full h-48 object-cover" />
+        <picture>
+          <source [srcset]="'http://vm107.htl-leonding.ac.at:8000/unsafe/200x200/' + image.href" type="image/jpeg">
+          <img [src]="'http://vm107.htl-leonding.ac.at:8000/unsafe/200x200/' + image.href" 
+               [alt]="image.description" 
+               class="w-full h-48 object-cover">
+        </picture>
         <div class="p-4 bg-blue-600 text-white text-center font-semibold">
           {{ image.description }}
         </div>

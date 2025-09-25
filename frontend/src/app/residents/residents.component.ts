@@ -56,7 +56,6 @@ export class ResidentsComponent {
       next: () => {
         console.log(`Person mit ID ${id} wurde gelöscht.`);
         this.getAllResidents();
-        window.location.reload();
       },
       error: error => {
         window.location.reload();

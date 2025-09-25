@@ -1,8 +1,14 @@
 import { inject, Injectable, ɵgetInjectableDef } from '@angular/core';
 import { STORY_URL } from '../app.config';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Person } from '../models/person.model';
 import { PersonDto } from '../models/person-dto.model';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json'
+  })
+}
 
 @Injectable({
   providedIn: 'root'
@@ -26,10 +32,10 @@ export class ResidentServiceService {
   }
 
   updatePerson(id: number, person: Person){
-    return this.http.put<Person>(this.BASE_URL + '/' + id, person)
+    return this.http.put<Person>(this.BASE_URL + '/' + id, person, httpOptions)
   }
 
   postPerson(person: PersonDto){
-    return this.http.post(this.BASE_URL, person)
+    return this.http.post(this.BASE_URL, person, httpOptions)
   } 
 }

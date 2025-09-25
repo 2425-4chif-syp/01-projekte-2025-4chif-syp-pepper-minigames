@@ -40,7 +40,7 @@
             </div>
             
             <div class="flex justify-center mt-6">
-                <button [routerLink]="['/residents']" (click)="addPerson()" routerLinkActive="router-link-active" class="btn btn-primary">
+                <button [disabled]="!firstName() || !lastName() || !dob() || !password() || !roomNo()" (click)="addPerson()" routerLinkActive="router-link-active" class="btn btn-primary">
                     Person hinzufügen
                 </button>
                 <button [routerLink]="['/residents']" routerLinkActive="router-link-active" class="ms-4 btn btn-secondary">

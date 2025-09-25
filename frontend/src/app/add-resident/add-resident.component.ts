@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { PersonDto } from '../models/person-dto.model';
 import { ResidentServiceService } from '../service/resident-service.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDropList } from "@angular/cdk/drag-drop";
@@ -13,7 +13,7 @@ import { CdkDropList } from "@angular/cdk/drag-drop";
   styleUrl: './add-resident.component.css'
 })
 export class AddResidentComponent {
-
+  router = inject(Router)
   residentService = inject(ResidentServiceService);
   dob = signal<string>('');
   firstName = signal<string>('');
@@ -24,17 +24,17 @@ export class AddResidentComponent {
 
   selectedRole = signal<string>(''); 
 
-  onRoleChange(event: any) {
+  onRoleChange(event: any) {  
     const selectedValue = event.target.value;
     this.selectedRole.set(selectedValue);
     this.isWorker.set(selectedValue === 'worker');
 
     console.log('Rolle geändert zu:', selectedValue);
-    console.log('isEmployee:', this.isWorker);
+    console.log('isEmployee:', this.isWorker());
   }
   
   addPerson(){
-    const newPerson: PersonDto = {
+    const personData: PersonDto = {
       firstName: this.firstName(),
       lastName: this.lastName(),
       dob: this.dob(),
@@ -43,9 +43,10 @@ export class AddResidentComponent {
       password: this.password()
     };
 
-    this.residentService.postPerson(newPerson).subscribe({
+    this.residentService.postPerson(personData).subscribe({
       next: (createdPerson) => {
         console.log('Neue Person hinzugefügt:', createdPerson);
+        this.router.navigate(['/residents']); 
       },
       error: error => {
         console.error("Hinzufügen der Person fehlgeschlagen." + error.name);
