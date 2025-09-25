@@ -36,7 +36,7 @@
           {{ image.description }}
         </div>      
       }@else -->
-        <img [src]="image.href" [alt]="image.description" class="w-full h-48 object-cover" />
+        <img [src]="'http://vm107.htl-leonding.ac.at:8000/unsafe/200x200/' + image.href" [alt]="image.description" class="w-full h-48 object-cover" />
         <div class="p-4 bg-blue-600 text-white text-center font-semibold">
           {{ image.description }}
         </div>
@@ -49,7 +49,7 @@
       <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
   
       <img
-        [src]="selectedImage()?.href"
+        [src]="'http://vm107.htl-leonding.ac.at:8000/unsafe/200x200/' + selectedImage()?.href"
         [alt]="selectedImage()?.description"
         class="w-full max-h-[60vh] object-contain mb-4" 
       />

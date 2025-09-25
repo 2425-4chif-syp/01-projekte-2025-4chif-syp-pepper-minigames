@@ -72,8 +72,13 @@ export class PictureOverviewComponent {
     this.imagesService.getImageNew().subscribe(
       {
         next: data=>{
-          this.images.set(data.items);
-          this.standartImages.set(data.items);
+          const encodedImages = data.items.map(image => ({
+          ...image,
+          href: encodeURIComponent(image.href),
+          originalHref: image.href 
+        }));
+          this.images.set(encodedImages);
+          this.standartImages.set(encodedImages);
           console.log(this.images());
         },
         error: err=>{
@@ -103,7 +108,7 @@ export class PictureOverviewComponent {
     if (!image || !image.description) return;
 
     const a = document.createElement('a');
-    a.href = 'data:image/png;base64,' + image.description;
+    a.href =  (image as any).originalHref || decodeURIComponent(image.href);
     a.download = image.description?.replace(/\s+/g, '_') + '.png';
     a.click();
   }
