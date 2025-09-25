@@ -37,8 +37,8 @@ export class ResidentsComponent {
   getAllResidents(){
     this.residentService.getResidents().subscribe({
       next: data => {
-    
-        this.residents.set(data);
+        const sortedData = data.sort((a, b) => a.id - b.id);
+        this.residents.set(sortedData);
         console.log(this.residents())
       },
       error: error=> {
@@ -56,6 +56,7 @@ export class ResidentsComponent {
       next: () => {
         console.log(`Person mit ID ${id} wurde gelöscht.`);
         this.getAllResidents();
+
       },
       error: error => {
         window.location.reload();

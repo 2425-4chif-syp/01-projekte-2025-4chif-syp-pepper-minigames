@@ -35,7 +35,7 @@ export class ResidentServiceService {
     return this.http.put<Person>(this.BASE_URL + '/' + id, person, httpOptions)
   }
 
-  postPerson(person: PersonDto){
+  postPerson(person: Person){
     return this.http.post(this.BASE_URL, person, httpOptions)
   } 
 }

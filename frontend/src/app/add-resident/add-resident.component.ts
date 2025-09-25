@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDropList } from "@angular/cdk/drag-drop";
+import { Person } from '../models/person.model';
 
 @Component({
   selector: 'app-add-resident',
@@ -34,7 +35,8 @@ export class AddResidentComponent {
   }
   
   addPerson(){
-    const personData: PersonDto = {
+    const personData: Person = {
+      id: 0,
       firstName: this.firstName(),
       lastName: this.lastName(),
       dob: this.dob(),
