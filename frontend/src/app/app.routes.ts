@@ -9,6 +9,7 @@ import { PictureOverviewComponent } from './picture-overview/picture-overview.co
 import { ImageuploadComponent } from './imageupload/imageupload.component';
 import { ResidentsComponent } from './residents/residents.component';
 import { ResidentDetailsComponent } from './resident-details/resident-details.component';
+import { AddResidentComponent } from './add-resident/add-resident.component';
 
 export const routes: Routes = [
   {path: 'tagalongstory', component: TagalongstoryComponent},
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'pictures', component: PictureOverviewComponent },
   {path: 'imageUpload', component: ImageuploadComponent},
   {path: 'residents', component: ResidentsComponent},
-  {path: 'residentDetails/:id', component: ResidentDetailsComponent}
+  {path: 'residentDetails/:id', component: ResidentDetailsComponent},
+  {path: 'residentAdd', component: AddResidentComponent}
 ];
 
