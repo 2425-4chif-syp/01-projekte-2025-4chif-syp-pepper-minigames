@@ -15,7 +15,7 @@
             
             <div class="flex flex-col space-y-1">
                 <label class="font-bold text-lg">Zuständigkeit:</label>
-                <select [(ngModel)]="isWorker" 
+                <select [(ngModel)]="selectedRole" 
                         (change)="onRoleChange($event)"
                         class="rounded p-2 bg-gray-50 text-center w-full">
                     <option value="" disabled selected>Rolle auswählen</option>

@@ -67,6 +67,21 @@ export class PictureOverviewComponent {
     this.loadImages();
     this.aktiverFilter;
   }
+  transformImageUrl(originalUrl: string): string {
+    if (!originalUrl) return '';
+    
+    try {
+      const transformedUrl = originalUrl.replace(
+        'vm107.htl-leonding.ac.at:8080', 
+        'backend:8080'
+      );
+      
+      return encodeURIComponent(transformedUrl);
+    } catch (error) {
+      console.error('Error transforming URL:', error);
+      return originalUrl;
+    }
+  }
 
   loadImages(): void {
     this.imagesService.getImageNew().subscribe(
@@ -74,7 +89,7 @@ export class PictureOverviewComponent {
         next: data=>{
           const encodedImages = data.items.map(image => ({
           ...image,
-          href: encodeURIComponent(image.href),
+          href: this.transformImageUrl(image.href),
           originalHref: image.href 
         }));
           this.images.set(encodedImages);
@@ -105,12 +120,42 @@ export class PictureOverviewComponent {
 
   downloadImage() {
     const image = this.selectedImage();
-    if (!image || !image.description) return;
+    if (!image || !image.href) return;
 
-    const a = document.createElement('a');
-    a.href =  this.selectedImage()?.href || decodeURIComponent(image.href);
-    a.download = image.description?.replace(/\s+/g, '_') + '.png';
-    a.click();
+    const originalUrl = (image as any).originalHref || decodeURIComponent(image.href);
+
+  fetch(originalUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
+
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('Bild erfolgreich heruntergeladen:', image.description);
+    })
+    .catch(error => {
+      console.error('Fehler beim Herunterladen des Bildes:', error);
+
+      const a = document.createElement('a');
+      a.href = originalUrl;
+      a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
+      a.target = '_blank'; 
+      a.click();
+    });
   }
 
   deleteImage() {
