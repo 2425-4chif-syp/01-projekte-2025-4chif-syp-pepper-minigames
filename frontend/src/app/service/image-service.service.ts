@@ -95,7 +95,7 @@ export class ImageServiceService {
   }
 
   getImageById(id: number){
-    return this.http.get<ImageDto[]>(`${this.url}/image/person/${id}`);
+    return this.http.get<ImageDto[]>(this.url + `image/person/${id}`);
   }
 
   getImageNew(){
