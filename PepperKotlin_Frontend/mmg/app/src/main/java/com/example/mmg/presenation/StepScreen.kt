@@ -23,6 +23,7 @@ fun StepScreen(
 
     val imageBitmap by viewModel.imageBitMap.collectAsState()
     val mmgSteps by viewModel.mmgStep.collectAsState()
+    val stepsFinished by viewModel.stepsFinished.collectAsState()
 
     if(mmgSteps.isEmpty())
     {
@@ -51,8 +52,9 @@ fun StepScreen(
                     Image(
                         bitmap = imageBitmap!!,
                         contentDescription = "Step Picture",
-                        modifier = Modifier.
-                        fillMaxWidth().fillMaxHeight(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
@@ -90,7 +92,13 @@ fun StepScreen(
                         .width(150.dp)
                         .height(50.dp),
                     onClick = {
-                        viewModel.displayStep()
+                        if(stepsFinished){
+                            viewModel.resetStepCount()
+                            navController.popBackStack()
+                        }
+                        else{
+                            viewModel.displayStep()
+                        }
                     }
                 ) {
                     Text(text = "Weiter")

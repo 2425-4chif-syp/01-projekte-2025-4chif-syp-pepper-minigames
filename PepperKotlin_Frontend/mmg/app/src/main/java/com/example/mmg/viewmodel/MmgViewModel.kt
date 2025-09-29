@@ -72,13 +72,13 @@ class MmgViewModel() : ViewModel() {
                 RoboterActions.animation(emote)
             }
         }
-        else{
-            stepsFinished.value = true
-            RoboterActions.speak("Die Geschichte ist zu Ende! Drücken Sie Abbrechen um alle Geschichten anzuzeigen!")
-        }
 
         incrementStepCount()
-        Log.d("Index danach", "${_stepCount.value}")
+
+        if(_stepCount.value == _mmgSteps.value.size){
+            stepsFinished.value = true
+            RoboterActions.speak("Die Geschichte ist zu Ende!")
+        }
     }
 
     // Holt aus der List der Emotes die richtige raus
@@ -97,10 +97,6 @@ class MmgViewModel() : ViewModel() {
                 e -> e.name == emoteName
         }.firstOrNull()
 
-
-        Log.d("StepDto","${stepDto.move.name}")
-        Log.d("Emote","${rightEmote!!.name}")
-
         if(rightEmote != null){
             return rightEmote.path;
         }
@@ -114,8 +110,7 @@ class MmgViewModel() : ViewModel() {
             Log.d("Result:", "$result")
 
             if (result != null) {
-                // val enabledMmgList = result.filter { it.enabled == true }
-                _mmgList.value = result //enabledMmgList
+                _mmgList.value = result
                 Log.d("Mmgs","${_mmgList.value}")
             }
             else{
@@ -154,20 +149,16 @@ class MmgViewModel() : ViewModel() {
         val parts = base64String.split(',')
         return try {
             val decodedBytes = Base64.decode(parts[1].trim(), Base64.DEFAULT)
-            
-            // Create BitmapFactory.Options to handle large images efficiently
+
             val options = BitmapFactory.Options()
-            
-            // First, get the dimensions without loading the full bitmap
+
             options.inJustDecodeBounds = true
             BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes), null, options)
-            
-            // Calculate inSampleSize to reduce memory usage
-            options.inSampleSize = calculateInSampleSize(options, 800, 600) // Max 800x600
-            
-            // Now decode the bitmap with the calculated sample size
+
+            options.inSampleSize = calculateInSampleSize(options, 800, 600)
+
             options.inJustDecodeBounds = false
-            options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565 // Use less memory
+            options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
             
             val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(decodedBytes), null, options)
             bitmap?.asImageBitmap()
