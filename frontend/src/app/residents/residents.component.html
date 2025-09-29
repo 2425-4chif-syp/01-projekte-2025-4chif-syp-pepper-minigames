@@ -1,18 +1,20 @@
 <div class="h-screen container p-8">
     <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-2xl font-bold mb-4">Personenübersicht</h1>
-        
+        <div class="flex justify-content-start items-center">
+            <button routerLink="/residentAdd" class="btn btn-primary">Neue Person anlegen</button>
+        </div>
         <div class="flex justify-end items-center mb-4">
-            <span class="mr-2">Filter für aktive Memories</span>
+            <!--<span class="mr-2">Filter für aktive Memories</span>
             <label class="switch">
                 <input type="checkbox" [checked]="memoryFilterActive()" (change)="onMemoryFilterChange($event)">
                 <span class="slider round"></span>
-            </label>
+            </label>-->
         </div>
 
-        <div class="bg-gray-200 grid grid-cols-2">
+        <div class="bg-gray-200 grid grid-cols-2 font-bold">
             <div class="p-3 font-bold">Name</div>
-            <div class="p-3 font-bold">Memory</div>
+            <div class="p-3 font-bold text-right">Löschen</div>
         </div>
         
         <div>
@@ -22,14 +24,14 @@
                     {{resident.firstName}} {{resident.lastName}}
                 </div>
                 <div class="flex items-center justify-between">
-                    <button [routerLink]="['/residentDetails', resident.id]" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded">Ändern</button>
+                    <button [routerLink]="['/residentDetails', resident.id]" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded">Übersicht/Ändern</button>
                     
-                    <label class="switch ml-4">
+                   <!--<label class="switch ml-4">
                         <input type="checkbox">
                         <span class="slider round"></span>
-                    </label>
+                    </label>--> 
                     
-                    <button class="ml-4">
+                    <button (click)="deletePerson(resident.id)" class="ml-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>

@@ -14,38 +14,113 @@
             </div>
             
             <div class="flex flex-col space-y-4">
+                <!-- ✅ Vorname - bearbeitbar -->
                 <div class="flex items-center">
                     <label class="w-36 font-bold text-lg">Vorname:</label>
-                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
-                        {{residentOfId()?.firstName}}
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editFirstName" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.firstName}}
+                            </div>
+                        }
                     </div>
                 </div>
                 
+                <!-- ✅ Nachname - bearbeitbar -->
                 <div class="flex items-center">
                     <label class="w-36 font-bold text-lg">Nachname:</label>
-                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
-                        {{residentOfId()?.lastName}}
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editLastName" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.lastName}}
+                            </div>
+                        }
                     </div>
                 </div>
                 
+                <!-- ✅ Zuständigkeit - bearbeitbar mit Select -->
                 <div class="flex items-center">
-                    <label class="w-36 font-bold text-lg">Zustädnigkeit:</label>
-                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
-                        {{residentOfId()?.isWorker ? 'Arbeiter' : 'Bewohner'}}
+                    <label class="w-36 font-bold text-lg">Zuständigkeit:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <select [(ngModel)]="editRole" 
+                                    (change)="onRoleChange($event)"
+                                    class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                                <option value="bewohner">Bewohner</option>
+                                <option value="worker">Worker</option>
+                            </select>
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.isWorker ? 'Worker' : 'Bewohner'}}
+                            </div>
+                        }
                     </div>
                 </div>
                 
+                <!-- ✅ Zimmer-Nr - bearbeitbar -->
                 <div class="flex items-center">
                     <label class="w-36 font-bold text-lg">Zimmer-Nr.:</label>
-                    <div class="flex-1 border border-gray-300 rounded p-2 bg-gray-50 text-center">
-                        {{residentOfId()?.roomNo}}
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editRoomNo" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.roomNo}}
+                            </div>
+                        }
                     </div>
                 </div>
 
+                <!-- ✅ Geburtstag - bearbeitbar (neu hinzugefügt) -->
                 <div class="flex items-center">
-                    <div class="flex items-center mt-4">
-                        <button [routerLink]="['/residents']" routerLinkActive="router-link-active"  class="btn btn-secondary">Zur Übersicht</button>
+                    <label class="w-36 font-bold text-lg">Geburtstag:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="date" 
+                                   [(ngModel)]="editDob" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.dob}}
+                            </div>
+                        }
                     </div>
+                </div>
+
+                <!-- ✅ Buttons - je nach Modus -->
+                <div class="flex items-center space-x-4 mt-6">
+                    @if (isEditing()) {
+                        <!-- Bearbeiten-Modus: Speichern & Abbrechen -->
+                        <button (click)="saveChanges()" 
+                                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            Speichern
+                        </button>
+                        <button (click)="cancelEditing()" 
+                                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                            Abbrechen
+                        </button>
+                    } @else {
+                        <!-- Ansicht-Modus: Bearbeiten & Zurück -->
+                        <button (click)="startEditing()" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Bearbeiten
+                        </button>
+                        <button [routerLink]="['/residents']" 
+                                routerLinkActive="router-link-active" 
+                                class="btn btn-secondary">
+                            Zur Übersicht
+                        </button>
+                    }
                 </div>
             </div>
         </div>
@@ -66,7 +141,7 @@
             @empty {
                 <div class="col-span-full text-center py-8 text-gray-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
                     </svg>
                     <p>No pictures available</p>
                 </div>
@@ -74,56 +149,3 @@
         </div>
     </div>
 </div>
-<style>
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-}
-
-input:checked + .slider {
-    background-color: #e83e8c;
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
-</style>
