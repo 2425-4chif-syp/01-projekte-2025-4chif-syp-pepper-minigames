@@ -92,8 +92,8 @@ fun StepScreen(
                         .width(150.dp)
                         .height(50.dp),
                     onClick = {
+
                         if(stepsFinished){
-                            viewModel.resetStepCount()
                             navController.popBackStack()
                         }
                         else{
