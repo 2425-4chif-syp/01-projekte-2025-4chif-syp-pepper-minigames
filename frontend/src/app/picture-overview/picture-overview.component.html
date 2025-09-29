@@ -37,8 +37,8 @@
         </div>      
       }@else -->
         <picture>
-          <source [srcset]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href" type="image/jpeg">
-          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href" 
+          <source [srcset]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href + '?ngsw-bypass=true'" type="image/jpeg">
+          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href + '?ngsw-bypass=true'"  
                [alt]="image.description" 
                class="w-full h-48 object-cover">
         </picture>

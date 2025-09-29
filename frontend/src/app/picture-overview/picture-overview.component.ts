@@ -67,6 +67,7 @@ export class PictureOverviewComponent {
     this.loadImages();
     this.aktiverFilter;
   }
+
   transformImageUrl(originalUrl: string): string {
     if (!originalUrl) return '';
     
@@ -74,15 +75,12 @@ export class PictureOverviewComponent {
       const isLocalhost = window.location.hostname === 'localhost' || 
                         window.location.hostname === '127.0.0.1';
       
-      if (isLocalhost) {
+      
         const transformedUrl = originalUrl.replace(
           'vm107.htl-leonding.ac.at:8080', 
           'backend:8080'
         );
         return encodeURIComponent(transformedUrl);
-      } else {
-        return encodeURIComponent(originalUrl);
-      }
     } catch (error) {
       console.error('Error transforming URL:', error);
       return originalUrl;
