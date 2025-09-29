@@ -54,7 +54,7 @@
       <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
   
       <img
-        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + selectedImage()?.href"
+        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + selectedImage()?.href + '?ngsw-bypass=true'"
         [alt]="selectedImage()?.description"
         class="w-full max-h-[60vh] object-contain mb-4" 
       />
