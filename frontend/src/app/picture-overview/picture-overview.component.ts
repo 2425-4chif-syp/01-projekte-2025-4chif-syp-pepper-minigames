@@ -71,19 +71,18 @@ export class PictureOverviewComponent {
   transformImageUrl(originalUrl: string): string {
     if (!originalUrl) return '';
     try {
-      // Ersetze beide Varianten: mit und ohne Port
-      let transformedUrl = originalUrl
-        .replace('vm107.htl-leonding.ac.at:8080', 'backend:8080')
-        .replace('vm107.htl-leonding.ac.at', 'backend:8080');
-      console.log('Original:', originalUrl);
-      console.log('Transformed:', transformedUrl);
-      return encodeURIComponent(transformedUrl);
+        // Protokoll und Domain ersetzen
+        let transformedUrl = originalUrl
+          .replace(/^https?:\/\/vm107\.htl-leonding\.ac\.at(:8080)?/, 'http://backend:8080');
+        console.log('Original:', originalUrl);
+        console.log('Transformed:', transformedUrl);
+        return encodeURIComponent(transformedUrl);
     } catch (error) {
-      console.error('Error transforming URL:', error);
-      return originalUrl;
+        console.error('Error transforming URL:', error);
+        return originalUrl;
     }
-  }
-    
+}
+
   loadImages(): void {
     this.imagesService.getImageNew().subscribe(
       {
