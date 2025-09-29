@@ -35,8 +35,7 @@ export class AddResidentComponent {
   }
   
   addPerson(){
-    const personData: Person = {
-      id: 0,
+    const personData: PersonDto = {
       firstName: this.firstName(),
       lastName: this.lastName(),
       dob: this.dob(),
