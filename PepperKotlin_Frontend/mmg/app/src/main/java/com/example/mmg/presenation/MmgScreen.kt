@@ -24,7 +24,9 @@ fun MmgScreen(
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
-    var manuellSelected by remember { mutableStateOf(false) }
+    var manuellSelected by remember { mutableStateOf(true) }
+    var selectedTimerSeconds by remember { mutableStateOf(5) }
+    var showTimerDropdown by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadMmgDtos()
@@ -61,18 +63,62 @@ fun MmgScreen(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { manuellSelected = true }
+                onClick = { 
+                    manuellSelected = true
+                    showTimerDropdown = false
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text(text = "Manuell")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = { manuellSelected = false }
+                onClick = { 
+                    manuellSelected = false
+                    showTimerDropdown = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (!manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text(text = "Automatisch")
+            }
+            
+            if (!manuellSelected && showTimerDropdown) {
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
+                    
+                    Button(
+                        onClick = { expanded = true }
+                    ) {
+                        Text(text = "${selectedTimerSeconds}s")
+                    }
+                    
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        listOf(5, 10, 15).forEach { seconds ->
+                            DropdownMenuItem(
+                                text = { Text("${seconds} Sekunden") },
+                                onClick = {
+                                    selectedTimerSeconds = seconds
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
 
