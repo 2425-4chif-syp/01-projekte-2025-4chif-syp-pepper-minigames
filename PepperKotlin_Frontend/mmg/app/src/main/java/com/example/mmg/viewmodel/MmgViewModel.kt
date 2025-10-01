@@ -23,16 +23,11 @@ class MmgViewModel() : ViewModel() {
 
     private val _mmgList = MutableStateFlow<List<MmgDto>>(emptyList())
     val mmgList = _mmgList.asStateFlow()
-
     private val _mmgSteps = MutableStateFlow<List<StepDto>>(emptyList())
     val mmgStep = _mmgSteps.asStateFlow()
-
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
-
     val _stepCount = MutableStateFlow(0)
-
-    val stepsFinished = MutableStateFlow<Boolean>(false)
-
+    val stepsFinished = MutableStateFlow(false)
     var emotes: List<EmoteDto> = emptyList()
 
     fun incrementStepCount() {
@@ -43,11 +38,34 @@ class MmgViewModel() : ViewModel() {
         _stepCount.value = 0
     }
 
-    fun displayStep(){
+    private suspend fun displayStepsAutomatically(timerSeconds: Int) {
+        for (step in _mmgSteps.value) {
+            Log.d("AutoMode", "Displaying step ${_stepCount.value}")
+            
+            if(step.imageBase64 != null){
+                imageBitMap.value = base64ToBitmap(step.imageBase64!!)
+            }
 
-        if(_stepCount.value == 0){
-            stepsFinished.value = false
+            RoboterActions.speak(step.text)
+
+            val emote = getEmote(stepDto = step)
+            if(emote != -1){
+                RoboterActions.animation(emote)
+            }
+
+            incrementStepCount()
+
+            if (_stepCount.value < _mmgSteps.value.size) {
+            kotlinx.coroutines.delay(timerSeconds + step.durationInSeconds * 1000L)
+            }
         }
+        
+        stepsFinished.value = true
+        resetStepCount()
+        RoboterActions.speak("Die Geschichte ist zu Ende!")
+    }
+
+    fun displayStep(){
 
         Log.d("Count_Step","${_stepCount.value}")
         Log.d("Mmg_Count", "${_mmgSteps.value.size}")
@@ -84,12 +102,9 @@ class MmgViewModel() : ViewModel() {
             resetStepCount()
             RoboterActions.speak("Die Geschichte ist zu Ende!")
         }
-
-
         Log.d("Index danach", "${_stepCount.value}")
     }
 
-    // Holt aus der List der Emotes die richtige raus
     fun getEmote(stepDto: StepDto): Int{
 
         var emoteName = ""
@@ -122,8 +137,7 @@ class MmgViewModel() : ViewModel() {
             Log.d("Result:", "$result")
 
             if (result != null) {
-                // val enabledMmgList = result.filter { it.enabled == true }
-                _mmgList.value = result //enabledMmgList
+                _mmgList.value = result
                 Log.d("Mmgs","${_mmgList.value}")
             }
             else{
@@ -136,9 +150,8 @@ class MmgViewModel() : ViewModel() {
         _mmgList.value = emptyList()
     }
 
-    fun loadMmgSteps(id: Int){
-        imageBitMap.value = null
-        _mmgSteps.value = emptyList()
+    fun loadMmgSteps(id: Int, isManual: Boolean,timerSeconds: Int){
+        resetValues()
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgSteps(id)
             Log.d("Steps","${result}")
@@ -147,13 +160,25 @@ class MmgViewModel() : ViewModel() {
                 _mmgSteps.value = result
 
                 if(_mmgSteps.value != null){
-                    displayStep()
+                    if(isManual == true){
+                        displayStep()
+                    }
+                    else{
+                        displayStepsAutomatically(timerSeconds = timerSeconds)
+                    }
+
                 }
             }
             else{
                 RoboterActions.speak("Ich habe keine Informationen gefunden!")
             }
         }
+    }
+
+    fun resetValues(){
+        imageBitMap.value = null
+        _mmgSteps.value = emptyList()
+        stepsFinished.value = false
     }
 
     fun base64ToBitmap(base64String: String): ImageBitmap? {
