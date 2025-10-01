@@ -6,14 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.mmg.viewmodel.MmgViewModel
@@ -27,6 +24,7 @@ fun MmgScreen(
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
+    var manuellSelected by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadMmgDtos()
@@ -56,6 +54,25 @@ fun MmgScreen(
                 }
             ) {
                 Text(text = "Geschichten laden")
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Button(
+                onClick = { manuellSelected = true }
+            ) {
+                Text(text = "Manuell")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = { manuellSelected = false }
+            ) {
+                Text(text = "Automatisch")
             }
         }
 
