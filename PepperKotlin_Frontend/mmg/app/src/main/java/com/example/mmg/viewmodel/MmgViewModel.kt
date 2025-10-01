@@ -30,6 +30,7 @@ class MmgViewModel() : ViewModel() {
     val stepsFinished = MutableStateFlow(false)
     var emotes: List<EmoteDto> = emptyList()
     val isManualMode = MutableStateFlow(true)
+    val buttonsEnabled = MutableStateFlow(true)
     private var navigationCallback: (() -> Unit)? = null
 
     fun setNavigationCallback(callback: () -> Unit) {
@@ -45,7 +46,7 @@ class MmgViewModel() : ViewModel() {
     }
 
     private suspend fun displayStepsAutomatically(timerSeconds: Int) {
-        for (step in _mmgSteps.value) {
+        for ((index, step) in _mmgSteps.value.withIndex()) {
             Log.d("AutoMode", "Displaying step ${_stepCount.value}")
             
             if(step.imageBase64 != null){
@@ -60,10 +61,7 @@ class MmgViewModel() : ViewModel() {
             }
 
             incrementStepCount()
-
-            if (_stepCount.value < _mmgSteps.value.size) {
-                kotlinx.coroutines.delay(timerSeconds * 1000L + step.durationInSeconds * 1000L)
-            }
+            kotlinx.coroutines.delay(timerSeconds * 1000L + step.durationInSeconds * 1000L)
         }
         
         stepsFinished.value = true
@@ -78,39 +76,55 @@ class MmgViewModel() : ViewModel() {
         Log.d("Count_Step","${_stepCount.value}")
         Log.d("Mmg_Count", "${_mmgSteps.value.size}")
 
-        if(_stepCount.value < _mmgSteps.value.size){
-
-            val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
-
-            Log.d("Action","${stepDto}")
-            Log.d("Index","${_stepCount.value}")
-            Log.d("Base64","${stepDto.imageBase64}")
-            Log.d("Text", "${stepDto.text}")
-            Log.d("Move","${stepDto.move}")
-            Log.d("Duration","${stepDto.durationInSeconds}")
-
-            if(stepDto.imageBase64 != null){
-
-                imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+        // Prüfen ob alle Schritte bereits abgearbeitet wurden
+        if(_stepCount.value >= _mmgSteps.value.size){
+            if(!stepsFinished.value) {
+                Log.d("Story", "All steps completed - ending story")
+                stepsFinished.value = true
+                RoboterActions.speak("Die Geschichte ist zu Ende!")
+                resetStepCount()
             }
+            return
+        }
 
-            RoboterActions.speak(stepDto.text)
+        val stepDto: StepDto = _mmgSteps.value[_stepCount.value]
 
-            val emote = getEmote(stepDto = stepDto)
+        Log.d("Action","${stepDto}")
+        Log.d("Index","${_stepCount.value}")
+        Log.d("Base64","${stepDto.imageBase64}")
+        Log.d("Text", "${stepDto.text}")
+        Log.d("Move","${stepDto.move}")
+        Log.d("Duration","${stepDto.durationInSeconds}")
 
-            if(emote != -1){
-                RoboterActions.animation(emote)
-            }
+        buttonsEnabled.value = false
+        
+        if(stepDto.imageBase64 != null){
+            imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+        }
+
+        RoboterActions.speak(stepDto.text)
+
+        val emote = getEmote(stepDto = stepDto)
+
+        if(emote != -1){
+            RoboterActions.animation(emote)
+        }
+
+        viewModelScope.launch {
+            kotlinx.coroutines.delay((stepDto.durationInSeconds + 1) * 1000L)
+            buttonsEnabled.value = true
         }
 
         incrementStepCount()
 
-        if(_stepCount.value == _mmgSteps.value.size){
+        Log.d("Index danach", "${_stepCount.value}")
+        Log.d("Check if finished", "stepCount: ${_stepCount.value}, totalSteps: ${_mmgSteps.value.size}")
+
+        if(_stepCount.value >= _mmgSteps.value.size){
+            Log.d("Story", "Last step reached - story finished")
             stepsFinished.value = true
-            resetStepCount()
             RoboterActions.speak("Die Geschichte ist zu Ende!")
         }
-        Log.d("Index danach", "${_stepCount.value}")
     }
 
     fun getEmote(stepDto: StepDto): Int{

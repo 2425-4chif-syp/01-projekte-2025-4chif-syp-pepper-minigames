@@ -26,6 +26,7 @@ fun StepScreen(
     val mmgSteps by viewModel.mmgStep.collectAsState()
     val stepsFinished by viewModel.stepsFinished.collectAsState()
     val isManualMode by viewModel.isManualMode.collectAsState()
+    val buttonsEnabled by viewModel.buttonsEnabled.collectAsState()
 
     // Navigation callback setzen
     LaunchedEffect(Unit) {
@@ -34,9 +35,10 @@ fun StepScreen(
         }
     }
 
-    // Automatisches popBack wenn Geschichte zu Ende ist und manueller Modus
+    // Automatisches popBack nur im automatischen Modus
     LaunchedEffect(stepsFinished) {
-        if (stepsFinished && isManualMode) {
+        if (stepsFinished && !isManualMode) {
+            kotlinx.coroutines.delay(3000L)
             navController.popBackStack()
         }
     }
@@ -99,6 +101,7 @@ fun StepScreen(
                     modifier = Modifier
                         .width(150.dp)
                         .height(50.dp),
+                    enabled = buttonsEnabled,
                     onClick = {
                         viewModel.resetStepCount()
                         navController.popBackStack()
@@ -112,6 +115,7 @@ fun StepScreen(
                         modifier = Modifier
                             .width(150.dp)
                             .height(50.dp),
+                        enabled = buttonsEnabled,
                         onClick = {
                             if(stepsFinished){
                                 navController.popBackStack()
