@@ -1,0 +1,15 @@
+@startuml
+
+left to right direction
+skinparam actorStyle awesome
+:SeniorIn: -- (Use)
+"BetreuerIn" as Admin
+"Essensplan anschauen" as (Use)
+(Essen auswählen) .> (Pepper) : include
+Admin -- (Essensplan erstellen/bearbeiten)
+(Use) .> (Pepper) : include
+(Pepper) .> (Gesichtserkennung) : include
+(SeniorIn) -- (Essen auswählen)
+@enduml
+
+
