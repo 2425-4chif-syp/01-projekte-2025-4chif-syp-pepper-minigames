@@ -25,7 +25,7 @@ fun MmgScreen(
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
     var manuellSelected by remember { mutableStateOf(true) }
-    var selectedTimerSeconds by remember { mutableStateOf(5) }
+    var selectedTimerSeconds by remember { mutableStateOf(2) }
     var showTimerDropdown by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -108,7 +108,7 @@ fun MmgScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        listOf(5, 10, 15).forEach { seconds ->
+                        listOf(2,5, 10, 15).forEach { seconds ->
                             DropdownMenuItem(
                                 text = { Text("${seconds} Sekunden") },
                                 onClick = {
@@ -144,7 +144,11 @@ fun MmgScreen(
                             .height(80.dp)
                             .clickable {
                                 navController.navigate("step")
-                                viewModel.loadMmgSteps(mmg.id)
+                                viewModel.loadMmgSteps(
+                                    id = mmg.id,
+                                    isManual = manuellSelected,
+                                    timerSeconds = selectedTimerSeconds
+                                )
                                 viewModel.resetStepCount()
                             },
                         shape = MaterialTheme.shapes.medium,

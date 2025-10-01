@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,6 +25,21 @@ fun StepScreen(
     val imageBitmap by viewModel.imageBitMap.collectAsState()
     val mmgSteps by viewModel.mmgStep.collectAsState()
     val stepsFinished by viewModel.stepsFinished.collectAsState()
+    val isManualMode by viewModel.isManualMode.collectAsState()
+
+    // Navigation callback setzen
+    LaunchedEffect(Unit) {
+        viewModel.setNavigationCallback {
+            navController.popBackStack()
+        }
+    }
+
+    // Automatisches popBack wenn Geschichte zu Ende ist und manueller Modus
+    LaunchedEffect(stepsFinished) {
+        if (stepsFinished && isManualMode) {
+            navController.popBackStack()
+        }
+    }
 
     if(mmgSteps.isEmpty())
     {
@@ -73,7 +89,11 @@ fun StepScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                horizontalArrangement = if (isManualMode) {
+                    Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                } else {
+                    Arrangement.Center
+                }
             ) {
                 Button(
                     modifier = Modifier
@@ -87,21 +107,22 @@ fun StepScreen(
                     Text(text = "Abbrechen")
                 }
 
-                Button(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(50.dp),
-                    onClick = {
-
-                        if(stepsFinished){
-                            navController.popBackStack()
+                if (isManualMode) {
+                    Button(
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(50.dp),
+                        onClick = {
+                            if(stepsFinished){
+                                navController.popBackStack()
+                            }
+                            else{
+                                viewModel.displayStep()
+                            }
                         }
-                        else{
-                            viewModel.displayStep()
-                        }
+                    ) {
+                        Text(text = "Weiter")
                     }
-                ) {
-                    Text(text = "Weiter")
                 }
             }
         }
