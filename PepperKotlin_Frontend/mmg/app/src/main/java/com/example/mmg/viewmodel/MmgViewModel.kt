@@ -29,6 +29,12 @@ class MmgViewModel() : ViewModel() {
     val _stepCount = MutableStateFlow(0)
     val stepsFinished = MutableStateFlow(false)
     var emotes: List<EmoteDto> = emptyList()
+    val isManualMode = MutableStateFlow(true)
+    private var navigationCallback: (() -> Unit)? = null
+
+    fun setNavigationCallback(callback: () -> Unit) {
+        navigationCallback = callback
+    }
 
     fun incrementStepCount() {
         _stepCount.value += 1
@@ -56,13 +62,15 @@ class MmgViewModel() : ViewModel() {
             incrementStepCount()
 
             if (_stepCount.value < _mmgSteps.value.size) {
-            kotlinx.coroutines.delay(timerSeconds + step.durationInSeconds * 1000L)
+                kotlinx.coroutines.delay(timerSeconds * 1000L + step.durationInSeconds * 1000L)
             }
         }
         
         stepsFinished.value = true
         resetStepCount()
         RoboterActions.speak("Die Geschichte ist zu Ende!")
+        kotlinx.coroutines.delay(2000L)
+        navigationCallback?.invoke()
     }
 
     fun displayStep(){
@@ -150,8 +158,9 @@ class MmgViewModel() : ViewModel() {
         _mmgList.value = emptyList()
     }
 
-    fun loadMmgSteps(id: Int, isManual: Boolean,timerSeconds: Int){
+    fun loadMmgSteps(id: Int, isManual: Boolean, timerSeconds: Int){
         resetValues()
+        isManualMode.value = isManual
         viewModelScope.launch {
             val result = HttpInstance.fetchMmgSteps(id)
             Log.d("Steps","${result}")
@@ -160,13 +169,12 @@ class MmgViewModel() : ViewModel() {
                 _mmgSteps.value = result
 
                 if(_mmgSteps.value != null){
-                    if(isManual == true){
+                    if(isManual){
                         displayStep()
                     }
                     else{
                         displayStepsAutomatically(timerSeconds = timerSeconds)
                     }
-
                 }
             }
             else{
