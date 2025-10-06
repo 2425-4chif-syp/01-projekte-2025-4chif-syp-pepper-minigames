@@ -2,8 +2,7 @@ package com.example.mmg.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class MmgDto(
-    @SerializedName("enabled")val enabled: Boolean,
+data class MmgDto(yy
     @SerializedName("gameType")val gameType: GameType,
     @SerializedName("id")val id: Int,
     @SerializedName("name")val name: String,
