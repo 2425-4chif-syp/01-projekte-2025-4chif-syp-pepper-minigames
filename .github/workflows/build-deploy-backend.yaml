@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'backend_v2/**'
+      - 'pep-caretaker/backend_v2/**'
       - '.github/workflows/**'
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: backend_v2
+        working-directory: pep-caretaker/backend_v2
 
     steps:
       - name: Checkout code
@@ -50,8 +50,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./backend_v2
-          file: ./backend_v2/src/main/docker/Dockerfile
+          context: ./pep-caretaker/backend_v2
+          file: ./pep-caretaker/backend_v2/src/main/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}/pepper-backend:${{ env.IMAGE_TAG }}

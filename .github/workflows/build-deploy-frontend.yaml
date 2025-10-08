@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**'
+      - 'pep-caretaker/frontend/**'
       - '.github/workflows/**'
   workflow_dispatch:
 
@@ -38,16 +38,16 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
+          cache-dependency-path: 'pep-caretaker/frontend/package-lock.json'
 
       - name: Build frontend
-        run: ./frontend/build.sh
+        run: ./pep-caretaker/frontend/build.sh
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./
-          file: ./frontend/docker/Dockerfile
+          file: ./pep-caretaker/frontend/docker/Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}/pepper-frontend:${{ env.IMAGE_TAG }}
