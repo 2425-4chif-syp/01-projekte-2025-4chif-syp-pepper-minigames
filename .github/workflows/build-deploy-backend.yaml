@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'backend_v2/**'
+      - 'pep-caretaker/backend_v2/**'
       - '.github/workflows/**'
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: backend_v2
+        working-directory: pep-caretaker/backend_v2
 
     steps:
       - name: Checkout code
