@@ -161,9 +161,10 @@ export class CreatestoryComponent {
 loadImages(): void {
   this.imagesService.getImageNew().subscribe({
     next: (data) => {
-      // Direktes Setzen der ImageJson[] ohne Konvertierung
-      this.images.set(data.items);
-      console.log(`✅ Loaded ${data.items.length} images from image server (background)`);
+      // 🔄 NEUE REIHENFOLGE: Neueste Bilder zuerst (umgekehrte Reihenfolge)
+      const reversedImages = [...data.items].reverse();
+      this.images.set(reversedImages);
+      console.log(`✅ Loaded ${reversedImages.length} images from image server (newest first)`);
       
       // Jetzt die wartenden Scene-Bilder upgraden
       if (this.pendingSceneData.length > 0) {
@@ -179,7 +180,6 @@ loadImages(): void {
     },
   });
 }
-
 // Fallback-Methode (die alte Implementierung)
 private loadImagesOld(): void {
   this.imagesService.getImages().subscribe({
@@ -191,8 +191,11 @@ private loadImagesOld(): void {
         href: '', // Dummy-Wert für href
         person: imageDto.person
       }));
-      this.images.set(convertedImages);
-      console.log(`⚠️ Fallback: Loaded ${convertedImages.length} images via old method`);
+      
+      // 🔄 NEUE REIHENFOLGE: Auch hier umkehren
+      const reversedImages = [...convertedImages].reverse();
+      this.images.set(reversedImages);
+      console.log(`⚠️ Fallback: Loaded ${reversedImages.length} images via old method (newest first)`);
     },
     error: (err) => {
       console.error('Laden fehlgeschlagen (old method): ' + err.message);
