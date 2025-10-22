@@ -23,3 +23,6 @@ coverage/
 # System files
 .DS_Store
 Thumbs.db
+
+my.cnf
+docker-compose.yml
