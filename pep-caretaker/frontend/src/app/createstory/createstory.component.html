@@ -98,6 +98,30 @@
        [ngClass]="{'translate-x-0': isSidebarVisible, 'translate-x-full': !isSidebarVisible}">    <div class="sticky top-0 bg-white pb-2 border-b mb-4">
       <h3 class="text-lg font-semibold">Hochgeladene Bilder</h3>
       <p class="text-sm text-gray-500 mt-1">Bilder per Drag & Drop auf das Titelbild oder Bild der Scenen ziehen.</p>
+    </div>
+
+    <!-- 🔍 Suchfeld für Bilder -->
+    <div class="search-container mb-4">
+      <div class="flex">
+        <input 
+          type="text" 
+          class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm" 
+          placeholder="Bilder durchsuchen..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearchChange()">
+        <button 
+          type="button"
+          class="px-3 py-2 bg-gray-200 border border-l-0 border-gray-300 rounded-r-md text-gray-600 hover:bg-gray-300 transition-colors text-sm"
+          (click)="clearSearch()"
+          [disabled]="searchTerm === ''"
+          [class.cursor-not-allowed]="searchTerm === ''"
+          [class.opacity-50]="searchTerm === ''">
+          ✕
+        </button>
+      </div>
+      <small class="text-xs text-gray-500 mt-1 block">
+        {{filteredImages().length}} von {{allImages().length}} Bildern
+      </small>
     </div><div *ngFor="let image of images()" 
          class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
          draggable="true"

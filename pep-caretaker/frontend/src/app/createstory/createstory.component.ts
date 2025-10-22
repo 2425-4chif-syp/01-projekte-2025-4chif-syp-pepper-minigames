@@ -61,6 +61,11 @@ export class CreatestoryComponent {
   imagesService = inject(ImageServiceService);
   images = signal<ImageJson[]>([]);
 
+  // 🔍 Neue Eigenschaften für Suche und Filterung
+  searchTerm: string = '';
+  allImages = signal<ImageJson[]>([]); // Alle geladenen Bilder
+  filteredImages = signal<ImageJson[]>([]); // Gefilterte Bilder für Anzeige
+
   storyId: number | null = null;
   
   // Variable um Scene-Daten zu speichern für späteres Upgrade
@@ -163,8 +168,16 @@ loadImages(): void {
     next: (data) => {
       // 🔄 NEUE REIHENFOLGE: Neueste Bilder zuerst (umgekehrte Reihenfolge)
       const reversedImages = [...data.items].reverse();
-      this.images.set(reversedImages);
-      console.log(`✅ Loaded ${reversedImages.length} images from image server (newest first)`);
+      
+      // 🎯 FILTER: Nur Bilder ohne Person (für MMGs)
+      const mmgImages = reversedImages.filter(image => image.person === null || image.person === undefined);
+      
+      this.allImages.set(mmgImages);
+      this.filteredImages.set(mmgImages); // Initial alle MMG-Bilder anzeigen
+      this.images.set(mmgImages); // Für Kompatibilität
+      
+      console.log(`✅ Loaded ${reversedImages.length} total images`);
+      console.log(`🎯 Filtered to ${mmgImages.length} MMG images (person = null)`);
       
       // Jetzt die wartenden Scene-Bilder upgraden
       if (this.pendingSceneData.length > 0) {
@@ -194,8 +207,16 @@ private loadImagesOld(): void {
       
       // 🔄 NEUE REIHENFOLGE: Auch hier umkehren
       const reversedImages = [...convertedImages].reverse();
-      this.images.set(reversedImages);
-      console.log(`⚠️ Fallback: Loaded ${reversedImages.length} images via old method (newest first)`);
+      
+      // 🎯 FILTER: Nur Bilder ohne Person (für MMGs)
+      const mmgImages = reversedImages.filter(image => image.person === null || image.person === undefined);
+      
+      this.allImages.set(mmgImages);
+      this.filteredImages.set(mmgImages);
+      this.images.set(mmgImages);
+      
+      console.log(`⚠️ Fallback: Loaded ${convertedImages.length} total images via old method`);
+      console.log(`🎯 Filtered to ${mmgImages.length} MMG images (person = null)`);
     },
     error: (err) => {
       console.error('Laden fehlgeschlagen (old method): ' + err.message);
@@ -711,5 +732,32 @@ private loadImagesOld(): void {
     
     console.log('⚠️ Keine Konvertierung durchgeführt, gebe Original zurück');
     return imagePath; // Fallback
+  }
+
+  // 🔍 Neue Methode für Bildsuche
+  onSearchChange(): void {
+    const searchLower = this.searchTerm.toLowerCase().trim();
+    
+    if (searchLower === '') {
+      // Keine Suche - alle MMG-Bilder anzeigen
+      this.filteredImages.set(this.allImages());
+    } else {
+      // Suche in Beschreibung
+      const filtered = this.allImages().filter(image => 
+        image.description?.toLowerCase().includes(searchLower)
+      );
+      this.filteredImages.set(filtered);
+    }
+    
+    // Für Kompatibilität auch images aktualisieren
+    this.images.set(this.filteredImages());
+    
+    console.log(`🔍 Search "${this.searchTerm}": ${this.filteredImages().length} results`);
+  }
+
+  // 🔍 Methode zum Löschen der Suche
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.onSearchChange();
   }
 }
