@@ -18,24 +18,26 @@
     <label class="input input-bordered flex items-center gap-2 w-[50%]">
       <input type="text" class="grow text-lg p-2" placeholder="Titel der Geschichte" [(ngModel)]="titleName" />
     </label>    <!-- Titelbild-Upload-Bereich -->
-    <div class="flex flex-col items-center">      <div class="w-[300px] h-[200px] border-2 border-gray-400 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md transition-colors"
+    <div class="flex flex-col items-center">
+      <!-- 🖼️ KLICKBARES TITELBILD mit Hover-Effekt -->
+      <div class="relative w-[300px] h-[200px] border-2 border-gray-400 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md transition-colors cursor-pointer group"
            [ngClass]="{'border-blue-500 bg-blue-50': isDragOverTitle}"
            (dragover)="onDragOver($event); isDragOverTitle = true"
            (dragleave)="isDragOverTitle = false"
-           (drop)="onDropToTitle($event); isDragOverTitle = false">
+           (drop)="onDropToTitle($event); isDragOverTitle = false"
+           (click)="navigateToImageUpload()"
+           title="Klicken um Titelbild hochzuladen">
         <img [src]="titleImage" class="w-full h-full object-cover" alt="Titelbild Vorschau"/>
+        
+        <!-- Hover-Overlay für Upload-Hinweis -->
+        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center pointer-events-none">
+          <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-center">
+            <div class="text-3xl mb-2">📷</div>
+            <div class="text-sm font-semibold">Titelbild hochladen</div>
+          </div>
+        </div>
       </div>
-
-      <!-- Upload-Button -->
-      <button (click)="navigateToImageUpload()" class="mt-2 px-6 py-3 bg-blue-500 text-white text-lg rounded-lg cursor-pointer shadow-md hover:bg-blue-600 transition">
-        📷 Titelbild hochladen
-      </button>
     </div>
-
-    <!-- Szene hinzufügen Button -->
-    <button (click)="addScene()" class="bg-green-500 text-white px-6 py-3 text-lg rounded-lg shadow-md hover:bg-green-600 transition">
-      ➕ Szene hinzufügen
-    </button>
   </div>
 
   <div cdkDropList (cdkDropListDropped)="drop($event)" class="space-y-4 mt-6 ml-6 mr-6">
@@ -54,28 +56,37 @@
 
         </div>
       </div>      <div class="flex flex-col items-center">
-        <div class="w-24 h-25 overflow-hidden rounded border-2 relative transition-all duration-200"
+        <!-- 🖼️ VERGRÖSSERTES SZENENBILD mit Click-to-Upload -->
+        <div class="w-40 h-40 overflow-hidden rounded border-2 relative transition-all duration-200 cursor-pointer group"
              [ngClass]="{'border-blue-500 bg-blue-50': scene.isDragOver, 'border-gray-500': !scene.isDragOver}"
              (dragover)="onDragOver($event)"
              (dragenter)="onDragEnterScene($event, scene)"
              (dragleave)="onDragLeaveScene($event, scene)"
-             (drop)="onDropToScene($event, scene)">
+             (drop)="onDropToScene($event, scene)"
+             (click)="navigateToSceneImageUpload(i)"
+             title="Klicken um Bild hochzuladen">
           <img [src]="scene.image" class="w-full h-full object-cover" alt="Szenenbild"/>
+          
+          <!-- Hover-Overlay für Upload-Hinweis -->
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-center">
+              <div class="text-2xl mb-1">📷</div>
+              <div class="text-xs">Bild hochladen</div>
+            </div>
+          </div>
+          
+          <!-- Drag & Drop Overlay -->
           <div *ngIf="scene.isDragOver" class="absolute inset-0 bg-blue-200 bg-opacity-50 flex items-center justify-center">
-            <span class="text-blue-800 text-xs font-semibold">Drop hier</span>
+            <span class="text-blue-800 text-sm font-semibold">Drop hier</span>
           </div>
         </div>
         
-        <!-- Bild hochladen Button -->
-        <button (click)="navigateToSceneImageUpload(i)" class="mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer shadow hover:bg-blue-600 transition">
-          📷 Bild hochladen
-        </button>
-        
-        <div class="tooltip" [attr.data-tip]="isDefaultImage(scene) ? 'Bereits Standard-Bild verwendet' : 'Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.'">
+        <!-- Bild entfernen Button -->
+        <div class="tooltip mt-3" [attr.data-tip]="isDefaultImage(scene) ? 'Bereits Standard-Bild verwendet' : 'Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.'">
           <button 
             (click)="clearImage(scene)" 
             [disabled]="isDefaultImage(scene)"
-            [class]="isDefaultImage(scene) ? 'mt-2 bg-gray-400 text-gray-600 p-2 rounded text-sm cursor-not-allowed' : 'mt-2 bg-red-500 text-white p-2 rounded text-sm hover:bg-red-600 transition'">
+            [class]="isDefaultImage(scene) ? 'bg-gray-400 text-gray-600 px-3 py-1 rounded text-xs cursor-not-allowed' : 'bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition'">
             Bild entfernen
           </button>
         </div>
@@ -89,6 +100,13 @@
         </button>
       </div>
 
+    </div>
+    
+    <!-- 🎯 SZENE HINZUFÜGEN BUTTON - IMMER GANZ UNTEN -->
+    <div class="flex justify-center mt-8 mb-8">
+      <button (click)="addScene()" class="bg-green-500 text-white px-8 py-4 text-lg rounded-lg shadow-md hover:bg-green-600 transition-all hover:scale-105">
+        ➕ Szene hinzufügen
+      </button>
     </div>
   </div>
 
@@ -122,7 +140,10 @@
       <small class="text-xs text-gray-500 mt-1 block">
         {{filteredImages().length}} von {{allImages().length}} Bildern
       </small>
-    </div><div *ngFor="let image of images()" 
+    </div>
+
+    <!-- 🖼️ Bilderliste mit filteredImages() -->
+    <div *ngFor="let image of filteredImages()" 
          class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
          draggable="true"
          (dragstart)="onDragStart($event, image)"
