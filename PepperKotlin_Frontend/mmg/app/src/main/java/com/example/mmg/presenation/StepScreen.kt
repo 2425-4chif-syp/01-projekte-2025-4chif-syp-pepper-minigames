@@ -27,6 +27,8 @@ fun StepScreen(
     val stepsFinished by viewModel.stepsFinished.collectAsState()
     val isManualMode by viewModel.isManualMode.collectAsState()
     val buttonsEnabled by viewModel.buttonsEnabled.collectAsState()
+    val stepCount by viewModel._stepCount.collectAsState()
+    val isWaitingForFirstImage = stepCount == 1 && imageBitmap == null && mmgSteps.isNotEmpty()
 
     LaunchedEffect(Unit) {
         viewModel.setNavigationCallback {
@@ -41,7 +43,7 @@ fun StepScreen(
         }
     }
 
-    if(mmgSteps.isEmpty() || imageBitmap == null )
+    if(mmgSteps.isEmpty() || (stepCount == 0 && imageBitmap == null))
     {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -64,7 +66,9 @@ fun StepScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                if (imageBitmap != null) {
+                if (isWaitingForFirstImage) {
+                    CircularProgressIndicator()
+                } else if (imageBitmap != null) {
                     Image(
                         bitmap = imageBitmap!!,
                         contentDescription = "Step Picture",
