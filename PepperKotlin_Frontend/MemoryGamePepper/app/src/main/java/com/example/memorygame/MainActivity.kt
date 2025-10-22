@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         // Per Intent die person holen und einstezten
         val personApi = NetworkModule.providePersonApi()
 
-        val mockPersonProvider = MockPersonProvider(2L, personApi)
+        val mockPersonProvider = MockPersonProvider(1L, personApi)
         val personProviderMock = runBlocking { mockPersonProvider.getPerson() }
 
         val personProvider = IntentPersonProvider(intent, personApi)

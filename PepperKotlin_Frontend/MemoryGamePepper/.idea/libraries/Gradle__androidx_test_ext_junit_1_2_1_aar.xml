@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/5ccccbc454a6b5ac4845fd7dabd40665/transformed/junit-1.2.1/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5ccccbc454a6b5ac4845fd7dabd40665/transformed/junit-1.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5ccccbc454a6b5ac4845fd7dabd40665/transformed/junit-1.2.1/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
