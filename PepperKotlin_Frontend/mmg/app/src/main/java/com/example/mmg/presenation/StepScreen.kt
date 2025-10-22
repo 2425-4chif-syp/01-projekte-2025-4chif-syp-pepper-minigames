@@ -28,14 +28,12 @@ fun StepScreen(
     val isManualMode by viewModel.isManualMode.collectAsState()
     val buttonsEnabled by viewModel.buttonsEnabled.collectAsState()
 
-    // Navigation callback setzen
     LaunchedEffect(Unit) {
         viewModel.setNavigationCallback {
             navController.popBackStack()
         }
     }
 
-    // Automatisches popBack nur im automatischen Modus
     LaunchedEffect(stepsFinished) {
         if (stepsFinished && !isManualMode) {
             kotlinx.coroutines.delay(3000L)
@@ -43,7 +41,7 @@ fun StepScreen(
         }
     }
 
-    if(mmgSteps.isEmpty())
+    if(mmgSteps.isEmpty() || imageBitmap == null )
     {
         Box(
             modifier = Modifier.fillMaxSize(),

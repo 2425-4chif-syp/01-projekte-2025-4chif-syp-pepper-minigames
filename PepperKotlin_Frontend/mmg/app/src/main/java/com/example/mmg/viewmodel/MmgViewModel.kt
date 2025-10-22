@@ -26,6 +26,9 @@ class MmgViewModel() : ViewModel() {
     private val _mmgSteps = MutableStateFlow<List<StepDto>>(emptyList())
     val mmgStep = _mmgSteps.asStateFlow()
     val imageBitMap = MutableStateFlow<ImageBitmap?>(null)
+    // Map to store all loaded images by their ID
+    private val _imageMap = MutableStateFlow<Map<Int, ImageBitmap>>(emptyMap())
+    val imageMap = _imageMap.asStateFlow()
     val _stepCount = MutableStateFlow(0)
     val stepsFinished = MutableStateFlow(false)
     var emotes: List<EmoteDto> = emptyList()
@@ -49,8 +52,8 @@ class MmgViewModel() : ViewModel() {
         for ((index, step) in _mmgSteps.value.withIndex()) {
             Log.d("AutoMode", "Displaying step ${_stepCount.value}")
             
-            if(step.imageBase64 != null){
-                imageBitMap.value = base64ToBitmap(step.imageBase64!!)
+            if(step.image!!.id != 0){
+                loadImageFromApi(step.image.id)
             }
 
             RoboterActions.speak(step.text)
@@ -91,15 +94,17 @@ class MmgViewModel() : ViewModel() {
 
         Log.d("Action","${stepDto}")
         Log.d("Index","${_stepCount.value}")
-        Log.d("Base64","${stepDto.imageBase64}")
+        Log.d("Base64","${stepDto.image!!.id}")
         Log.d("Text", "${stepDto.text}")
         Log.d("Move","${stepDto.move}")
         Log.d("Duration","${stepDto.durationInSeconds}")
 
         buttonsEnabled.value = false
         
-        if(stepDto.imageBase64 != null){
-            imageBitMap.value = base64ToBitmap(stepDto.imageBase64!!)
+        if(stepDto.image!!.id != 0){
+            viewModelScope.launch {
+                loadImageFromApi(stepDto.image.id)
+            }
         }
 
         RoboterActions.speak(stepDto.text)
@@ -124,6 +129,23 @@ class MmgViewModel() : ViewModel() {
             Log.d("Story", "Last step reached - story finished")
             stepsFinished.value = true
             RoboterActions.speak("Die Geschichte ist zu Ende!")
+        }
+    }
+
+    suspend fun loadImageFromApi(imageId: Int) {
+        try {
+            val imageBytes = HttpInstance.fetchImage(imageId)
+            if (imageBytes != null) {
+                val bitmap = byteArrayToBitmap(imageBytes)
+                imageBitMap.value = bitmap
+                _imageMap.value = _imageMap.value.toMutableMap().apply { put(imageId, bitmap!!) }
+            } else {
+                Log.e("MmgViewModel", "Failed to load image with id: $imageId")
+                imageBitMap.value = null
+            }
+        } catch (e: Exception) {
+            Log.e("MmgViewModel", "Error loading image with id: $imageId", e)
+            imageBitMap.value = null
         }
     }
 
@@ -161,6 +183,14 @@ class MmgViewModel() : ViewModel() {
             if (result != null) {
                 _mmgList.value = result
                 Log.d("Mmgs","${_mmgList.value}")
+                // Load all story icons immediately
+                result.forEach { mmgDto ->
+                    mmgDto.storyIcon?.id?.let { iconId ->
+                        viewModelScope.launch {
+                            loadImageFromApi(iconId)
+                        }
+                    }
+                }
             }
             else{
                 RoboterActions.speak("Ich habe keine Mitmachgeschichten gefunden")
@@ -231,6 +261,33 @@ class MmgViewModel() : ViewModel() {
             null
         } catch (e: Exception) {
             Log.e("MmgViewModel", "Error decoding base64 image", e)
+            null
+        }
+    }
+
+    fun byteArrayToBitmap(byteArray: ByteArray): ImageBitmap? {
+        return try {
+            // Create BitmapFactory.Options to handle large images efficiently
+            val options = BitmapFactory.Options()
+
+            // First, get the dimensions without loading the full bitmap
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeStream(ByteArrayInputStream(byteArray), null, options)
+
+            // Calculate inSampleSize to reduce memory usage
+            options.inSampleSize = calculateInSampleSize(options, 800, 600) // Max 800x600
+
+            // Now decode the bitmap with the calculated sample size
+            options.inJustDecodeBounds = false
+            options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565 // Use less memory
+            
+            val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(byteArray), null, options)
+            bitmap?.asImageBitmap()
+        } catch (e: OutOfMemoryError) {
+            Log.e("MmgViewModel", "OutOfMemoryError when decoding byte array image", e)
+            null
+        } catch (e: Exception) {
+            Log.e("MmgViewModel", "Error decoding byte array image", e)
             null
         }
     }

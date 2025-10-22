@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
@@ -24,6 +25,7 @@ fun MmgScreen(
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
+    val imageMap by viewModel.imageMap.collectAsState()
     var manuellSelected by remember { mutableStateOf(true) }
     var selectedTimerSeconds by remember { mutableStateOf(2) }
     var showTimerDropdown by remember { mutableStateOf(false) }
@@ -160,11 +162,13 @@ fun MmgScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            val imageBitmap = mmg.storyIconBase64?.let { viewModel.base64ToBitmap(it) }
+                            val storyIconBitmap = mmg.storyIcon?.id?.let { iconId ->
+                                imageMap[iconId]
+                            }
 
-                            if (imageBitmap != null) {
+                            if (storyIconBitmap != null) {
                                 Image(
-                                    bitmap = imageBitmap,
+                                    bitmap = storyIconBitmap,
                                     contentDescription = "Story Icon",
                                     modifier = Modifier.size(80.dp)
                                 )
