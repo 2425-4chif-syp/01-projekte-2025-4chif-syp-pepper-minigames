@@ -2,7 +2,7 @@ package com.example.mmg.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class MmgDto(yy
+data class MmgDto(
     @SerializedName("gameType")val gameType: GameType,
     @SerializedName("id")val id: Int,
     @SerializedName("name")val name: String,
@@ -17,5 +17,4 @@ data class GameType(
 data class StoryIcon(
     @SerializedName("description")val description: String,
     @SerializedName("id")val id: Int,
-    @SerializedName("image")val image: List<Int>
 )

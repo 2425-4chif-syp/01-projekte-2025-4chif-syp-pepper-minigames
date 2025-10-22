@@ -12,4 +12,7 @@ interface MmgApiService {
 
     @GET("api/tagalongstories/{storyId}/steps")
     suspend fun getSteps(@Path("storyId") storyId: Int): Response<List<StepDto>>
+
+    @GET("api/image/picture/{id}")
+    suspend fun getImage(@Path("id") id: Int): Response<List<Int>>
 }
