@@ -17,7 +17,7 @@
     </div>
     
     <div class="grid grid-cols-2 py-3 gap-40">
-      <table class="table bg-gray-400 rounded-md">
+      <table class="table rounded-md" style="background-color: #9EF8EE;">
         <tbody>
           <tr>
             <td class="font-bold text-lg">Dimension von PEPPER</td>
@@ -26,7 +26,7 @@
         </tbody>
       </table>
       
-      <table class="table bg-gray-400 rounded-md">
+      <table class="table rounded-md" style="background-color: #9EF8EE;">
         <tbody>
           <tr>
             <td class="font-bold text-lg">Dimension vom BILD</td>
@@ -56,7 +56,7 @@
         </select>
         <!-- Cropper Functions Buttons using flexbox -->
         <div class="flex flex-col gap-5 mt-12">
-          <button title="Setzt alles zurück" (click)="reset()" class="btn btn-outline btn-primary w-full h-20 flex items-center justify-center gap-2 transition-all hover:bg-primary hover:text-white">
+          <button title="Setzt alles zurück" (click)="reset()" style="background-color: #9EF8EE;" class="btn btn-outline w-full h-20 flex items-center justify-center gap-2 transition-all hover:bg-primary hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
               <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z" clip-rule="evenodd" />
             </svg>
@@ -64,7 +64,7 @@
           </button>
           
           
-          <button title="Lade das aktuelle Bild gecroppt runter" (click)="cropTo1280x800()" class="w-full h-20 btn btn-outline btn-primary">
+          <button title="Lade das aktuelle Bild gecroppt runter" (click)="cropTo1280x800()" style="background-color: #9EF8EE;" class="w-full h-20 btn btn-outline">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
             </svg>
@@ -80,7 +80,7 @@
 
     </div>
     
-    <button title="Zeige vom Bild ein Paar Vorschläge" (click)="cropVariants()" class="btn btn-primary w-full">
+    <button title="Zeige vom Bild ein Paar Vorschläge" (click)="cropVariants()" style="background-color: #348888;" class="btn w-full" >
       <span >{{ showSuggestions && (cropRecommans.length != 0) ? 'VORSCHLÄGE AUSBLENDEN' : 'VORSCHLÄGE ANZEIGEN' }}</span>
     </button>
     
@@ -104,29 +104,29 @@
         <ng-container *ngIf="isFromCreateStory; else normalUpload">
           <!-- Buttons for story creation flow -->
           <ng-container *ngIf="getImageType() === 'title'; else sceneImageButtons">
-            <button (click)="saveAndReturnTitleImage()" class="btn btn-primary font-extrabold w-[25%]">
+            <button (click)="saveAndReturnTitleImage()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
               TITELBILD ÜBERNEHMEN
             </button>
           </ng-container>
           
           <ng-template #sceneImageButtons>
-            <button (click)="saveAndReturnSceneImage()" class="btn btn-primary font-extrabold w-[25%]">
+            <button (click)="saveAndReturnSceneImage()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
               SZENENBILD ÜBERNEHMEN
             </button>
           </ng-template>
           
-          <button (click)="onCancel()" class="btn btn-error w-[25%]">
+          <button (click)="onCancel()" routerLink="/createstory" style="background-color: #F24405;" class="btn w-[25%] text-white">
             ZURÜCK ZUR GESCHICHTE
           </button>
         </ng-container>
         
         <ng-template #normalUpload>
           <!-- Original buttons for normal image upload -->
-          <button (click)="saveToDb()" [disabled]="!description()" class="btn btn-primary font-extrabold w-[25%]">
+          <button (click)="saveToDb()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
             BILD SPEICHERN
           </button>
-          <button (click)="onCancel()" class="btn btn-error w-[25%]">
-            <a href="/tagalongstory" class="text-white">HOCHLADEN ABBRECHEN</a>
+          <button (click)="onCancel()" style="background-color: #F24405;" class="btn w-[25%]">
+            <a class="text-white">HOCHLADEN ABBRECHEN</a>
           </button>
         </ng-template>
       </div>
@@ -176,5 +176,27 @@
   /* Verhindern, dass die Buttons fixiert sind */
   .buttons-wrapper {
     position: static; /* Entfernt eventuelle Fixierung */
+  }
+  .btn.btn-outline {
+    background: transparent !important;
+    color: var(--btn-color, #348888) !important;
+    border: 2px solid var(--btn-color, #348888) !important;
+  }
+  .btn.btn-outline:hover,
+
+  .btn.btn-outline:focus {
+    background: var(--btn-color, #348888) !important;
+    color: #ffffff !important;
+    border-color: var(--btn-color, #348888) !important;
+  }
+
+  /* Ensure SVG icons inherit button color */
+  .btn svg {
+    color: currentColor;
+  }
+
+  /* Optional: smaller transition for nicer effect */
+  .btn.btn-outline {
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
   }
 </style>
