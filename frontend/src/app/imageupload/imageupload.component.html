@@ -104,13 +104,13 @@
         <ng-container *ngIf="isFromCreateStory; else normalUpload">
           <!-- Buttons for story creation flow -->
           <ng-container *ngIf="getImageType() === 'title'; else sceneImageButtons">
-            <button (click)="saveAndReturnTitleImage()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
+            <button (click)="saveAndReturnTitleImage()" [disabled]="!description()" style="background-color: #22BABB;" class="btn text-white font-extrabold w-[25%]">
               TITELBILD ÜBERNEHMEN
             </button>
           </ng-container>
           
           <ng-template #sceneImageButtons>
-            <button (click)="saveAndReturnSceneImage()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
+            <button (click)="saveAndReturnSceneImage()" [disabled]="!description()" style="background-color: #22BABB;" class="btn text-white font-extrabold w-[25%]">
               SZENENBILD ÜBERNEHMEN
             </button>
           </ng-template>
@@ -122,7 +122,7 @@
         
         <ng-template #normalUpload>
           <!-- Original buttons for normal image upload -->
-          <button (click)="saveToDb()" [disabled]="!description()" style="background-color: #FA7F08;" class="btn font-extrabold w-[25%]">
+          <button (click)="saveToDb()" [disabled]="!description()" style="background-color: #22BABB;" class="btn text-white font-extrabold w-[25%]">
             BILD SPEICHERN
           </button>
           <button (click)="onCancel()" style="background-color: #F24405;" class="btn w-[25%]">
