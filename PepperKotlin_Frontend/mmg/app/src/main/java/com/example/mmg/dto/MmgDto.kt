@@ -6,7 +6,7 @@ data class MmgDto(
     @SerializedName("gameType")val gameType: GameType,
     @SerializedName("id")val id: Int,
     @SerializedName("name")val name: String,
-    @SerializedName("storyIconBase64")val storyIconBase64: String? = null
+    @SerializedName("storyIcon")val storyIcon: StoryIcon
 )
 
 data class GameType(
