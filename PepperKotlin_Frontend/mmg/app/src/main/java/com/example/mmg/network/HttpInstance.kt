@@ -80,5 +80,21 @@ class HttpInstance {
                     null
                 }
             }
+
+        suspend fun fetchImage(id: Int): ByteArray? =
+            withContext(Dispatchers.IO) {
+                try {
+                    val response = apiService.getImage(id)
+                    if (response.isSuccessful) {
+                        response.body()?.bytes()
+                    } else {
+                        Log.e("API", "Error fetching image: ${response.code()} - ${response.message()}")
+                        null
+                    }
+                } catch (e: Exception) {
+                    Log.e("API", "Exception fetching image: ${e.message}", e)
+                    null
+                }
+            }
     }
 }
