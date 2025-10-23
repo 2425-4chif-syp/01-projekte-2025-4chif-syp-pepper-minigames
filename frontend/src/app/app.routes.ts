@@ -10,6 +10,7 @@ import { ImageuploadComponent } from './imageupload/imageupload.component';
 import { ResidentsComponent } from './residents/residents.component';
 import { ResidentDetailsComponent } from './resident-details/resident-details.component';
 import { AddResidentComponent } from './add-resident/add-resident.component';
+import { PreviewScreenComponent } from './preview-screen/preview-screen.component';
 
 export const routes: Routes = [
   {path: 'tagalongstory', component: TagalongstoryComponent},
@@ -23,6 +24,7 @@ export const routes: Routes = [
   {path: 'imageUpload', component: ImageuploadComponent},
   {path: 'residents', component: ResidentsComponent},
   {path: 'residentDetails/:id', component: ResidentDetailsComponent},
-  {path: 'residentAdd', component: AddResidentComponent}
+  {path: 'residentAdd', component: AddResidentComponent},
+  {path: 'previewScreen/:id', component: PreviewScreenComponent}
 ];
 
