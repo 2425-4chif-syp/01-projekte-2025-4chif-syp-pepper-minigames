@@ -5,7 +5,8 @@ import { Move } from "./move.model";
 export interface Tas {
   text: string;
   move: Move;
-  duration: number;
+  durationInSeconds: number;
   image: ImagePreview;
   id: number;
+  imageBase64: string;
 }

@@ -4,7 +4,7 @@
     <div class="text-center max-w-lg">
       <h2 class="text-xl font-semibold mb-2">Video / Preview (Platzhalter)</h2>
       <p class="text-sm">Szene {{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
-      <p class="text-sm mt-2 text-gray-400">Dauer: {{ currentScene?.duration ?? '-' }}</p>
+      <p class="text-sm mt-2 text-gray-400">Dauer: {{ currentScene?.durationInSeconds ?? '-' }}</p>
 
       <div class="mt-6 flex items-center justify-center gap-3">
         <button (click)="prevScene()" class="px-4 py-2 bg-white text-black rounded">Prev</button>
@@ -16,7 +16,7 @@
 
       <div class="mt-6">
         <div class="h-2 bg-gray-700 rounded overflow-hidden">
-          <div class="h-full bg-[#348888]" [style.width.%]="(+progress) * 100"></div>
+          <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
   <!-- Rechts: feste Spalte mit Szeneninhalt -->
   <aside class="w-[36%] max-w-[600px] bg-white border-l border-gray-200 p-6 overflow-y-auto h-screen">
     <header class="mb-4">
-      <h2 class="text-2xl font-semibold text-gray-800">{{ currentScene?.move?.name || 'Keine Szene' }}</h2>
+      <h2 class="text-2xl font-semibold text-gray-800">{{ 'Szenen Preview' }}</h2>
       <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.description || '' }}</p>
     </header>
 
@@ -40,9 +40,9 @@
       <div class="w-full">
         <ng-container>
           <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
-            <img  [src]="'data:image/png;base64,' + image()?.base64Image" class="w-full h-40 object-cover" />
+            <img [src]="currentScene?.imageBase64" class="w-full h-40 object-cover" />
             <div class="p-2 bg-white">
-              <div class="text-sm font-medium text-gray-800 truncate">{{ image()?.description || 'Kein Titel' }}</div>
+              <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
             </div>
           </div>
         </ng-container>
@@ -65,18 +65,21 @@
       </div>
     </section>
 
-    <!-- Optional: Liste aller Szenen (schneller Zugriff) -->
+    <!-- Optional: Liste aller Szenen (schneller Zugriff) 
     <section class="mt-6">
       <h4 class="text-sm font-medium text-gray-600 mb-2">Szenen</h4>
       <div class="space-y-2">
-        <button *ngFor="let s of steps; let i = index"
-                (click)="currentIndex.set(i); isPlaying() ? startScene() : null"
+        @for (step of steps(); track $index) {
+        <button
+                (click)="currentIndex.set(step.id); isPlaying() ? startScene() : null"
                 class="w-full text-left px-3 py-2 rounded hover:bg-gray-100 transition-colors"
-                [class.font-semibold]="i === currentSceneIndex">
-          <div class="text-sm text-gray-800">{{ s.move?.name || ('Szene ' + (i+1)) }}</div>
-          <div class="text-xs text-gray-500">{{ s.text ? (s.text | slice:0:60) : '' }}</div>
+                [class.font-semibold]="step.id === currentSceneIndex">
+          <div class="text-sm text-gray-800">{{ step.move?.description }}</div>
+          <div class="text-xs text-gray-500">{{ step.text ? (step.text | slice:0:60) : '' }}</div>
         </button>
+        }
       </div>
     </section>
+    -->
   </aside>
 </div>

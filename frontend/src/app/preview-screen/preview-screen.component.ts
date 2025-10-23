@@ -6,6 +6,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageDto } from '../models/imageDto.model';
 import { SlicePipe } from '@angular/common';
+import { ImagePreview } from '../models/image-preview.model';
 
 @Component({
   selector: 'app-preview-screen',
@@ -19,10 +20,9 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   actId = 0;
 
-  // playback state
   currentIndex = signal<number>(0);
   isPlaying = signal<boolean>(true);
-  progress = signal<number>(0); // 0..1
+  progress = signal<number>(0); 
 
   private sceneTimer: any = null;
   private progressTimer: any = null;
@@ -46,7 +46,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
         const arr = Array.isArray(data) ? data : [data];
         this.steps.set(arr);
         this.currentIndex.set(0);
-        this.loadCurrentImage(); // <-- Bild der ersten Scene laden
+        this.loadCurrentImage(); 
         if (this.steps().length > 0 && this.isPlaying()) {
           this.startScene();
         }
@@ -90,12 +90,11 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     const scene = this.currentScene;
     if (!scene || !this.isPlaying()) return;
 
-    // duration in Tas is ambiguous; treat as ms if >=1000, else as seconds
-    let durationMs = scene.duration ?? 5000;
+    let durationMs = scene.durationInSeconds ?? 5000;
     if (durationMs < 1000) durationMs = durationMs * 1000;
 
     const start = performance.now();
-
+    this.loadCurrentImage();
     this.progressTimer = setInterval(() => {
       const elapsed = performance.now() - start;
       this.progress.set(Math.min(elapsed / durationMs, 1));
@@ -123,7 +122,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     } else {
       this.currentIndex.set(0);
     }
-    this.loadCurrentImage(); // <-- Bild der neuen Scene laden
+    this.loadCurrentImage(); 
     if (this.isPlaying()) this.startScene();
   }
 
@@ -134,7 +133,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     } else {
       this.currentIndex.set(Math.max(0, this.steps().length - 1));
     }
-    this.loadCurrentImage(); // <-- Bild der neue Scene laden
+    this.loadCurrentImage(); 
     if (this.isPlaying()) this.startScene();
   }
 
@@ -157,9 +156,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  // helper for template / debugging
   openPreview(imgId: number | undefined): void {
     console.log('open preview for image id', imgId);
   }
 }
-// ...existing code...
