@@ -1,1 +1,82 @@
-<p>preview-screen works!</p>
+<div class="h-screen w-full flex bg-gray-50">
+  <!-- Links: Video/Preview-Bereich (Platzhalter) -->
+  <div class="flex-1 bg-black/80 flex items-center justify-center text-gray-300/80 p-6">
+    <div class="text-center max-w-lg">
+      <h2 class="text-xl font-semibold mb-2">Video / Preview (Platzhalter)</h2>
+      <p class="text-sm">Szene {{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
+      <p class="text-sm mt-2 text-gray-400">Dauer: {{ currentScene?.duration ?? '-' }}</p>
+
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <button (click)="prevScene()" class="px-4 py-2 bg-white text-black rounded">Prev</button>
+        <button (click)="togglePlay()" class="px-4 py-2 bg-white text-black rounded">
+          {{ isPlaying() ? 'Pause' : 'Play' }}
+        </button>
+        <button (click)="nextScene()" class="px-4 py-2 bg-white text-black rounded">Next</button>
+      </div>
+
+      <div class="mt-6">
+        <div class="h-2 bg-gray-700 rounded overflow-hidden">
+          <div class="h-full bg-[#348888]" [style.width.%]="(+progress) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rechts: feste Spalte mit Szeneninhalt -->
+  <aside class="w-[36%] max-w-[600px] bg-white border-l border-gray-200 p-6 overflow-y-auto h-screen">
+    <header class="mb-4">
+      <h2 class="text-2xl font-semibold text-gray-800">{{ currentScene?.move?.name || 'Keine Szene' }}</h2>
+      <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.description || '' }}</p>
+    </header>
+
+    <section class="mb-6">
+      <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ currentScene?.text || 'Kein Text vorhanden' }}</p>
+    </section>
+
+    <section>
+      <h3 class="text-lg font-medium text-gray-800 mb-3">Bild</h3>
+
+      <!-- Wenn ein ImageDto geladen ist, dieses anzeigen -->
+      <div class="w-full">
+        <ng-container>
+          <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
+            <img  [src]="'data:image/png;base64,' + image()?.base64Image" class="w-full h-40 object-cover" />
+            <div class="p-2 bg-white">
+              <div class="text-sm font-medium text-gray-800 truncate">{{ image()?.description || 'Kein Titel' }}</div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noImageLoaded>
+          <!-- Falls kein ImageDto geladen: Zeige Scene.image info / Platzhalter -->
+          <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
+            <div class="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400">
+              Bild-ID: {{ currentScene?.image?.id }}
+            </div>
+            <div class="p-2 bg-white">
+              <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #noImageAtAll>
+          <div class="text-center py-8 text-gray-400">Keine Bilder vorhanden</div>
+        </ng-template>
+      </div>
+    </section>
+
+    <!-- Optional: Liste aller Szenen (schneller Zugriff) -->
+    <section class="mt-6">
+      <h4 class="text-sm font-medium text-gray-600 mb-2">Szenen</h4>
+      <div class="space-y-2">
+        <button *ngFor="let s of steps; let i = index"
+                (click)="currentIndex.set(i); isPlaying() ? startScene() : null"
+                class="w-full text-left px-3 py-2 rounded hover:bg-gray-100 transition-colors"
+                [class.font-semibold]="i === currentSceneIndex">
+          <div class="text-sm text-gray-800">{{ s.move?.name || ('Szene ' + (i+1)) }}</div>
+          <div class="text-xs text-gray-500">{{ s.text ? (s.text | slice:0:60) : '' }}</div>
+        </button>
+      </div>
+    </section>
+  </aside>
+</div>

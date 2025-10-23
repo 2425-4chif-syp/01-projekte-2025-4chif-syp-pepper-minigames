@@ -18,7 +18,6 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class ImageServiceService {
-
   constructor() { }
 
   private url = inject(STORY_URL);
@@ -100,5 +99,9 @@ export class ImageServiceService {
 
   getImageNew(){
     return this.http.get<ImageResponse>(this.url + 'image/pictures');
+  }
+
+  getImageById2(id: number){
+    return this.http.get<ImageDto>(this.url + `image/picture/${id}`);
   }
 }
