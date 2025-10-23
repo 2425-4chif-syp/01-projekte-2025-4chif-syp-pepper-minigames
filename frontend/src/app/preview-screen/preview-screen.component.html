@@ -22,8 +22,9 @@
     </div>
   </div>
 
-  <!-- Rechts: feste Spalte mit Szeneninhalt -->
-  <aside class="w-[36%] max-w-[600px] bg-white border-l border-gray-200 p-6 overflow-y-auto h-screen">
+  <!-- Rechts: feste Spalte mit Szeneninhalt (weiter nach unten geschoben) -->
+  <aside class="w-[36%] max-w-[600px] bg-white border-l border-gray-200 p-6 overflow-y-auto mt-32"
+         style="height: calc(100vh - 8rem);">
     <header class="mb-4">
       <h2 class="text-2xl font-semibold text-gray-800">{{ 'Szenen Preview' }}</h2>
       <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.description || '' }}</p>
@@ -36,21 +37,18 @@
     <section>
       <h3 class="text-lg font-medium text-gray-800 mb-3">Bild</h3>
 
-      <!-- Wenn ein ImageDto geladen ist, dieses anzeigen -->
+      <!-- Bild jetzt größer -->
       <div class="w-full">
-        <ng-container>
-          <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
-            <img [src]="currentScene?.imageBase64" class="w-full h-40 object-cover" />
-            <div class="p-2 bg-white">
-              <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
-            </div>
+        <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
+          <img [src]="currentScene?.imageBase64" class="w-full h-64 object-cover" />
+          <div class="p-2 bg-white">
+            <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
           </div>
-        </ng-container>
+        </div>
 
         <ng-template #noImageLoaded>
-          <!-- Falls kein ImageDto geladen: Zeige Scene.image info / Platzhalter -->
           <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
-            <div class="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400">
+            <div class="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400">
               Bild-ID: {{ currentScene?.image?.id }}
             </div>
             <div class="p-2 bg-white">
