@@ -7,6 +7,7 @@ import { map, Observable } from 'rxjs';
 import { ImageDto } from '../models/imageDto.model';
 import { ImageJson } from '../models/image-json.model';
 import { ImageResponse } from '../models/image-response.model';
+import { ImagePreview } from '../models/image-preview.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -102,6 +103,6 @@ export class ImageServiceService {
   }
 
   getImageById2(id: number){
-    return this.http.get<ImageDto>(this.url + `image/picture/${id}`);
+    return this.http.get<ImagePreview>(this.url + `image/picture/${id}`);
   }
 }

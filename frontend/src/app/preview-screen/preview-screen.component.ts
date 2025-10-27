@@ -2,15 +2,16 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { Tas } from '../models/tas.model';
 import { PreviewService } from '../service/preview.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { ImageServiceService } from '../service/image-service.service';
 import { ImageDto } from '../models/imageDto.model';
 import { SlicePipe } from '@angular/common';
 import { ImagePreview } from '../models/image-preview.model';
+import { ImageResponse } from '../models/image-response.model';
 
 @Component({
   selector: 'app-preview-screen',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './preview-screen.component.html',
   styleUrl: './preview-screen.component.css'
 })
@@ -28,12 +29,13 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   private progressTimer: any = null;
 
   imageService = inject(ImageServiceService);
-  image = signal<ImageDto | null>(null);
+  image = signal<ImagePreview | null>(null);
 
   getImage(id: number): void {
     if (!id) return;
     this.imageService.getImageById2(id).subscribe({
       next: (data) => {
+        console.log(data.base64Image);
         this.image.set(data);
       },
       error: (error) => {
@@ -44,7 +46,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   loadCurrentImage(): void {
     const scene = this.currentScene;
-    const imgId = scene?.image?.id;
+    const imgId = this.image()?.id;
     if (imgId) {
       this.getImage(imgId);
     } else {
@@ -102,7 +104,6 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   ended = signal<boolean>(false);
 
   startScene(): void {
-    // don't start if story ended
     if (this.ended()) return;
 
     this.clearTimers();
@@ -134,11 +135,9 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
       this.loadCurrentImage();
       if (this.isPlaying()) this.startScene();
     } else {
-      // reached end -> stop playback and mark ended
       this.ended.set(true);
       this.isPlaying.set(false);
       this.progress.set(1);
-      // optionally keep currentIndex at last
     }
   }
 
