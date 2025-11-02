@@ -160,7 +160,7 @@ export class CreatestoryComponent {
       console.log('Story state restored with new image');
     }
   }  disableSaveButton(){
-    return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
+    return this.scenes.length === 0 || this.titleName === "";
   }
 
 loadImages(): void {
@@ -432,6 +432,19 @@ private loadImagesOld(): void {
   isDefaultImage(scene: Scene): boolean {
     return scene.image === 'assets/images/imageNotFound.png' || 
            scene.image === this.defaultImageBase64;
+  }
+
+  // 🆕 Hilfsmethode um zu prüfen, ob das Titelbild das Standard-Bild ist
+  isDefaultTitleImage(): boolean {
+    return this.titleImage === 'assets/images/imageNotFound.png' || 
+           this.titleImage === this.defaultImageBase64;
+  }
+
+  // 🆕 Methode zum Löschen/Zurücksetzen des Titelbilds
+  clearTitleImage(): void {
+    if (confirm('Möchten Sie das Titelbild wirklich entfernen?')) {
+      this.titleImage = 'assets/images/imageNotFound.png';
+    }
   }
 
   addScene() {
