@@ -20,6 +20,7 @@ import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.menu.common.Extras
 import com.example.menu.viewmodel.LoginScreenViewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
@@ -49,8 +50,6 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         }
 
                         //loginscreen mit Übergabe von Packganeame
-
-
                         composable(
                             route = "login_screen/{packageName}",
                             arguments = listOf(navArgument("packageName") {
@@ -63,31 +62,14 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
                             LoginScreen(
                                 onLoginClick = {
-                                    val personId = viewModel.selectedPerson?.pid ?: -1
-                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
-                                    intent?.putExtra("personId", personId)
-                                    if (intent != null) {
-                                        startActivity(intent)
-                                    } else {
-                                        Log.e(
-                                            "LoginScreen",
-                                            "App mit Package $packageName nicht gefunden"
-                                        )
-                                    }
+                                    val id = viewModel.selectedPerson?.pid?.toLong() ?: -1L
+                                    launchExternalApp(packageName, id)
                                 },
                                 onContinueWithoutLogin = {
-                                    val personId = -1
-                                    val intent = packageManager.getLaunchIntentForPackage(packageName)
-                                    intent?.putExtra("default", personId)
-
-                                    if(intent != null){
-                                        startActivity(intent)
-                                    }
-
+                                    launchExternalApp(packageName, -1L) // als Long übergeben
                                 },
                                 navController = navController
                             )
-
                         }
                     }
                 }
@@ -113,6 +95,18 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         // Im Logcat werden Fehlermeldungen ausgeben, falls die Verbindung unterbrochen wird
         if(reason != null){
             Log.d("Reason:",reason)
+        }
+    }
+
+    private fun launchExternalApp(packageName: String, personId: Long) {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            putExtra(Extras.PERSON_ID, personId)
+        }
+        if (intent != null) {
+            Log.d("PepperMenu", "Launching pkg=$packageName, person_id=$personId")
+            startActivity(intent)
+        } else {
+            Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
         }
     }
 }
