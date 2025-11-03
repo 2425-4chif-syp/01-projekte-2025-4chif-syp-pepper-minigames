@@ -7,15 +7,16 @@
     </div>
 
     <!-- Video (fills remaining vertical space) -->
-    <div class="flex-1 w-full flex items-center justify-center mb-2">
+    <div class="flex-1 w-full flex items-center justify-center">
       <video #videoPlayer class="w-full max-h-[75vh] max-w-[95%] rounded-lg shadow-lg object-cover bg-black"
         [src]="'/assets/move_videos/' + (currentScene?.move?.name || '') + '_' + (currentScene?.durationInSeconds || 5) + '.mp4'"
         type="video/mp4" autoplay muted playsinline>
         Your browser does not support the video tag.
       </video>
     </div>
+    
     <!-- Controls (centered under video) -->
-    <div class="flex flex-col items-center gap-2">
+    <div class="flex flex-col items-center gap-2 -mt-24 mb-4">
       <div class="flex items-center gap-2">
         <button (click)="prevScene()" class="px-4 py-2 bg-[#9EF8EE] text-black rounded-lg shadow"
           [disabled]="steps().length === 0 || currentSceneIndex === 0">Prev</button>
@@ -35,21 +36,23 @@
         </div>
       </div>
     </div>
-  </div>
-  @if (ended()) {
-  <div class="absolute top-[55%] left-[31%] transform -translate-x-1/2 -translate-y-1/2 bg-black/80 z-10">
-    <div class="bg-white rounded-lg p-8 text-center max-w-md shadow-2xl">
-      <div class="text-2xl font-bold text-gray-800 mb-3">Die Geschichte ist zu Ende</div>
-      <div class="text-sm text-gray-600 mb-6">Für erneutes Abspielen drücken</div>
-      <div class="flex items-center justify-center gap-4">
-        <button (click)="restartStory()"
-          class="px-6 py-3 bg-[#348888] hover:bg-[#2a6d6d] text-white font-semibold rounded-lg transition-colors">
-          Nochmal abspielen
-        </button>
+
+    @if (ended()) {
+      <div class="absolute inset-0 bg-black-50 flex items-center justify-center p-6">
+        <div class="bg-white rounded-lg p-8 text-center max-w-md shadow-2xl">
+          <div class="text-2xl font-bold text-gray-800 mb-3">Die Geschichte ist zu Ende</div>
+          <div class="text-sm text-gray-600 mb-6">Für erneutes Abspielen drücken</div>
+          <div class="flex items-center justify-center gap-4">
+            <button (click)="restartStory()" 
+                    class="px-6 py-3 bg-[#348888] hover:bg-[#2a6d6d] text-white font-semibold rounded-lg transition-colors">
+              Nochmal abspielen
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    }
   </div>
-  }
+
   <aside class="w-[44%] max-w-[720px] bg-white border-l border-gray-200 p-6 overflow-y-auto mt-32"
     style="height: calc(100vh - 8rem);">
     <div class="flex justify-end mb-2">
@@ -79,8 +82,7 @@
             <img [src]="currentScene?.imageBase64" class="w-full h-full object-cover" />
           </div>
           <div class="p-2 bg-white">
-            <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel'
-              }}</div>
+            <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
           </div>
         </div>
       </div>
