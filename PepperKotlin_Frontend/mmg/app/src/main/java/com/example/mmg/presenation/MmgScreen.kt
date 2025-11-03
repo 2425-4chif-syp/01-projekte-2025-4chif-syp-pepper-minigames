@@ -17,6 +17,7 @@ import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.mmg.R
+import com.example.mmg.ui.theme.AppColors
 
 @Composable
 fun MmgScreen(
@@ -48,13 +49,18 @@ fun MmgScreen(
             Text(
                 text = "Mitmachgeschichten",
                 style = MaterialTheme.typography.headlineMedium,
+                color = AppColors.DarkTeal,
                 modifier = Modifier.weight(1f)
             )
             Button(
                 onClick = {
                     viewModel.emptyMmgList()
                     viewModel.loadMmgDtos()
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppColors.Orange,
+                    contentColor = AppColors.White
+                )
             ) {
                 Text(text = "Geschichten laden")
             }
@@ -73,8 +79,8 @@ fun MmgScreen(
                     showTimerDropdown = false
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = if (manuellSelected) AppColors.Orange else AppColors.MintGreen,
+                    contentColor = if (manuellSelected) AppColors.White else AppColors.Black
                 )
             ) {
                 Text(text = "Manuell")
@@ -86,8 +92,8 @@ fun MmgScreen(
                     showTimerDropdown = true
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = if (!manuellSelected) AppColors.Orange else AppColors.MintGreen,
+                    contentColor = if (!manuellSelected) AppColors.White else AppColors.Black
                 )
             ) {
                 Text(text = "Automatisch")
@@ -100,7 +106,11 @@ fun MmgScreen(
                     var expanded by remember { mutableStateOf(false) }
                     
                     Button(
-                        onClick = { expanded = true }
+                        onClick = { expanded = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppColors.Orange,
+                            contentColor = AppColors.White
+                        )
                     ) {
                         Text(text = "${selectedTimerSeconds}s")
                     }
@@ -111,7 +121,12 @@ fun MmgScreen(
                     ) {
                         listOf(2,5, 10, 15).forEach { seconds ->
                             DropdownMenuItem(
-                                text = { Text("${seconds} Sekunden") },
+                                text = { 
+                                    Text(
+                                        "${seconds} Sekunden",
+                                        color = AppColors.DarkTeal
+                                    ) 
+                                },
                                 onClick = {
                                     selectedTimerSeconds = seconds
                                     expanded = false
@@ -130,7 +145,7 @@ fun MmgScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = AppColors.BrightTeal)
             }
         } else {
             LazyColumn(
@@ -153,6 +168,9 @@ fun MmgScreen(
                                 viewModel.resetStepCount()
                             },
                         shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(
+                            containerColor = AppColors.MintGreen
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -192,9 +210,17 @@ fun MmgScreen(
                                 }
                             }
                             
-                            Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = mmg.name, 
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = AppColors.Black
+                            )
 
-                            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow, 
+                                contentDescription = "Play",
+                                tint = AppColors.Black
+                            )
                         }
                     }
                 }
