@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
@@ -166,19 +165,33 @@ fun MmgScreen(
                                 imageMap[iconId]
                             }
 
-                            if (storyIconBitmap != null) {
-                                Image(
-                                    bitmap = storyIconBitmap,
-                                    contentDescription = "Story Icon",
-                                    modifier = Modifier.size(80.dp)
-                                )
-                            } else {
-                                Image(
-                                    painter = painterResource(id = R.drawable.default_story_icon),
-                                    contentDescription = "Default Story Icon",
-                                    modifier = Modifier.size(80.dp)
-                                )
+                            Box(
+                                modifier = Modifier.size(80.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (storyIconBitmap != null) {
+                                    Image(
+                                        bitmap = storyIconBitmap,
+                                        contentDescription = "Story Icon",
+                                        modifier = Modifier.size(80.dp)
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.default_story_icon),
+                                        contentDescription = "Default Story Icon",
+                                        modifier = Modifier.size(80.dp)
+                                    )
+
+                                    LaunchedEffect(mmg.storyIcon?.id) {
+                                        mmg.storyIcon?.id?.let { iconId ->
+                                            if (!imageMap.containsKey(iconId)) {
+                                                viewModel.loadImageFromApi(iconId)
+                                            }
+                                        }
+                                    }
+                                }
                             }
+                            
                             Text(text = mmg.name, style = MaterialTheme.typography.bodyLarge)
 
                             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
