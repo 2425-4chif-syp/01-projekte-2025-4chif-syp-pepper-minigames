@@ -1,22 +1,22 @@
 <div class="h-screen w-full flex bg-gray-50">
   <div class="flex-1 bg-black/80 flex flex-col p-6 relative">
     <!-- Header / Info -->
-    <div class="text-center mb-4">
-      <h2 class="text-xl font-semibold mb-2 text-white">Video / Preview</h2>
+    <div class="text-center mb-2">
+      <h2 class="text-xl font-semibold mb-1 text-white">Video / Preview</h2>
       <p class="text-sm text-gray-200">Szene {{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
     </div>
 
     <!-- Video (fills remaining vertical space) -->
-    <div class="flex-1 w-full h-80 flex items-center justify-center mb-2">
-      <video #videoPlayer class="w-full h-full max-h-[72vh] max-w-[95%] rounded-lg shadow-lg object-cover bg-black"
+    <div class="flex-1 w-full flex items-center justify-center mb-2">
+      <video #videoPlayer class="w-full max-h-[75vh] max-w-[95%] rounded-lg shadow-lg object-cover bg-black"
         [src]="'/assets/move_videos/' + (currentScene?.move?.name || '') + '_' + (currentScene?.durationInSeconds || 5) + '.mp4'"
         type="video/mp4" autoplay muted playsinline>
         Your browser does not support the video tag.
       </video>
     </div>
     <!-- Controls (centered under video) -->
-    <div class="flex flex-col items-center gap-3">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col items-center gap-2">
+      <div class="flex items-center gap-2">
         <button (click)="prevScene()" class="px-4 py-2 bg-[#9EF8EE] text-black rounded-lg shadow"
           [disabled]="steps().length === 0 || currentSceneIndex === 0">Prev</button>
         <button (click)="togglePlay()" class="px-6 py-2 bg-[#348888] text-white rounded-lg shadow"
