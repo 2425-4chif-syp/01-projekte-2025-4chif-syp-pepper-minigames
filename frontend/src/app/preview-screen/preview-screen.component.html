@@ -1,69 +1,60 @@
 <div class="h-screen w-full flex bg-gray-50">
-  <div class="flex-1 bg-black/80 relative">
-    <!-- Video Container -->
-    <div class="h-full w-full">
-      <video #videoPlayer class="h-full w-full object-contain" [src]="'/assets/move_videos/' + 'herwinken' + '.mp4'" type="video/mp4" autoplay>
+  <div class="flex-1 bg-black/80 flex flex-col p-6 relative">
+    <!-- Header / Info -->
+    <div class="text-center mb-4">
+      <h2 class="text-xl font-semibold mb-2 text-white">Video / Preview</h2>
+      <p class="text-sm text-gray-200">Szene {{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
+    </div>
+
+    <!-- Video (fills remaining vertical space) -->
+    <div class="flex-1 w-full h-80 flex items-center justify-center mb-2">
+      <video #videoPlayer class="w-full h-full max-h-[72vh] max-w-[95%] rounded-lg shadow-lg object-cover bg-black"
+        [src]="'/assets/move_videos/' + (currentScene?.move?.name || '') + '_' + (currentScene?.durationInSeconds || 5) + '.mp4'"
+        type="video/mp4" autoplay muted playsinline>
         Your browser does not support the video tag.
       </video>
     </div>
-    
-    <!-- Controls Overlay - Top Right -->
-    <div class="absolute top-4 right-4 flex flex-col gap-2">
-      <!-- Controls Container -->
-      <div class="flex flex-col gap-3 bg-black/40 p-2 rounded-lg">
-        <!-- Buttons and Scene Counter -->
-        <div class="flex items-center gap-3">
-          <p class="text-sm text-white">{{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
-          <button (click)="prevScene()" style="background-color: #9EF8EE;" class="px-3 py-1 text-black rounded text-sm" 
-                  [disabled]="steps().length === 0 || currentSceneIndex === 0">
-            Prev
-          </button>
-          <button (click)="togglePlay()" style="background-color: #348888;" class="px-3 py-1 text-white rounded text-sm"
-                  [disabled]="ended()">
-            {{ isPlaying() ? 'Pause' : 'Play' }}
-          </button>
-          <button (click)="nextScene()" style="background-color: #9EF8EE;" class="px-3 py-1 text-black rounded text-sm"
-                  [disabled]="ended()">
-            Next
-          </button>
+    <!-- Controls (centered under video) -->
+    <div class="flex flex-col items-center gap-3">
+      <div class="flex items-center gap-4">
+        <button (click)="prevScene()" class="px-4 py-2 bg-[#9EF8EE] text-black rounded-lg shadow"
+          [disabled]="steps().length === 0 || currentSceneIndex === 0">Prev</button>
+        <button (click)="togglePlay()" class="px-6 py-2 bg-[#348888] text-white rounded-lg shadow"
+          [disabled]="ended()">{{ isPlaying() ? 'Pause' : 'Play' }}</button>
+        <button (click)="nextScene()" class="px-4 py-2 bg-[#9EF8EE] text-black rounded-lg shadow"
+          [disabled]="ended()">Next</button>
+      </div>
+
+      <!-- Scene progress bar centered -->
+      <div class="w-64">
+        <div class="h-2 bg-gray-700 rounded overflow-hidden">
+          <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
         </div>
-        <!-- Scene Progress Bar -->
-        <div class="flex flex-col items-center">
-          <div class="h-1 w-48 bg-gray-700 rounded overflow-hidden">
-            <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
-          </div>
-          <p class="text-xs text-white mt-1">{{ remainingSeconds() }}s</p>
+        <div class="flex justify-center mt-1">
+          <p class="text-xs text-gray-200">{{ remainingSeconds() }}s</p>
         </div>
       </div>
     </div>
-
-    <!-- Progress Bar - Bottom -->
-    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
-      <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
-    </div>
-
-    @if (ended()) {
-      <div class="absolute inset-0 bg-black-50 flex items-center justify-center p-6">
-        <div class="bg-white rounded-lg p-8 text-center max-w-md shadow-2xl">
-          <div class="text-2xl font-bold text-gray-800 mb-3">Die Geschichte ist zu Ende</div>
-            <div class="text-sm text-gray-600 mb-6">Für erneutes Abspielen drücken</div>
-              <div class="flex items-center justify-center gap-4">
-                <button (click)="restartStory()" 
-                      class="px-6 py-3 bg-[#348888] hover:bg-[#2a6d6d] text-white font-semibold rounded-lg transition-colors">
-                  Nochmal abspielen
-                </button>
-              </div>
-          </div>
-      </div>
-    }
   </div>
-
+  @if (ended()) {
+  <div class="absolute top-[55%] left-[31%] transform -translate-x-1/2 -translate-y-1/2 bg-black/80 z-10">
+    <div class="bg-white rounded-lg p-8 text-center max-w-md shadow-2xl">
+      <div class="text-2xl font-bold text-gray-800 mb-3">Die Geschichte ist zu Ende</div>
+      <div class="text-sm text-gray-600 mb-6">Für erneutes Abspielen drücken</div>
+      <div class="flex items-center justify-center gap-4">
+        <button (click)="restartStory()"
+          class="px-6 py-3 bg-[#348888] hover:bg-[#2a6d6d] text-white font-semibold rounded-lg transition-colors">
+          Nochmal abspielen
+        </button>
+      </div>
+    </div>
+  </div>
+  }
   <aside class="w-[44%] max-w-[720px] bg-white border-l border-gray-200 p-6 overflow-y-auto mt-32"
-         style="height: calc(100vh - 8rem);">
+    style="height: calc(100vh - 8rem);">
     <div class="flex justify-end mb-2">
-      <button routerLink="/tagalongstory" 
-      style="background-color: #F24405; color: white;"
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center gap-2">
+      <button routerLink="/tagalongstory" style="background-color: #F24405; color: white;"
+        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -73,8 +64,6 @@
     <header class="mb-4">
       <h2 class="text-2xl font-semibold text-gray-800">{{ 'Szenen Preview' }}</h2>
       <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.description || '' }}</p>
-            <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.name || '' }}</p>
-
     </header>
 
     <section class="mb-6">
@@ -84,14 +73,16 @@
     <section>
       <h3 class="text-lg font-medium text-gray-800 mb-3">Bild</h3>
       <div class="w-full">
-        <div class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
-            <div class="w-full h-80 bg-gray-100 flex items-center justify-center overflow-hidden">
-              <img [src]="currentScene?.imageBase64" class="w-full h-full object-cover" />  
-            </div>
-            <div class="p-2 bg-white">
-              <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel' }}</div>
-            </div>
+        <div
+          class="w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-[#348888] transition-colors">
+          <div class="w-full h-80 bg-gray-100 flex items-center justify-center overflow-hidden">
+            <img [src]="currentScene?.imageBase64" class="w-full h-full object-cover" />
           </div>
+          <div class="p-2 bg-white">
+            <div class="text-sm font-medium text-gray-800 truncate">{{ currentScene?.image?.description || 'Kein Titel'
+              }}</div>
+          </div>
+        </div>
       </div>
     </section>
   </aside>
