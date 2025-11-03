@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.memorygame.common.Extras
+import com.example.memorygame.data.model.PersonIntent
 import com.example.memorygame.data.remote.NetworkModule
 import com.example.memorygame.ui.menu.MainMenuScreen
 import com.example.memorygame.ui.screens.*
@@ -31,10 +33,14 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         // Per Intent die person holen und einstezten
         val personApi = NetworkModule.providePersonApi()
 
-        val mockPersonProvider = MockPersonProvider(2L, personApi)
-        val personProviderMock = runBlocking { mockPersonProvider.getPerson() }
+        // val mockPersonProvider = MockPersonProvider(1L, personApi)
+        // val personProviderMock = runBlocking { mockPersonProvider.getPerson() }
 
         val personProvider = IntentPersonProvider(intent, personApi)
+        val personFromIntent: PersonIntent? = runBlocking {
+            IntentPersonProvider(intent, personApi).getPerson()
+        }
+        val personId: Long = personFromIntent?.id ?: intent.getLongExtra(Extras.PERSON_ID, -1L)
 
 
 
@@ -44,7 +50,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 NavHost(navController = navController, startDestination = "main_menu") {
                     // Hauptmenü
                     composable("main_menu") {
-                        MainMenuScreen(navController, personProviderMock)
+                        MainMenuScreen(navController, personFromIntent)//personProviderMock)
                     }
 
                     // Grid-Auswahl
@@ -66,15 +72,15 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                             navController = navController,
                             rows = rows,
                             columns = columns,
-                            personIntent = personProviderMock,
-                            personId = personProviderMock.id,
+                            personIntent = personFromIntent,
+                            personId = personId,
                             personApi = personApi
                         )
 
                     }
 
                     composable("high_scores") {
-                        HighScoresScreen(personProviderMock.id)
+                        HighScoresScreen(personId)
                     }
 
                     // Spieleinleitung

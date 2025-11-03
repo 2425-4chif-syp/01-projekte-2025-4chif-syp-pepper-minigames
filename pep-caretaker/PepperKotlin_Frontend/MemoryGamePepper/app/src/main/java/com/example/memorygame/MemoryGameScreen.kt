@@ -49,10 +49,12 @@ import java.util.*
 
 
 @Composable
-fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, personIntent: PersonIntent, personId: Long?, personApi: PersonApi) {
+fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, personIntent: PersonIntent?, personId: Long?, personApi: PersonApi) {
 
     val scoreManager = remember { ScoreManager(rows, columns) }
     val gameLogic = remember { GameLogic(scoreManager) }
+
+    val effectivePersonId: Long = personId ?: personIntent?.id ?: -1L
 
     /*val selectedImages = cardImages.shuffled().take((rows * columns) / 2)
     val cards = remember {
@@ -69,7 +71,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
     LaunchedEffect(personId) {
         val images = GameImageProvider.getImages(
             neededPairs = neededPairs,
-            personId = personId,
+            personId = effectivePersonId,
             api = personApi
         )
 
@@ -130,7 +132,7 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                             rows = rows,
                             columns = columns,
                             scoreManager = scoreManager,
-                            personId = personId,
+                            personId = effectivePersonId,
                             personApi = personApi
                         )
                         gameLogic.isGameOver = false
@@ -183,9 +185,9 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                 else println("⚠️ Fehler beim Speichern")*/
 
                 val newScore = LocalPlayerScore(
-                    personId = personIntent.id,
-                    firstName = personIntent.firstName,
-                    lastName = personIntent.lastName,
+                    personId = effectivePersonId,
+                    firstName = personIntent?.firstName ?: "Unbekannt",
+                    lastName = personIntent?.lastName ?: "Lastname",
                     grid = "${rows}x${columns}",
                     score = scoreManager.currentScore,
                     elapsedTime = elapsedSeconds,

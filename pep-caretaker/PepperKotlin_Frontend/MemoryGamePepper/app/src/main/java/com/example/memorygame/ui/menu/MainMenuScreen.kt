@@ -20,7 +20,7 @@ import androidx.navigation.NavHostController
 import com.example.memorygame.data.model.PersonIntent
 
 @Composable
-fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent) {
+fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent?) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFFF5F5DC),
@@ -42,7 +42,7 @@ fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent)
         ) {
             Text(
                 text = buildString {
-                    append("Hallo ${personIntent.firstName ?: "Spieler"} 👋\n")
+                    append("Hallo ${personIntent?.firstName ?: "Spieler"} 👋\n")
                     append("Willkommen im Memory-Game")
                 },
                 style = TextStyle(
