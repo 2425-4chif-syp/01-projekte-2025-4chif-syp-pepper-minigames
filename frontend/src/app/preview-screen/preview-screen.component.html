@@ -1,30 +1,45 @@
 <div class="h-screen w-full flex bg-gray-50">
-  <div class="flex-1 bg-black/80 flex items-center justify-center text-gray-300/80 p-6 relative">
-    <div class="text-center max-w-lg">
-      <h2 class="text-xl font-semibold mb-2">Video / Preview (Platzhalter)</h2>
-      <p class="text-sm">Szene {{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
-      <p class="text-sm mt-2 text-gray-400">Dauer: {{ currentScene?.durationInSeconds ?? '-' }}</p>
-
-      <div class="mt-6 flex items-center justify-center gap-3">
-        <button (click)="prevScene()" style="background-color: #9EF8EE;" class="px-4 py-2 text-black rounded" 
-                [disabled]="steps().length === 0 || currentSceneIndex === 0">
-          Prev
-        </button>
-        <button (click)="togglePlay()" style="background-color: #348888; color: white;" class="px-4 py-2 text-black rounded"
-                [disabled]="ended()">
-          {{ isPlaying() ? 'Pause' : 'Play' }}
-        </button>
-        <button (click)="nextScene()" style="background-color: #9EF8EE;" class="px-4 py-2 text-black rounded"
-                [disabled]="ended()">
-          Next
-        </button>
-      </div>
-
-      <div class="mt-6">
-        <div class="h-2 bg-gray-700 rounded overflow-hidden">
-          <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
+  <div class="flex-1 bg-black/80 relative">
+    <!-- Video Container -->
+    <div class="h-full w-full">
+      <video #videoPlayer class="h-full w-full object-contain" [src]="'/assets/move_videos/' + 'herwinken' + '.mp4'" type="video/mp4" autoplay>
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    
+    <!-- Controls Overlay - Top Right -->
+    <div class="absolute top-4 right-4 flex flex-col gap-2">
+      <!-- Controls Container -->
+      <div class="flex flex-col gap-3 bg-black/40 p-2 rounded-lg">
+        <!-- Buttons and Scene Counter -->
+        <div class="flex items-center gap-3">
+          <p class="text-sm text-white">{{ currentSceneIndex + 1 }} / {{ steps().length }}</p>
+          <button (click)="prevScene()" style="background-color: #9EF8EE;" class="px-3 py-1 text-black rounded text-sm" 
+                  [disabled]="steps().length === 0 || currentSceneIndex === 0">
+            Prev
+          </button>
+          <button (click)="togglePlay()" style="background-color: #348888;" class="px-3 py-1 text-white rounded text-sm"
+                  [disabled]="ended()">
+            {{ isPlaying() ? 'Pause' : 'Play' }}
+          </button>
+          <button (click)="nextScene()" style="background-color: #9EF8EE;" class="px-3 py-1 text-black rounded text-sm"
+                  [disabled]="ended()">
+            Next
+          </button>
+        </div>
+        <!-- Scene Progress Bar -->
+        <div class="flex flex-col items-center">
+          <div class="h-1 w-48 bg-gray-700 rounded overflow-hidden">
+            <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
+          </div>
+          <p class="text-xs text-white mt-1">{{ remainingSeconds() }}s</p>
         </div>
       </div>
+    </div>
+
+    <!-- Progress Bar - Bottom -->
+    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
+      <div class="h-full bg-[#348888]" [style.width.%]="(progress()) * 100"></div>
     </div>
 
     @if (ended()) {
@@ -58,6 +73,8 @@
     <header class="mb-4">
       <h2 class="text-2xl font-semibold text-gray-800">{{ 'Szenen Preview' }}</h2>
       <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.description || '' }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ currentScene?.move?.name || '' }}</p>
+
     </header>
 
     <section class="mb-6">

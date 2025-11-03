@@ -1,5 +1,5 @@
 // ...existing code...
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Tas } from '../models/tas.model';
 import { PreviewService } from '../service/preview.service';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
@@ -13,9 +13,12 @@ import { ImageResponse } from '../models/image-response.model';
   selector: 'app-preview-screen',
   imports: [RouterLink],
   templateUrl: './preview-screen.component.html',
-  styleUrl: './preview-screen.component.css'
+  styleUrl: './preview-screen.component.css',
+  standalone: true
 })
 export class PreviewScreenComponent implements OnInit, OnDestroy {
+  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
+  
   steps = signal<Tas[]>([]);
   previewService = inject(PreviewService);
   activatedRoute = inject(ActivatedRoute);
@@ -23,7 +26,8 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   currentIndex = signal<number>(0);
   isPlaying = signal<boolean>(true);
-  progress = signal<number>(0); 
+  progress = signal<number>(0);
+  remainingSeconds = signal<number>(0);
 
   private sceneTimer: any = null;
   private progressTimer: any = null;
@@ -58,8 +62,10 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     this.isPlaying.update(v => !v);
     if (this.isPlaying()) {
       this.startScene();
+      this.videoPlayer.nativeElement.play();
     } else {
       this.clearTimers();
+      this.videoPlayer.nativeElement.pause();
     }
   }
 
@@ -112,13 +118,27 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     const scene = this.currentScene;
     if (!scene || !this.isPlaying()) return;
 
+    if (this.videoPlayer?.nativeElement) {
+      this.videoPlayer.nativeElement.load();
+      this.videoPlayer.nativeElement.play();
+    }
+
     let durationMs = scene.durationInSeconds ?? 5000;
     if (durationMs < 1000) durationMs = durationMs * 1000;
     const start = performance.now();
 
+    // Set initial remaining seconds
+    const totalSeconds = Math.floor(durationMs / 1000);
+    this.remainingSeconds.set(totalSeconds);
+
     this.progressTimer = setInterval(() => {
       const elapsed = performance.now() - start;
-      this.progress.set(Math.min(elapsed / durationMs, 1));
+      const progress = Math.min(elapsed / durationMs, 1);
+      this.progress.set(progress);
+      
+      // Update remaining seconds
+      const remainingSecs = Math.ceil((durationMs - elapsed) / 1000);
+      this.remainingSeconds.set(Math.max(0, remainingSecs));
     }, 100);
 
     this.sceneTimer = setTimeout(() => {
@@ -128,6 +148,9 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   nextScene(): void {
     this.clearTimers();
+    if (this.videoPlayer?.nativeElement) {
+      this.videoPlayer.nativeElement.pause();
+    }
     const last = this.steps().length - 1;
     if (this.currentIndex() < last) {
       this.currentIndex.update(i => i + 1);
