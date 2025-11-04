@@ -56,7 +56,6 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     if (!id) return;
     this.imageService.getImageById2(id).subscribe({
       next: (data) => {
-        console.log(data.base64Image);
         this.image.set(data);
       },
       error: (error) => {
@@ -147,6 +146,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     this.pausedElapsedTime = 0; // Reset bei neuer Szene
 
     const scene = this.currentScene;
+    console.log('Starte Szene:', this.currentScene?.image?.id, scene);
     if (!scene || !this.isPlaying()) return;
 
     if (this.videoPlayer?.nativeElement) {
@@ -232,6 +232,13 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     if (this.progressTimer) { clearInterval(this.progressTimer); this.progressTimer = null; }
   }
 
+  get currentImageUrl(): string {
+    const imageId = this.currentScene?.image?.id;
+    if (!imageId) return '/assets/images/defaultIcon2.jpg';
+    
+    return `https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/https%3A%2F%2Fvm107.htl-leonding.ac.at%2Fapi%2Fimage%2Fpicture%2F${imageId}?ngsw-bypass=true`;
+  }
+
   // ⏸️ Pause Progress Tracking
   private pauseProgressTracking(): void {
     // Speichere die bereits verstrichene Zeit
@@ -241,6 +248,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     if (this.sceneTimer) { clearTimeout(this.sceneTimer); this.sceneTimer = null; }
     if (this.progressTimer) { clearInterval(this.progressTimer); this.progressTimer = null; }
     
+        console.log('Pciture:', this.currentScene?.image?.id);
     console.log('⏸️ Progress pausiert bei:', this.pausedElapsedTime, 'ms');
   }
 
