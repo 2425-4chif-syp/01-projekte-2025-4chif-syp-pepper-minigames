@@ -8,5 +8,4 @@ export interface Tas {
   durationInSeconds: number;
   image: ImagePreview;
   id: number;
-  imageBase64: string;
 }
