@@ -33,9 +33,21 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   private sceneTimer: any = null;
   private progressTimer: any = null;
 
+  // 🆕 Für Pause/Resume des Progress Trackings
+  private sceneDurationMs = 0;
+  private sceneStartTime = 0;
+  private pausedElapsedTime = 0;
+
   // 🔊 Text-to-Speech
   private speechSynthesis: SpeechSynthesis = window.speechSynthesis;
   private currentUtterance?: SpeechSynthesisUtterance;
+
+  // 🆕 Neue Properties für intelligentes Pause/Resume
+  private currentTextToSpeak = '';
+  private spokenCharacterIndex = 0;
+  private speechStartTime = 0;
+  private averageWordsPerMinute = 150; // Durchschnittliche Sprechgeschwindigkeit
+  private isSpeechPausing = false; // Flag um zu verhindern, dass onend die Position überschreibt
 
   imageService = inject(ImageServiceService);
   image = signal<ImagePreview | null>(null);
@@ -64,15 +76,25 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   }
 
   togglePlay(): void {
+    const video = this.videoPlayer?.nativeElement;
+    if (!video) return;
+
     this.isPlaying.update(v => !v);
+    
     if (this.isPlaying()) {
-      this.startScene();
-      this.videoPlayer.nativeElement.play();
-      this.speechSynthesis.resume(); // ▶️ Setze Sprachausgabe fort
+      // ▶️ RESUME: Nur fortsetzen, nicht neu starten
+      video.play();
+      this.resumeSpeech();
+      
+      // Starte Timer wieder (nur wenn noch nicht am Ende)
+      if (!this.ended()) {
+        this.resumeProgressTracking();
+      }
     } else {
-      this.clearTimers();
-      this.videoPlayer.nativeElement.pause();
-      this.speechSynthesis.pause(); // ⏸️ Pausiere Sprachausgabe
+      // ⏸️ PAUSE: Anhalten
+      video.pause();
+      this.pauseSpeech();
+      this.pauseProgressTracking();
     }
   }
 
@@ -122,6 +144,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
     this.clearTimers();
     this.progress.set(0);
+    this.pausedElapsedTime = 0; // Reset bei neuer Szene
 
     const scene = this.currentScene;
     if (!scene || !this.isPlaying()) return;
@@ -131,19 +154,23 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
       this.videoPlayer.nativeElement.play();
     }
 
-    // 🔊 Text vorlesen
-    this.speakText(scene.text || '');
+    // 🔊 Text vorlesen (von Anfang an)
+    this.currentTextToSpeak = scene.text || '';
+    this.spokenCharacterIndex = 0;
+    this.speakText(this.currentTextToSpeak, 0);
 
     let durationMs = scene.durationInSeconds ?? 5000;
     if (durationMs < 1000) durationMs = durationMs * 1000;
-    const start = performance.now();
+    
+    this.sceneDurationMs = durationMs;
+    this.sceneStartTime = performance.now();
 
     // Set initial remaining seconds
     const totalSeconds = Math.floor(durationMs / 1000);
     this.remainingSeconds.set(totalSeconds);
 
     this.progressTimer = setInterval(() => {
-      const elapsed = performance.now() - start;
+      const elapsed = performance.now() - this.sceneStartTime;
       const progress = Math.min(elapsed / durationMs, 1);
       this.progress.set(progress);
       
@@ -205,18 +232,75 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     if (this.progressTimer) { clearInterval(this.progressTimer); this.progressTimer = null; }
   }
 
+  // ⏸️ Pause Progress Tracking
+  private pauseProgressTracking(): void {
+    // Speichere die bereits verstrichene Zeit
+    this.pausedElapsedTime = performance.now() - this.sceneStartTime;
+    
+    // Stoppe Timer
+    if (this.sceneTimer) { clearTimeout(this.sceneTimer); this.sceneTimer = null; }
+    if (this.progressTimer) { clearInterval(this.progressTimer); this.progressTimer = null; }
+    
+    console.log('⏸️ Progress pausiert bei:', this.pausedElapsedTime, 'ms');
+  }
+
+  // ▶️ Resume Progress Tracking
+  private resumeProgressTracking(): void {
+    if (this.sceneDurationMs === 0) return;
+    
+    // Berechne verbleibende Zeit
+    const remainingMs = this.sceneDurationMs - this.pausedElapsedTime;
+    
+    if (remainingMs <= 0) {
+      this.nextScene();
+      return;
+    }
+    
+    // Setze neue Startzeit unter Berücksichtigung der bereits verstrichenen Zeit
+    this.sceneStartTime = performance.now() - this.pausedElapsedTime;
+    
+    console.log('▶️ Progress fortgesetzt. Verbleibend:', remainingMs, 'ms');
+
+    // Starte Progress Timer wieder
+    this.progressTimer = setInterval(() => {
+      const elapsed = performance.now() - this.sceneStartTime;
+      const progress = Math.min(elapsed / this.sceneDurationMs, 1);
+      this.progress.set(progress);
+      
+      // Update remaining seconds
+      const remainingSecs = Math.ceil((this.sceneDurationMs - elapsed) / 1000);
+      this.remainingSeconds.set(Math.max(0, remainingSecs));
+    }, 100);
+
+    // Starte Scene Timer mit verbleibender Zeit
+    this.sceneTimer = setTimeout(() => {
+      this.nextScene();
+    }, remainingMs);
+  }
+
   // 🔊 Text-to-Speech Methoden
-  private speakText(text: string): void {
-    // Stoppe vorherige Sprachausgabe
-    this.stopSpeech();
+  private speakText(text: string, startFromIndex: number = 0): void {
+    // Stoppe vorherige Sprachausgabe (aber leere nicht currentTextToSpeak!)
+    if (this.speechSynthesis.speaking) {
+      this.isSpeechPausing = true;
+      this.speechSynthesis.cancel();
+    }
+    this.currentUtterance = undefined;
 
     // Wenn stumm geschaltet, nicht vorlesen
     if (this.isMuted() || !text || text.trim() === '') {
       return;
     }
 
+    // Schneide Text ab der gewünschten Position
+    const textToSpeak = startFromIndex > 0 ? text.substring(startFromIndex) : text;
+
+    if (textToSpeak.trim() === '') {
+      return;
+    }
+
     // Erstelle neue Sprachausgabe
-    this.currentUtterance = new SpeechSynthesisUtterance(text);
+    this.currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
     
     // Konfiguration für deutsche Sprache
     this.currentUtterance.lang = 'de-DE'; // Deutsch
@@ -224,18 +308,111 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     this.currentUtterance.pitch = 1; // Tonhöhe (0 bis 2)
     this.currentUtterance.volume = 1; // Lautstärke (0 bis 1)
 
+    // 🆕 Tracking: Merke Startzeit
+    this.speechStartTime = Date.now();
+    this.isSpeechPausing = false; // Reset Flag
+
+    // 🆕 Event: Beim Sprechen Position tracken (für jedes Wort)
+    this.currentUtterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        this.spokenCharacterIndex = startFromIndex + event.charIndex;
+        console.log('📍 Wort-Position:', this.spokenCharacterIndex);
+      }
+    };
+
+    // 🆕 Event: Am Ende - nur Position setzen wenn NICHT pausiert wird
+    this.currentUtterance.onend = () => {
+      if (!this.isSpeechPausing) {
+        this.spokenCharacterIndex = this.currentTextToSpeak.length;
+        console.log('✅ Sprachausgabe natürlich beendet');
+      }
+    };
+
     // Starte Sprachausgabe
     this.speechSynthesis.speak(this.currentUtterance);
     
-    console.log('🔊 Spreche:', text);
+    console.log('🔊 Spreche ab Position:', startFromIndex, '- Text:', textToSpeak.substring(0, 30) + '...');
   }
 
-  // 🔇 Sprachausgabe stoppen
+  // 🔇 Sprachausgabe stoppen (komplett, für Szenenwechsel)
   private stopSpeech(): void {
     if (this.speechSynthesis.speaking) {
+      this.isSpeechPausing = true; // Verhindere dass onend die Position ändert
       this.speechSynthesis.cancel();
     }
     this.currentUtterance = undefined;
+    this.spokenCharacterIndex = 0;
+    this.currentTextToSpeak = ''; // Leere den Text (nur bei komplettem Stop!)
+    this.isSpeechPausing = false; // Reset Flag
+    console.log('🛑 Sprachausgabe komplett gestoppt');
+  }
+
+  // ⏸️ Neue Methode: Sprachausgabe pausieren
+  private pauseSpeech(): void {
+    if (this.speechSynthesis.speaking) {
+      // Setze Flag BEVOR cancel() aufgerufen wird
+      this.isSpeechPausing = true;
+      
+      // Schätze die Position basierend auf Zeit (als Fallback)
+      const elapsedTime = Date.now() - this.speechStartTime;
+      const estimatedCharsSpoken = Math.floor((elapsedTime / 1000) * (this.averageWordsPerMinute / 60) * 5); // ~5 chars pro Wort
+      
+      // WICHTIG: Bevorzuge die letzte bekannte Wort-Position (präziser!)
+      // Nutze Zeit-Schätzung nur wenn keine Wort-Position getrackt wurde
+      let pausedAt: number;
+      if (this.spokenCharacterIndex > 0) {
+        // Wir haben eine Wort-Position - nutze diese + ein kleiner Puffer für das nächste Wort
+        const wordEndPosition = this.spokenCharacterIndex;
+        // Suche das nächste Wort (nach Leerzeichen)
+        const nextSpaceIndex = this.currentTextToSpeak.indexOf(' ', wordEndPosition);
+        pausedAt = nextSpaceIndex > 0 ? nextSpaceIndex + 1 : wordEndPosition;
+      } else {
+        // Kein Wort-Tracking - nutze Zeit-Schätzung
+        pausedAt = estimatedCharsSpoken;
+      }
+      
+      // Stoppe Sprachausgabe (triggert onend Event, aber Flag verhindert Überschreiben!)
+      this.speechSynthesis.cancel();
+      
+      // Setze Position NACH cancel()
+      this.spokenCharacterIndex = Math.min(pausedAt, Math.max(0, this.currentTextToSpeak.length - 1));
+      
+      // WICHTIG: Leere currentTextToSpeak NICHT - wir brauchen es für Resume!
+      
+      console.log('⏸️ Sprachausgabe pausiert bei Position:', this.spokenCharacterIndex, '/', this.currentTextToSpeak.length);
+      console.log('⏸️ Pausierter Text:', this.currentTextToSpeak.substring(0, 50) + '...');
+      console.log('⏸️ Verbleibender Text:', this.currentTextToSpeak.substring(this.spokenCharacterIndex, this.spokenCharacterIndex + 30) + '...');
+    } else {
+      console.log('⏸️ Keine aktive Sprachausgabe zum Pausieren');
+    }
+  }
+
+  // ▶️ Neue Methode: Sprachausgabe fortsetzen
+  private resumeSpeech(): void {
+    console.log('🔍 Resume Speech Check:', {
+      hasText: !!this.currentTextToSpeak,
+      textLength: this.currentTextToSpeak?.length,
+      charIndex: this.spokenCharacterIndex,
+      isMuted: this.isMuted()
+    });
+
+    if (!this.currentTextToSpeak) {
+      console.warn('⚠️ Kein Text zum Fortsetzen vorhanden');
+      return;
+    }
+
+    if (this.isMuted()) {
+      console.log('🔇 Stumm geschaltet - kein Resume');
+      return;
+    }
+
+    if (this.spokenCharacterIndex >= this.currentTextToSpeak.length) {
+      console.log('✅ Text bereits komplett gesprochen');
+      return;
+    }
+
+    console.log('▶️ Setze Sprachausgabe fort ab Position:', this.spokenCharacterIndex);
+    this.speakText(this.currentTextToSpeak, this.spokenCharacterIndex);
   }
 
   // 🔇🔊 Mute/Unmute Toggle
@@ -243,13 +420,13 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     this.isMuted.update(v => !v);
     
     if (this.isMuted()) {
-      // Wenn stumm geschaltet, stoppe aktuelle Sprachausgabe
-      this.stopSpeech();
+      // Wenn stumm geschaltet, pausiere aktuelle Sprachausgabe
+      this.pauseSpeech();
       console.log('🔇 Stumm geschaltet');
     } else {
-      // Wenn Stummschaltung aufgehoben, spiele aktuellen Text ab (falls gerade eine Szene läuft)
-      if (this.isPlaying() && this.currentScene) {
-        this.speakText(this.currentScene.text || '');
+      // Wenn Stummschaltung aufgehoben, setze Sprachausgabe fort
+      if (this.isPlaying()) {
+        this.resumeSpeech();
       }
       console.log('🔊 Laut geschaltet');
     }
