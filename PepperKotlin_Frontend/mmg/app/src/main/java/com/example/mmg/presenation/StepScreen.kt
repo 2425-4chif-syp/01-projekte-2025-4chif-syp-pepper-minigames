@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mmg.R
 import com.example.mmg.viewmodel.MmgViewModel
-import com.example.mmg.ui.theme.AppColors
 
 @Composable
 fun StepScreen(
@@ -109,10 +108,7 @@ fun StepScreen(
                     onClick = {
                         viewModel.resetStepCount()
                         navController.popBackStack()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = AppColors.Orange
-                    )
+                    }
                 ) {
                     Text(text = "Abbrechen")
                 }
@@ -130,10 +126,7 @@ fun StepScreen(
                             else{
                                 viewModel.displayStep()
                             }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = AppColors.Orange
-                        )
+                        }
                     ) {
                         Text(text = "Weiter")
                     }

@@ -13,11 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.mmg.R
-import com.example.mmg.ui.theme.AppColors
 
 @Composable
 fun MmgScreen(
@@ -31,7 +31,9 @@ fun MmgScreen(
     var showTimerDropdown by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadMmgDtos()
+        if (mmgList.isEmpty()) {
+            viewModel.loadMmgDtos()
+        }
     }
 
     Column(
@@ -49,18 +51,13 @@ fun MmgScreen(
             Text(
                 text = "Mitmachgeschichten",
                 style = MaterialTheme.typography.headlineMedium,
-                color = AppColors.DarkTeal,
                 modifier = Modifier.weight(1f)
             )
             Button(
                 onClick = {
                     viewModel.emptyMmgList()
                     viewModel.loadMmgDtos()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AppColors.Orange,
-                    contentColor = AppColors.White
-                )
+                }
             ) {
                 Text(text = "Geschichten laden")
             }
@@ -79,8 +76,7 @@ fun MmgScreen(
                     showTimerDropdown = false
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (manuellSelected) AppColors.Orange else AppColors.MintGreen,
-                    contentColor = if (manuellSelected) AppColors.White else AppColors.Black
+                    containerColor = if (manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
             ) {
                 Text(text = "Manuell")
@@ -92,8 +88,7 @@ fun MmgScreen(
                     showTimerDropdown = true
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!manuellSelected) AppColors.Orange else AppColors.MintGreen,
-                    contentColor = if (!manuellSelected) AppColors.White else AppColors.Black
+                    containerColor = if (!manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
             ) {
                 Text(text = "Automatisch")
@@ -106,11 +101,7 @@ fun MmgScreen(
                     var expanded by remember { mutableStateOf(false) }
                     
                     Button(
-                        onClick = { expanded = true },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = AppColors.Orange,
-                            contentColor = AppColors.White
-                        )
+                        onClick = { expanded = true }
                     ) {
                         Text(text = "${selectedTimerSeconds}s")
                     }
@@ -122,10 +113,7 @@ fun MmgScreen(
                         listOf(2,5, 10, 15).forEach { seconds ->
                             DropdownMenuItem(
                                 text = { 
-                                    Text(
-                                        "${seconds} Sekunden",
-                                        color = AppColors.DarkTeal
-                                    ) 
+                                    Text("${seconds} Sekunden") 
                                 },
                                 onClick = {
                                     selectedTimerSeconds = seconds
@@ -145,7 +133,7 @@ fun MmgScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = AppColors.BrightTeal)
+                CircularProgressIndicator()
             }
         } else {
             LazyColumn(
@@ -167,10 +155,7 @@ fun MmgScreen(
                                 )
                                 viewModel.resetStepCount()
                             },
-                        shape = MaterialTheme.shapes.medium,
-                        colors = CardDefaults.cardColors(
-                            containerColor = AppColors.MintGreen
-                        )
+                        shape = MaterialTheme.shapes.medium
                     ) {
                         Row(
                             modifier = Modifier
@@ -199,27 +184,25 @@ fun MmgScreen(
                                         contentDescription = "Default Story Icon",
                                         modifier = Modifier.size(80.dp)
                                     )
+                                }
+                            }
 
-                                    LaunchedEffect(mmg.storyIcon?.id) {
-                                        mmg.storyIcon?.id?.let { iconId ->
-                                            if (!imageMap.containsKey(iconId)) {
-                                                viewModel.loadImageFromApi(iconId)
-                                            }
-                                        }
+                            LaunchedEffect(mmg.storyIcon?.id) {
+                                mmg.storyIcon?.id?.let { iconId ->
+                                    if (!imageMap.containsKey(iconId)) {
+                                        viewModel.loadImageFromApi(iconId)
                                     }
                                 }
                             }
                             
                             Text(
                                 text = mmg.name, 
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = AppColors.Black
+                                style = MaterialTheme.typography.bodyLarge
                             )
 
                             Icon(
                                 imageVector = Icons.Default.PlayArrow, 
-                                contentDescription = "Play",
-                                tint = AppColors.Black
+                                contentDescription = "Play"
                             )
                         }
                     }
