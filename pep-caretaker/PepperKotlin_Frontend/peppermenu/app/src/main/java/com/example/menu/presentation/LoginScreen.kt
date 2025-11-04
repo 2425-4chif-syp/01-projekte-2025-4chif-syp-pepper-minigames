@@ -33,10 +33,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
+    onLoginClick: (Long) -> Unit,
     onContinueWithoutLogin: () -> Unit,
     navController: NavHostController,
-    viewModel: LoginScreenViewModel = viewModel()
+    viewModel: LoginScreenViewModel
 ) {
     val selectedName by viewModel.selectedName
     val selectedGender by viewModel.selectedGender
@@ -60,7 +60,6 @@ fun LoginScreen(
         ) {
 
             Text(
-                // Dynamischer Text basierend auf selectedName
                 text = "Sind sie ${selectedGender} ${selectedName}?",
                 fontSize = 65.sp,
                 modifier = Modifier
@@ -74,13 +73,16 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Zwei Buttons nebeneinander
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
-                    onClick = onLoginClick,
+                    onClick = {
+                        val id = viewModel.selectedPerson?.pid?.toLong() ?: -1L
+                        Log.d("LoginScreen", "onLoginClick -> id=$id")
+                        onLoginClick(id)
+                    },
                     modifier = Modifier
                         .weight(0.5f)
                         .height(100.dp),
@@ -89,7 +91,6 @@ fun LoginScreen(
                         contentColor = Color.Black,
                     ),
                     enabled = !isLoading
-
                 ) {
                     Text(
                         text = "Ja",
@@ -118,12 +119,11 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            // Row für ScrollView und Icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                // ScrollView für Namensauswahl
+                // Liste der Personen
                 Column(
                     modifier = Modifier
                         .width(400.dp)
@@ -133,7 +133,6 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // Text "Wählen Sie Ihren Namen aus"
                     Text(
                         text = "Wählen Sie Ihren Namen aus ⬇️",
                         fontSize = 26.sp,
@@ -144,7 +143,6 @@ fun LoginScreen(
                         )
                     )
 
-                    // LazyColumn für die Namensliste mit Scrollbar
                     val scrollState = rememberLazyListState()
                     LazyColumn(
                         state = scrollState,
@@ -152,10 +150,19 @@ fun LoginScreen(
                         userScrollEnabled = !isLoading
                     ) {
                         items(viewModel.names.value.size) { index ->
+                            val name = viewModel.names.value[index]
                             Button(
                                 onClick = {
-                                    viewModel.setName(viewModel.names.value[index])
-                                    viewModel.findRightPerson(viewModel.names.value[index])
+                                    val p = viewModel.persons?.getOrNull(index)
+                                    if (p != null) {
+                                        viewModel.selectedPerson = p
+                                        viewModel.setName("${p.firstName} ${p.lastName}")
+                                        viewModel.setGender(p.gender)
+                                        Log.d("LoginScreen", "Selected pid=${p.pid} name=${p.firstName} ${p.lastName}")
+                                    } else {
+                                        viewModel.setName(name)
+                                        viewModel.findRightPerson(name)
+                                    }
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -163,15 +170,16 @@ fun LoginScreen(
                                     .padding(vertical = 4.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor =
-                                    if (viewModel.names.value[index] == selectedName) Color.Green else Color.White,
+                                    if (name == selectedName) Color.Green else Color.White,
                                     contentColor = Color.Black
                                 ),
-                               enabled = !isLoading
+                                enabled = !isLoading
                             ) {
                                 Text(
-                                    text = viewModel.names.value[index],
+                                    text = name,
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold)
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -183,16 +191,13 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(13.dp)
                 ) {
-                    // Gesichtserkennung
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(Color.LightGray)
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable(
-                                enabled = !isLoading
-                            ){
+                            .clickable(enabled = !isLoading) {
                                 viewModel.captureAndRecognizePerson()
                             }
                     ) {
@@ -214,22 +219,18 @@ fun LoginScreen(
                             text = "Gesichtserkennung",
                             fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp),
-                            /*color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
                         )
                     }
 
                     Spacer(modifier = Modifier.height(1.dp))
 
-                    // Spracherkennung
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(Color(0xFFE0E0E0))
                             .padding(10.dp)
                             .fillMaxWidth()
-                            .clickable(
-                                enabled = !isLoading
-                            ){
+                            .clickable(enabled = !isLoading) {
                                 viewModel.startSpeechRecognition()
                             }
                     ) {
@@ -244,14 +245,14 @@ fun LoginScreen(
                                 imageVector = Icons.Default.Mic,
                                 contentDescription = "Spracherkennung",
                                 modifier = Modifier.fillMaxSize(),
-                                tint = if(!isLoading) Color.Blue else Color.Gray
+                                tint = if (!isLoading) Color.Blue else Color.Gray
                             )
                         }
                         Text(
                             text = "Spracherkennung",
                             fontSize = 30.sp,
                             modifier = Modifier.padding(start = 16.dp),
-                             color = if (viewModel.isLoading.value == true) Color.Gray else Color.Black // Grau während des Ladens */
+                            color = if (isLoading) Color.Gray else Color.Black
                         )
                     }
                 }
@@ -259,16 +260,14 @@ fun LoginScreen(
         }
 
         Button(
-            onClick = {
-                navController.navigate("main_menu")
-            },
+            onClick = { navController.navigate("main_menu") },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 0.dp, end = 2.dp)
                 .width(120.dp)
                 .height(60.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFFF44336), // Rot
+                backgroundColor = Color(0xFFF44336),
                 contentColor = Color.Black,
             ),
             enabled = !isLoading
