@@ -28,9 +28,14 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   isPlaying = signal<boolean>(true);
   progress = signal<number>(0);
   remainingSeconds = signal<number>(0);
+  isMuted = signal<boolean>(false); // 🔇 Mute State
 
   private sceneTimer: any = null;
   private progressTimer: any = null;
+
+  // 🔊 Text-to-Speech
+  private speechSynthesis: SpeechSynthesis = window.speechSynthesis;
+  private currentUtterance?: SpeechSynthesisUtterance;
 
   imageService = inject(ImageServiceService);
   image = signal<ImagePreview | null>(null);
@@ -63,9 +68,11 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
     if (this.isPlaying()) {
       this.startScene();
       this.videoPlayer.nativeElement.play();
+      this.speechSynthesis.resume(); // ▶️ Setze Sprachausgabe fort
     } else {
       this.clearTimers();
       this.videoPlayer.nativeElement.pause();
+      this.speechSynthesis.pause(); // ⏸️ Pausiere Sprachausgabe
     }
   }
 
@@ -88,6 +95,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimers();
+    this.stopSpeech(); // 🔇 Stoppe Sprachausgabe beim Verlassen
   }
 
   loadSteps(id: number){
@@ -123,6 +131,9 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
       this.videoPlayer.nativeElement.play();
     }
 
+    // 🔊 Text vorlesen
+    this.speakText(scene.text || '');
+
     let durationMs = scene.durationInSeconds ?? 5000;
     if (durationMs < 1000) durationMs = durationMs * 1000;
     const start = performance.now();
@@ -148,6 +159,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   nextScene(): void {
     this.clearTimers();
+    this.stopSpeech(); // 🔇 Stoppe aktuelle Sprachausgabe
     if (this.videoPlayer?.nativeElement) {
       this.videoPlayer.nativeElement.pause();
     }
@@ -166,6 +178,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   prevScene(): void {
     this.clearTimers();
+    this.stopSpeech(); // 🔇 Stoppe aktuelle Sprachausgabe
     if (this.ended()) this.ended.set(false);
     if (this.currentIndex() > 0) {
       this.currentIndex.update(i => i - 1);
@@ -178,6 +191,7 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
 
   restartStory(): void {
     this.clearTimers();
+    this.stopSpeech(); // 🔇 Stoppe aktuelle Sprachausgabe
     this.ended.set(false);
     this.currentIndex.set(0);
     this.progress.set(0);
@@ -189,6 +203,56 @@ export class PreviewScreenComponent implements OnInit, OnDestroy {
   private clearTimers(): void {
     if (this.sceneTimer) { clearTimeout(this.sceneTimer); this.sceneTimer = null; }
     if (this.progressTimer) { clearInterval(this.progressTimer); this.progressTimer = null; }
+  }
+
+  // 🔊 Text-to-Speech Methoden
+  private speakText(text: string): void {
+    // Stoppe vorherige Sprachausgabe
+    this.stopSpeech();
+
+    // Wenn stumm geschaltet, nicht vorlesen
+    if (this.isMuted() || !text || text.trim() === '') {
+      return;
+    }
+
+    // Erstelle neue Sprachausgabe
+    this.currentUtterance = new SpeechSynthesisUtterance(text);
+    
+    // Konfiguration für deutsche Sprache
+    this.currentUtterance.lang = 'de-DE'; // Deutsch
+    this.currentUtterance.rate = 0.9; // Sprechgeschwindigkeit (0.1 bis 10)
+    this.currentUtterance.pitch = 1; // Tonhöhe (0 bis 2)
+    this.currentUtterance.volume = 1; // Lautstärke (0 bis 1)
+
+    // Starte Sprachausgabe
+    this.speechSynthesis.speak(this.currentUtterance);
+    
+    console.log('🔊 Spreche:', text);
+  }
+
+  // 🔇 Sprachausgabe stoppen
+  private stopSpeech(): void {
+    if (this.speechSynthesis.speaking) {
+      this.speechSynthesis.cancel();
+    }
+    this.currentUtterance = undefined;
+  }
+
+  // 🔇🔊 Mute/Unmute Toggle
+  toggleMute(): void {
+    this.isMuted.update(v => !v);
+    
+    if (this.isMuted()) {
+      // Wenn stumm geschaltet, stoppe aktuelle Sprachausgabe
+      this.stopSpeech();
+      console.log('🔇 Stumm geschaltet');
+    } else {
+      // Wenn Stummschaltung aufgehoben, spiele aktuellen Text ab (falls gerade eine Szene läuft)
+      if (this.isPlaying() && this.currentScene) {
+        this.speakText(this.currentScene.text || '');
+      }
+      console.log('🔊 Laut geschaltet');
+    }
   }
 
   get currentScene(): Tas | null {
