@@ -27,7 +27,7 @@ export class CreatestoryComponent {
 
   public duration = [5, 10, 15];
   public moves = [
-    'hurra',
+    'emote_hurra',
     'essen',
     'gehen',
     'hand_heben',
@@ -60,11 +60,6 @@ export class CreatestoryComponent {
 
   imagesService = inject(ImageServiceService);
   images = signal<ImageJson[]>([]);
-
-  // 🔍 Neue Eigenschaften für Suche und Filterung
-  searchTerm: string = '';
-  allImages = signal<ImageJson[]>([]); // Alle geladenen Bilder
-  filteredImages = signal<ImageJson[]>([]); // Gefilterte Bilder für Anzeige
 
   storyId: number | null = null;
   
@@ -160,24 +155,15 @@ export class CreatestoryComponent {
       console.log('Story state restored with new image');
     }
   }  disableSaveButton(){
-    return this.scenes.length === 0 || this.titleName === "";
+    return this.scenes.length === 0 || this.titleName === "" || this.titleImage === "assets/images/imageNotFound.png";
   }
 
 loadImages(): void {
   this.imagesService.getImageNew().subscribe({
     next: (data) => {
-      // 🔄 NEUE REIHENFOLGE: Neueste Bilder zuerst (umgekehrte Reihenfolge)
-      const reversedImages = [...data.items].reverse();
-      
-      // 🎯 FILTER: Nur Bilder ohne Person (für MMGs)
-      const mmgImages = reversedImages.filter(image => image.person === null || image.person === undefined);
-      
-      this.allImages.set(mmgImages);
-      this.filteredImages.set(mmgImages); // Initial alle MMG-Bilder anzeigen
-      this.images.set(mmgImages); // Für Kompatibilität
-      
-      console.log(`✅ Loaded ${reversedImages.length} total images`);
-      console.log(`🎯 Filtered to ${mmgImages.length} MMG images (person = null)`);
+      // Direktes Setzen der ImageJson[] ohne Konvertierung
+      this.images.set(data.items);
+      console.log(`✅ Loaded ${data.items.length} images from image server (background)`);
       
       // Jetzt die wartenden Scene-Bilder upgraden
       if (this.pendingSceneData.length > 0) {
@@ -193,6 +179,7 @@ loadImages(): void {
     },
   });
 }
+
 // Fallback-Methode (die alte Implementierung)
 private loadImagesOld(): void {
   this.imagesService.getImages().subscribe({
@@ -204,19 +191,8 @@ private loadImagesOld(): void {
         href: '', // Dummy-Wert für href
         person: imageDto.person
       }));
-      
-      // 🔄 NEUE REIHENFOLGE: Auch hier umkehren
-      const reversedImages = [...convertedImages].reverse();
-      
-      // 🎯 FILTER: Nur Bilder ohne Person (für MMGs)
-      const mmgImages = reversedImages.filter(image => image.person === null || image.person === undefined);
-      
-      this.allImages.set(mmgImages);
-      this.filteredImages.set(mmgImages);
-      this.images.set(mmgImages);
-      
-      console.log(`⚠️ Fallback: Loaded ${convertedImages.length} total images via old method`);
-      console.log(`🎯 Filtered to ${mmgImages.length} MMG images (person = null)`);
+      this.images.set(convertedImages);
+      console.log(`⚠️ Fallback: Loaded ${convertedImages.length} images via old method`);
     },
     error: (err) => {
       console.error('Laden fehlgeschlagen (old method): ' + err.message);
@@ -344,19 +320,7 @@ private loadImagesOld(): void {
 
   updateDuration(event: Event, scene: Scene) {
     const selectElement = event.target as HTMLSelectElement;
-    const newDuration = Number(selectElement.value);
-    
-    console.log(`🕐 Duration Update:`, {
-      oldDuration: scene.duration,
-      newDuration: newDuration,
-      selectValue: selectElement.value,
-      sceneIndex: this.scenes.indexOf(scene)
-    });
-    
-    scene.duration = newDuration;
-    
-    // Verification
-    console.log(`✅ Scene duration nach Update: ${scene.duration}`);
+    scene.duration = Number(selectElement.value);
   }
 
   updateImage(event: Event, scene: Scene) {
@@ -434,29 +398,14 @@ private loadImagesOld(): void {
            scene.image === this.defaultImageBase64;
   }
 
-  // 🆕 Hilfsmethode um zu prüfen, ob das Titelbild das Standard-Bild ist
-  isDefaultTitleImage(): boolean {
-    return this.titleImage === 'assets/images/imageNotFound.png' || 
-           this.titleImage === this.defaultImageBase64;
-  }
-
-  // 🆕 Methode zum Löschen/Zurücksetzen des Titelbilds
-  clearTitleImage(): void {
-    if (confirm('Möchten Sie das Titelbild wirklich entfernen?')) {
-      this.titleImage = 'assets/images/imageNotFound.png';
-    }
-  }
-
   addScene() {
-    const newScene = {
+    this.scenes.push({
       speech: '',
       movement: this.moveNames[0],
-      duration: this.duration[0], // Should be 5
+      duration: this.duration[0],
       image: 'assets/images/imageNotFound.png',
       isDragOver: false,
-    };
-    console.log(`Adding new scene with duration: ${newScene.duration}`);
-    this.scenes.push(newScene);
+    });
   }
 
   deleteScene(index: number) {
@@ -540,12 +489,6 @@ private loadImagesOld(): void {
       return;
     }
 
-    // 🔍 DEBUG: Aktuelle Scene-Werte anzeigen
-    console.log('🔍 Scenes vor dem Speichern:');
-    this.scenes.forEach((scene, index) => {
-      console.log(`Scene ${index + 1}: duration = ${scene.duration}, movement = ${scene.movement}`);
-    });
-
     try {
       // **1. Alle bestehenden Szenen löschen**
       await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
@@ -554,26 +497,8 @@ private loadImagesOld(): void {
       });
       console.log('Alle alten Szenen gelöscht.');      // **2. Neue Szenen speichern**
       for (const [index, scene] of this.scenes.entries()) {
-        console.log(`🔍 Raw scene object:`, scene);
-        
         const moveIndex = this.moveNames.indexOf(scene.movement);
         const moveId = moveIndex !== -1 ? moveIndex + 1 : 1;
-
-        // 🔍 DEBUG: Scene-Duration vor Speichern
-        console.log(`Scene ${index + 1} vor Speichern:`, {
-          duration: scene.duration,
-          type: typeof scene.duration,
-          isValid: scene.duration > 0,
-          rawValue: scene.duration
-        });
-
-        // 🚀 FIX: Duration validieren und Default-Wert setzen
-        const duration = (scene.duration && scene.duration > 0) ? Number(scene.duration) : 5;
-        console.log(`Scene ${index + 1}: Using duration = ${duration} (original: ${scene.duration}, type: ${typeof scene.duration})`);
-
-        // Test: Hardcode 15 to see if backend accepts it
-        const testDuration = 15;
-        console.log(`🧪 TEST: Sending hardcoded duration = ${testDuration}`);
 
         // Konvertiere das Bild zu base64, falls es das Standard-Bild ist
         const convertedImage = await this.convertImageToBase64(scene.image);        // Konvertiere das Titelbild auch zu base64, falls es das Standard-Bild ist
@@ -591,11 +516,8 @@ private loadImagesOld(): void {
           image_desc: 'Beschreibung des Bildes',
           move: { id: moveId, name: scene.movement, description: this.moves[moveIndex] || 'Unbekannt' },
           text: scene.speech,
-          durationInSeconds: scene.duration, 
+          durationInSeconds: scene.duration,
         };
-
-        console.log(`📤 Sending scene ${index + 1} with durationInSeconds: ${sceneData.durationInSeconds}`);
-        console.log('📤 Full payload:', JSON.stringify(sceneData, null, 2));
 
         const response = await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
           method: 'POST',
@@ -604,14 +526,11 @@ private loadImagesOld(): void {
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ Backend Error:', response.status, errorText);
           throw new Error(`Fehler beim Speichern der Szene: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log(`✅ Scene ${index + 1} saved with ID: ${data.id}`);
-        console.log('📥 Backend response:', JSON.stringify(data, null, 2));
+        console.log(`Szene ${index + 1} erfolgreich gespeichert mit ID: ${data.id}`);
       }
     } catch (error) {
       console.error('Fehler beim Speichern der Szenen:', error);
@@ -745,32 +664,5 @@ private loadImagesOld(): void {
     
     console.log('⚠️ Keine Konvertierung durchgeführt, gebe Original zurück');
     return imagePath; // Fallback
-  }
-
-  // 🔍 Neue Methode für Bildsuche
-  onSearchChange(): void {
-    const searchLower = this.searchTerm.toLowerCase().trim();
-    
-    if (searchLower === '') {
-      // Keine Suche - alle MMG-Bilder anzeigen
-      this.filteredImages.set(this.allImages());
-    } else {
-      // Suche in Beschreibung
-      const filtered = this.allImages().filter(image => 
-        image.description?.toLowerCase().includes(searchLower)
-      );
-      this.filteredImages.set(filtered);
-    }
-    
-    // Für Kompatibilität auch images aktualisieren
-    this.images.set(this.filteredImages());
-    
-    console.log(`🔍 Search "${this.searchTerm}": ${this.filteredImages().length} results`);
-  }
-
-  // 🔍 Methode zum Löschen der Suche
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.onSearchChange();
   }
 }
