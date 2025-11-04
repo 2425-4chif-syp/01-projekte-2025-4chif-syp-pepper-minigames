@@ -2,7 +2,7 @@
 <network-security-config>
     <!-- Erlaube Verbindung zu Schulserver -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">vm88.htl-leonding.ac.at</domain>
+        <domain includeSubdomains="true">vm107.htl-leonding.ac.at</domain>
     </domain-config>
 
     <!-- Erlaube Verbindung zu lokalem Docker im Emulator -->
