@@ -15,8 +15,8 @@
       </video>
     </div>
     
-    <!-- Controls (centered under video) -->
-    <div class="flex flex-col items-center gap-2 -mt-24 mb-4">
+    <!-- Controls (absolutely positioned near bottom center) -->
+    <div class="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
       <div class="flex items-center gap-2">
         <button (click)="prevScene()" class="px-4 py-2 bg-[#9EF8EE] text-black rounded-lg shadow"
           [disabled]="steps().length === 0 || currentSceneIndex === 0">Prev</button>
