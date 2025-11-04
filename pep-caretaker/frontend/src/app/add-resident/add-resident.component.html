@@ -40,11 +40,11 @@
             </div>
             
             <div class="flex justify-center mt-6">
-                <button [disabled]="!firstName() || !lastName() || !dob() || !password() || !roomNo()" (click)="addPerson()" routerLinkActive="router-link-active" class="btn btn-primary">
+                <button [disabled]="!firstName() || !lastName() || !dob() || !password() || !roomNo()" (click)="addPerson()" routerLinkActive="router-link-active" style="background-color: #22BABB;" class="btn text-white">
                     Person hinzufügen
                 </button>
-                <button [routerLink]="['/residents']" routerLinkActive="router-link-active" class="ms-4 btn btn-secondary">
-                    Zur Übersicht
+                <button [routerLink]="['/residents']" routerLinkActive="router-link-active" style="background-color: #F24405;" class="ms-4 btn text-white">
+                    Abbrechen
                 </button>
             </div>
         </div>

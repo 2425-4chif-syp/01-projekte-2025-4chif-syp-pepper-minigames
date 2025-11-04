@@ -557,10 +557,16 @@ export class ImageuploadComponent {
     if (this.isFromCreateStory) {
       // If coming from createstory, clean up and return without saving
       sessionStorage.removeItem('pendingStoryState');
-      this.router.navigate(['/createstory']);
     } else {
       // Original behavior for regular image upload
-      window.location.href = '/tagalongstory';
+      this.description.set("");
+      this.selectedPersonId.set(null);
+      if (this.imageElement) {
+        this.imageElement.nativeElement.src = '';
+      }
+      if (this.cropper) {
+        this.cropper.destroy();
+      }
     }
   }
 

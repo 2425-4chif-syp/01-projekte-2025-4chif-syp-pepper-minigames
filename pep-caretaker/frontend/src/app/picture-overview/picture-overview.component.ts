@@ -16,7 +16,7 @@ import { ImageJson } from '../models/image-json.model';
 })
 export class PictureOverviewComponent {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
 
   imagesService = inject(ImageServiceService);
   images = signal<ImageJson[]>([]);
@@ -27,20 +27,20 @@ export class PictureOverviewComponent {
 
   aktiverFilter = this.showAllImages
 
-  showAllImages() {
+  showAllImages(){
     this.aktiverFilter = this.showAllImages
     this.activeButton.set('All')
     this.images.set(this.standartImages())
   }
 
-  showImageOfStories() {
+  showImageOfStories(){
     let saveArr: ImageJson[] = []
     this.activeButton.set('Stories')
 
     this.aktiverFilter = this.showImageOfStories
 
     for (const element of this.standartImages()) {
-      if (element.person == null) {
+      if(element.person == null){
         saveArr.push(element)
       }
     }
@@ -48,14 +48,14 @@ export class PictureOverviewComponent {
     this.images.set(saveArr)
   }
 
-  showImageOfPersons() {
+  showImageOfPersons(){
     let saveArr: ImageJson[] = []
     this.activeButton.set('People')
 
     this.aktiverFilter = this.showImageOfPersons
 
     for (const element of this.standartImages()) {
-      if (element.person != null) {
+      if(element.person != null){
         saveArr.push(element)
       }
     }
@@ -67,36 +67,36 @@ export class PictureOverviewComponent {
     this.loadImages();
     this.aktiverFilter;
   }
-
   transformImageUrl(originalUrl: string): string {
     if (!originalUrl) return '';
+    
     try {
-        // Protokoll und Domain ersetzen
-        let transformedUrl = originalUrl
-          .replace(/^https?:\/\/vm107\.htl-leonding\.ac\.at(:8080)?/, 'http://backend:8080');
-        console.log('Original:', originalUrl);
-        console.log('Transformed:', transformedUrl);
-        return encodeURIComponent(transformedUrl);
+      const transformedUrl = originalUrl.replace(
+        'vm107.htl-leonding.ac.at:8080', 
+        'backend:8080'
+      );
+      
+      return encodeURIComponent(transformedUrl);
     } catch (error) {
-        console.error('Error transforming URL:', error);
-        return originalUrl;
+      console.error('Error transforming URL:', error);
+      return originalUrl;
     }
-}
+  }
 
   loadImages(): void {
     this.imagesService.getImageNew().subscribe(
       {
-        next: data => {
+        next: data=>{
           const encodedImages = data.items.map(image => ({
-            ...image,
-            href: this.transformImageUrl(image.href),
-            originalHref: image.href
-          }));
+          ...image,
+          href: this.transformImageUrl(image.href),
+          originalHref: image.href 
+        }));
           this.images.set(encodedImages);
           this.standartImages.set(encodedImages);
           console.log(this.images());
         },
-        error: err => {
+        error: err=>{
           "Laden fehlgeschlagen" + err.message;
         },
       }
@@ -124,38 +124,38 @@ export class PictureOverviewComponent {
 
     const originalUrl = (image as any).originalHref || decodeURIComponent(image.href);
 
-    fetch(originalUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.blob();
-      })
-      .then(blob => {
+  fetch(originalUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
 
-        document.body.appendChild(a);
-        a.click();
+      document.body.appendChild(a);
+      a.click();
 
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('Bild erfolgreich heruntergeladen:', image.description);
+    })
+    .catch(error => {
+      console.error('Fehler beim Herunterladen des Bildes:', error);
 
-        console.log('Bild erfolgreich heruntergeladen:', image.description);
-      })
-      .catch(error => {
-        console.error('Fehler beim Herunterladen des Bildes:', error);
-
-        const a = document.createElement('a');
-        a.href = originalUrl;
-        a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
-        a.target = '_blank';
-        a.click();
-      });
+      const a = document.createElement('a');
+      a.href = originalUrl;
+      a.download = (image.description?.replace(/\s+/g, '_') || 'image') + '.jpg';
+      a.target = '_blank'; 
+      a.click();
+    });
   }
 
   deleteImage() {
