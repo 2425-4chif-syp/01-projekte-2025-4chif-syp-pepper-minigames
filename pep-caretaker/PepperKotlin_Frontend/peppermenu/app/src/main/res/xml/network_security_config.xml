@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Erlaube Verbindung zu Schulserver -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">vm107.htl-leonding.ac.at</domain>
+    </domain-config>
+
+    <!-- Erlaube Verbindung zu lokalem Docker im Emulator -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
 </network-security-config>
