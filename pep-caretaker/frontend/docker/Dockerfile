@@ -1,4 +1,4 @@
 FROM nginx:stable
 
-COPY ./frontend/docker/nginx.conf /etc/nginx/nginx.conf
-COPY ./dist/frontend/* /usr/share/nginx/html/
+COPY ./pep-caretaker/frontend/docker/nginx.conf /etc/nginx/nginx.conf
+COPY ./pep-caretaker/frontend/dist/* /usr/share/nginx/html/
