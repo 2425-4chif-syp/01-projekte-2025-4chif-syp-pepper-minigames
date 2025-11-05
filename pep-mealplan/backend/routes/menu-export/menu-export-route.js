@@ -32,3 +32,77 @@ router.get("/:date", async (req, res) => {
 });  
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Menu Plan
+ *     description: Export/Aushang des Menüplans
+ *
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           example: Fehler beim Erstellen des Menüplans
+ *
+ * /api/orders/export/{date}:
+ *   get:
+ *     tags: [Menu Plan]
+ *     summary: Exportiert den Aushang des Menüplans für die Kalenderwoche des angegebenen Datums
+ *     description: |
+ *       Liefert eine generierte Datei (z. B. PDF/DOCX/PNG) als Download zurück.
+ *       **Hinweis:** Die Route ist als `export`-Subpfad dokumentiert, um Kollisionen mit `/api/orders/{id}` zu vermeiden.
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Stichtagsdatum (YYYY-MM-DD), dessen Kalenderwoche exportiert wird
+ *         example: 2025-11-05
+ *     responses:
+ *       200:
+ *         description: Datei erfolgreich generiert und als Download bereitgestellt
+ *         headers:
+ *           Cache-Control:
+ *             schema:
+ *               type: string
+ *             description: no-store, no-cache, must-revalidate, proxy-revalidate
+ *           Pragma:
+ *             schema:
+ *               type: string
+ *             description: no-cache
+ *           Expires:
+ *             schema:
+ *               type: string
+ *             description: 0
+ *           Surrogate-Control:
+ *             schema:
+ *               type: string
+ *             description: no-store
+ *           Content-Disposition:
+ *             schema:
+ *               type: string
+ *             description: attachment; filename="<generierter-Dateiname>"
+ *         content:
+ *           application/octet-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Ungültiges Datum oder fehlender Parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Fehler beim Generieren oder Senden der Datei
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
