@@ -285,3 +285,302 @@ async function enrichOrder(order) {
   }
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Orders
+ *     description: Verwaltung von Bestellungen
+ *
+ * components:
+ *   schemas:
+ *     Picture:
+ *       type: object
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: tomato_soup.jpg
+ *         MediaType:
+ *           type: string
+ *           example: image/jpeg
+ *         Base64:
+ *           type: string
+ *           description: Base64-kodierte Bilddaten
+ *     FoodWithPicture:
+ *       type: object
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: Spaghetti Bolognese
+ *         Type:
+ *           type: string
+ *           example: main
+ *         Picture:
+ *           $ref: '#/components/schemas/Picture'
+ *     Person:
+ *       type: object
+ *       description: Daten aus der Tabelle People (vereinfachtes Beispiel)
+ *       properties:
+ *         ID: { type: integer, example: 7 }
+ *         FirstName: { type: string, example: "Max" }
+ *         LastName: { type: string, example: "Mustermann" }
+ *         DOB:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *           example: 2002-09-17
+ *     Menu:
+ *       type: object
+ *       description: Daten aus der Tabelle Menu (vereinfachtes Beispiel)
+ *       properties:
+ *         ID: { type: integer, example: 12 }
+ *         WeekNumber: { type: integer, example: 43 }
+ *         Weekday: { type: integer, example: 1 }
+ *         SoupID: { type: integer, example: 2 }
+ *         LunchDessertID: { type: integer, example: 21 }
+ *     OrderCreate:
+ *       type: object
+ *       required: [Date, UserID, MenuID]
+ *       properties:
+ *         Date:
+ *           type: string
+ *           format: date
+ *           example: 2025-11-05
+ *         UserID:
+ *           type: integer
+ *           example: 7
+ *         MenuID:
+ *           type: integer
+ *           example: 12
+ *         DessertSelected:
+ *           type: boolean
+ *           description: Optional, Standard ist false
+ *           example: false
+ *         SelectedLunchID:
+ *           type: integer
+ *           nullable: true
+ *           example: 101
+ *         SelectedDinnerID:
+ *           type: integer
+ *           nullable: true
+ *           example: 202
+ *     OrderPostResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           example: Order created successfully
+ *         orderId:
+ *           type: integer
+ *           example: 55
+ *         user:
+ *           type: integer
+ *           example: 7
+ *         orderedAt:
+ *           type: string
+ *           description: Zeitstempel in Europe/Vienna (Serverformat "YYYY-MM-DD HH:mm:ss")
+ *           example: "2025-11-05 13:37:42"
+ *     OrderUpsertByUserDate:
+ *       type: object
+ *       required: [Date, UserID]
+ *       properties:
+ *         Date:
+ *           type: string
+ *           format: date
+ *           example: 2025-11-06
+ *         UserID:
+ *           type: integer
+ *           example: 7
+ *         DessertSelected:
+ *           type: boolean
+ *           example: true
+ *         SelectedLunchID:
+ *           type: integer
+ *           nullable: true
+ *           example: 101
+ *         SelectedDinnerID:
+ *           type: integer
+ *           nullable: true
+ *           example: 202
+ *     OrderUpsertResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           example: Order updated
+ *         orderId:
+ *           type: integer
+ *           example: 55
+ *         orderedAt:
+ *           type: string
+ *           nullable: true
+ *           description: Nur bei Erstellung gesetzt
+ *           example: "2025-11-05 13:37:42"
+ *     EnrichedOrder:
+ *       type: object
+ *       properties:
+ *         ID:
+ *           type: integer
+ *           example: 55
+ *         Date:
+ *           type: string
+ *           format: date
+ *           example: 2025-11-05
+ *         User:
+ *           $ref: '#/components/schemas/Person'
+ *         Menu:
+ *           $ref: '#/components/schemas/Menu'
+ *         DessertSelected:
+ *           type: boolean
+ *           example: true
+ *         SelectedLunchID:
+ *           type: integer
+ *           nullable: true
+ *           example: 101
+ *         SelectedDinnerID:
+ *           type: integer
+ *           nullable: true
+ *           example: 202
+ *         SelectedLunch:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         SelectedDinner:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         Soup:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         LunchDessert:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         OrderedAt:
+ *           type: string
+ *           description: Europe/Vienna, Format "YYYY-MM-DD_HH:mm:ss" (Serverformat)
+ *           example: "2025-11-05_13:37:42"
+ *
+ * /api/orders:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Holt alle Bestellungen inklusive der zugehörigen Details
+ *     responses:
+ *       200:
+ *         description: Liste der Bestellungen
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/EnrichedOrder'
+ *       500:
+ *         description: Serverfehler
+ *   post:
+ *     tags: [Orders]
+ *     summary: Erstellt eine neue Bestellung
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/OrderCreate'
+ *     responses:
+ *       201:
+ *         description: Bestellung erstellt
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderPostResponse'
+ *       400:
+ *         description: Fehlende oder ungültige Felder
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/orders/{id}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Holt eine Bestellung nach ID (inkl. Details)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 55
+ *     responses:
+ *       200:
+ *         description: Bestellung gefunden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EnrichedOrder'
+ *       404:
+ *         description: Bestellung nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ *   delete:
+ *     tags: [Orders]
+ *     summary: Löscht eine Bestellung nach ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 55
+ *     responses:
+ *       200:
+ *         description: Bestellung gelöscht
+ *       404:
+ *         description: Bestellung nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/orders/date/{date}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Holt alle Bestellungen für ein bestimmtes Datum
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         example: 2025-11-06
+ *     responses:
+ *       200:
+ *         description: Liste (kann leer sein)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/EnrichedOrder'
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/orders/by-user-date:
+ *   put:
+ *     tags: [Orders]
+ *     summary: Erstellt oder aktualisiert eine Bestellung für einen Benutzer an einem Datum (Upsert)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/OrderUpsertByUserDate'
+ *     responses:
+ *       200:
+ *         description: Bestellung aktualisiert
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderUpsertResponse'
+ *       201:
+ *         description: Bestellung erstellt
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderUpsertResponse'
+ *       400:
+ *         description: Fehlende Felder
+ *       404:
+ *         description: Menü für Datum nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ */
