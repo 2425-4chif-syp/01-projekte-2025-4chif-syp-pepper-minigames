@@ -10,6 +10,7 @@ import com.example.menu.presentation.LoginScreen
 import com.example.menu.ui.theme.MenuTheme
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
@@ -58,17 +59,17 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         ) { backStackEntry ->
                             val packageName =
                                 backStackEntry.arguments?.getString("packageName") ?: ""
-                            val viewModel: LoginScreenViewModel = viewModel()
+                            val vm: LoginScreenViewModel = viewModel()
 
                             LoginScreen(
-                                onLoginClick = {
-                                    val id = viewModel.selectedPerson?.pid?.toLong() ?: -1L
+                                onLoginClick = { id ->
                                     launchExternalApp(packageName, id)
                                 },
                                 onContinueWithoutLogin = {
                                     launchExternalApp(packageName, -1L) // als Long übergeben
                                 },
-                                navController = navController
+                                navController = navController,
+                                viewModel = vm
                             )
                         }
                     }
@@ -99,6 +100,11 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     }
 
     private fun launchExternalApp(packageName: String, personId: Long) {
+        if (personId < 0L) {
+            Log.e("PepperMenu", "Abbruch: ungültige person_id=$personId")
+            Toast.makeText(this, "Bitte zuerst eine Person auswählen", Toast.LENGTH_SHORT).show()
+            return
+        }
         val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
             putExtra(Extras.PERSON_ID, personId)
         }
@@ -109,4 +115,17 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
             Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
         }
     }
+
+
+    /*private fun launchExternalApp(packageName: String, personId: Long) {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            putExtra(Extras.PERSON_ID, personId)
+        }
+        if (intent != null) {
+            Log.d("PepperMenu", "Launching pkg=$packageName, person_id=$personId")
+            startActivity(intent)
+        } else {
+            Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
+        }
+    }*/
 }

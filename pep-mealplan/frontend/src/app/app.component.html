@@ -1,0 +1,30 @@
+<div class="topbar" *ngIf="showNavbar">
+  <div class="menu">
+    <h1>Menü Assistent</h1>
+  </div>
+  <div class="routing-container">
+    <a
+      routerLink="/week-plan-management"
+      [class.active]="currentUrl === '/week-plan-management'"
+      >Wochenplan</a>
+    <a
+      routerLink="/overview-orders"
+      [class.active]="currentUrl === '/overview-orders'"
+      >Bestellungsübersicht</a>
+    <a
+      routerLink="/manage-users"
+      [class.active]="currentUrl === '/manage-users'"
+      >Bewohner/innen Verwaltung</a>
+    <a
+      routerLink="/food-management"
+      [class.active]="currentUrl === '/food-management'"
+      >Gerichte</a>
+    <a
+      routerLink="/raster"
+      [class.active]="currentUrl === '/raster'"
+      >Raster</a>
+  </div>
+</div>
+<div>
+  <router-outlet></router-outlet>
+</div>

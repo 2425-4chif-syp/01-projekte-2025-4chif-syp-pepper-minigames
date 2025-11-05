@@ -1,0 +1,285 @@
+.container {
+  display: flex;
+  gap: 32px;
+  padding: 32px;
+}
+
+.week-plan {
+  flex: 2;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  max-height: 700px;
+  overflow: hidden;
+}
+
+.week-reset {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.creation-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+
+  .header-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    .week-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  .header-bottom {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: center;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #f7f7f7;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 13px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+.day-label {
+  background-color: #eef3f9;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.food-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.food-card {
+  min-height: 36px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-weight: 500;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: 0.2s ease;
+  background-color: #f9f9f9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  &.soup-card {
+    background-color: #ffe9cc;
+  }
+
+  &.menu-card {
+    background-color: #d9f7d9;
+  }
+
+  &.dessert-card {
+    background-color: #ffdce0;
+  }
+
+  &.evening-card {
+    background-color: #ddeeff;
+  }
+
+  &.not-allowed {
+    opacity: 0.5;
+    border: 1px dashed red;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+  }
+}
+
+.food-item {
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  cursor: grab;
+  transition: background-color 0.2s ease, border 0.2s ease;
+}
+
+// Stil der gesetzten Items je nach Slot (übernimmt Slot-Hintergrund)
+.soup-card .food-item {
+  background-color: #ffe9cc;
+  border: none;
+}
+
+.menu-card .food-item {
+  background-color: #d9f7d9;
+  border: none;
+}
+
+.dessert-card .food-item {
+  background-color: #ffdce0;
+  border: none;
+}
+
+.evening-card .food-item {
+  background-color: #ddeeff;
+  border: none;
+}
+
+.food-list {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  max-height: 700px;
+
+  h2 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  form {
+    margin-bottom: 14px;
+
+    input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  }
+
+  .food-container {
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .food-card {
+    background: #fefefe;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-weight: 500;
+    font-size: 13px;
+    text-align: left;
+    justify-content: flex-start;
+    cursor: grab;
+    border: 1px solid #ddd;
+    transition: 0.2s ease;
+    color: black;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &.used {
+      background-color: darkgray;
+      color: white;
+    }
+  }
+
+}
+
+@media (max-height: 900px) {
+
+  .week-plan,
+  .food-list {
+    max-height: 600px;
+  }
+}
+
+/* Scrollbars ausblenden */
+.creation-container::-webkit-scrollbar,
+.food-container::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.creation-container,
+.food-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Dragging Platzhalter ausblenden */
+.food-card.cdk-drop-list-dragging {
+  border: none !important;
+}
+
+.food-card.cdk-drag-placeholder {
+  display: none !important;
+}
+
+.food-item:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.custom-tooltip {
+  position: fixed;
+  z-index: 1000;
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 280px;
+  pointer-events: none;
+  white-space: normal;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.list-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+}
