@@ -145,3 +145,144 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Residents
+ *     description: Verwaltung der Bewohner (People)
+ *
+ * components:
+ *   schemas:
+ *     Resident:
+ *       type: object
+ *       properties:
+ *         ID:
+ *           type: integer
+ *           example: 42
+ *         FirstName:
+ *           type: string
+ *           example: Max
+ *         LastName:
+ *           type: string
+ *           example: Mustermann
+ *         DOB:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *           example: 2001-05-17
+ *     ResidentCreate:
+ *       type: object
+ *       required: [FirstName, LastName]
+ *       properties:
+ *         FirstName:
+ *           type: string
+ *           example: Anna
+ *         LastName:
+ *           type: string
+ *           example: Schmidt
+ *         DOB:
+ *           type: string
+ *           format: date
+ *           description: Geburtsdatum (optional, aber benötigt wenn es bereits gleichnamige Personen gibt)
+ *           example: 1999-12-31
+ *     ResidentIdResponse:
+ *       type: integer
+ *       example: 123
+ *     CountResponse:
+ *       type: object
+ *       properties:
+ *         count:
+ *           type: integer
+ *           example: 87
+ *
+ * /api/residents:
+ *   get:
+ *     tags: [Residents]
+ *     summary: Holt alle Bewohner (optional filterbar über Query-Parameter)
+ *     parameters:
+ *       - in: query
+ *         name: FirstName
+ *         schema:
+ *           type: string
+ *         description: Filter nach Vorname (exakte Übereinstimmung)
+ *         example: Max
+ *       - in: query
+ *         name: LastName
+ *         schema:
+ *           type: string
+ *         description: Filter nach Nachname (exakte Übereinstimmung)
+ *         example: Mustermann
+ *       - in: query
+ *         name: DOB
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter nach Geburtsdatum (YYYY-MM-DD)
+ *         example: 2001-05-17
+ *     responses:
+ *       200:
+ *         description: Liste der gefundenen Bewohner
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Resident'
+ *       500:
+ *         description: Serverfehler
+ *   post:
+ *     tags: [Residents]
+ *     summary: Legt einen neuen Bewohner an
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResidentCreate'
+ *     responses:
+ *       201:
+ *         description: Bewohner erfolgreich angelegt (gibt insertId zurück)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ResidentIdResponse'
+ *       400:
+ *         description: Ungültige Eingabe oder Bewohner existiert bereits (ggf. DOB erforderlich)
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/residents/{id}:
+ *   delete:
+ *     tags: [Residents]
+ *     summary: Löscht den Bewohner mit der angegebenen ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Primärschlüssel der Person
+ *         example: 42
+ *     responses:
+ *       204:
+ *         description: Erfolgreich gelöscht (kein Inhalt)
+ *       404:
+ *         description: Bewohner nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/residents/count:
+ *   get:
+ *     tags: [Residents]
+ *     summary: Gibt die Anzahl aller Bewohner zurück
+ *     responses:
+ *       200:
+ *         description: Anzahl der Bewohner
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CountResponse'
+ *       500:
+ *         description: Serverfehler
+ */
