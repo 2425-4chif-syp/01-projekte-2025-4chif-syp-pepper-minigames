@@ -4,10 +4,17 @@
     <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">
       <h2 class="text-xl font-semibold text-gray-700">Mitmachgeschichten - Detail</h2>
       <div>
-        <button [disabled]="disableSaveButton()" class="btn btn-primary mr-2" (click)="saveButton()">
+        <!-- 🎨 Dunkeltürkis: Speichern (#348888) -->
+        <button [disabled]="disableSaveButton()" 
+                class="px-4 py-2 rounded text-white mr-2 transition-all"
+                [ngClass]="disableSaveButton() ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#348888] hover:bg-[#2a6d6d]'"
+                (click)="saveButton()">
           Geschichte speichern
         </button>
-        <button class="btn btn-secondary mr-2" [ngClass]="{'bg-gray-500': isSidebarVisible}" (click)="toggleSidebar()">
+        <!-- 🎨 Helltürkis/Türkis: Zusatzinfos anzeigen (#9EF8EE / #22BABB) -->
+        <button class="px-4 py-2 rounded mr-2 transition-all"
+                [ngClass]="isSidebarVisible ? 'bg-[#22BABB] text-white hover:bg-[#1a9799]' : 'bg-[#9EF8EE] text-gray-800 hover:bg-[#7dd9d1]'"
+                (click)="toggleSidebar()">
           {{ isSidebarVisible ? 'Bilder ausblenden' : 'Bilder anzeigen' }}
         </button>
       </div>
@@ -18,77 +25,110 @@
     <label class="input input-bordered flex items-center gap-2 w-[50%]">
       <input type="text" class="grow text-lg p-2" placeholder="Titel der Geschichte" [(ngModel)]="titleName" />
     </label>    <!-- Titelbild-Upload-Bereich -->
-    <div class="flex flex-col items-center">      <div class="w-[300px] h-[200px] border-2 border-gray-400 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md transition-colors"
-           [ngClass]="{'border-blue-500 bg-blue-50': isDragOverTitle}"
+    <div class="flex flex-col items-center">
+      <!-- 🖼️ KLICKBARES TITELBILD mit Hover-Effekt -->
+      <!-- 🎨 Border: Dunkeltürkis für Upload (#348888) -->
+      <div class="relative w-[300px] h-[200px] border-2 rounded-lg overflow-hidden flex justify-center items-center bg-gray-100 shadow-md transition-colors cursor-pointer group"
+           [ngClass]="isDragOverTitle ? 'border-[#348888] bg-[#9EF8EE]/20' : 'border-gray-400'"
            (dragover)="onDragOver($event); isDragOverTitle = true"
            (dragleave)="isDragOverTitle = false"
-           (drop)="onDropToTitle($event); isDragOverTitle = false">
+           (drop)="onDropToTitle($event); isDragOverTitle = false"
+           (click)="navigateToImageUpload()"
+           title="Klicken um Titelbild hochzuladen">
         <img [src]="titleImage" class="w-full h-full object-cover" alt="Titelbild Vorschau"/>
+        
+        <!-- Hover-Overlay für Upload-Hinweis -->
+        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center pointer-events-none">
+          <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-center">
+            <div class="text-3xl mb-2">📷</div>
+            <div class="text-sm font-semibold">Titelbild hochladen</div>
+          </div>
+        </div>
       </div>
-
-      <!-- Upload-Button -->
-      <button (click)="navigateToImageUpload()" class="mt-2 px-6 py-3 bg-blue-500 text-white text-lg rounded-lg cursor-pointer shadow-md hover:bg-blue-600 transition">
-        📷 Titelbild hochladen
-      </button>
+      
+      <!-- 🎨 Rot: Titelbild entfernen Button (#F24405) -->
+      <div class="tooltip mt-3" data-tip="Hierbei wird das Titelbild entfernt und auf das Standard-Bild zurückgesetzt.">
+        <button 
+          (click)="clearTitleImage()" 
+          [disabled]="isDefaultTitleImage()"
+          [class]="isDefaultTitleImage() ? 'bg-gray-400 text-gray-600 px-4 py-2 rounded text-sm cursor-not-allowed' : 'bg-[#F24405] text-white px-4 py-2 rounded text-sm hover:bg-[#d13904] transition-all'">
+          Titelbild entfernen
+        </button>
+      </div>
     </div>
-
-    <!-- Szene hinzufügen Button -->
-    <button (click)="addScene()" class="bg-green-500 text-white px-6 py-3 text-lg rounded-lg shadow-md hover:bg-green-600 transition">
-      ➕ Szene hinzufügen
-    </button>
   </div>
 
   <div cdkDropList (cdkDropListDropped)="drop($event)" class="space-y-4 mt-6 ml-6 mr-6">
     <div *ngFor="let scene of scenes; let i = index" cdkDrag class="scene-item flex w-full gap-4 p-4 bg-white rounded-lg shadow-md">
-      <div class="drag-handle text-xl cursor-move">☰</div>
+      <!-- 🎨 Türkis: Sonstiges (#22BABB) -->
+      <div class="drag-handle text-xl cursor-move text-[#22BABB]">☰</div>
       <div class="flex-1">
-        <textarea class="w-full border p-2 rounded" placeholder="Gesprochener Text" [(ngModel)]="scene.speech"></textarea>
+        <textarea class="w-full border p-2 rounded focus:border-[#22BABB] focus:outline-none focus:ring-1 focus:ring-[#22BABB] transition-all" placeholder="Gesprochener Text" [(ngModel)]="scene.speech"></textarea>
         <div class="flex gap-2 mt-2">
-          <select class="border p-2 rounded" (change)="updateMovement($event, scene)">
+          <select class="border p-2 rounded focus:border-[#22BABB] focus:outline-none focus:ring-1 focus:ring-[#22BABB] transition-all" (change)="updateMovement($event, scene)">
             <option *ngFor="let moveName of moveNames" [value]="moveName" [selected]="moveName === scene.movement">{{ moveName }}</option>
           </select>
-          <select class="border p-2 rounded" [(ngModel)]="scene.duration">
+          <select class="border p-2 rounded focus:border-[#22BABB] focus:outline-none focus:ring-1 focus:ring-[#22BABB] transition-all" [(ngModel)]="scene.duration">
             <option *ngFor="let dur of duration" [ngValue]="dur">{{ dur }}s</option>
           </select>
-
-
         </div>
-      </div>      <div class="flex flex-col items-center">
-        <div class="w-24 h-25 overflow-hidden rounded border-2 relative transition-all duration-200"
-             [ngClass]="{'border-blue-500 bg-blue-50': scene.isDragOver, 'border-gray-500': !scene.isDragOver}"
+      </div>      
+      
+      <div class="flex flex-col items-center">
+        <!-- 🖼️ VERGRÖSSERTES SZENENBILD mit Click-to-Upload -->
+        <!-- 🎨 Border: Dunkeltürkis für Upload (#348888) -->
+        <div class="w-40 h-40 overflow-hidden rounded border-2 relative transition-all duration-200 cursor-pointer group"
+             [ngClass]="scene.isDragOver ? 'border-[#348888] bg-[#9EF8EE]/20' : 'border-gray-500'"
              (dragover)="onDragOver($event)"
              (dragenter)="onDragEnterScene($event, scene)"
              (dragleave)="onDragLeaveScene($event, scene)"
-             (drop)="onDropToScene($event, scene)">
+             (drop)="onDropToScene($event, scene)"
+             (click)="navigateToSceneImageUpload(i)"
+             title="Klicken um Bild hochzuladen">
           <img [src]="scene.image" class="w-full h-full object-cover" alt="Szenenbild"/>
-          <div *ngIf="scene.isDragOver" class="absolute inset-0 bg-blue-200 bg-opacity-50 flex items-center justify-center">
-            <span class="text-blue-800 text-xs font-semibold">Drop hier</span>
+          
+          <!-- Hover-Overlay für Upload-Hinweis -->
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-center">
+              <div class="text-2xl mb-1">📷</div>
+              <div class="text-xs">Bild hochladen</div>
+            </div>
+          </div>
+          
+          <!-- 🎨 Drag & Drop Overlay: Dunkeltürkis (#348888) -->
+          <div *ngIf="scene.isDragOver" class="absolute inset-0 bg-[#348888]/30 flex items-center justify-center">
+            <span class="text-[#348888] text-sm font-semibold bg-white px-2 py-1 rounded">Drop hier</span>
           </div>
         </div>
         
-        <!-- Bild hochladen Button -->
-        <button (click)="navigateToSceneImageUpload(i)" class="mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded cursor-pointer shadow hover:bg-blue-600 transition">
-          📷 Bild hochladen
-        </button>
-        
-        <div class="tooltip" [attr.data-tip]="isDefaultImage(scene) ? 'Bereits Standard-Bild verwendet' : 'Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.'">
+        <!-- 🎨 Rot: Bild entfernen Button (#F24405) -->
+        <div class="tooltip mt-3" [attr.data-tip]="isDefaultImage(scene) ? 'Bereits Standard-Bild verwendet' : 'Hierbei wird das Bild entfernt, aber die Scene bleibt erhalten.'">
           <button 
             (click)="clearImage(scene)" 
             [disabled]="isDefaultImage(scene)"
-            [class]="isDefaultImage(scene) ? 'mt-2 bg-gray-400 text-gray-600 p-2 rounded text-sm cursor-not-allowed' : 'mt-2 bg-red-500 text-white p-2 rounded text-sm hover:bg-red-600 transition'">
+            [class]="isDefaultImage(scene) ? 'bg-gray-400 text-gray-600 px-3 py-1 rounded text-xs cursor-not-allowed' : 'bg-[#F24405] text-white px-3 py-1 rounded text-xs hover:bg-[#d13904] transition-all'">
             Bild entfernen
           </button>
         </div>
       </div>
 
+      <!-- 🎨 Rot: Szene löschen Button (#F24405) -->
       <div class="tooltip" data-tip="Hierbei wird die Scene entfernt und kann nicht rückgängig gemacht werden.">
-        <button (click)="deleteScene(i)" class="bg-red-500 text-white p-4 px-4 rounded w-17 h-40">
+        <button (click)="deleteScene(i)" class="bg-[#F24405] hover:bg-[#d13904] text-white p-4 px-4 rounded w-17 h-40 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
               <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
             </svg>
         </button>
       </div>
 
+    </div>
+    
+    <!-- 🎯 SZENE HINZUFÜGEN BUTTON - IMMER GANZ UNTEN -->
+    <!-- 🎨 Orange: Erstellen (#FA7F08) -->
+    <div class="flex justify-center mt-8 mb-8">
+      <button (click)="addScene()" class="bg-[#FA7F08] hover:bg-[#e07207] text-white px-8 py-4 text-lg rounded-lg shadow-md transition-all hover:scale-105">
+        ➕ Szene hinzufügen
+      </button>
     </div>
   </div>
 
@@ -98,8 +138,37 @@
        [ngClass]="{'translate-x-0': isSidebarVisible, 'translate-x-full': !isSidebarVisible}">    <div class="sticky top-0 bg-white pb-2 border-b mb-4">
       <h3 class="text-lg font-semibold">Hochgeladene Bilder</h3>
       <p class="text-sm text-gray-500 mt-1">Bilder per Drag & Drop auf das Titelbild oder Bild der Scenen ziehen.</p>
-    </div><div *ngFor="let image of images()" 
-         class="mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+    </div>
+
+    <!-- 🔍 Suchfeld für Bilder -->
+    <div class="search-container mb-4">
+      <div class="flex">
+        <!-- 🎨 Focus: Türkis (#22BABB) -->
+        <input 
+          type="text" 
+          class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm focus:border-[#22BABB] focus:outline-none focus:ring-1 focus:ring-[#22BABB] transition-all" 
+          placeholder="Bilder durchsuchen..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearchChange()">
+        <!-- 🎨 Clear Button: Türkis (#22BABB) -->
+        <button 
+          type="button"
+          class="px-3 py-2 border border-l-0 border-gray-300 rounded-r-md text-sm transition-colors"
+          [ngClass]="searchTerm === '' ? 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-50' : 'bg-[#22BABB] text-white hover:bg-[#1a9799]'"
+          (click)="clearSearch()"
+          [disabled]="searchTerm === ''">
+          ✕
+        </button>
+      </div>
+      <small class="text-xs text-gray-500 mt-1 block">
+        {{filteredImages().length}} von {{allImages().length}} Bildern
+      </small>
+    </div>
+
+    <!-- 🖼️ Bilderliste mit filteredImages() -->
+    <!-- 🎨 Hover: Türkis Border (#22BABB) -->
+    <div *ngFor="let image of filteredImages()" 
+         class="mb-4 cursor-pointer hover:opacity-80 transition-all border-2 border-transparent hover:border-[#22BABB] rounded p-1" 
          draggable="true"
          (dragstart)="onDragStart($event, image)"
          (click)="setSceneImage(selectedScene, image)">
