@@ -812,21 +812,326 @@ module.exports = router;
 
 /**
  * @swagger
- * /api/menu/weekWithSpecials/{date}:
+ * tags:
+ *   - name: Menu
+ *     description: Verwaltung des Menüplans (tägliche und wöchentliche Menüs, CSV-Import, Specials)
+ *
+ * components:
+ *   schemas:
+ *     Picture:
+ *       type: object
+ *       properties:
+ *         Name: { type: string, example: "tomato_soup.jpg" }
+ *         MediaType: { type: string, example: "image/jpeg" }
+ *         Base64: { type: string, description: "Base64-kodierte Bilddaten" }
+ *
+ *     FoodWithPicture:
+ *       type: object
+ *       properties:
+ *         Name: { type: string, example: "Tomatensuppe" }
+ *         Type: { type: string, example: "soup" }
+ *         Picture:
+ *           $ref: '#/components/schemas/Picture'
+ *
+ *     MenuSetDayRequest:
+ *       type: object
+ *       required: [WeekNumber, WeekDay, SoupID, M1ID, M2ID, LunchDessertID, A1ID, A2ID]
+ *       properties:
+ *         WeekNumber: { type: integer, example: 43 }
+ *         WeekDay: { type: integer, description: "0=Montag, …, 6=Sonntag (gemäß Code-Logik)", example: 0 }
+ *         SoupID: { type: integer, example: 2 }
+ *         M1ID: { type: integer, example: 11 }
+ *         M2ID: { type: integer, example: 12 }
+ *         LunchDessertID: { type: integer, example: 21 }
+ *         A1ID: { type: integer, example: 31 }
+ *         A2ID: { type: integer, example: 32 }
+ *
+ *     MenuSetWeekRequest:
+ *       type: object
+ *       required: [WeekNumber, menus]
+ *       properties:
+ *         WeekNumber: { type: integer, example: 43 }
+ *         menus:
+ *           type: array
+ *           items:
+ *             type: object
+ *             required: [WeekDay, SoupID, M1ID, M2ID, LunchDessertID, A1ID, A2ID]
+ *             properties:
+ *               WeekDay: { type: integer, example: 0 }
+ *               SoupID: { type: integer, example: 2 }
+ *               M1ID: { type: integer, example: 11 }
+ *               M2ID: { type: integer, example: 12 }
+ *               LunchDessertID: { type: integer, example: 21 }
+ *               A1ID: { type: integer, example: 31 }
+ *               A2ID: { type: integer, example: 32 }
+ *
+ *     CSVImportRequest:
+ *       type: object
+ *       required: [csv]
+ *       properties:
+ *         csv:
+ *           type: string
+ *           description: >
+ *             CSV-Text mit Header: WeekNumber,WeekDay,Soup,LunchOne,LunchTwo,Dessert,DinnerOne,DinnerTwo
+ *           example: |
+ *             WeekNumber,WeekDay,Soup,LunchOne,LunchTwo,Dessert,DinnerOne,DinnerTwo
+ *             43,0,Tomatensuppe,Lasagne,Carbonara,Apfelstrudel,Schnitzel,Backhendl
+ *
+ *     EnrichedMenu:
+ *       type: object
+ *       properties:
+ *         WeekNumber: { type: integer, example: 43 }
+ *         WeekDay: { type: integer, example: 0 }
+ *         WeekDayString: { type: string, example: "Montag" }
+ *         Soup: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Lunch1: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Lunch2: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         LunchDessert: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Dinner1: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Dinner2: { $ref: '#/components/schemas/FoodWithPicture' }
+ *
+ *     SpecialMealEnriched:
+ *       type: object
+ *       properties:
+ *         Date: { type: string, format: date, example: "2025-11-05" }
+ *         Soup: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Lunch1: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Lunch2: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         LunchDessert: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Dinner1: { $ref: '#/components/schemas/FoodWithPicture' }
+ *         Dinner2: { $ref: '#/components/schemas/FoodWithPicture' }
+ *
+ *     MenuWithIdsForDate:
+ *       allOf:
+ *         - $ref: '#/components/schemas/EnrichedMenu'
+ *         - type: object
+ *           properties:
+ *             ID: { type: integer, example: 123 }
+ *             SoupID: { type: integer, example: 2 }
+ *             Lunch1ID: { type: integer, example: 11 }
+ *             Lunch2ID: { type: integer, example: 12 }
+ *             LunchDessertID: { type: integer, example: 21 }
+ *             Dinner1ID: { type: integer, example: 31 }
+ *             Dinner2ID: { type: integer, example: 32 }
+ *             Date: { type: string, format: date, example: "2025-11-05" }
+ *
+ *     WeekWithSpecialsResponse:
+ *       type: array
+ *       description: Liste von 7 Tagen. Für Tage mit Specials überschreiben die Specials das Tagesmenü.
+ *       items:
+ *         anyOf:
+ *           - $ref: '#/components/schemas/EnrichedMenu'
+ *           - $ref: '#/components/schemas/SpecialMealEnriched'
+ *
+ *     NextWeekResponse:
+ *       type: object
+ *       properties:
+ *         startDate: { type: string, format: date, example: "2025-11-10" }
+ *         endDate: { type: string, format: date, example: "2025-11-16" }
+ *         menus:
+ *           type: array
+ *           items: { $ref: '#/components/schemas/EnrichedMenu' }
+ *
+ *     BasicMessage:
+ *       type: object
+ *       properties:
+ *         message: { type: string, example: "Menu set successfully" }
+ *
+ * /api/menu/week:
+ *   post:
+ *     tags: [Menu]
+ *     summary: Setzt oder aktualisiert das Menü für eine ganze Woche (Upsert je Tag)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/MenuSetWeekRequest' }
+ *     responses:
+ *       200: { description: Week menu set successfully, content: { application/json: { schema: { $ref: '#/components/schemas/BasicMessage' } } } }
+ *       400: { description: Ungültige oder fehlende Felder }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu:
+ *   post:
+ *     tags: [Menu]
+ *     summary: Setzt oder aktualisiert das Menü für einen bestimmten Tag (Upsert)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/MenuSetDayRequest' }
+ *     responses:
+ *       200: { description: Menu set successfully, content: { application/json: { schema: { $ref: '#/components/schemas/BasicMessage' } } } }
+ *       400: { description: Ungültige oder fehlende Felder }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/{id}:
  *   get:
- *     summary: Gibt den Menüplan für eine Woche inklusive Spezialmenüs zurück
+ *     tags: [Menu]
+ *     summary: Lädt ein Menü per ID (inkl. aufgelöster Gerichte)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 123
+ *     responses:
+ *       200:
+ *         description: Menü gefunden
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/EnrichedMenu' }
+ *       404: { description: Menü nicht gefunden }
+ *       500: { description: Serverfehler }
+ *   delete:
+ *     tags: [Menu]
+ *     summary: Löscht ein Menü per ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 123
+ *     responses:
+ *       200: { description: Menu deleted successfully, content: { application/json: { schema: { $ref: '#/components/schemas/BasicMessage' } } } }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/csv:
+ *   post:
+ *     tags: [Menu]
+ *     summary: Importiert Menüs aus CSV (Upsert je Tag)
+ *     description: >
+ *       Erwartete Spalten: WeekNumber, WeekDay, Soup, LunchOne, LunchTwo, Dessert, DinnerOne, DinnerTwo.
+ *       Hinweis: In der Codebasis existieren zwei Implementierungen von /csv – dokumentiere nur einmal.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/CSVImportRequest' }
+ *     responses:
+ *       200: { description: Menüs erfolgreich importiert }
+ *       400: { description: CSV fehlerhaft oder Gericht nicht gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/day/{weekNumber}/{weekDay}:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Lädt das Menü eines bestimmten Tages (inkl. aufgelöster Gerichte)
+ *     parameters:
+ *       - in: path
+ *         name: weekNumber
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 43
+ *       - in: path
+ *         name: weekDay
+ *         required: true
+ *         schema: { type: integer }
+ *         description: "0=Montag … 6=Sonntag (gemäß Code-Logik)"
+ *         example: 0
+ *     responses:
+ *       200: { description: Menü des Tages, content: { application/json: { schema: { $ref: '#/components/schemas/EnrichedMenu' } } } }
+ *       404: { description: Kein Menü für diesen Tag gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/weekStart/{date}:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Lädt den Menüplan der Woche, die das angegebene Datum enthält
  *     parameters:
  *       - in: path
  *         name: date
  *         required: true
- *         schema:
- *           type: string
- *           example: "2025-11-03"
+ *         schema: { type: string, format: date }
+ *         example: "2025-11-03"
  *     responses:
  *       200:
- *         description: Erfolgreich – Menüplan gefunden
- *       404:
- *         description: Kein Menüplan gefunden
- *       500:
- *         description: Serverfehler
+ *         description: Menüplan der Woche
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/EnrichedMenu' }
+ *       404: { description: Kein Menüplan für die Woche gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/weekWithSpecials/{date}:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Gibt den Menüplan der Woche inkl. Spezialmenüs zurück
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema: { type: string, format: date }
+ *         example: "2025-11-03"
+ *     responses:
+ *       200:
+ *         description: Menüplan (7 Tage, Specials überschreiben ggf. Menü)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/WeekWithSpecialsResponse' }
+ *       404: { description: Kein Menüplan gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/date/{date}:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Liefert das Menü für ein Datum (inkl. Food-IDs)
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema: { type: string, format: date }
+ *         example: "2025-11-05"
+ *     responses:
+ *       200:
+ *         description: Menü für das Datum
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/MenuWithIdsForDate' }
+ *       404: { description: Kein Menü gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/week/{weekNumber}:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Lädt den Menüplan einer Woche
+ *     parameters:
+ *       - in: path
+ *         name: weekNumber
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 43
+ *     responses:
+ *       200:
+ *         description: Menüplan der Woche
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/EnrichedMenu' }
+ *       404: { description: Kein Menüplan für die Woche gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/next-week:
+ *   get:
+ *     tags: [Menu]
+ *     summary: Liefert den Menüplan für die nächste Referenz-Woche inkl. Start-/Enddatum
+ *     responses:
+ *       200:
+ *         description: Menüplan nächste Woche
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/NextWeekResponse' }
+ *       404: { description: Kein Menüplan für nächste Woche gefunden }
+ *       500: { description: Serverfehler }
+ *
+ * /api/menu/wipe:
+ *   delete:
+ *     tags: [Menu]
+ *     summary: Löscht alle Menüs
+ *     responses:
+ *       200: { description: All menus deleted successfully, content: { application/json: { schema: { $ref: '#/components/schemas/BasicMessage' } } } }
+ *       500: { description: Serverfehler }
  */
