@@ -1,4 +1,4 @@
-package com.example.mmg.presentation
+package com.example.mmg.presenation
 
 import android.util.Log
 import androidx.compose.foundation.Image
