@@ -7,6 +7,7 @@ import { map, Observable } from 'rxjs';
 import { ImageDto } from '../models/imageDto.model';
 import { ImageJson } from '../models/image-json.model';
 import { ImageResponse } from '../models/image-response.model';
+import { ImagePreview } from '../models/image-preview.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -18,7 +19,6 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class ImageServiceService {
-
   constructor() { }
 
   private url = inject(STORY_URL);
@@ -100,5 +100,9 @@ export class ImageServiceService {
 
   getImageNew(){
     return this.http.get<ImageResponse>(this.url + 'image/pictures');
+  }
+
+  getImageById2(id: number){
+    return this.http.get<ImagePreview>(this.url + `image/picture/${id}`);
   }
 }

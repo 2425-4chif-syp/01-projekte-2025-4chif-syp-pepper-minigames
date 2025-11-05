@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.menu">
 
+    <queries>
+        <package android:name="com.example.memorygame" />
+        <package android:name="com.example.tictactoe" />
+        <package android:name="com.example.essensplan" />
+        <!-- Optional breiter:
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
+        -->
+    </queries>
+
     <!-- Berechtigungen -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -15,9 +27,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Menu"
+        android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Receiver für BOOT_COMPLETED -->
         <receiver
             android:name=".receivers.BootReceiver"
             android:enabled="true"
@@ -27,7 +39,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Hauptaktivität -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

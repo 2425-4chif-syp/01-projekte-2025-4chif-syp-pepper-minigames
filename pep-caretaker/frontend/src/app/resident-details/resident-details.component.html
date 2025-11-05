@@ -1,5 +1,5 @@
-<div class="h-screen container p-8">
-    <div class="bg-white shadow-lg rounded-lg p-6">
+<div class="min-h-screen flex items-start justify-center p-4 py-8">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-[90vw]">
         <h1 class="text-3xl font-bold mb-6">Person - Detail</h1>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -81,7 +81,7 @@
                     </div>
                 </div>
 
-                <!-- ✅ Geburtstag - bearbeitbar (neu hinzugefügt) -->
+                <!-- ✅ Geburtstag - bearbeitbar -->
                 <div class="flex items-center">
                     <label class="w-36 font-bold text-lg">Geburtstag:</label>
                     <div class="flex-1">
@@ -102,50 +102,53 @@
                     @if (isEditing()) {
                         <!-- Bearbeiten-Modus: Speichern & Abbrechen -->
                         <button (click)="saveChanges()" 
-                                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                               style="background-color: #22BABB;" class="px-4 py-2 text-white rounded hover:bg-green-700">
                             Speichern
                         </button>
                         <button (click)="cancelEditing()" 
-                                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                               style="background-color: #F24405;" class="px-4 py-2 text-white rounded hover:bg-gray-700">
                             Abbrechen
                         </button>
                     } @else {
                         <!-- Ansicht-Modus: Bearbeiten & Zurück -->
                         <button (click)="startEditing()" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                               style="background-color: #22BABB;" class="px-4 py-2 text-white rounded hover:bg-blue-700">
                             Bearbeiten
                         </button>
                         <button [routerLink]="['/residents']" 
                                 routerLinkActive="router-link-active" 
-                                class="btn btn-secondary">
+                               style="background-color: #348888;"  class="px-4 py-2 text-white rounded hover:bg-gray-600">
                             Zur Übersicht
                         </button>
                     }
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="mt-6 p-4 bg-gray-100 rounded-lg shadow-inner">
-        <h2 class="text-xl font-bold mb-4 text-gray-700">Bilder-Galerie</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            @for (image of imagesOfPerson(); track $index) {
-                <div class="transition-transform duration-300 hover:scale-105">
-                    <div class="bg-white p-2 rounded-lg shadow-md border-2 border-pink-200 hover:border-pink-500">
-                        <img [src]="'data:image/png;base64,' + image.base64Image" 
-                             alt="Person Image" 
-                             class="w-full h-48 object-cover rounded-md">
+        <!-- ✅ Bilder-Galerie - schmaler mit 3 Spalten -->
+        <div class="mt-8 p-4 bg-gray-100 rounded-lg shadow-inner">
+            <h2 class="text-xl font-bold mb-4 text-gray-700">Bilder-Galerie</h2>
+            <!-- ✅ ÄNDERUNG: 3 Spalten für schmalere Bilder -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @for (image of imagesOfPerson(); track $index) {
+                    <div class="transition-transform duration-300 hover:scale-105">
+                        <!-- ✅ Hover-Rahmenfarbe auf #348888 gesetzt, mit weicher Transition -->
+                        <div class="bg-white p-3 rounded-lg shadow-md border-2 border-gray-200 hover:border-[#348888] transition-colors duration-200 hover:shadow-lg">
+                            <img [src]="'data:image/png;base64,' + image.base64Image" 
+                                 alt="Person Image" 
+                                 class="w-full h-48 object-cover rounded-md">
+                        </div>
                     </div>
-                </div>
-            }
-            @empty {
-                <div class="col-span-full text-center py-8 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
-                    </svg>
-                    <p>No pictures available</p>
-                </div>
-            }
+                }
+                @empty {
+                    <div class="col-span-full text-center py-8 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                        </svg>
+                        <p>No pictures available</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>

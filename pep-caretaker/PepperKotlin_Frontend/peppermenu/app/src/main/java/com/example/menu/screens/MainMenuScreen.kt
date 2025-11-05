@@ -33,6 +33,8 @@ import androidx.compose.ui.layout.ContentScale // Import für ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.example.menu.RoboterActions
 import kotlinx.coroutines.launch
+import com.example.menu.common.Packages
+import com.example.menu.common.openLoginFor
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -48,10 +50,11 @@ fun MainMenuScreen(navController: NavHostController) {
     // Liste mit Bildquellen, Titeln und Package-Namen
     val menuItems = listOf(
         Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to "com.example.mmg"),
-        Pair(R.drawable.memory_game, "Memory" to "com.example.memory"),
-        Pair(R.drawable.tic_tac_toe, "Tic Tac Toe" to "com.example.tictactoe"),
-        Pair(R.drawable.essensplan, "Essensplan" to "com.example.essensplan")
+        Pair(R.drawable.memory_game,      "Memory"            to Packages.MEMORY_GAME),
+        Pair(R.drawable.tic_tac_toe,      "Tic Tac Toe"       to Packages.TIC_TAC_TOE),
+        Pair(R.drawable.essensplan,       "Essensplan"        to Packages.ESSENSPLAN)
     )
+
 
     // Animation für die Farben
     val infiniteTransition = rememberInfiniteTransition()
@@ -164,16 +167,20 @@ fun MenuItem(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                if (title == "Essensplan") {
-                    essensplanClicked = true
-                } else if (needsLogin) {
-                    navController.navigate("login_screen/${packageName}")
-                } else {
-                    val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-                    if (intent != null) {
-                        context.startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
+                when {
+                    title == "Essensplan" -> {
+                        essensplanClicked = true
+                    }
+                    needsLogin -> {
+                        navController.openLoginFor(packageName)
+                    }
+                    else -> {
+                        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+                        if (intent != null) {
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             },
