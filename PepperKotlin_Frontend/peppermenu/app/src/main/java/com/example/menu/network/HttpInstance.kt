@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class HttpInstance {
     companion object {
-        val BACKEND_URL = "http://vm107.htl-leonding.ac.at:8080/"
+        val BACKEND_URL = "http://vm107.htl-leonding.ac.at/"
 
         // Client-Objekt einmal erstellen und wiederverwenden
         private val client = OkHttpClient.Builder()
