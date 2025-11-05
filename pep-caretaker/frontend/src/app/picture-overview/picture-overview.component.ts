@@ -90,7 +90,8 @@ export class PictureOverviewComponent {
           const encodedImages = data.items.map(image => ({
           ...image,
           href: this.transformImageUrl(image.href),
-          originalHref: image.href 
+          originalHref: image.href,
+          id: image.id
         }));
           this.images.set(encodedImages);
           this.standartImages.set(encodedImages);
