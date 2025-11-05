@@ -18,6 +18,10 @@ import e from 'express';
 })
 export class TagalongstoryComponent {
  // private baseUrl = inject(STORY_URL) + 'tagalongstories';
+ // Loading flag for async operations (used to display loader / skeletons)
+
+
+  public loading: boolean = true;
   private baseUrl = "/api/tagalongstories/"
   private http = inject(HttpClient);
   private service = inject(ImageServiceService);
@@ -36,6 +40,11 @@ export class TagalongstoryComponent {
     const startTime = performance.now();
     const url = `${this.baseUrl}?v=${Math.random()}`;
 
+      // Set loading true before starting network request
+
+
+    this.loading = true;
+
     this.http.get<ITagalongStory[]>(url).subscribe(
       (stories) => {
         const loadTime = Math.round(performance.now() - startTime);
@@ -47,9 +56,17 @@ export class TagalongstoryComponent {
           enabled: !!story.enabled
         }));
         this.filteredStories = this.tagalongstoriesAll;
+                // Done loading
+
+
+        this.loading = false;
       },
       (error) => {
         console.error("Fehler beim Laden der Geschichten:", error);
+         // Error path - hide loader so UI can display error or empty state
+
+
+        this.loading = false;
       }
     );
   }

@@ -1,6 +1,45 @@
 <div class="min-h-screen relative">
   <h1 class="text-3xl font-bold text-center tracking-widest">MIT-MACH-GESCHICHTEN</h1>
   
+  <!-- Overlay loader (centered) -->
+
+
+
+  <div *ngIf="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+
+
+    <div class="flex flex-col items-center gap-4">
+
+
+      <svg class="animate-spin h-16 w-16 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+
+
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+
+
+      </svg>
+
+
+      <div class="text-lg font-medium text-gray-700">Geschichten werden geladen</div>
+
+
+      <div class="loader-dots flex items-center mt-1">
+
+
+        <span></span><span></span><span></span>
+
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+
   <div class="flex w-full flex-col items-center mt-10 pb-32">
     <label class="input input-bordered flex items-center gap-2 lg:w-[35%]">
       <input type="text" class="grow" placeholder="Suche" [(ngModel)]="searchTerm" (input)="filterStories()" />
