@@ -6,6 +6,7 @@
         <package android:name="com.example.memorygame" />
         <package android:name="com.example.tictactoe" />
         <package android:name="com.example.essensplan" />
+        <package android:name="com.example.mmg" />
         <!-- Optional breiter:
         <intent>
             <action android:name="android.intent.action.MAIN"/>
