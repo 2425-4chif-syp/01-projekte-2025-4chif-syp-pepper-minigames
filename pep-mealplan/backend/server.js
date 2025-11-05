@@ -6,6 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const logger = require('./utils/logger');
 const updateChecker = require('./utils/updateChecker');
@@ -62,6 +64,29 @@ if (DEBUG_LOGS === 'FILE') {
 })();
 
 const app = express();
+
+
+
+// --- Swagger Setup ---
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Menu Assistent API',
+      version: '1.0.0',
+      description: 'Automatisch generierte API-Dokumentation für das Menu Assistent Backend',
+    },
+    servers: [{ url: 'http://localhost:3000' }],
+  },
+  apis: ['./routes/**/*.js'], // durchsucht alle Route-Dateien
+};
+
+const specs = swaggerJsdoc(options);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+logger.info('Swagger UI verfügbar unter: http://localhost:3000/api/docs');
+
+
 const PORT = process.env.PORT || 3000;
 
 // CORS
