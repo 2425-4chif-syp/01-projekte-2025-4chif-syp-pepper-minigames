@@ -294,39 +294,239 @@ router.patch('/:id', async (req, res) => {
 module.exports = router;
 
 
-
-
 /**
  * @swagger
- * /api/foods:
- *   get:
- *     summary: Gibt alle gespeicherten Gerichte zurück
- *     responses:
- *       200:
- *         description: Erfolgreich – Liste der Gerichte
- *       500:
- *         description: Serverfehler
+ * tags:
+ *   - name: Foods
+ *     description: Verwaltung der Gerichte inkl. Bilder
+ *
+ * components:
+ *   schemas:
+ *     Picture:
+ *       type: object
+ *       properties:
+ *         ID:
+ *           type: integer
+ *           example: 17
+ *         Name:
+ *           type: string
+ *           example: "tomato_soup.jpg"
+ *         MediaType:
+ *           type: string
+ *           example: "image/jpeg"
+ *         Base64:
+ *           type: string
+ *           description: Base64-kodierte Bilddaten
+ *           example: "/9j/4AAQSkZJRgABAQAAAQABAAD…"
+ *
+ *     Food:
+ *       type: object
+ *       properties:
+ *         ID:
+ *           type: integer
+ *           example: 3
+ *         Name:
+ *           type: string
+ *           example: "Tomatensuppe"
+ *         Type:
+ *           type: string
+ *           description: Kategorie (z. B. soup, main, dessert, appetizer)
+ *           example: "soup"
+ *         Picture:
+ *           $ref: '#/components/schemas/Picture'
+ *
+ *     FoodCreateRequest:
+ *       type: object
+ *       required: [Name, Type, Picture]
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: "Caesar Salad"
+ *         Type:
+ *           type: string
+ *           example: "appetizer"
+ *         Allergens:
+ *           type: string
+ *           nullable: true
+ *           description: Optionale Allergen-Information (falls verwendet)
+ *           example: "A,C,G"
+ *         Picture:
+ *           type: object
+ *           required: [Base64, Name, MediaType]
+ *           properties:
+ *             Base64:
+ *               type: string
+ *               description: Base64-kodierte Bilddaten
+ *             Name:
+ *               type: string
+ *               example: "caesar.jpg"
+ *             MediaType:
+ *               type: string
+ *               example: "image/jpeg"
+ *
+ *     FoodUpdateRequest:
+ *       type: object
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: "Spaghetti Bolognese"
+ *         Type:
+ *           type: string
+ *           example: "main"
  *
  * /api/foods:
+ *   get:
+ *     tags: [Foods]
+ *     summary: Liefert alle Gerichte einschließlich Bildinformationen (Base64)
+ *     responses:
+ *       200:
+ *         description: Liste der Gerichte
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Food' }
+ *       500:
+ *         description: Serverfehler
  *   post:
- *     summary: Erstellt ein neues Gericht
+ *     tags: [Foods]
+ *     summary: Erstellt ein neues Gericht mit verknüpftem Bild
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               Name:
- *                 type: string
- *               Type:
- *                 type: string
- *                 example: main
+ *           schema: { $ref: '#/components/schemas/FoodCreateRequest' }
  *     responses:
  *       201:
  *         description: Gericht erfolgreich erstellt
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "Food created successfully" }
+ *                 id: { type: integer, example: 42 }
  *       400:
- *         description: Ungültige Eingabe
+ *         description: Fehlende/ungültige Felder
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/foods/id/{id}:
+ *   get:
+ *     tags: [Foods]
+ *     summary: Liefert ein Gericht anhand der ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 5
+ *     responses:
+ *       200:
+ *         description: Gericht gefunden
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Food' }
+ *       404:
+ *         description: Nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/foods/type/{type}:
+ *   get:
+ *     tags: [Foods]
+ *     summary: Liefert alle Gerichte eines Typs
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema: { type: string }
+ *         example: "main"
+ *     responses:
+ *       200:
+ *         description: Liste der Gerichte für den Typ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Food' }
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/foods/name/{name}:
+ *   get:
+ *     tags: [Foods]
+ *     summary: Sucht Gerichte nach Name (optional exakt)
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         schema: { type: string }
+ *         example: "Schnitzel"
+ *       - in: query
+ *         name: strict
+ *         required: false
+ *         schema: { type: boolean }
+ *         description: true = exakte Übereinstimmung, sonst LIKE-Suche
+ *         example: true
+ *     responses:
+ *       200:
+ *         description: Trefferliste (mind. 1 Element)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Food' }
+ *       404:
+ *         description: Keine Gerichte gefunden
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/foods/{id}:
+ *   patch:
+ *     tags: [Foods]
+ *     summary: Aktualisiert ein Gericht
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 8
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/FoodUpdateRequest' }
+ *     responses:
+ *       200:
+ *         description: Aktualisierung erfolgreich
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "Food updated successfully" }
+ *       400:
+ *         description: Keine gültigen Felder übergeben
+ *       404:
+ *         description: Nicht gefunden
+ *       500:
+ *         description: Serverfehler
+ *   delete:
+ *     tags: [Foods]
+ *     summary: Löscht ein Gericht
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         example: 8
+ *     responses:
+ *       204:
+ *         description: Erfolgreich gelöscht (kein Inhalt)
+ *       404:
+ *         description: Nicht gefunden
  *       500:
  *         description: Serverfehler
  */
+
