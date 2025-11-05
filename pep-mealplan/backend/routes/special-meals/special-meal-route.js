@@ -255,3 +255,198 @@ async function enrichSpecialMeal(meal) {
 }
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Special Meals
+ *     description: Verwaltung der SpecialMeals
+ *
+ * components:
+ *   schemas:
+ *     Picture:
+ *       type: object
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: tomato_soup.jpg
+ *         MediaType:
+ *           type: string
+ *           example: image/jpeg
+ *         Base64:
+ *           type: string
+ *           description: Base64-kodierte Bilddaten
+ *     FoodWithPicture:
+ *       type: object
+ *       properties:
+ *         Name:
+ *           type: string
+ *           example: Tomatensuppe
+ *         Type:
+ *           type: string
+ *           description: Kategorie des Gerichts (z.B. soup, main, dessert, appetizer)
+ *           example: soup
+ *         Picture:
+ *           $ref: '#/components/schemas/Picture'
+ *     SpecialMealCreate:
+ *       type: object
+ *       required: [Date, SoupID, M1ID, M2ID, LunchDessertID, A1ID, A2ID]
+ *       properties:
+ *         Date:
+ *           type: string
+ *           format: date
+ *           example: 2025-11-05
+ *         SoupID:
+ *           type: integer
+ *           example: 1
+ *         M1ID:
+ *           type: integer
+ *           example: 10
+ *         M2ID:
+ *           type: integer
+ *           example: 11
+ *         LunchDessertID:
+ *           type: integer
+ *           example: 20
+ *         A1ID:
+ *           type: integer
+ *           example: 30
+ *         A2ID:
+ *           type: integer
+ *           example: 31
+ *     SpecialMealUpdate:
+ *       type: object
+ *       required: [SoupID, M1ID, M2ID, LunchDessertID, A1ID, A2ID]
+ *       properties:
+ *         SoupID:
+ *           type: integer
+ *         M1ID:
+ *           type: integer
+ *         M2ID:
+ *           type: integer
+ *         LunchDessertID:
+ *           type: integer
+ *         A1ID:
+ *           type: integer
+ *         A2ID:
+ *           type: integer
+ *     SpecialMealEnriched:
+ *       type: object
+ *       properties:
+ *         Date:
+ *           type: string
+ *           format: date
+ *           example: 2025-11-05
+ *         Soup:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         Lunch1:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         Lunch2:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         LunchDessert:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         Dinner1:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *         Dinner2:
+ *           $ref: '#/components/schemas/FoodWithPicture'
+ *
+ * /api/special-meals:
+ *   get:
+ *     tags: [Special Meals]
+ *     summary: Holt alle SpecialMeals inkl. Inhalte (mit Bildern)
+ *     responses:
+ *       200:
+ *         description: Erfolgreich – Liste der SpecialMeals
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/SpecialMealEnriched'
+ *       500:
+ *         description: Serverfehler
+ *   post:
+ *     tags: [Special Meals]
+ *     summary: Erstellt ein neues SpecialMeal für ein Datum
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SpecialMealCreate'
+ *     responses:
+ *       201:
+ *         description: SpecialMeal erfolgreich erstellt
+ *       400:
+ *         description: Ungültige oder fehlende Felder / Eintrag für Datum existiert bereits
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/special-meals/{date}:
+ *   get:
+ *     tags: [Special Meals]
+ *     summary: Holt ein SpecialMeal für ein bestimmtes Datum inkl. Inhalte (mit Bildern)
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Datum im Format YYYY-MM-DD
+ *     responses:
+ *       200:
+ *         description: Erfolgreich – SpecialMeal für das Datum
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SpecialMealEnriched'
+ *       404:
+ *         description: Kein SpecialMeal für das Datum gefunden
+ *       500:
+ *         description: Serverfehler
+ *   put:
+ *     tags: [Special Meals]
+ *     summary: Erstellt oder aktualisiert ein SpecialMeal für ein bestimmtes Datum (Upsert)
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Datum im Format YYYY-MM-DD
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SpecialMealUpdate'
+ *     responses:
+ *       200:
+ *         description: SpecialMeal aktualisiert
+ *       201:
+ *         description: SpecialMeal neu erstellt
+ *       400:
+ *         description: Ungültige oder fehlende Felder
+ *       500:
+ *         description: Serverfehler
+ *   delete:
+ *     tags: [Special Meals]
+ *     summary: Löscht ein SpecialMeal für ein bestimmtes Datum
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Datum im Format YYYY-MM-DD
+ *     responses:
+ *       200:
+ *         description: SpecialMeal erfolgreich gelöscht
+ *       404:
+ *         description: Kein SpecialMeal für das Datum gefunden
+ *       500:
+ *         description: Serverfehler
+ */
