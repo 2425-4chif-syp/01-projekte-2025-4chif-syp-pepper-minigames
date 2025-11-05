@@ -809,3 +809,24 @@ async function enrichSpecialMeal(meal) {
 }
 
 module.exports = router;
+
+/**
+ * @swagger
+ * /api/menu/weekWithSpecials/{date}:
+ *   get:
+ *     summary: Gibt den Menüplan für eine Woche inklusive Spezialmenüs zurück
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "2025-11-03"
+ *     responses:
+ *       200:
+ *         description: Erfolgreich – Menüplan gefunden
+ *       404:
+ *         description: Kein Menüplan gefunden
+ *       500:
+ *         description: Serverfehler
+ */

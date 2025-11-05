@@ -56,3 +56,17 @@ router.get('/:shortname', async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+/**
+ * @swagger
+ * /api/allergens:
+ *   get:
+ *     summary: Gibt alle Allergene zurück
+ *     responses:
+ *       200:
+ *         description: Erfolgreich – Liste der Allergene
+ *       500:
+ *         description: Serverfehler
+ */

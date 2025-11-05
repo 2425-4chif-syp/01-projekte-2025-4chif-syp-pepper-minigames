@@ -292,3 +292,41 @@ router.patch('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+/**
+ * @swagger
+ * /api/foods:
+ *   get:
+ *     summary: Gibt alle gespeicherten Gerichte zurück
+ *     responses:
+ *       200:
+ *         description: Erfolgreich – Liste der Gerichte
+ *       500:
+ *         description: Serverfehler
+ *
+ * /api/foods:
+ *   post:
+ *     summary: Erstellt ein neues Gericht
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               Name:
+ *                 type: string
+ *               Type:
+ *                 type: string
+ *                 example: main
+ *     responses:
+ *       201:
+ *         description: Gericht erfolgreich erstellt
+ *       400:
+ *         description: Ungültige Eingabe
+ *       500:
+ *         description: Serverfehler
+ */
