@@ -11,10 +11,12 @@ import { ResidentsComponent } from './residents/residents.component';
 import { ResidentDetailsComponent } from './resident-details/resident-details.component';
 import { AddResidentComponent } from './add-resident/add-resident.component';
 import { PreviewScreenComponent } from './preview-screen/preview-screen.component';
+import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
   {path: 'tagalongstory', component: TagalongstoryComponent},
-  {path: '', component: HomePageComponent},
+  {path: '', component: LoginComponent},
+  {path: 'homepage', component: HomePageComponent},
   {path: 'addstep/:id', component: AddstepComponent},
   {path: 'editstory/:id', component: EditstoryComponent},
   {path: 'person-entry', component: PersonEntryComponent},
