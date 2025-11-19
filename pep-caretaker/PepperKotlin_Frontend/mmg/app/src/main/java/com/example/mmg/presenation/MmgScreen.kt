@@ -6,28 +6,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.graphics.Color
 import com.example.mmg.viewmodel.MmgViewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.mmg.R
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.material.icons.filled.Refresh
-
 
 @Composable
 fun MmgScreen(
@@ -35,10 +25,15 @@ fun MmgScreen(
     navController: NavController
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val imageMap by viewModel.imageMap.collectAsState()
+    var manuellSelected by remember { mutableStateOf(true) }
+    var selectedTimerSeconds by remember { mutableStateOf(2) }
+    var showTimerDropdown by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadMmgDtos()
+        if (mmgList.isEmpty()) {
+            viewModel.loadMmgDtos()
+        }
     }
 
     Column(
@@ -55,30 +50,79 @@ fun MmgScreen(
         ) {
             Text(
                 text = "Mitmachgeschichten",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.weight(1f),
-
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
             )
             Button(
                 onClick = {
                     viewModel.emptyMmgList()
                     viewModel.loadMmgDtos()
-                },
-                modifier = Modifier.height(56.dp),
-                enabled = !isLoading
+                }
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = "Reload",
-                    modifier = Modifier.size(24.dp)
+                Text(text = "Geschichten laden")
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { 
+                    manuellSelected = true
+                    showTimerDropdown = false
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Geschichten laden",
-                    fontWeight = FontWeight.Bold
+            ) {
+                Text(text = "Manuell")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = { 
+                    manuellSelected = false
+                    showTimerDropdown = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (!manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
+            ) {
+                Text(text = "Automatisch")
+            }
+            
+            if (!manuellSelected && showTimerDropdown) {
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
+                    
+                    Button(
+                        onClick = { expanded = true }
+                    ) {
+                        Text(text = "${selectedTimerSeconds}s")
+                    }
+                    
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        listOf(2,5, 10, 15).forEach { seconds ->
+                            DropdownMenuItem(
+                                text = { 
+                                    Text("${seconds} Sekunden") 
+                                },
+                                onClick = {
+                                    selectedTimerSeconds = seconds
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -104,10 +148,14 @@ fun MmgScreen(
                             .height(80.dp)
                             .clickable {
                                 navController.navigate("step")
-                                viewModel.loadMmgSteps(mmg.id)
+                                viewModel.loadMmgSteps(
+                                    id = mmg.id,
+                                    isManual = manuellSelected,
+                                    timerSeconds = selectedTimerSeconds
+                                )
                                 viewModel.resetStepCount()
                             },
-                        shape = MaterialTheme.shapes.medium,
+                        shape = MaterialTheme.shapes.medium
                     ) {
                         Row(
                             modifier = Modifier
@@ -116,24 +164,46 @@ fun MmgScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            val imageBitmap = mmg.storyIconBase64?.let { viewModel.base64ToBitmap(it) }
-
-                            if (imageBitmap != null) {
-                                Image(
-                                    bitmap = imageBitmap,
-                                    contentDescription = "Story Icon",
-                                    modifier = Modifier.size(80.dp)
-                                )
-                            } else {
-                                Image(
-                                    painter = painterResource(id = R.drawable.default_story_icon),
-                                    contentDescription = "Default Story Icon",
-                                    modifier = Modifier.size(80.dp)
-                                )
+                            val storyIconBitmap = mmg.storyIcon?.id?.let { iconId ->
+                                imageMap[iconId]
                             }
-                            Text(text = mmg.name, style = MaterialTheme.typography.displaySmall)
 
-                            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
+                            Box(
+                                modifier = Modifier.size(80.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (storyIconBitmap != null) {
+                                    Image(
+                                        bitmap = storyIconBitmap,
+                                        contentDescription = "Story Icon",
+                                        modifier = Modifier.size(80.dp)
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.default_story_icon),
+                                        contentDescription = "Default Story Icon",
+                                        modifier = Modifier.size(80.dp)
+                                    )
+                                }
+                            }
+
+                            LaunchedEffect(mmg.storyIcon?.id) {
+                                mmg.storyIcon?.id?.let { iconId ->
+                                    if (!imageMap.containsKey(iconId)) {
+                                        viewModel.loadImageFromApi(iconId)
+                                    }
+                                }
+                            }
+                            
+                            Text(
+                                text = mmg.name, 
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow, 
+                                contentDescription = "Play"
+                            )
                         }
                     }
                 }
