@@ -1,13 +1,11 @@
 package com.example.mmg.navigation
 
-import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.mmg.presentation.MmgScreen
-import com.example.mmg.presenation.StepScreen
+import com.example.mmg.presentation.StepScreen
 import com.example.mmg.viewmodel.MmgViewModel
 
 @Composable
