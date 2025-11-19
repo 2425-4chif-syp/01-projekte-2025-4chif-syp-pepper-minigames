@@ -52,7 +52,8 @@ fun MainMenuScreen(navController: NavHostController) {
         Pair(R.drawable.mitmachgeschichte, "Mitmachgeschichte" to Packages.MMG),
         Pair(R.drawable.memory_game,      "Memory"            to Packages.MEMORY_GAME),
         Pair(R.drawable.tic_tac_toe,      "Tic Tac Toe"       to Packages.TIC_TAC_TOE),
-        Pair(R.drawable.essensplan,       "Essensplan"        to Packages.ESSENSPLAN)
+        Pair(R.drawable.essensplan,       "Essensplan"        to Packages.ESSENSPLAN),
+        Pair(R.drawable.fang_den_dieb, "Fang den Dieb" to Packages.DIEBSPIEL)
     )
 
 
