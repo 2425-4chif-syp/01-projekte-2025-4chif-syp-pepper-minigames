@@ -1,0 +1,79 @@
+<div class="view-options" style="margin-top: 5px;">
+  <mat-slide-toggle [checked]="viewOption === 'kueche'" (change)="onToggleView($event.checked)">
+    {{ viewOption === 'kueche' ? 'Küche' : 'Personal' }}
+  </mat-slide-toggle>
+</div>
+<div class="orders-container">
+  <!-- Bestell-Statistiken -->
+  <div class="order-stats" *ngIf="menu; else noMenu">
+    <h3 class="text-center">Bestellungen am {{ selectedDate | date: 'dd.MM.yyyy' }}</h3>
+    <!-- Gerichte-Statistik nur anzeigen, wenn die Küche-Ansicht aktiv ist -->
+    <ng-container *ngIf="viewOption === 'kueche'">
+      <div class="menu-dishes">
+        <div class="centered-text">
+          <div class="menu-dishes">
+            <div><b>{{ menu.Soup }}:</b> ({{ orderStats.Soup }}) &nbsp;</div>
+            <div><b>{{ menu.Lunch1 }}:</b> ({{ orderStats.Lunch1 }}) &nbsp;</div>
+            <div><b>{{ menu.Lunch2 }}:</b> ({{ orderStats.Lunch2 }}) &nbsp;</div>
+            <div><b>{{ menu.LunchDessert }}:</b> ({{ orderStats.LunchDessert }}) &nbsp;</div>
+            <div><b>{{ menu.Dinner1 }}:</b> ({{ orderStats.Dinner1 }}) &nbsp;</div>
+            <div><b>{{ menu.Dinner2 }}:</b> ({{ orderStats.Dinner2 }})</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <ng-template #noMenu>
+    <div class="order-stats">
+      <h3>Bestellungen am {{ selectedDate | date: 'dd.MM.yyyy' }}</h3>
+      <ng-container *ngIf="viewOption === 'kueche'">
+        <div class="menu-dishes">
+        <div><b>Suppe:</b> ({{ orderStats.Soup }}) &nbsp;</div>
+        <div><b>Mittagessen 1:</b> ({{ orderStats.Lunch1 }}) &nbsp;</div>
+        <div><b>Mittagessen 2:</b> ({{ orderStats.Lunch2 }}) &nbsp;</div>
+        <div><b>Nachspeise:</b> ({{ orderStats.LunchDessert }}) &nbsp;</div>
+        <div><b>Abendessen 1:</b> ({{ orderStats.Dinner1 }}) &nbsp;</div>
+        <div><b>Abendessen 2:</b> ({{ orderStats.Dinner2 }})</div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+  
+
+  <!-- Bewohner-Statistiken -->
+  <div class="resident-stats" *ngIf="residentCount">
+    <p><b>Bestellt:</b> {{ orderedCount }}</p>
+    <p><b>Fehlend:</b> {{ missingCount }}</p>
+  </div>
+
+  <!-- Datums-Filter -->
+  <div class="date-filter">
+    <input type="date" id="dateFilter" [(ngModel)]="selectedDate" (change)="filterOrders()">
+  </div>
+
+  <!-- Bestellungen (Tabelle, wenn nicht "Küche") -->
+  <div class="orders-table-wrapper" *ngIf="viewOption !== 'kueche'">
+    <table>
+      <thead>
+        <tr>
+          <th>Bewohner</th>
+          <th>Suppe</th>
+          <th>Mittagessen</th>
+          <th>Nachspeise</th>
+          <th>Abendessen</th>
+          <th>Bestellt am</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of filteredOrders">
+          <td>{{ order.User.Firstname }} {{ order.User.Lastname }}</td>
+          <td>{{ order.Soup.Name }}</td>
+          <td>{{ order.SelectedLunch.Name }}</td>
+          <td>{{ order.DessertSelected ? order.LunchDessert.Name : 'Keine' }}</td>
+          <td>{{ order.SelectedDinner.Name }}</td>
+          <td>{{ order.OrderedAt }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

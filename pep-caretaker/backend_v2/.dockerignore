@@ -1,0 +1,5 @@
+*
+!src
+!pom.xml
+!.env
+!target/*.jar

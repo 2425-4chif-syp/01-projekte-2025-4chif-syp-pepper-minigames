@@ -1,7 +1,0 @@
-{
-    "/api/**": {
-        "target": "http://vm88.htl-leonding.ac.at:8080",
-        "secure": false,
-        "changeOrigin": true
-    }
-}

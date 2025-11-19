@@ -1,0 +1,55 @@
+<div class="container">
+  <div class="user-list-box">
+    <div class="filter-form">
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Suchen..." />
+    </div>
+    <ng-container *ngIf="!searchLoading; else searchLoadingTpl">
+      <ul class="user-list">
+        <li *ngFor="let user of filteredUsers()" class="user-item">
+          <span>{{ user.Firstname }} {{ user.Lastname }}
+            <small *ngIf="user.DOB">({{ user.DOB | date: 'dd.MM.yyyy' }})</small></span>
+          <button class="delete-button" (click)="deleteUser(user)">
+            Löschen
+          </button>
+        </li>
+        <li *ngIf="filteredUsers().length === 0" class="no-users-message">
+          Keine Benutzer gefunden.
+        </li>
+      </ul>
+    </ng-container>
+    <ng-template #searchLoadingTpl>
+      <div class="list-loading">
+        <mat-spinner></mat-spinner>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="user-form">
+    <h2>Neue Person hinzufügen</h2>
+    <div class="form-group">
+      <label for="firstName">Vorname</label>
+      <input
+        type="text"
+        id="firstName"
+        [(ngModel)]="newUser.Firstname"
+        placeholder="Vorname"
+      />
+    </div>
+    <div class="form-group">
+      <label for="lastName">Nachname</label>
+      <input
+        type="text"
+        id="lastName"
+        [(ngModel)]="newUser.Lastname"
+        placeholder="Nachname"
+      />
+    </div>
+    <div class="form-group" id="dobInput" *ngIf="showDobInput">
+      <label for="dob">Geburtsdatum (benötigt weil es eine andere Person mit diesem Namen gibt)</label>
+      <input type="date" id="dobInput" [(ngModel)]="newUser.DOB" placeholder="Geburtsdatum" />
+    </div>
+    <div class="button-container">
+      <button (click)="addUser()">Hinzufügen</button>
+    </div>
+  </div>
+</div>

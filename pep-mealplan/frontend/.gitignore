@@ -1,0 +1,13 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+
+# Build
+dist/
+.tmp/
+
+# System
+.DS_Store
