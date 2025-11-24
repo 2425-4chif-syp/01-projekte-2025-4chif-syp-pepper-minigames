@@ -12,4 +12,5 @@ export const appConfig: ApplicationConfig = {
     useValue: '/api/'
   },
   provideRouter(routes), provideClientHydration(), provideHttpClient(withFetch())]
+  
 };
