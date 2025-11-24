@@ -13,25 +13,23 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DayPlan, Food, MenuAPIService, WeekPlan } from '../menu-api.service';
 
 @Component({
-  selector: 'app-raster',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    DragDropModule,
-    MatButtonModule,
-    MatIconModule,
-    
-// TODO: `HttpClientModule` should not be imported into a component directly.
-// Please refactor the code to add `provideHttpClient()` call to the provider list in the
-// application bootstrap logic and remove the `HttpClientModule` import from this component.
-HttpClientModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-  ],
-  templateUrl: './raster.component.html',
-  styleUrls: ['./raster.component.scss'],
+    selector: 'app-raster',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule,
+        DragDropModule,
+        MatButtonModule,
+        MatIconModule,
+        // TODO: `HttpClientModule` should not be imported into a component directly.
+        // Please refactor the code to add `provideHttpClient()` call to the provider list in the
+        // application bootstrap logic and remove the `HttpClientModule` import from this component.
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+    ],
+    templateUrl: './raster.component.html',
+    styleUrls: ['./raster.component.scss'],
+    standalone: true,
 })
 export class RasterComponent implements OnInit {
   WEEK_DAYS = [

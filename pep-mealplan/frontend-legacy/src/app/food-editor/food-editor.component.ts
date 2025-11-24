@@ -3,9 +3,10 @@ import { Allergen, Food, MenuAPIService } from '../menu-api.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-food-editor',
-  templateUrl: './food-editor.component.html',
-  styleUrls: ['./food-editor.component.scss']
+    selector: 'app-food-editor',
+    templateUrl: './food-editor.component.html',
+    styleUrls: ['./food-editor.component.scss'],
+    standalone: false
 })
 export class FoodEditorComponent implements OnInit {
   food?: Food;

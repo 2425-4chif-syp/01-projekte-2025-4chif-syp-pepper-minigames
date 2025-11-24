@@ -6,11 +6,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { API_URL } from '../constants';
 
 @Component({
-  selector: 'app-overview-orders',
-  templateUrl: './overview-orders.component.html',
-  styleUrls: ['./overview-orders.component.scss'],
-  standalone: true,
-  imports: [CommonModule, FormsModule, MatSlideToggleModule],
+    selector: 'app-overview-orders',
+    templateUrl: './overview-orders.component.html',
+    styleUrls: ['./overview-orders.component.scss'],
+    imports: [CommonModule, FormsModule, MatSlideToggleModule]
 })
 export class OverviewOrdersComponent implements OnInit {
   // Standardmäßig "Personal" aktiv
