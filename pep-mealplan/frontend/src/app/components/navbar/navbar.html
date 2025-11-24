@@ -1,0 +1,60 @@
+<div class="card">
+  <p-megaMenu
+    [model]="items"
+    [style]="{ display: 'flex' }"
+    class="p-4 bg-indigo-400 justify-around"
+  >
+    <ng-template #start>
+      <img src="pepper.ico"  alt="PEPPER Icon" class="w-10"/>
+    </ng-template>
+
+    <ng-template #item let-item>
+
+      @if (item.root) {
+        <a
+          pRipple
+          class="flex items-center cursor-pointer px-4 py-2 overflow-hidden relative font-semibold text-lg uppercase"
+          style="border-radius: 2rem"
+          [routerLink]="item.routerLink"
+        >
+          <i [ngClass]="item.icon"></i>
+          <span class="ml-2">{{ item.label }}</span>
+        </a>
+      }
+
+      @if (!item.root && !item.image) {
+        <a class="flex items-center p-4 cursor-pointer mb-2 gap-2">
+          <span
+            class="inline-flex items-center justify-center rounded-full bg-primary text-primary-contrast w-12 h-12"
+          >
+            <i [ngClass]="item.icon + ' text-lg'"></i>
+          </span>
+
+          <span class="inline-flex flex-col gap-1">
+            <span class="font-medium text-lg text-surface-900 dark:text-surface-0">
+              {{ item.label }}
+            </span>
+            <span class="whitespace-nowrap">{{ item.subtext }}</span>
+          </span>
+        </a>
+      }
+
+      @if (item.image) {
+        <div class="flex flex-col items-start gap-4">
+          <img [src]="item.image" alt="megamenu-demo" class="w-full" />
+          <span>{{ item.subtext }}</span>
+          <p-button [label]="item.label" [outlined]="true"></p-button>
+        </div>
+      }
+
+    </ng-template>
+
+    <ng-template #end>
+      <p-avatar
+        image="https://imgs.search.brave.com/_iyLNnunOEosdmlE0FgMPuvz-DPiRMSOZgzNPypuGgw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4x/Lmljb25maW5kZXIu/Y29tL2RhdGEvaWNv/bnMvdXNlci1waWN0/dXJlcy8xMDAvdW5r/bm93bi01MTIucG5n"
+        shape="circle"
+        class="w-10"
+      />
+    </ng-template>
+  </p-megaMenu>
+</div>
