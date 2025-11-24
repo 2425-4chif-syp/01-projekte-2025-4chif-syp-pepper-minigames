@@ -6,7 +6,7 @@ import { switchMap, map, catchError, tap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -22,7 +22,11 @@ import { DayPlan, Food, MenuAPIService, WeekPlan } from '../menu-api.service';
     DragDropModule,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule,
+    
+// TODO: `HttpClientModule` should not be imported into a component directly.
+// Please refactor the code to add `provideHttpClient()` call to the provider list in the
+// application bootstrap logic and remove the `HttpClientModule` import from this component.
+HttpClientModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],

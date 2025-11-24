@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { CommonModule } from '@angular/common';  // Import CommonModule
 import { AppRoutingModule, routes } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,36 +24,29 @@ import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    FoodManagementComponent,
-    WeekPlanManagementComponent,
-    FoodEditorComponent,
-    SelectUserComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    DragDropModule,
-    BrowserAnimationsModule,
-    MatToolbarModule,
-    MatMenuModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    FileSaverModule,
-    CommonModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatSnackBarModule 
-  ],
-  providers: [provideRouter(routes, withComponentInputBinding())],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        FoodManagementComponent,
+        WeekPlanManagementComponent,
+        FoodEditorComponent,
+        SelectUserComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        DragDropModule,
+        BrowserAnimationsModule,
+        MatToolbarModule,
+        MatMenuModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatButtonModule,
+        MatDatepickerModule,
+        FileSaverModule,
+        CommonModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatSnackBarModule], providers: [provideRouter(routes, withComponentInputBinding()), provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
