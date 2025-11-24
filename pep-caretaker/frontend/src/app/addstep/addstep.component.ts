@@ -3,13 +3,14 @@ import { IStep } from '../../models/tagalongstories.model';
 import { FormsModule } from '@angular/forms';
 import { MoveHandler } from '../../models/tagalongstories.model';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-addstep',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './addstep.component.html',
-  styleUrl: './addstep.component.css'
+  styleUrls: ['./addstep.component.css']
 })
 export class AddstepComponent {
   public steps: IStep[] = [];
