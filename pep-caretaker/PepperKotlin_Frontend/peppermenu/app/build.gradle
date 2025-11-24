@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.pepperdiebspiel"
+        applicationId "com.example.menu"
         minSdk 23
         targetSdk 32
         versionCode 1

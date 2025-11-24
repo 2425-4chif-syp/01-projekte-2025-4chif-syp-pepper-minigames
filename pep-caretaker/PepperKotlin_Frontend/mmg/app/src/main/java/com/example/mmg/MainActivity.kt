@@ -23,7 +23,6 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         setContent {
             mmgViewModel = viewModel()
             val navController = rememberNavController()
-            mmgViewModel = MmgViewModel(navController = navController)
             AppNavigaton(navController = navController, mmgViewModel = mmgViewModel)
         }
     }
