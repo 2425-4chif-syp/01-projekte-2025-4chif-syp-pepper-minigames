@@ -1,15 +1,15 @@
 <div class="week-container">
-    <div class="header">
-      <button class="back-button" (click)="goBack()">Zurück</button>
-      <div class="person-name">{{ personName }}</div>
-      <div class="week-dates">
-        {{ daysOfWeek[0].date | date:'dd.MM.yyyy' }} - {{ daysOfWeek[6].date | date:'dd.MM.yyyy' }}
-      </div>
+  <div class="header">
+    <button class="back-button" (click)="goBack()">Zurück</button>
+    <div class="person-name">{{ personName }}</div>
+    <div class="week-dates">
+      {{ daysOfWeek[0].date | date:'dd.MM.yyyy' }} - {{ daysOfWeek[6].date | date:'dd.MM.yyyy' }}
     </div>
-    <div class="week-grid">
+  </div>
+  <div class="week-grid">
+    @for (day of daysOfWeek; track day) {
       <div
         class="day"
-        *ngFor="let day of daysOfWeek"
         [ngClass]="{ ordered: day.hasOrder }"
         (click)="onDayClick(day.date)">
         <div class="day-content">
@@ -17,5 +17,6 @@
           <div class="day-date">{{ day.date | date:'dd.MM.yyyy' }}</div>
         </div>
       </div>
-    </div>
-  </div>  
+    }
+  </div>
+</div>
