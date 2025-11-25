@@ -13,9 +13,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun CreateMealPlan(){
+fun CreateMealPlan(
+    viewModel: CreateMealPlanViewModel = viewModel()
+) {
+    if (viewModel.showDayView && viewModel.selectedWeek != null) {
+        DaySelectionView(
+            weekNumber = viewModel.selectedWeek!!,
+            onBackClick = { viewModel.backToWeekSelection() },
+            onDayClick = { dayShort ->
+                // TODO: Navigate to meal selection for specific day
+            }
+        )
+    } else {
+        WeekSelectionView(
+            onWeekClick = { weekNumber ->
+                viewModel.selectWeek(weekNumber)
+            }
+        )
+    }
+}
+
+@Composable
+private fun WeekSelectionView(
+    onWeekClick: (Int) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,11 +62,13 @@ fun CreateMealPlan(){
         ) {
             WeekBox(
                 weekNumber = 1,
-                modifier = Modifier.weight(1f).height(150.dp)
+                modifier = Modifier.weight(1f).height(150.dp),
+                onClick = { onWeekClick(1) }
             )
             WeekBox(
                 weekNumber = 2,
-                modifier = Modifier.weight(1f).height(150.dp)
+                modifier = Modifier.weight(1f).height(150.dp),
+                onClick = { onWeekClick(2) }
             )
         }
         
@@ -52,11 +78,13 @@ fun CreateMealPlan(){
         ) {
             WeekBox(
                 weekNumber = 3,
-                modifier = Modifier.weight(1f).height(150.dp)
+                modifier = Modifier.weight(1f).height(150.dp),
+                onClick = { onWeekClick(3) }
             )
             WeekBox(
                 weekNumber = 4,
-                modifier = Modifier.weight(1f).height(150.dp)
+                modifier = Modifier.weight(1f).height(150.dp),
+                onClick = { onWeekClick(4) }
             )
         }
     }
