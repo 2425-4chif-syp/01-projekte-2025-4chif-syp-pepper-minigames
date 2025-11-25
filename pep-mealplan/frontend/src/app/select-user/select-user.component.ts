@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { UserAPIService, Resident } from '../residents-api.service';
+import {RouterLink} from "@angular/router";
 
 @Component({
     selector: 'app-select-user',
     templateUrl: './select-user.component.html',
     styleUrls: ['./select-user.component.scss'],
-    standalone: false
+    imports: [
+        RouterLink
+    ],
+    standalone: true
 })
 export class SelectUserComponent implements OnInit {
   users: Resident[] = [];
