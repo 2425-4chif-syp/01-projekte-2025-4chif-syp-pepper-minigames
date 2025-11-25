@@ -19,20 +19,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun CreateMealPlan(
     viewModel: CreateMealPlanViewModel = viewModel()
 ) {
-    if (viewModel.showDayView && viewModel.selectedWeek != null) {
-        DaySelectionView(
-            weekNumber = viewModel.selectedWeek!!,
-            onBackClick = { viewModel.backToWeekSelection() },
-            onDayClick = { dayShort ->
-                // TODO: Navigate to meal selection for specific day
-            }
-        )
-    } else {
-        WeekSelectionView(
-            onWeekClick = { weekNumber ->
-                viewModel.selectWeek(weekNumber)
-            }
-        )
+    when {
+        viewModel.showMealSelection && viewModel.selectedDay != null && viewModel.selectedWeek != null -> {
+            // Meal selection view
+            MealSelectionView(
+                weekNumber = viewModel.selectedWeek!!,
+                dayShort = viewModel.selectedDay!!,
+                mealStep = viewModel.currentMealStep,
+                onBackClick = { viewModel.backToDaySelection() },
+                onMealSelected = { mealId -> viewModel.selectMeal(mealId) }
+            )
+        }
+        viewModel.showDayView && viewModel.selectedWeek != null -> {
+            // Day selection view
+            DaySelectionView(
+                weekNumber = viewModel.selectedWeek!!,
+                completedDays = viewModel.completedDays,
+                onBackClick = { viewModel.backToWeekSelection() },
+                onDayClick = { dayShort -> viewModel.selectDay(dayShort) }
+            )
+        }
+        else -> {
+            // Week selection view
+            WeekSelectionView(
+                onWeekClick = { weekNumber -> viewModel.selectWeek(weekNumber) }
+            )
+        }
     }
 }
 

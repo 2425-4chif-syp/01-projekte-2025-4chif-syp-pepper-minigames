@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DaySelectionView(
     weekNumber: Int,
+    completedDays: Set<String>,
     onBackClick: () -> Unit,
     onDayClick: (String) -> Unit = {}
 ) {
@@ -57,17 +58,18 @@ fun DaySelectionView(
         
         // Days in a horizontal scrollable row
         LazyRow(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
             items(weekdays.zip(weekdayNames).zip(dates)) { (dayInfo, date) ->
                 val (dayShort, dayName) = dayInfo
+                val isCompleted = completedDays.contains(dayShort)
                 DayBox(
                     dayShort = dayShort,
                     dayName = dayName,
                     date = date,
+                    isCompleted = isCompleted,
                     onClick = { onDayClick(dayShort) }
                 )
             }
@@ -80,15 +82,22 @@ private fun DayBox(
     dayShort: String,
     dayName: String,
     date: String,
+    isCompleted: Boolean = false,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
-            .width(115.dp)
+            .width(120.dp)
             .height(150.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isCompleted) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
+        )
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -101,18 +110,38 @@ private fun DayBox(
                 Text(
                     text = dayShort,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = if (isCompleted) 
+                        MaterialTheme.colorScheme.onPrimaryContainer 
+                    else 
+                        MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = dayName,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = if (isCompleted) 
+                        MaterialTheme.colorScheme.onPrimaryContainer 
+                    else 
+                        MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = date,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isCompleted) 
+                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    else 
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                
+                if (isCompleted) {
+                    Text(
+                        text = "✓ Fertig",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
