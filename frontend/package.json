@@ -22,6 +22,7 @@
     "@angular/router": "^19.2.0",
     "bootstrap": "^5.3.3",
     "cropperjs": "^1.6.2",
+    "keycloak-js": "^26.2.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
