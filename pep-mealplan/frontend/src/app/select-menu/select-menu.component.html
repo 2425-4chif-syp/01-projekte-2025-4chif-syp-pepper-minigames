@@ -1,0 +1,52 @@
+<div class="header">
+  <div class="navigation">
+    <button class="back-button" (click)="goBack()">Zurück</button>
+    <button class="date-nav-button" id="previous-button" (click)="previousDate()" [disabled]="isPreviousDisabled">
+      << </button>
+    <h1>{{ name }} - {{ date }}</h1>
+    <button class="date-nav-button" id="next-button" (click)="nextDate()" [disabled]="isNextDisabled"> >></button>
+  </div>
+</div>
+<div class="page-layout">
+  <!-- Mittagessen 1 -->
+  <div class="meal" [ngClass]="{ selected: selectedMeal === 'Lunch1' }" (click)="selectMeal('Lunch1')">
+    <img src="assets/sun.png" class="icon" />
+    <img [src]="imgSrc(menu?.Lunch1)" alt="Mittagessen 1" class="meal-image" />
+    <div class="details">
+      <p class="soup-name">{{ menu?.Soup?.Name }}</p>
+      <p class="dish-name">{{ menu?.Lunch1?.Name }}</p>
+      <p class="meal-type">Mittagessen 1</p>
+    </div>
+  </div>
+
+  <!-- Mittagessen 2 -->
+  <div class="meal" [ngClass]="{ selected: selectedMeal === 'Lunch2' }" (click)="selectMeal('Lunch2')">
+    <img src="assets/sun.png" class="icon" />
+    <img [src]="imgSrc(menu?.Lunch2)" alt="Mittagessen 2" class="meal-image" />
+    <div class="details">
+      <p class="soup-name">{{ menu?.Soup?.Name }}</p>
+      <p class="dish-name">{{ menu?.Lunch2?.Name }}</p>
+      <p class="meal-type">Mittagessen 2</p>
+    </div>
+  </div>
+
+  <!-- Abendessen 1 -->
+  <div class="dinner" [ngClass]="{ selected: selectedDinner === 'Dinner1' }" (click)="selectDinner('Dinner1')">
+    <img src="assets/moon.png" class="icon" />
+    <img [src]="imgSrc(menu?.Dinner1)" alt="Abendessen 1" class="meal-image" />
+    <div class="details">
+      <p class="dish-name">{{ menu?.Dinner1?.Name }}</p>
+      <p class="meal-type">Abendessen 1</p>
+    </div>
+  </div>
+
+  <!-- Abendessen 2 -->
+  <div class="dinner" [ngClass]="{ selected: selectedDinner === 'Dinner2' }" (click)="selectDinner('Dinner2')">
+    <img src="assets/moon.png" class="icon" />
+    <img [src]="imgSrc(menu?.Dinner2)" alt="Abendessen 2" class="meal-image" />
+    <div class="details">
+      <p class="dish-name">{{ menu?.Dinner2?.Name }}</p>
+      <p class="meal-type">Abendessen 2</p>
+    </div>
+  </div>
+</div>

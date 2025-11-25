@@ -1,0 +1,274 @@
+:root {
+  --background-color: #f4f6f8;
+  --card-background: #fff;
+  --card-border: #d1d5db;
+  --header-bg: #00529e;
+  --header-text-color: #fff;
+  --food-item-bg: #e6f0ff;
+  --food-item-border: #d1d5db;
+  --food-card-height: 70px;
+  --scrollbar-thumb: #00529e;
+  --scrollbar-track: #e0e0e0;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: var(--background-color);
+}
+
+.week-plan,
+.food-list {
+  background: var(--card-background);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.week-plan h2,
+.food-list h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.week-plan h2 {
+  text-align: center;
+}
+
+.creation-container {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+  text-align: center;
+  max-height: 55vh;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: var(--card-background);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--card-border);
+  position: relative;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.header {
+  grid-column: span 6;
+  background-color: white;
+  color: var(--header-text-color);
+  font-weight: bold;
+  padding: 1rem;
+  position: sticky;
+
+  top: 0;
+  z-index: 100;
+}
+
+.header-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-bottom div {
+  padding: 0.5rem;
+  text-align: center;
+  background-color: var(--food-item-bg);
+  border-radius: 6px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.creation-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.creation-container::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+.creation-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.creation-container::-webkit-scrollbar-thumb:hover {
+  background: #003d7a;
+}
+
+.day-label {
+  grid-column: span 6;
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: #333;
+  background: #eef3f9;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 5px 0;
+}
+
+.food-card {
+  border: 1px solid var(--food-item-border);
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--food-card-height);
+  font-size: 0.85rem;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out;
+  user-select: none;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.food-card:hover {
+  transform: scale(1.03);
+}
+
+.soup-card {
+  background-color: #ffe9cc;
+}
+
+.menu-card {
+  background-color: #d9f7d9;
+}
+
+.evening-card {
+  background-color: #ddeeff;
+}
+
+.dessert-card {
+  background-color: #ffdce0;
+}
+
+.soup-input {
+  width: 100%;
+  border: none;
+  font-size: 0.6rem;
+  text-align: center;
+  background: transparent;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.save-button-container button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: var(--header-bg);
+  color: white;
+  border-radius: 6px;
+  border: none;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.save-button-container button:hover {
+  background-color: #003d7a;
+  transform: scale(1.05);
+}
+
+.upload-container {
+  text-align: center;
+}
+
+.upload-button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  margin-bottom: 10px;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.upload-button:active {
+  background-color: #004494;
+}
+
+.upload-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.food-list {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.food-list h2,
+.food-list form {
+  flex: 0 0 auto;
+}
+
+/* Der scrollbare Bereich (nur die Liste) */
+.food-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.food-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.food-container::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+.food-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.food-container::-webkit-scrollbar-thumb:hover {
+  background: #003d7a;
+}
+
+.food-item {
+  font-size: 0.8rem;
+  padding: 5px;
+}
+
+/* Align dish names to the left in the selectable list */
+.food-list .food-card {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.list-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+}
