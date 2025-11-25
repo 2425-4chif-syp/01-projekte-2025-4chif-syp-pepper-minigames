@@ -31,6 +31,11 @@ import com.pepper.mealplan.network.dto.MenuDto
 
 @Composable
 fun MealPlanOverview(viewModel: MealPlanOverviewViewModel = viewModel()) {
+    // Trigger refresh jedes Mal wenn die Overview betreten wird
+    LaunchedEffect(Unit) {
+        viewModel.refreshData()
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()

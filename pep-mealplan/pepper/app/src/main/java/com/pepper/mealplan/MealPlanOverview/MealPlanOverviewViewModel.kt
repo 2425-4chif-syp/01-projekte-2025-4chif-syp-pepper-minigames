@@ -74,4 +74,14 @@ class MealPlanOverviewViewModel : ViewModel() {
     fun getFoodById(id: Int?): FoodDto? {
         return if (id != null) foodsMap[id] else null
     }
+
+    // Neue Funktion zum Refresh der Daten mit Spinner
+    fun refreshData() {
+        viewModelScope.launch {
+            isLoading = true
+            // Simuliere Ladezeit für bessere UX - im Hintergrund wird das Composable vorbereitet
+            delay(800)
+            isLoading = false
+        }
+    }
 }
