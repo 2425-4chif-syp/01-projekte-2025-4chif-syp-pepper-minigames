@@ -1,61 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd, Event } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { API_URL } from './constants';
+import {Component, OnInit, signal} from '@angular/core';
+import {Router, NavigationEnd, Event, RouterOutlet, RouterLink} from '@angular/router';
+import {MegaMenuItem} from "primeng/api";
+import {NgClass} from "@angular/common";
+import {MegaMenuModule} from "primeng/megamenu";
+import {Ripple} from "primeng/ripple";
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        RouterOutlet,
+        RouterLink,
+        MegaMenuModule,
+        Ripple
+    ],
+    standalone: true
 })
-export class AppComponent implements OnInit {
-  title = 'MenuAssistent_Website';
-  showNavbar = true;
-  currentUrl = '';
+export class AppComponent implements OnInit{
+    items: MegaMenuItem[] | undefined;
+    currentRoute = signal<string>("");
 
-  constructor(private router: Router, private http: HttpClient, private snackBar: MatSnackBar) { }
+    constructor(private router: Router) {}
 
-  ngOnInit() {
-    this.router.events
-      .pipe(
-        filter(
-          (event: Event): event is NavigationEnd =>
-            event instanceof NavigationEnd
-        )
-      )
-      .subscribe((event: NavigationEnd) => {
-        this.currentUrl = event.urlAfterRedirects;
-        const hideNavbarRoutes = [
-          '/select-menu/',
-          '/create-order',
-          '/select-weekday',
+    ngOnInit() {
+
+        this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.currentRoute.set(event.urlAfterRedirects);
+            }
+        });
+
+        this.items = [
+            { label: 'WOCHENPLAN', root: true, routerLink: '/week-plan-management' },
+            { label: 'BESTELLUNGEN', root: true, routerLink: '/overview-orders' },
+            { label: 'BEWOHNER', root: true, routerLink: '/manage-users' },
+            { label: 'GERICHTE', root: true, routerLink: '/food-management' },
+            { label: 'PLANNER', root: true, routerLink: '/raster' }
         ];
-        this.showNavbar = !hideNavbarRoutes.some((route) =>
-          event.urlAfterRedirects.startsWith(route)
-        );
-      });
+    }
 
-    this.http.get<any>(API_URL + '/api/version-check').subscribe((res) => {
-      if (res.updateAvailable) {
-        this.snackBar.open(
-          `ⓘ Hinweis: Eine neue Version (${res.latest}) ist verfügbar. Aktuelle Version: ${res.current}.`,
-          undefined,
-          {
-            duration: 8000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-            panelClass: 'custom-orange-snackbar'
-          }
-        );
-        console.log('Update available:', res.latest);
-        console.log('Current version:', res.current);
-
-      }else{
-        console.log('No update available. Using latest version:', res.current);
-      }
-    });
-  }
 }
