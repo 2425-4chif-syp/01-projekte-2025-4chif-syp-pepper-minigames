@@ -1,35 +1,42 @@
 <div id="content">
-<h1 style="text-align: center; margin-bottom: 40px; font-size: 40px">
-    <ng-container *ngIf="!showNames; else nameHeader">
+  <h1 style="text-align: center; margin-bottom: 40px; font-size: 40px">
+    @if (!showNames) {
       Wählen Sie einen Buchstaben
-    </ng-container>
-    <ng-template #nameHeader>
+    } @else {
       Wählen Sie einen Namen
-    </ng-template>
+    }
   </h1>
-  
-  <main class="container" *ngIf="!showNames">
-    <section class="letter-grid">
-      <div *ngFor="let letter of filteredLetters" class="letter-box" (click)="filterByLetter(letter)">
-        {{ letter }}
-      </div>
-    </section>
-  </main>
-  
-  <main class="container" *ngIf="showNames">
-    <h2 style="text-align: center; margin-bottom: 20px;">
-      Namen mit dem Buchstaben "{{ selectedLetter }}"
-    </h2>
-    <section class="row">
-      <div class="name-row">
-        <div class="name-col" *ngFor="let user of filteredUsers">
-          <a [routerLink]="['/select-weekday', user.Firstname + ' ' + user.Lastname]"
-             class="name-button">
-            {{ user.Lastname }} {{ user.Firstname }}
-          </a>
+
+  @if (!showNames) {
+    <main class="container">
+      <section class="letter-grid">
+        @for (letter of filteredLetters; track letter) {
+          <div class="letter-box" (click)="filterByLetter(letter)">
+            {{ letter }}
+          </div>
+        }
+      </section>
+    </main>
+  }
+
+  @if (showNames) {
+    <main class="container">
+      <h2 style="text-align: center; margin-bottom: 20px;">
+        Namen mit dem Buchstaben "{{ selectedLetter }}"
+      </h2>
+      <section class="row">
+        <div class="name-row">
+          @for (user of filteredUsers; track user) {
+            <div class="name-col">
+              <a [routerLink]="['/select-weekday', user.Firstname + ' ' + user.Lastname]"
+                class="name-button">
+                {{ user.Lastname }} {{ user.Firstname }}
+              </a>
+            </div>
+          }
         </div>
-      </div>
-    </section>
-    <button (click)="backToLetters()" class="back-button">Zurück</button>
-  </main>  
+      </section>
+      <button (click)="backToLetters()" class="back-button">Zurück</button>
+    </main>
+  }
 </div>

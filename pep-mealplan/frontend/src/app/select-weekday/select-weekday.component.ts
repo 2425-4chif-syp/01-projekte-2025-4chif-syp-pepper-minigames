@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { API_URL } from '../constants';
 
 @Component({
-  selector: 'app-select-weekday',
-  standalone: true,
-  imports: [CommonModule, HttpClientModule],
-  templateUrl: './select-weekday.component.html',
-  styleUrls: ['./select-weekday.component.scss']
+    selector: 'app-select-weekday',
+    imports: [CommonModule,
+        // TODO: `HttpClientModule` should not be imported into a component directly.
+        // Please refactor the code to add `provideHttpClient()` call to the provider list in the
+        // application bootstrap logic and remove the `HttpClientModule` import from this component.
+        ],
+    templateUrl: './select-weekday.component.html',
+    styleUrls: ['./select-weekday.component.scss'],
+    standalone: true,
 })
 export class SelectWeekdayComponent implements OnInit {
   daysOfWeek: { date: Date; dayName: string; hasOrder?: boolean }[] = [];

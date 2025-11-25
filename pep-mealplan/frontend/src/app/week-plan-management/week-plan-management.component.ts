@@ -7,9 +7,10 @@ import { tap } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 
 @Component({
-  selector: 'app-week-plan-management',
-  templateUrl: './week-plan-management.component.html',
-  styleUrls: ['./week-plan-management.component.scss']
+    selector: 'app-week-plan-management',
+    templateUrl: './week-plan-management.component.html',
+    styleUrls: ['./week-plan-management.component.scss'],
+    standalone: false
 })
 export class WeekPlanManagementComponent implements OnInit {
   WEEK_DAYS = ['MO','DI','MI','DO','FR','SA','SO'];

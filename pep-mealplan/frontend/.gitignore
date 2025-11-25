@@ -11,3 +11,5 @@ dist/
 
 # System
 .DS_Store
+
+package-lock.json

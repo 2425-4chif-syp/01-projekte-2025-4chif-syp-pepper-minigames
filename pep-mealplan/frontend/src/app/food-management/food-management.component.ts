@@ -7,9 +7,10 @@ import { tap } from 'rxjs/operators';
 import { API_URL } from '../constants';
 
 @Component({
-  selector: 'app-food-management',
-  templateUrl: './food-management.component.html',
-  styleUrls: ['./food-management.component.scss']
+    selector: 'app-food-management',
+    templateUrl: './food-management.component.html',
+    styleUrls: ['./food-management.component.scss'],
+    standalone: false
 })
 export class FoodManagementComponent implements OnInit {
   nameFilter = new FormControl('');

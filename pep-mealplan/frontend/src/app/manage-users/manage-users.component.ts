@@ -5,11 +5,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserAPIService, Resident } from '../residents-api.service';
 
 @Component({
-  selector: 'app-manage-users',
-  standalone: true,
-  imports: [FormsModule, CommonModule, MatProgressSpinnerModule],
-  templateUrl: './manage-users.component.html',
-  styleUrls: ['./manage-users.component.scss']
+    selector: 'app-manage-users',
+    imports: [FormsModule, CommonModule, MatProgressSpinnerModule],
+    templateUrl: './manage-users.component.html',
+    styleUrls: ['./manage-users.component.scss']
 })
 export class ManageUsersComponent implements OnInit {
   users: Resident[] = [];
