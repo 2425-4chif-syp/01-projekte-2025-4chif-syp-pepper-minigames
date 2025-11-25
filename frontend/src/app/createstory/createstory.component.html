@@ -1,4 +1,18 @@
 <div class="min-h-screen relative flex">
+  <!-- 🔄 Loading Overlay für Szenen -->
+  <div *ngIf="isLoadingScenes" class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+    <div class="flex flex-col items-center gap-4">
+      <svg class="animate-spin h-16 w-16 text-[#22BABB]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <div class="text-lg font-medium text-gray-700">Szenen werden geladen</div>
+      <div class="loader-dots flex items-center mt-1">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div class="flex-1 transition-all duration-300" [ngClass]="{'mr-64': isSidebarVisible}">
     <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md mt-6 ml-6 mr-6">

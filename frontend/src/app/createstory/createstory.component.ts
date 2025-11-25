@@ -57,6 +57,7 @@ export class CreatestoryComponent {
   // bild von pngtree => gratis
   titleImage: string = 'assets/images/imageNotFound.png';
   titleName: string = '';
+  isLoadingScenes: boolean = false;
 
   imagesService = inject(ImageServiceService);
   images = signal<ImageJson[]>([]);
@@ -280,6 +281,8 @@ private loadImagesOld(): void {
   }
 
   loadScenes(storyId: number) {
+    this.isLoadingScenes = true;
+    console.log('🔄 Loading scenes...');
     fetch(`/api/tagalongstories/${storyId}/steps`)
       .then((response) => response.json())
       .then((data) => {
@@ -304,8 +307,17 @@ private loadImagesOld(): void {
         // Jetzt erst die Bilder laden für die Upgrades
         console.log('📡 Loading images for scene upgrades...');
         this.loadImages();
+        
+        // Loading-Flag nach kurzer Verzögerung deaktivieren (für UX)
+        setTimeout(() => {
+          this.isLoadingScenes = false;
+          console.log('✅ Scenes loaded');
+        }, 500);
       })
-      .catch((error) => console.error('Error loading scenes:', error));
+      .catch((error) => {
+        console.error('Error loading scenes:', error);
+        this.isLoadingScenes = false;
+      });
   }
 
   private waitForImageServerAndUpgrade(sceneData: any[]) {
@@ -547,12 +559,20 @@ private loadImagesOld(): void {
     });
 
     try {
-      // **1. Alle bestehenden Szenen löschen**
-      await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
+      // 🚀 FIX: Erst alle Szenen löschen, dann neu erstellen
+      // Lösche alle bestehenden Szenen
+      const deleteResponse = await fetch(`/api/tagalongstories/${this.storyId}/steps`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
-      console.log('Alle alten Szenen gelöscht.');      // **2. Neue Szenen speichern**
+      
+      if (!deleteResponse.ok) {
+        console.warn('⚠️ Warnung beim Löschen alter Szenen:', deleteResponse.status);
+      } else {
+        console.log('✅ Alle alten Szenen erfolgreich gelöscht');
+      }
+      
+      // **Neue Szenen speichern**
       for (const [index, scene] of this.scenes.entries()) {
         console.log(`🔍 Raw scene object:`, scene);
         
