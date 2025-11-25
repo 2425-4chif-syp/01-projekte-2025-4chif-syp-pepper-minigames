@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.pepper.mealplan"
         minSdk 23
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -59,7 +59,6 @@ dependencies {
     implementation "androidx.compose.material3:material3:1.0.0"
     implementation "androidx.compose.foundation:foundation:1.2.0"
     implementation "androidx.compose.ui:ui-tooling-preview:1.2.0"
-
 
     implementation "com.google.accompanist:accompanist-pager:0.28.0"
     implementation "com.google.accompanist:accompanist-pager-indicators:0.28.0"
