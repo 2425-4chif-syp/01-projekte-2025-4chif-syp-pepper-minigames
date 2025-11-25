@@ -1,122 +1,214 @@
-@if (!isLoading) {
-  <div cdkDropListGroup class="container">
-    <div class="week-plan">
-      <h2>Wochenplan erstellen</h2>
-      <div class="week-reset">
-        <button mat-raised-button color="primary" (click)="resetDate()">Diese Woche</button>
-        <button mat-raised-button color="accent" style="margin-left: 5px;" (click)="exportAsWord()">
-          Als Word herunterladen
-        </button>
-      </div>
-      <div class="creation-container">
-        <div class="header">
-          <div class="header-top">
-            <button mat-icon-button color="primary" (click)="changeDate(-7)">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <input type="date" (change)="dateChange()" [(ngModel)]="selectedDate">
-            <button mat-icon-button color="primary" (click)="changeDate(7)">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-          <div class="header-bottom">
-            <div>Tagessuppe</div>
-            <div>Menü 1</div>
-            <div>Menü 2</div>
-            <div>Nachspeise</div>
-            <div>Abend 1</div>
-            <div>Abend 2</div>
-          </div>
-        </div>
-        @for (dayPlan of currentWeekPlan!.dayPlans; track dayPlan; let i = $index) {
-          <div class="day-label">{{WEEK_DAYS[i]}} - {{dateCleaned(i)}}</div>
-          <!-- Suppen-Zone -->
-          <div class="food-card soup-card" cdkDropList [cdkDropListEnterPredicate]="soupPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onSoupDrop($event, dayPlan)" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.daySoup) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.daySoup }}</p>
-              </div>
-            }
-          </div>
-          <!-- Menü 1 -->
-          <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuOne')" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.menuOne) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.menuOne }}</p>
-              </div>
-            }
-          </div>
-          <!-- Menü 2 -->
-          <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuTwo')" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.menuTwo) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.menuTwo }}</p>
-              </div>
-            }
-          </div>
-          <!-- Dessert -->
-          <div class="food-card dessert-card" cdkDropList [cdkDropListEnterPredicate]="dessertPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onDessertDrop($event, dayPlan)" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.dessert) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.dessert }}</p>
-              </div>
-            }
-          </div>
-          <!-- Abendessen 1 -->
-          <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningOne')" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.eveningOne) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.eveningOne }}</p>
-              </div>
-            }
-          </div>
-          <!-- Abendessen 2 -->
-          <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-            (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-            (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningTwo')" [ngClass]="{'not-allowed': !isDropAllowed}">
-            @if (dayPlan.eveningTwo) {
-              <div cdkDrag class="food-item">
-                <p>{{ dayPlan.eveningTwo }}</p>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-    <div class="food-list">
-      <h2>Essen</h2>
-      <form>
-        <label for="nameFilter">Suche nach Namen:</label>
-        <input id="nameFilter" [formControl]="nameFilter" type="text">
-      </form>
-      <div class="food-container" cdkDropList (cdkDropListDropped)="dropFoodInFoods($event)">
-        @if (!searchLoading) {
-          @for (food of filteredFood; track food) {
-            <div cdkDrag [cdkDragData]="food" class="food-card">
-              <p>{{ food.Name }}</p>
+@if (!isloading()) {
+    <div
+            cdkDropListGroup
+            class="grid grid-cols-[3fr_1fr] gap-6 p-8"
+    >
+        <!-- LINKER BEREICH: WOCHENPLAN -->
+        <div class=" p-8 rounded-xl">
+            <h2 class="mb-6 text-xl font-bold text-gray-800 text-center">
+                WOCHENPLAN
+            </h2>
+
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <p-button
+                        (click)="resetDate()"
+                        label="Diese Woche"
+                >
+                </p-button>
+                <p-button
+                        (click)="exportAsWord()"
+                        label="Als Word herunterladen"
+                        severity="danger"
+                >
+                </p-button>
             </div>
-          }
-        } @else {
-          <div class="list-loading">
-            <mat-spinner></mat-spinner>
-          </div>
-        }
-      </div>
+
+            <div
+                    class="grid grid-cols-6 gap-4 text-center max-h-[55vh] overflow-y-auto rounded-lg
+                    bg-white shadow-md border border-gray-300 relative select-none box-border"
+            >
+                <!-- Sticky Header -->
+                <div
+                        class="col-span-6 bg-white font-bold p-4 sticky top-0 z-10"
+                >
+                    <div
+                            class="flex items-center justify-center gap-2 mb-3"
+                    >
+                        <button
+                                (click)="changeDate(-7)"
+                        >
+                            <i class="pi pi-chevron-left"></i>
+                        </button>
+
+                        <input
+                                type="date"
+                                (change)="dateChange()"
+                                [(ngModel)]="selectedDate"
+                                class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#00529e]"
+                        />
+
+                        <button
+                                (click)="changeDate(7)"
+                        >
+                            <i class="pi pi-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div
+                            class="flex justify-between items-center gap-2"
+                    >
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            SUPPE
+                        </div>
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            1. MENÜ
+                        </div>
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            2. MENÜ
+                        </div>
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            DESSERT
+                        </div>
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            1. ABEND
+                        </div>
+                        <div
+                                class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm"
+                        >
+                            2. ABEND
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tageszeilen -->
+                @for (dayPlan of currentWeekPlan!.dayPlans; track dayPlan; let i = $index) {
+                    <!-- Tages-Label -->
+                    <div
+                            class="col-span-6 font-bold text-xs text-gray-800 bg-[#eef3f9] px-2 py-2 rounded my-1"
+                    >
+                        {{ WEEK_DAYS[i] }} - {{ dateCleaned(i) }}
+                    </div>
+
+                    <!-- SUPPE -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs
+                            md:text-sm font-bold shadow-sm transition-transform duration-200
+                            select-none cursor-pointer overflow-hidden bg-[#ffe9cc]"
+                    >
+                        @if (dayPlan.daySoup) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.daySoup }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- MENÜ 1 -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs md:text-sm font-bold
+                            shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#d9f7d9]"
+
+                    >
+                        @if (dayPlan.menuOne) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.menuOne }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- MENÜ 2 -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs md:text-sm
+                            font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#d9f7d9]"
+                    >
+                        @if (dayPlan.menuTwo) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.menuTwo }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- DESSERT -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs md:text-sm
+                            font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ffdce0]"
+                    >
+                        @if (dayPlan.dessert) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.dessert }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- ABEND 1 -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs md:text-sm
+                             font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ddeeff]"
+                    >
+                        @if (dayPlan.eveningOne) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.eveningOne }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- ABEND 2 -->
+                    <div
+                            class="border border-gray-300 p-2 flex justify-center items-center h-[70px] text-xs md:text-sm
+                            font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ddeeff]"
+                    >
+                        @if (dayPlan.eveningTwo) {
+                            <div
+                                    class="text-xs md:text-sm px-1"
+                            >
+                                <p>{{ dayPlan.eveningTwo }}</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- RECHTER BEREICH: ESSEN-LISTE -->
+        <div
+                class="flex flex-col p-8 rounded-xl shadow-lg"
+        >
+            <h2 class="mb-4 text-xl font-bold text-gray-800">
+                Personen
+            </h2>
+
+            <h4>Name suchen:</h4>
+
+            <div class="card flex justify-center mt-3">
+                <p-multiSelect [options]="personList" [(ngModel)]="selectedResident"
+                               placeholder="Name suche ..." optionLabel="name" display="chip" class="w-full md:w-80" />
+            </div>
+        </div>
     </div>
-  </div>
 } @else {
-  <div class="loading">
-    <mat-spinner></mat-spinner>
-    <p>Wochenplan wird geladen</p>
-  </div>
+    <div class="flex flex-col justify-center items-center h-screen gap-4">
+        <div class="card flex justify-center">
+                <p-progressSpinner strokeWidth="8" fill="transparent" animationDuration=".5s" [style]="{ width: '50px', height: '50px' }" />
+            <p>WOCHENPLAN Loading ...</p>
+        </div>
+    </div>
 }
