@@ -26,180 +26,47 @@ object DataInserts {
 
     fun createPeople(): List<PersonDto> {
         return listOf(
-            PersonDto(firstname = "Stephanie", lastname = "Segebahn"),
-            PersonDto(firstname = "Heidi", lastname = "Römer"),
-            PersonDto(firstname = "Heinz-Peter", lastname = "Stroh"),
-            PersonDto(firstname = "Marten", lastname = "Wirth"),
-            PersonDto(firstname = "Leni", lastname = "Blümel"),
-            PersonDto(firstname = "Hermann", lastname = "Beckmann"),
-            PersonDto(firstname = "Magdalene", lastname = "Joppich"),
-            PersonDto(firstname = "Rainer", lastname = "Lehmann"),
-            PersonDto(firstname = "Heidi", lastname = "Römer", dob = LocalDate.of(1937, 11, 21)),
-            PersonDto(firstname = "Wilhelm", lastname = "Kohlmann"),
-            PersonDto(firstname = "Elisabeth", lastname = "Neubert"),
-            PersonDto(firstname = "Kurt", lastname = "Müller"),
-            PersonDto(firstname = "Erika", lastname = "Weber"),
-            PersonDto(firstname = "Wolfgang", lastname = "Fischer"),
-            PersonDto(firstname = "Stephanie", lastname = "Segebahn", dob = LocalDate.of(1945, 3, 19)),
-            PersonDto(firstname = "Charlotte", lastname = "Vogel"),
-            PersonDto(firstname = "Horst", lastname = "Zimmermann"),
-            PersonDto(firstname = "Ingrid", lastname = "Krause"),
-            PersonDto(firstname = "Werner", lastname = "Schneider"),
-            PersonDto(firstname = "Marianne", lastname = "Schuster"),
-            PersonDto(firstname = "Friedrich", lastname = "Böhm"),
-            PersonDto(firstname = "Johanna", lastname = "Reinhardt"),
-            PersonDto(firstname = "Günther", lastname = "Hofmann"),
-            PersonDto(firstname = "Heinz-Peter", lastname = "Stroh", dob = LocalDate.of(1940, 6, 15)),
-            PersonDto(firstname = "Angela", lastname = "Schmidt"),
-            PersonDto(firstname = "Hans", lastname = "Meier"),
-            PersonDto(firstname = "Brigitte", lastname = "Scholz"),
-            PersonDto(firstname = "Klaus", lastname = "Bauer"),
-            PersonDto(firstname = "Gisela", lastname = "Wolf")
-        )
-    }
-
-    fun createPictureFiles(): List<PictureFileDto> {
-        return listOf(
-            PictureFileDto(
-                bytes = "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", name = "Bild1.png", mediaType = "image/png"
-            )
+            PersonDto(firstname = "Stephanie", lastname = "Segebahn")
         )
     }
 
     fun createFoods(): List<FoodDto> {
         return listOf(
-            FoodDto(name = "Topfenpalatschinken", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schweinsgeschnetzeltes mit Nudeln und gem. Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Topfenschmarrn mit Kompott", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Einmachhuhn mit Reis und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Spaghetti Carbonara mit gem. Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Käsespätzle mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Faschierter Braten mit Kartoffelpüree und Gemüse", pictureId = 1, type = "main"),
-            FoodDto(name = "Grammelknödel mit Sauerkraut", pictureId = 1, type = "main"),
-            FoodDto(name = "Reisfleisch mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Kaiserschmarrn mit Zwetschkenröster", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Knacker mit Rösti und Spinat", pictureId = 1, type = "main"),
-            FoodDto(name = "Apfelstrudel mit Vanillesauce", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Pizzanudeln mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Hühner-Cordon-bleu mit Kartoffeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Wurstknödel mit Sauerkraut", pictureId = 1, type = "main"),
-            FoodDto(name = "Gebackener Karfiol mit Kartoffeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Cevapcici mit Letscho und Kartoffelpüree", pictureId = 1, type = "main"),
-            FoodDto(name = "Gemüseeintopf mit Grießknödel", pictureId = 1, type = "main"),
-            FoodDto(name = "Seelachs nach Müllerin Art und Kartoffelsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Paprika Hendlragout mit Reis und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Wikingerbällchen mit Nudeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Gebackenes Gemüse mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Erdäpfelgulasch mit Nudeln", pictureId = 1, type = "main"),
-            FoodDto(name = "Krautroulade mit Kartoffeln", pictureId = 1, type = "main"),
-            FoodDto(name = "Fischfilet gebacken mit Kartoffelsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Specklinsen mit Knödeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Fleischstrudelsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Backerbsensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Zwiebelsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Nudelsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Gemüsesuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Grießsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Leberknödelsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Einbrennsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Karottensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Grießnockerlsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Schöberlsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Steinpilzsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Frittatensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Waldbeerjoghurt", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Kaffee und Kuchen", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Muffins", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Obstsalat", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Kekse", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schnitten", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Aprikosenjoghurt", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Süße Überraschung", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Süße Minis", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Grießkoch", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schwarzbrot mit Schafskäse", pictureId = 1, type = "main"),
-            FoodDto(name = "Butterbrot", pictureId = 1, type = "main"),
-            FoodDto(name = "Mohnnudeln", pictureId = 1, type = "main"),
-            FoodDto(name = "Erdäpfelsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Buchteln", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Buchweizenauflauf", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Milchreis", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Saure Frühlingssulz", pictureId = 1, type = "main"),
-            FoodDto(name = "Speckbrot", pictureId = 1, type = "main"),
-            FoodDto(name = "Bauernkrapfen", pictureId = 1, type = "main"),
-            FoodDto(name = "Wurstsemmel", pictureId = 1, type = "main"),
-            FoodDto(name = "Nussnudeln", pictureId = 1, type = "main"),
-            FoodDto(name = "Gulaschsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Schwarzbrot mit Aufstrich", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Verhackert", pictureId = 1, type = "main"),
-            FoodDto(name = "Wurstsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Schinkenbrot", pictureId = 1, type = "main"),
-            FoodDto(name = "Fleischbällchen mit Gurkerl und Senf", pictureId = 1, type = "main"),
-            FoodDto(name = "Gabelbissen", pictureId = 1, type = "main"),
-            FoodDto(name = "Frankfurter mit Gebäck", pictureId = 1, type = "main"),
-            FoodDto(name = "Heurigenjause", pictureId = 1, type = "main"),
-            FoodDto(name = "Laugenstangerl mit Gervais", pictureId = 1, type = "main"),
-            FoodDto(name = "Käsebrot", pictureId = 1, type = "main"),
-            FoodDto(name = "Schinken-Käse-Toast", pictureId = 1, type = "main"),
-            FoodDto(name = "Heiße Kartoffel mit Butter", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Leberaufstrich", pictureId = 1, type = "main"),
-            FoodDto(name = "Eieromelette mit Gebäck", pictureId = 1, type = "main"),
-            FoodDto(name = "Gemüselaibchen mit Kräuterdipp", pictureId = 1, type = "main"),
-            FoodDto(name = "Tiroler Knödel mit Sauerkraut", pictureId = 1, type = "main"),
-            FoodDto(name = "Züricher Geschnetzeltes mit Nockerl und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Spaghetti Bolognese", pictureId = 1, type = "main"),
-            FoodDto(name = "Gebackener Fisch mit Kartoffelsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Rahmgulasch mit Nockerl", pictureId = 1, type = "main"),
-            FoodDto(name = "Gselchtes mit Griesknödel und warmer Krautsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Geröstete Knödel mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Rindsgeschnetzeltes mit Nudeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Lasagne Bolognese mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Ennstaler Bauernknödel mit Sauerkraut", pictureId = 1, type = "main"),
-            FoodDto(name = "Fleischlaibchen mit Püree und Gemüse", pictureId = 1, type = "main"),
-            FoodDto(name = "Gebackenes Hühnerfillet mit Petersilienkartoffeln und Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Florentiner Nudeln mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Tortellini mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Topfenstrudel mit Vanillesauce", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schokopalatschinken", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Topfennockerl mit Beerenröster", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Zwetschkenstrudel", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Wurstnudeln mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Gebackene Palatschinken mit Schinken und Käse", pictureId = 1, type = "main"),
-            FoodDto(name = "Mostviertler Apfelschmarrn mit Kompott", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Nusspalatschinken", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Bunte Spätzlepfanne mit Salat", pictureId = 1, type = "main"),
-            FoodDto(name = "Reisauflauf mit Apfelmus", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Lauchsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Tomatensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Knoblauchsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Eierstichsuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Gemüsecremesuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Haferflockensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Broccolisuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Buchstabensuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Pfifferlingcremesuppe", pictureId = 1, type = "soup"),
-            FoodDto(name = "Erdbeerjoghurt", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Plunder", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schokobanane", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Croissant", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Wurstbrot", pictureId = 1, type = "main"),
-            FoodDto(name = "Grießflammerienockerl", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Pizzatoast", pictureId = 1, type = "main"),
-            FoodDto(name = "Liptauer mit Gebäck", pictureId = 1, type = "main"),
-            FoodDto(name = "Vanillepudding", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Schinkenkipferl", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Camembert und Tomaten", pictureId = 1, type = "main"),
-            FoodDto(name = "Marillenpalatschinken", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Saure Suppe mit Erdäpfelschmarrn", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Kümmelbraten und Kren", pictureId = 1, type = "main"),
-            FoodDto(name = "Nudelsalat", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Streichwurst", pictureId = 1, type = "main"),
-            FoodDto(name = "Mehrkornbrötchen mit Schinken", pictureId = 1, type = "main"),
-            FoodDto(name = "Polenta", pictureId = 1, type = "dessert"),
-            FoodDto(name = "Pizzaecken", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Thunfischaufstrich", pictureId = 1, type = "main"),
-            FoodDto(name = "Saure Wurst mit Gebäck", pictureId = 1, type = "main"),
-            FoodDto(name = "Brot mit Gervais/Kräuteraufstrich", pictureId = 1, type = "main")
+            // 10 Main dishes (main.jpg)
+            FoodDto(id = 1, name = "Schweinsgeschnetzeltes mit Nudeln und gem. Salat", pictureId = null, type = "main"),
+            FoodDto(id = 2, name = "Einmachhuhn mit Reis und Salat", pictureId = null, type = "main"),
+            FoodDto(id = 3, name = "Spaghetti Carbonara mit gem. Salat", pictureId = null, type = "main"),
+            FoodDto(id = 4, name = "Käsespätzle mit Salat", pictureId = null, type = "main"),
+            FoodDto(id = 5, name = "Faschierter Braten mit Kartoffelpüree und Gemüse", pictureId = null, type = "main"),
+            FoodDto(id = 6, name = "Grammelknödel mit Sauerkraut", pictureId = null, type = "main"),
+            FoodDto(id = 7, name = "Reisfleisch mit Salat", pictureId = null, type = "main"),
+            FoodDto(id = 8, name = "Knacker mit Rösti und Spinat", pictureId = null, type = "main"),
+            FoodDto(id = 9, name = "Pizzanudeln mit Salat", pictureId = null, type = "main"),
+            FoodDto(id = 10, name = "Hühner-Cordon-bleu mit Kartoffeln und Salat", pictureId = null, type = "main"),
+            
+            // 10 Soups (soup.jpg)
+            FoodDto(id = 11, name = "Fleischstrudelsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 12, name = "Backerbsensuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 13, name = "Zwiebelsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 14, name = "Nudelsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 15, name = "Gemüsesuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 16, name = "Grießsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 17, name = "Leberknödelsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 18, name = "Einbrennsuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 19, name = "Karottensuppe", pictureId = null, type = "soup"),
+            FoodDto(id = 20, name = "Grießnockerlsuppe", pictureId = null, type = "soup"),
+            
+            // 10 Desserts (dessert.jpg)
+            FoodDto(id = 21, name = "Topfenpalatschinken", pictureId = null, type = "dessert"),
+            FoodDto(id = 22, name = "Topfenschmarrn mit Kompott", pictureId = null, type = "dessert"),
+            FoodDto(id = 23, name = "Kaiserschmarrn mit Zwetschkenröster", pictureId = null, type = "dessert"),
+            FoodDto(id = 24, name = "Apfelstrudel mit Vanillesauce", pictureId = null, type = "dessert"),
+            FoodDto(id = 25, name = "Waldbeerjoghurt", pictureId = null, type = "dessert"),
+            FoodDto(id = 26, name = "Kaffee und Kuchen", pictureId = null, type = "dessert"),
+            FoodDto(id = 27, name = "Muffins", pictureId = null, type = "dessert"),
+            FoodDto(id = 28, name = "Obstsalat", pictureId = null, type = "dessert"),
+            FoodDto(id = 29, name = "Kekse", pictureId = null, type = "dessert"),
+            FoodDto(id = 30, name = "Schnitten", pictureId = null, type = "dessert")
         )
     }
 
@@ -218,9 +85,46 @@ object DataInserts {
             FoodAllergenDto(allergenShortname = "A", foodId = 3),
             FoodAllergenDto(allergenShortname = "C", foodId = 3),
             FoodAllergenDto(allergenShortname = "G", foodId = 3),
-            
-            // Weitere Allergene für alle Foods...
-            // (Vereinfacht, da die Liste sehr lang wäre)
+        )
+    }
+
+    fun createMenus(): List<MenuDto> {
+        return listOf(
+            // Woche 1
+            MenuDto(weekNumber = 1, weekday = "MO", soupId = 11, m1Id = 1, m2Id = 2, lunchDessertId = 21, a1Id = 3, a2Id = 4),
+            MenuDto(weekNumber = 1, weekday = "DI", soupId = 12, m1Id = 3, m2Id = 4, lunchDessertId = 22, a1Id = 5, a2Id = 6),
+            MenuDto(weekNumber = 1, weekday = "MI", soupId = 13, m1Id = 5, m2Id = 6, lunchDessertId = 23, a1Id = 7, a2Id = 8),
+            MenuDto(weekNumber = 1, weekday = "DO", soupId = 14, m1Id = 7, m2Id = 8, lunchDessertId = 24, a1Id = 9, a2Id = 10),
+            MenuDto(weekNumber = 1, weekday = "FR", soupId = 15, m1Id = 9, m2Id = 10, lunchDessertId = 25, a1Id = 1, a2Id = 2),
+            MenuDto(weekNumber = 1, weekday = "SA", soupId = 16, m1Id = 1, m2Id = 3, lunchDessertId = 26, a1Id = 5, a2Id = 7),
+            MenuDto(weekNumber = 1, weekday = "SO", soupId = 17, m1Id = 2, m2Id = 4, lunchDessertId = 27, a1Id = 6, a2Id = 8),
+
+            // Woche 2
+            MenuDto(weekNumber = 2, weekday = "MO", soupId = 18, m1Id = 4, m2Id = 6, lunchDessertId = 28, a1Id = 9, a2Id = 10),
+            MenuDto(weekNumber = 2, weekday = "DI", soupId = 19, m1Id = 8, m2Id = 10, lunchDessertId = 29, a1Id = 1, a2Id = 3),
+            MenuDto(weekNumber = 2, weekday = "MI", soupId = 20, m1Id = 2, m2Id = 5, lunchDessertId = 30, a1Id = 7, a2Id = 9),
+            MenuDto(weekNumber = 2, weekday = "DO", soupId = 11, m1Id = 6, m2Id = 9, lunchDessertId = 21, a1Id = 2, a2Id = 4),
+            MenuDto(weekNumber = 2, weekday = "FR", soupId = 12, m1Id = 1, m2Id = 7, lunchDessertId = 22, a1Id = 8, a2Id = 10),
+            MenuDto(weekNumber = 2, weekday = "SA", soupId = 13, m1Id = 3, m2Id = 8, lunchDessertId = 23, a1Id = 5, a2Id = 6),
+            MenuDto(weekNumber = 2, weekday = "SO", soupId = 14, m1Id = 10, m2Id = 1, lunchDessertId = 24, a1Id = 4, a2Id = 7),
+
+            // Woche 3
+            MenuDto(weekNumber = 3, weekday = "MO", soupId = 15, m1Id = 5, m2Id = 9, lunchDessertId = 25, a1Id = 3, a2Id = 8),
+            MenuDto(weekNumber = 3, weekday = "DI", soupId = 16, m1Id = 7, m2Id = 2, lunchDessertId = 26, a1Id = 6, a2Id = 10),
+            MenuDto(weekNumber = 3, weekday = "MI", soupId = 17, m1Id = 4, m2Id = 1, lunchDessertId = 27, a1Id = 9, a2Id = 5),
+            MenuDto(weekNumber = 3, weekday = "DO", soupId = 18, m1Id = 8, m2Id = 3, lunchDessertId = 28, a1Id = 2, a2Id = 7),
+            MenuDto(weekNumber = 3, weekday = "FR", soupId = 19, m1Id = 6, m2Id = 10, lunchDessertId = 29, a1Id = 1, a2Id = 4),
+            MenuDto(weekNumber = 3, weekday = "SA", soupId = 20, m1Id = 9, m2Id = 5, lunchDessertId = 30, a1Id = 8, a2Id = 3),
+            MenuDto(weekNumber = 3, weekday = "SO", soupId = 11, m1Id = 2, m2Id = 7, lunchDessertId = 21, a1Id = 6, a2Id = 10),
+
+            // Woche 4
+            MenuDto(weekNumber = 4, weekday = "MO", soupId = 12, m1Id = 1, m2Id = 4, lunchDessertId = 22, a1Id = 5, a2Id = 9),
+            MenuDto(weekNumber = 4, weekday = "DI", soupId = 13, m1Id = 10, m2Id = 6, lunchDessertId = 23, a1Id = 7, a2Id = 2),
+            MenuDto(weekNumber = 4, weekday = "MI", soupId = 14, m1Id = 3, m2Id = 8, lunchDessertId = 24, a1Id = 1, a2Id = 4),
+            MenuDto(weekNumber = 4, weekday = "DO", soupId = 15, m1Id = 5, m2Id = 9, lunchDessertId = 25, a1Id = 8, a2Id = 6),
+            MenuDto(weekNumber = 4, weekday = "FR", soupId = 16, m1Id = 7, m2Id = 1, lunchDessertId = 26, a1Id = 3, a2Id = 10),
+            MenuDto(weekNumber = 4, weekday = "SA", soupId = 17, m1Id = 2, m2Id = 10, lunchDessertId = 27, a1Id = 9, a2Id = 5),
+            MenuDto(weekNumber = 4, weekday = "SO", soupId = 18, m1Id = 4, m2Id = 8, lunchDessertId = 28, a1Id = 7, a2Id = 1)
         )
     }
 
@@ -228,9 +132,9 @@ object DataInserts {
         return DataInsertCollection(
             allergens = createAllergens(),
             people = createPeople(),
-            pictureFiles = createPictureFiles(),
             foods = createFoods(),
-            foodAllergens = createFoodAllergens()
+            foodAllergens = createFoodAllergens(),
+            menus = createMenus()
         )
     }
 }
@@ -238,7 +142,7 @@ object DataInserts {
 data class DataInsertCollection(
     val allergens: List<AllergenDto>,
     val people: List<PersonDto>,
-    val pictureFiles: List<PictureFileDto>,
     val foods: List<FoodDto>,
-    val foodAllergens: List<FoodAllergenDto>
+    val foodAllergens: List<FoodAllergenDto>,
+    val menus: List<MenuDto>
 )
