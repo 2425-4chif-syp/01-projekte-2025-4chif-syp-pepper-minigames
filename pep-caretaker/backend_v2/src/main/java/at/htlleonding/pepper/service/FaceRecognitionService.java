@@ -32,7 +32,7 @@ public class FaceRecognitionService {
 
             return CompletableFuture.supplyAsync(() -> processFaceMatches(searchFacesResponse)).get();
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing image").build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing image" + e).build();
         }
     }
 
