@@ -18,19 +18,30 @@ fun FaceRecognitionScreen(
     onAuthenticationSuccess: () -> Unit = {},
     viewModel: FaceRecognitionViewModel = viewModel()
 ){
+    // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
+    val isLoading by viewModel.isLoading
+    val foundPerson by viewModel.foundPerson
 
+    // Setze das Callback im ViewModel
+    LaunchedEffect(onAuthenticationSuccess) {
+        viewModel.setOnAuthenticationSuccess(onAuthenticationSuccess)
+    }
+
+    // LaunchedEffect für das initiale Aufrufen beim Laden der Seite
     LaunchedEffect(Unit) {
         viewModel.talkToPerson()
     }
 
+    // LaunchedEffect für kontinuierliches Monitoring der Human Awareness
     LaunchedEffect(isMonitoring) {
         while (isMonitoring) {
             viewModel.talkToPerson()
-            delay(3000)
+            delay(3000) // Prüfe alle 3 Sekunden
         }
     }
 
+    // Stoppe das Monitoring wenn die Composable verlassen wird
     DisposableEffect(Unit) {
         onDispose {
             isMonitoring = false
@@ -53,18 +64,28 @@ fun FaceRecognitionScreen(
             
             Button(
                 onClick = { 
-                    // TODO: Implement face recognition logic
-                    isMonitoring = false
-                    onAuthenticationSuccess()
+                    if (!isLoading) {
+                        isMonitoring = false // Stoppe das Monitoring beim Foto machen
+                        viewModel.takePicture()
+                        // Remove the incorrect callback check - let the ViewModel handle success
+                    }
                 },
                 modifier = Modifier.size(180.dp),
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.large,
+                enabled = !isLoading
             ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Kamera starten",
-                    modifier = Modifier.size(100.dp)
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(60.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Kamera starten",
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
             }
         }
     }
