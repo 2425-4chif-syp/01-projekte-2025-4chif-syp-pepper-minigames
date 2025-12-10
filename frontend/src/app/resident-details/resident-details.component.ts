@@ -30,6 +30,9 @@ export class ResidentDetailsComponent implements OnInit {
   editPassword = signal<string>('');
   editRole = signal<string>('');
   selectedRole = signal<string>('');
+  selectedImage = signal<string | null>(null);
+  imageFile = signal<File | null>(null);
+  currentProfileImage = signal<string | null>(null);
 
   startEditing() {
     const resident = this.residentOfId();
@@ -88,12 +91,59 @@ export class ResidentDetailsComponent implements OnInit {
     this.imageService.getImageById(this.actId).subscribe({
       next: data => {
         this.imagesOfPerson.set(data);
+        // Setze das erste Bild als aktuelles Profilbild
+        if (data.length > 0) {
+          this.currentProfileImage.set('data:image/png;base64,' + data[0].base64Image);
+        }
       },
       error: error => {
         console.error("Laden der Bilder fehlgeschlagen." + error.name);
       }
     });
   }    
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.imageFile.set(file);
+      
+      // Preview erstellen
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImage.set(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeNewImage() {
+    this.selectedImage.set(null);
+    this.imageFile.set(null);
+  }
+
+  uploadNewImage() {
+    const base64Image = this.selectedImage()?.split(',')[1];
+    if (!base64Image) return;
+
+    const imageData: ImageModel = {
+      personId: this.actId,
+      base64Image: base64Image,
+      description: 'Profilbild'
+    };
+
+    this.imageService.uploadImage(imageData).subscribe({
+      next: () => {
+        console.log('Bild erfolgreich hochgeladen');
+        this.selectedImage.set(null);
+        this.imageFile.set(null);
+        this.loadImages();
+      },
+      error: error => {
+        console.error('Fehler beim Hochladen des Bildes:', error);
+      }
+    });
+  }
 
   saveChanges(){
     const updatedPerson: Person = {
@@ -111,7 +161,13 @@ export class ResidentDetailsComponent implements OnInit {
         console.log("Person erfolgreich aktualisiert:", data);
         this.residentOfId.set(data);
         this.isEditing.set(false);
-        this.getResidentById(this.actId);
+        
+        // Wenn ein neues Bild ausgewählt wurde, hochladen
+        if (this.selectedImage()) {
+          this.uploadNewImage();
+        } else {
+          this.getResidentById(this.actId);
+        }
       },
       error: (error) => {
         console.error("Aktualisierung der Person fehlgeschlagen." + error.name);

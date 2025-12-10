@@ -65,16 +65,13 @@ export class ResidentsComponent {
       const imageMap = new Map<number, string>();
       results.forEach(result => {
         if (result.images.length > 0) {
-          const firstImageId = result.images[0].id;
-          imageMap.set(result.personId, this.getImagorUrl(firstImageId));
+          // Verwende Base64-Daten direkt als Data-URL
+          const base64Image = result.images[0].base64Image;
+          imageMap.set(result.personId, `data:image/png;base64,${base64Image}`);
         }
       });
       this.profileImages.set(imageMap);
     });
-  }
-
-  getImagorUrl(imageId: number): string {
-    return `https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/150x150/smart/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2F${imageId}?ngsw-bypass=true`;
   }
 
   getProfileImage(personId: number): string {
