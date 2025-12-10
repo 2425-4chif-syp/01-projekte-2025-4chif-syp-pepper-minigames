@@ -38,6 +38,9 @@ fun AppNavigation(navController: NavHostController){
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
+    // Extrahiere foundPerson aus der aktuellen Route
+    val foundPerson = navBackStackEntry?.arguments?.getString("foundPerson") ?: ""
+    
     // Zeige BottomNavigation nur an, wenn wir nicht auf dem FaceRecognition Screen sind
     val showBottomNav = currentRoute != "face_recognition"
     
@@ -52,7 +55,7 @@ fun AppNavigation(navController: NavHostController){
                         BottomNavigationItem(
                             icon = { Icon(item.icon, contentDescription = item.title) },
                             label = { Text(item.title) },
-                            selected = currentRoute == item.route,
+                            selected = currentRoute?.startsWith(item.route) == true,
                             onClick = {
                                 if (item.route == "logout") {
                                     navController.navigate("face_recognition") {
@@ -60,7 +63,7 @@ fun AppNavigation(navController: NavHostController){
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    navController.navigate(item.route) {
+                                    navController.navigate("${item.route}/$foundPerson") {
                                         popUpTo(navController.graph.startDestinationId)
                                         launchSingleTop = true
                                     }
@@ -81,15 +84,21 @@ fun AppNavigation(navController: NavHostController){
         ) {
             composable("face_recognition") { 
                 FaceRecognitionScreen(
-                    onAuthenticationSuccess = {
-                        navController.navigate("overview") {
+                    onAuthenticationSuccess = { foundPerson ->
+                        navController.navigate("overview/$foundPerson") {
                             popUpTo("face_recognition") { inclusive = true }
                         }
                     }
                 )
             }
-            composable("overview") { MealPlanOverview() }
-            composable("create") { CreateMealPlan() }
+            composable("overview/{foundPerson}") { backStackEntry ->
+                val foundPerson = backStackEntry.arguments?.getString("foundPerson") ?: ""
+                MealPlanOverview(foundPerson = foundPerson)
+            }
+            composable("create/{foundPerson}") { backStackEntry ->
+                val foundPerson = backStackEntry.arguments?.getString("foundPerson") ?: ""
+                CreateMealPlan(foundPerson = foundPerson)
+            }
         }
     }
 }
