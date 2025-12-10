@@ -1,2 +1,49 @@
 package com.pepper.mealplan.faceRecognition
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun FaceRecognitionScreen(
+    onAuthenticationSuccess: () -> Unit = {}
+){
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = "Gesichtserkennung",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Button(
+                onClick = { 
+                    // TODO: Implement face recognition logic
+                    // Für jetzt simulieren wir eine erfolgreiche Authentifizierung
+                    onAuthenticationSuccess()
+                },
+                modifier = Modifier.size(180.dp),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Kamera starten",
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+        }
+    }
+}
