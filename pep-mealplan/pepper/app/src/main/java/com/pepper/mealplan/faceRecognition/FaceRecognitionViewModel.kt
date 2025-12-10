@@ -14,6 +14,8 @@ class FaceRecognitionViewModel : ViewModel(){
     
     val isLoading = mutableStateOf(false)
     val foundPerson = mutableStateOf("")
+    private var hasSpokenToPerson = mutableStateOf(false)
+    private var previousHumanAwareness: Any? = null
     private var onAuthenticationSuccess: (() -> Unit)? = null
     
     fun setOnAuthenticationSuccess(callback: () -> Unit) {
@@ -22,9 +24,18 @@ class FaceRecognitionViewModel : ViewModel(){
     
     fun talkToPerson(){
         viewModelScope.launch(Dispatchers.IO) {
-            if(RoboterActions.getHumanAwarness() != null){
+            val currentHumanAwareness = RoboterActions.getHumanAwarness()
+
+            if (previousHumanAwareness == null && currentHumanAwareness != null) {
+                hasSpokenToPerson.value = false
+            }
+            
+            if(currentHumanAwareness != null && !hasSpokenToPerson.value){
+                hasSpokenToPerson.value = true
                 RoboterActions.speak("Haben Sie schon Ihre Mahlzeiten eingetragen?")
             }
+            
+            previousHumanAwareness = currentHumanAwareness
         }
     }
 
@@ -35,11 +46,9 @@ class FaceRecognitionViewModel : ViewModel(){
 
             try {
                 RoboterActions.speak("Ich mache kurz ein Foto von Ihnen")
-                
-                // Wait a bit to ensure the speech finishes
+
                 delay(3000)
 
-                // Warte auf das Bild
                 RoboterActions.takePicture { image ->
                     capturedImageDeferred.complete(image)
                 }
@@ -52,26 +61,21 @@ class FaceRecognitionViewModel : ViewModel(){
                 withContext(Dispatchers.Main) {
                     if (isResponseValid(response) && response != "" && response != null) {
                         foundPerson.value = response
-                        
-                        // Wait a moment before speaking the greeting
-                        delay(1000)
-                        RoboterActions.speak("Hallo " + response + " Was wollen Sie essen?")
-                        
-                        // Wait for greeting to finish, then call success callback
-                        delay(3000)
+
+                        delay(2000)
                         onAuthenticationSuccess?.invoke()
+                        RoboterActions.speak("Hallo " + response + " Was wollen Sie essen?")
 
                     } else {
                         delay(1000)
                         RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                        isLoading.value = false
                     }
                 }
             } catch (e: Exception) {
                 delay(1000)
                 RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
                 Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-            }
-            finally {
                 isLoading.value = false
             }
         }

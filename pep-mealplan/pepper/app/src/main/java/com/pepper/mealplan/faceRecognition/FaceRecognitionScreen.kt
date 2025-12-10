@@ -11,37 +11,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pepper.mealplan.RoboterActions
 import kotlinx.coroutines.delay
 
 @Composable
 fun FaceRecognitionScreen(
-    onAuthenticationSuccess: () -> Unit = {},
+    onAuthenticationSuccess: (String) -> Unit,
     viewModel: FaceRecognitionViewModel = viewModel()
-){
+) {
     // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
     val foundPerson by viewModel.foundPerson
 
-    // Setze das Callback im ViewModel
-    LaunchedEffect(onAuthenticationSuccess) {
-        viewModel.setOnAuthenticationSuccess(onAuthenticationSuccess)
-    }
-
-    // LaunchedEffect für das initiale Aufrufen beim Laden der Seite
+    // Set callback to pass foundPerson when authentication succeeds
     LaunchedEffect(Unit) {
-        viewModel.talkToPerson()
-    }
-
-    // LaunchedEffect für kontinuierliches Monitoring der Human Awareness
-    LaunchedEffect(isMonitoring) {
-        while (isMonitoring) {
-            viewModel.talkToPerson()
-            delay(3000) // Prüfe alle 3 Sekunden
+        viewModel.setOnAuthenticationSuccess {
+            onAuthenticationSuccess(foundPerson)
         }
     }
 
-    // Stoppe das Monitoring wenn die Composable verlassen wird
+    LaunchedEffect(Unit) {
+        delay(1000)
+        viewModel.talkToPerson()
+    }
+
+    LaunchedEffect(isMonitoring) {
+        while (isMonitoring) {
+            viewModel.talkToPerson()
+            delay(3000)
+        }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
             isMonitoring = false
@@ -63,12 +64,16 @@ fun FaceRecognitionScreen(
             )
             
             Button(
-                onClick = { 
+                onClick = {
+                    onAuthenticationSuccess.invoke("Nikola Mladenovic")
+
+                    // Development auskommtieren
+                    /*
                     if (!isLoading) {
-                        isMonitoring = false // Stoppe das Monitoring beim Foto machen
+                        isMonitoring = false
                         viewModel.takePicture()
-                        // Remove the incorrect callback check - let the ViewModel handle success
                     }
+                    */
                 },
                 modifier = Modifier.size(180.dp),
                 shape = MaterialTheme.shapes.large,
