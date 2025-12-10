@@ -29,13 +29,18 @@ data class DayMealsUi(
     val meals: List<MealItem>
 )
 
-class MealPlanOverviewViewModel : ViewModel() {
+class MealPlanOverviewViewModel(
+    private val foundPerson: String = ""
+) : ViewModel() {
 
     var currentWeek by mutableStateOf(1)
         private set
 
     var isLoading by mutableStateOf(true)
         private set
+
+    // Getter für foundPerson falls andere Komponenten darauf zugreifen müssen
+    val personName: String get() = foundPerson
 
     private val allData by lazy { DataInserts.getAllData() }
 

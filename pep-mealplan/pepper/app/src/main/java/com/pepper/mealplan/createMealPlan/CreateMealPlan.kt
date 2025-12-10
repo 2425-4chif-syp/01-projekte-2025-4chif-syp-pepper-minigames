@@ -13,11 +13,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun CreateMealPlan(
-    viewModel: CreateMealPlanViewModel = viewModel()
+    foundPerson: String = "",
+    viewModel: CreateMealPlanViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return CreateMealPlanViewModel(foundPerson) as T
+            }
+        }
+    )
 ) {
     when {
         viewModel.showMealSelection && viewModel.selectedDay != null && viewModel.selectedWeek != null -> {

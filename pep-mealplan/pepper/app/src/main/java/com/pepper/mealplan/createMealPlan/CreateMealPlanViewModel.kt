@@ -10,7 +10,9 @@ enum class MealStep {
     SOUP, MAIN, DESSERT, EVENING
 }
 
-class CreateMealPlanViewModel : ViewModel() {
+class CreateMealPlanViewModel(
+    private val foundPerson: String = ""
+) : ViewModel() {
     
     var selectedWeek by mutableStateOf<Int?>(null)
         private set
@@ -39,6 +41,8 @@ class CreateMealPlanViewModel : ViewModel() {
         private set
     var selectedEveningId by mutableStateOf<Int?>(null)
         private set
+
+    val personName: String get() = foundPerson
     
     fun selectWeek(weekNumber: Int) {
         selectedWeek = weekNumber

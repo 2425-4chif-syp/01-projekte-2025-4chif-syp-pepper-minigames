@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -35,7 +37,17 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MealPlanOverview(viewModel: MealPlanOverviewViewModel = viewModel()) {
+fun MealPlanOverview(
+    foundPerson: String = "",
+    viewModel: MealPlanOverviewViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MealPlanOverviewViewModel(foundPerson) as T
+            }
+        }
+    )
+) {
 
     LaunchedEffect(Unit) {
         viewModel.refreshData()
