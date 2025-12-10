@@ -3,14 +3,12 @@ package com.pepper.mealplan.MealPlanOverview
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,38 +17,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.VerticalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.pepper.mealplan.R
-import com.pepper.mealplan.network.dto.FoodDto
-import com.pepper.mealplan.network.dto.MenuDto
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MealPlanOverview(viewModel: MealPlanOverviewViewModel = viewModel()) {
-    // Trigger refresh jedes Mal wenn die Overview betreten wird
+
     LaunchedEffect(Unit) {
         viewModel.refreshData()
     }
-    
+
+    val dayMeals = viewModel.threeDayMeals
+    val initialMealIndexToday = viewModel.initialMealIndexToday
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Header mit Wochennavigation
-        WeekNavigationHeader(
-            currentWeek = viewModel.currentWeek,
-            onPreviousWeek = viewModel::navigateToPreviousWeek,
-            onNextWeek = viewModel::navigateToNextWeek
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Zeige Spinner während dem Laden
+
         if (viewModel.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -62,20 +61,130 @@ fun MealPlanOverview(viewModel: MealPlanOverviewViewModel = viewModel()) {
                 )
             }
         } else {
-            // Wochenplan mit optimierter LazyColumn
-            val weekMenus = remember(viewModel.currentWeek) { viewModel.weekMenus }
-            
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(
-                    items = weekMenus,
-                    key = { menu -> "${menu.weekNumber}_${menu.weekday}" }
-                ) { menu ->
-                    DayMenuCard(
-                        menu = menu,
-                        getFoodById = viewModel::getFoodById
+            if (dayMeals.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Kein Essensplan verfügbar",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            } else {
+                val dayPagerState = rememberPagerState(initialPage = 0)
+                val coroutineScope = rememberCoroutineScope()
+
+                val currentDayIndex = dayPagerState.currentPage.coerceIn(0, dayMeals.lastIndex)
+                val currentDay = dayMeals[currentDayIndex]
+
+                // ---------- Kopfbereich mit Tag + Links/Rechts-Hinweisen ----------
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Linker Pfeil / Hinweis
+                    if (currentDayIndex > 0) {
+                        val leftLabelText = when (currentDayIndex) {
+                            1 -> "Heutigen Tag anzeigen"
+                            2 -> "Morgen anzeigen"
+                            else -> "${dayMeals[currentDayIndex - 1].label} anzeigen"
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .widthIn(min = 80.dp)
+                                .clickable {
+                                    coroutineScope.launch {
+                                        dayPagerState.animateScrollToPage(currentDayIndex - 1)
+                                    }
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "←",
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = leftLabelText,
+                                fontSize = 20.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(80.dp))
+                    }
+
+                    // Überschrift in der Mitte
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${currentDay.label} · ${formatDate(currentDay.calendar)}",
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    // Rechter Pfeil / Hinweis
+                    if (currentDayIndex < dayMeals.lastIndex) {
+                        val rightLabelText = when (currentDayIndex) {
+                            0 -> "Morgen anzeigen"
+                            1 -> "Übermorgen anzeigen"
+                            else -> "${dayMeals[currentDayIndex + 1].label} anzeigen"
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .widthIn(min = 80.dp)
+                                .clickable {
+                                    coroutineScope.launch {
+                                        dayPagerState.animateScrollToPage(currentDayIndex + 1)
+                                    }
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "→",
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = rightLabelText,
+                                fontSize = 20.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(80.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // ---------- Horizontaler Pager für Tage ----------
+                HorizontalPager(
+                    count = dayMeals.size,
+                    state = dayPagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { dayIndex ->
+                    val day = dayMeals[dayIndex]
+                    val initialPageForThisDay =
+                        if (dayIndex == 0) mapMealIndexToGroupIndex(initialMealIndexToday) else 0
+
+                    DayPager(
+                        day = day,
+                        initialPage = initialPageForThisDay
                     )
                 }
             }
@@ -83,148 +192,220 @@ fun MealPlanOverview(viewModel: MealPlanOverviewViewModel = viewModel()) {
     }
 }
 
+/**
+ * Vertikaler Pager für einen Tag:
+ *   Seite 0: Mittagessen (Suppe + Hauptgericht 1 & 2)
+ *   Seite 1: Dessert
+ *   Seite 2: Abendessen (1 & 2)
+ */
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-private fun WeekNavigationHeader(
-    currentWeek: Int,
-    onPreviousWeek: () -> Unit,
-    onNextWeek: () -> Unit
+private fun DayPager(
+    day: DayMealsUi,
+    initialPage: Int
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onPreviousWeek,
-            enabled = currentWeek > 1
+    val pagerState = rememberPagerState(initialPage = initialPage.coerceIn(0, 2))
+
+    VerticalPager(
+        count = 3,
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowLeft,
-                contentDescription = "Vorherige Woche",
-                tint = if (currentWeek > 1) MaterialTheme.colors.primary else Color.Gray
-            )
-        }
-        
-        Text(
-            text = "Woche $currentWeek",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        
-        IconButton(
-            onClick = onNextWeek,
-            enabled = currentWeek < 6
-        ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = "Nächste Woche",
-                tint = if (currentWeek < 6) MaterialTheme.colors.primary else Color.Gray
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                when (page) {
+                    0 -> MiddayScreen(day = day)
+                    1 -> DessertScreen(day = day)
+                    2 -> DinnerScreen(day = day)
+                }
+            }
+
+            // Hinweiszeile unten (nicht über Essen drüber)
+            val hintText = when (page) {
+                0 -> "Wischen ↓ nächste Mahlzeit anzeigen (Dessert)"
+                1 -> "Wischen ↑ Mittagessen anzeigen                   Wischen ↓ Abendessen anzeigen"
+                else -> "Wischen ↑ Vorherige Mahlzeit anzeigen (Dessert)"
+            }
+
+            Text(
+                text = hintText,
+                fontSize = 20.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 4.dp)
             )
         }
     }
 }
 
+// ---------- Seite 0: Mittagessen (Suppe + Hauptgericht 1 & 2) ----------
+
 @Composable
-private fun DayMenuCard(
-    menu: MenuDto,
-    getFoodById: (Int?) -> com.pepper.mealplan.network.dto.FoodDto?
-) {
-    // Cache food lookups für bessere Performance
-    val soupName = remember(menu.soupId) { getFoodById(menu.soupId)?.name ?: "Keine Angabe" }
-    val m1Name = remember(menu.m1Id) { getFoodById(menu.m1Id)?.name ?: "Keine Angabe" }
-    val m2Name = remember(menu.m2Id) { getFoodById(menu.m2Id)?.name ?: "Keine Angabe" }
-    val dessertName = remember(menu.lunchDessertId) { getFoodById(menu.lunchDessertId)?.name ?: "Keine Angabe" }
-    val a1Name = remember(menu.a1Id) { getFoodById(menu.a1Id)?.name ?: "Keine Angabe" }
-    val a2Name = remember(menu.a2Id) { getFoodById(menu.a2Id)?.name ?: "Keine Angabe" }
-    
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp,
-        shape = RoundedCornerShape(8.dp)
+private fun MiddayScreen(day: DayMealsUi) {
+    val soup = day.meals.getOrNull(0)
+    val main1 = day.meals.getOrNull(1)
+    val main2 = day.meals.getOrNull(2)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Wochentag Header
-            Text(
-                text = getGermanWeekday(menu.weekday),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colors.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Suppe
+        Text(
+            text = "Mittagessen",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Suppe – obere Hälfte
+        soup?.let {
             MenuSection(
-                title = "Suppe",
-                foodName = soupName,
+                title = it.title,
+                foodName = it.foodName,
                 backgroundColor = Color(0xFFE3F2FD),
-                foodType = "soup"
+                foodType = it.foodType,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.2f)
             )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Hauptgerichte
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+        }
+
+        // Hauptgericht 1 & 2 – untere Hälfte
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            main1?.let {
                 MenuSection(
-                    title = "Hauptgericht 1",
-                    foodName = m1Name,
+                    title = it.title,
+                    foodName = it.foodName,
                     backgroundColor = Color(0xFFF3E5F5),
-                    foodType = "main",
-                    modifier = Modifier.weight(1f)
-                )
-                
-                MenuSection(
-                    title = "Hauptgericht 2",
-                    foodName = m2Name,
-                    backgroundColor = Color(0xFFF3E5F5),
-                    foodType = "main",
-                    modifier = Modifier.weight(1f)
+                    foodType = it.foodType,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
                 )
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Dessert
-            MenuSection(
-                title = "Dessert",
-                foodName = dessertName,
-                backgroundColor = Color(0xFFFFF3E0),
-                foodType = "dessert"
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Abendessen
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            main2?.let {
                 MenuSection(
-                    title = "Abendessen 1",
-                    foodName = a1Name,
-                    backgroundColor = Color(0xFFE8F5E8),
-                    foodType = "main",
-                    modifier = Modifier.weight(1f)
-                )
-                
-                MenuSection(
-                    title = "Abendessen 2",
-                    foodName = a2Name,
-                    backgroundColor = Color(0xFFE8F5E8),
-                    foodType = "main",
-                    modifier = Modifier.weight(1f)
+                    title = it.title,
+                    foodName = it.foodName,
+                    backgroundColor = Color(0xFFF3E5F5),
+                    foodType = it.foodType,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
                 )
             }
         }
     }
 }
+
+// ---------- Seite 1: Dessert ----------
+
+@Composable
+private fun DessertScreen(day: DayMealsUi) {
+    val dessert = day.meals.getOrNull(3)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Dessert",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        dessert?.let {
+            MenuSection(
+                title = it.title,
+                foodName = it.foodName,
+                backgroundColor = Color(0xFFFFF3E0),
+                foodType = it.foodType,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        }
+    }
+}
+
+// ---------- Seite 2: Abendessen 1 & 2 ----------
+
+@Composable
+private fun DinnerScreen(day: DayMealsUi) {
+    val dinner1 = day.meals.getOrNull(4)
+    val dinner2 = day.meals.getOrNull(5)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Abendessen",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            dinner1?.let {
+                MenuSection(
+                    title = it.title,
+                    foodName = it.foodName,
+                    backgroundColor = Color(0xFFE8F5E8),
+                    foodType = it.foodType,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                )
+            }
+            dinner2?.let {
+                MenuSection(
+                    title = it.title,
+                    foodName = it.foodName,
+                    backgroundColor = Color(0xFFE8F5E8),
+                    foodType = it.foodType,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Ordnet den Index der nächsten Mahlzeit (0..5) auf ein "Fenster" zu:
+ *  0,1,2 -> Seite 0 (Mittagessen)
+ *  3     -> Seite 1 (Dessert)
+ *  4,5   -> Seite 2 (Abendessen)
+ */
+private fun mapMealIndexToGroupIndex(mealIndex: Int): Int =
+    when (mealIndex) {
+        0, 1, 2 -> 0
+        3 -> 1
+        4, 5 -> 2
+        else -> 0
+    }
+
+// ---------------- MenuSection – Bild passt sich Box-Höhe an ----------------
 
 @Composable
 private fun MenuSection(
@@ -236,14 +417,14 @@ private fun MenuSection(
 ) {
     Row(
         modifier = modifier
+            .defaultMinSize(minHeight = 140.dp)   // statt defaultMinHeight
             .background(
                 color = backgroundColor,
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(12.dp)
             )
-            .padding(8.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Bild anzeigen basierend auf dem Gerichtstyp
         if (foodType != null) {
             val context = LocalContext.current
             val bitmap = remember(foodType) {
@@ -253,13 +434,12 @@ private fun MenuSection(
                     "dessert" -> R.drawable.dessert
                     else -> R.drawable.main
                 }
-                
-                // Lade das Bild mit reduzierten Optionen
+
                 val options = BitmapFactory.Options().apply {
-                    inSampleSize = 4 // Reduziert die Bildgröße um Faktor 4
-                    inPreferredConfig = android.graphics.Bitmap.Config.RGB_565 // Weniger Speicherverbrauch
+                    inSampleSize = 4
+                    inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
                 }
-                
+
                 try {
                     val inputStream = context.resources.openRawResource(imageRes)
                     val bmp = BitmapFactory.decodeStream(inputStream, null, options)
@@ -269,22 +449,23 @@ private fun MenuSection(
                     null
                 }
             }
-            
+
             if (bitmap != null) {
                 Image(
                     bitmap = bitmap,
                     contentDescription = "$title Bild",
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(4.dp)),
+                        .fillMaxHeight()      // nimmt gesamte Box-Höhe ein
+                        .aspectRatio(1f)      // quadratisch
+                        .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Fallback: Verwende einen einfachen farbigen Platzhalter
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(4.dp))
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(
                             when (foodType) {
                                 "soup" -> Color(0xFF2196F3)
@@ -295,36 +476,30 @@ private fun MenuSection(
                         )
                 )
             }
-            
-            Spacer(modifier = Modifier.width(8.dp))
+
+            Spacer(modifier = Modifier.width(16.dp))
         }
-        
-        Column {
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = title,
-                fontSize = 12.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = foodName,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
 }
 
-private fun getGermanWeekday(weekday: String): String {
-    return when (weekday) {
-        "MO" -> "Montag"
-        "DI" -> "Dienstag"
-        "MI" -> "Mittwoch"
-        "DO" -> "Donnerstag"
-        "FR" -> "Freitag"
-        "SA" -> "Samstag"
-        "SO" -> "Sonntag"
-        else -> weekday
-    }
+private fun formatDate(calendar: Calendar): String {
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    return sdf.format(calendar.time)
 }
