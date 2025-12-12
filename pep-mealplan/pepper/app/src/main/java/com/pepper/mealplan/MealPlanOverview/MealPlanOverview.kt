@@ -34,6 +34,11 @@ import java.util.Calendar
 import java.util.Locale
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import com.pepper.mealplan.RoboterActions
+import kotlinx.coroutines.Dispatchers
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -115,7 +120,7 @@ fun MealPlanOverview(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "←",
+                                text = "⬅️",
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Gray
@@ -165,7 +170,7 @@ fun MealPlanOverview(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "→",
+                                text = "➡️",
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Gray
@@ -216,33 +221,91 @@ private fun DayPager(
     day: DayMealsUi,
     initialPage: Int
 ) {
-    val pagerState = rememberPagerState(initialPage = initialPage.coerceIn(0, 2))
+    val pagerState = rememberPagerState(initialPage = initialPage.coerceIn(0, 3))
+    val coroutineScope = rememberCoroutineScope()
 
     VerticalPager(
-        count = 3,
+        count = 4, // jetzt 4 Seiten: Suppe, Mittag, Dessert, Abendessen
         state = pagerState,
         modifier = Modifier.fillMaxSize()
     ) { page ->
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            // Inhalt (Suppe / Mittag / Dessert / Abendessen)
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
                 when (page) {
-                    0 -> MiddayScreen(day = day)
-                    1 -> DessertScreen(day = day)
-                    2 -> DinnerScreen(day = day)
+                    0 -> SoupScreen(day = day)
+                    1 -> MiddayScreen(day = day)
+                    2 -> DessertScreen(day = day)
+                    3 -> DinnerScreen(day = day)
                 }
             }
 
-            // Hinweiszeile unten (nicht über Essen drüber)
+            // --- Buttons für Vorlesen & Navigation erklären ---
+            val speechTextMeals = remember(day, page) {
+                buildSpeechTextForPage(day, page)
+            }
+            val speechTextNav = remember(day, page) {
+                buildNavigationSpeechForPage(page)
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            RoboterActions.speak(speechTextMeals)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.primary
+                    )
+                ) {
+                    Text(
+                        text = "Menü vorlesen",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            RoboterActions.speak(speechTextNav)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.secondary
+                    )
+                ) {
+                    Text(
+                        text = "Navigation erklären",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colors.onSecondary
+                    )
+                }
+            }
+
+            // --- Hinweiszeile unten (was beim Wischen passiert) ---
             val hintText = when (page) {
-                0 -> "Wischen ↓ nächste Mahlzeit anzeigen (Dessert)"
-                1 -> "Wischen ↑ Mittagessen anzeigen                   Wischen ↓ Abendessen anzeigen"
-                else -> "Wischen ↑ Vorherige Mahlzeit anzeigen (Dessert)"
+                0 -> "Wischen ⬇️ Mittagessen anzeigen"
+                1 -> "Wischen ⬆️ Suppe           Wischen ⬇️ Dessert anzeigen"
+                2 -> "Wischen ⬆️ Mittagessen             Wischen ⬇️ Abendessen anzeigen"
+                else -> "Wischen ⬆️ Dessert anzeigen"
             }
 
             Text(
@@ -258,11 +321,42 @@ private fun DayPager(
     }
 }
 
-// ---------- Seite 0: Mittagessen (Suppe + Hauptgericht 1 & 2) ----------
+// ---------- Seite 0: Suppe ----------
+@Composable
+private fun SoupScreen(day: DayMealsUi) {
+    val soup = day.meals.getOrNull(0)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Suppe",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        soup?.let {
+            MenuSection(
+                title = it.title,
+                foodName = it.foodName,
+                backgroundColor = Color(0xFFE3F2FD),
+                foodType = it.foodType,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        }
+    }
+}
+
+
+// ---------- Seite 1: Mittagessen (Hauptgericht 1 & 2) ----------
 
 @Composable
 private fun MiddayScreen(day: DayMealsUi) {
-    val soup = day.meals.getOrNull(0)
     val main1 = day.meals.getOrNull(1)
     val main2 = day.meals.getOrNull(2)
 
@@ -278,20 +372,7 @@ private fun MiddayScreen(day: DayMealsUi) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Suppe – obere Hälfte
-        soup?.let {
-            MenuSection(
-                title = it.title,
-                foodName = it.foodName,
-                backgroundColor = Color(0xFFE3F2FD),
-                foodType = it.foodType,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1.2f)
-            )
-        }
-
-        // Hauptgericht 1 & 2 – untere Hälfte
+        // Hauptgericht 1 & 2 teilen sich den Platz
         Row(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -322,7 +403,8 @@ private fun MiddayScreen(day: DayMealsUi) {
     }
 }
 
-// ---------- Seite 1: Dessert ----------
+
+// ---------- Seite 2: Dessert ----------
 
 @Composable
 private fun DessertScreen(day: DayMealsUi) {
@@ -354,7 +436,7 @@ private fun DessertScreen(day: DayMealsUi) {
     }
 }
 
-// ---------- Seite 2: Abendessen 1 & 2 ----------
+// ---------- Seite 3: Abendessen 1 & 2 ----------
 
 @Composable
 private fun DinnerScreen(day: DayMealsUi) {
@@ -514,4 +596,45 @@ private fun MenuSection(
 private fun formatDate(calendar: Calendar): String {
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     return sdf.format(calendar.time)
+}
+
+// ---- Hilfstexte für Pepper ----
+
+private fun buildSpeechTextForPage(day: DayMealsUi, page: Int): String {
+    val dayLabel = day.label // "Heute", "Morgen", "Übermorgen"
+
+    return when (page) {
+        0 -> {
+            // Mittagessen
+            val soup = day.meals.getOrNull(0)?.foodName ?: "keine Suppe eingetragen"
+            val main1 = day.meals.getOrNull(1)?.foodName ?: "kein erstes Hauptgericht eingetragen"
+            val main2 = day.meals.getOrNull(2)?.foodName ?: "kein zweites Hauptgericht eingetragen"
+            "Für $dayLabel gibt es zum Mittagessen: Suppe $soup. " +
+                    "Erstes Hauptgericht: $main1. Zweites Hauptgericht: $main2."
+        }
+        1 -> {
+            // Dessert
+            val dessert = day.meals.getOrNull(3)?.foodName ?: "kein Dessert eingetragen"
+            "Für $dayLabel gibt es als Dessert: $dessert."
+        }
+        2 -> {
+            // Abendessen
+            val dinner1 = day.meals.getOrNull(4)?.foodName ?: "kein erstes Abendessen eingetragen"
+            val dinner2 = day.meals.getOrNull(5)?.foodName ?: "kein zweites Abendessen eingetragen"
+            "Für $dayLabel ist zum Abendessen eingetragen: erstes Abendessen $dinner1 und zweites Abendessen $dinner2."
+        }
+        else -> "Es sind keine Mahlzeiten eingetragen."
+    }
+}
+
+private fun buildNavigationSpeechForPage(page: Int): String {
+    return when (page) {
+        0 -> "Sie sehen gerade das Mittagessen. Sie können nach unten wischen, um das Dessert zu sehen. " +
+                "Nach links oder rechts wischen, um den Tag zu wechseln."
+        1 -> "Sie sehen gerade das Dessert. Wischen Sie nach oben, um wieder das Mittagessen zu sehen, " +
+                "oder nach unten, um das Abendessen zu sehen. Nach links oder rechts wischen wechselt den Tag."
+        2 -> "Sie sehen gerade das Abendessen. Wischen Sie nach oben, um wieder das Dessert zu sehen. " +
+                "Nach links oder rechts wischen wechselt den Tag."
+        else -> "Sie können nach oben oder unten wischen, um die Mahlzeit zu wechseln, und nach links oder rechts, um den Tag zu wechseln."
+    }
 }
