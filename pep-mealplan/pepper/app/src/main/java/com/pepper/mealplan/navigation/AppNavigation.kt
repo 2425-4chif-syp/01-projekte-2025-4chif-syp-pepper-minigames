@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.pepper.mealplan.MealPlanOverview.MealPlanOverview
 import com.pepper.mealplan.createMealPlan.CreateMealPlan
+import com.pepper.mealplan.MealPlanOverview.OrderReminderScreen
 import com.pepper.mealplan.faceRecognition.FaceRecognitionScreen
 
 sealed class BottomNavItem(
@@ -23,7 +24,7 @@ sealed class BottomNavItem(
     val title: String
 ) {
     object Overview : BottomNavItem("overview", Icons.Default.CalendarToday, "Wochenplanübersicht")
-    object Create : BottomNavItem("create", Icons.Default.Add, "Mahlzeiten auswählen")
+    //object Create : BottomNavItem("create", Icons.Default.Add, "Mahlzeiten auswählen")
     object Logout : BottomNavItem("logout", Icons.Default.ExitToApp, "Abmelden")
 }
 
@@ -31,7 +32,7 @@ sealed class BottomNavItem(
 fun AppNavigation(navController: NavHostController){
     val items = listOf(
         BottomNavItem.Overview,
-        BottomNavItem.Create,
+        //BottomNavItem.Create,
         BottomNavItem.Logout
     )
     
@@ -82,15 +83,36 @@ fun AppNavigation(navController: NavHostController){
             startDestination = "face_recognition",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("face_recognition") { 
+            composable("face_recognition") {
                 FaceRecognitionScreen(
                     onAuthenticationSuccess = { foundPerson ->
-                        navController.navigate("overview/$foundPerson") {
-                            popUpTo("face_recognition") { inclusive = true }
+                        if (hasMissingMealsForNextThreeDays(foundPerson)) {
+                            // Neuer Zwischen-Screen mit zwei Buttons
+                            navController.navigate("order_reminder/$foundPerson") {
+                                popUpTo("face_recognition") { inclusive = true }
+                            }
+                        } else {
+                            // Falls später mal ALLES bestellt ist → direkt zur Übersicht
+                            navController.navigate("overview/$foundPerson") {
+                                popUpTo("face_recognition") { inclusive = true }
+                            }
                         }
                     }
                 )
             }
+            composable("order_reminder/{foundPerson}") { backStackEntry ->
+                val foundPerson = backStackEntry.arguments?.getString("foundPerson") ?: ""
+                OrderReminderScreen(
+                    foundPerson = foundPerson,
+                    onGoToOrder = {
+                        navController.navigate("create/$foundPerson")
+                    },
+                    onGoToOverview = {
+                        navController.navigate("overview/$foundPerson")
+                    }
+                )
+            }
+
             composable("overview/{foundPerson}") { backStackEntry ->
                 val foundPerson = backStackEntry.arguments?.getString("foundPerson") ?: ""
                 MealPlanOverview(foundPerson = foundPerson)
@@ -101,4 +123,10 @@ fun AppNavigation(navController: NavHostController){
             }
         }
     }
+}
+
+// TODO: Später hier echte Logik einbauen, wenn Bestellungen gespeichert werden.
+// Aktuell: Es wird so getan, als ob immer etwas fehlt -> Reminder-Screen wird immer angezeigt.
+private fun hasMissingMealsForNextThreeDays(foundPerson: String): Boolean {
+    return true
 }
