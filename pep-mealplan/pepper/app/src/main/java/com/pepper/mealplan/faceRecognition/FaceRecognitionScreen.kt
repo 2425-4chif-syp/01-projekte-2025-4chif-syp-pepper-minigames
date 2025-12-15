@@ -29,6 +29,9 @@ fun FaceRecognitionScreen(
     val hasError by viewModel.hasError
 
     LaunchedEffect(Unit) {
+        // Reset states when returning to the screen
+        isMonitoring = true
+        viewModel.clearError()
         viewModel.setOnAuthenticationSuccess {
             onAuthenticationSuccess(foundPerson)
         }
@@ -39,7 +42,6 @@ fun FaceRecognitionScreen(
         viewModel.talkToPerson()
     }
 
-    // Monitoring wird gestoppt wenn ein Fehler auftritt
     LaunchedEffect(isMonitoring, hasError) {
         while (isMonitoring && !hasError) {
             withContext(Dispatchers.IO) {
@@ -48,7 +50,7 @@ fun FaceRecognitionScreen(
                     withContext(Dispatchers.Main) {
                         viewModel.talkToPerson()
                         viewModel.takePicture()
-                        isMonitoring = false  // Stoppe Monitoring nach dem ersten takePicture Aufruf
+                        isMonitoring = false
                     }
                 }
             }
@@ -79,15 +81,14 @@ fun FaceRecognitionScreen(
             Button(
                 onClick = {
                     if (errorMessage != null) {
-                        // Bei einem Fehler: Error zurücksetzen und neuen Versuch starten
                         viewModel.clearError()
-                        isMonitoring = true  // Monitoring wieder aktivieren
+                        isMonitoring = true
                         viewModel.takePicture()
                     }
                 },
                 modifier = Modifier.size(180.dp),
                 shape = MaterialTheme.shapes.large,
-                enabled = errorMessage != null && !isLoading  // Nur enabled wenn Fehler vorhanden UND nicht am laden
+                enabled = errorMessage != null && !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(

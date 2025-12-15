@@ -48,7 +48,7 @@ class FaceRecognitionViewModel : ViewModel(){
 
     fun takePicture(){
         isLoading.value = true
-        errorMessage.value = null  // Reset error message
+        errorMessage.value = null
         hasError.value = false
         viewModelScope.launch(Dispatchers.IO) {
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
@@ -80,6 +80,9 @@ class FaceRecognitionViewModel : ViewModel(){
                         if (response.contains("Error processing image", ignoreCase = true) || 
                             response.contains("no faces in the image", ignoreCase = true)) {
                             errorMessage.value = "Kein Gesicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
+                            hasError.value = true
+                        } else {  
+                            errorMessage.value = "Person nicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
                             hasError.value = true
                         }
                         delay(1000)
