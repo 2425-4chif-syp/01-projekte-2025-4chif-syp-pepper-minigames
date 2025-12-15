@@ -12,7 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pepper.mealplan.RoboterActions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @Composable
 fun FaceRecognitionScreen(
@@ -23,8 +25,9 @@ fun FaceRecognitionScreen(
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
     val foundPerson by viewModel.foundPerson
+    val errorMessage by viewModel.errorMessage
+    val hasError by viewModel.hasError
 
-    // Set callback to pass foundPerson when authentication succeeds
     LaunchedEffect(Unit) {
         viewModel.setOnAuthenticationSuccess {
             onAuthenticationSuccess(foundPerson)
@@ -36,9 +39,19 @@ fun FaceRecognitionScreen(
         viewModel.talkToPerson()
     }
 
-    LaunchedEffect(isMonitoring) {
-        while (isMonitoring) {
-            viewModel.talkToPerson()
+    // Monitoring wird gestoppt wenn ein Fehler auftritt
+    LaunchedEffect(isMonitoring, hasError) {
+        while (isMonitoring && !hasError) {
+            withContext(Dispatchers.IO) {
+                val humanAwareness = RoboterActions.getHumanAwarness()
+                if (humanAwareness != null) {
+                    withContext(Dispatchers.Main) {
+                        viewModel.talkToPerson()
+                        viewModel.takePicture()
+                        isMonitoring = false  // Stoppe Monitoring nach dem ersten takePicture Aufruf
+                    }
+                }
+            }
             delay(3000)
         }
     }
@@ -65,19 +78,16 @@ fun FaceRecognitionScreen(
             
             Button(
                 onClick = {
-                    onAuthenticationSuccess.invoke("Nikola Mladenovic")
-
-                    // Development auskommtieren
-                    /*
-                    if (!isLoading) {
-                        isMonitoring = false
+                    if (errorMessage != null) {
+                        // Bei einem Fehler: Error zurücksetzen und neuen Versuch starten
+                        viewModel.clearError()
+                        isMonitoring = true  // Monitoring wieder aktivieren
                         viewModel.takePicture()
                     }
-                    */
                 },
                 modifier = Modifier.size(180.dp),
                 shape = MaterialTheme.shapes.large,
-                enabled = !isLoading
+                enabled = errorMessage != null && !isLoading  // Nur enabled wenn Fehler vorhanden UND nicht am laden
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -91,6 +101,18 @@ fun FaceRecognitionScreen(
                         modifier = Modifier.size(100.dp)
                     )
                 }
+            }
+            
+            // Fehlermeldung anzeigen
+            errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
         }
     }

@@ -14,6 +14,8 @@ class FaceRecognitionViewModel : ViewModel(){
     
     val isLoading = mutableStateOf(false)
     val foundPerson = mutableStateOf("")
+    val errorMessage = mutableStateOf<String?>(null)
+    val hasError = mutableStateOf(false)
     private var hasSpokenToPerson = mutableStateOf(false)
     private var previousHumanAwareness: Any? = null
     private var onAuthenticationSuccess: (() -> Unit)? = null
@@ -39,8 +41,15 @@ class FaceRecognitionViewModel : ViewModel(){
         }
     }
 
+    fun clearError() {
+        errorMessage.value = null
+        hasError.value = false
+    }
+
     fun takePicture(){
         isLoading.value = true
+        errorMessage.value = null  // Reset error message
+        hasError.value = false
         viewModelScope.launch(Dispatchers.IO) {
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
@@ -67,16 +76,26 @@ class FaceRecognitionViewModel : ViewModel(){
                         RoboterActions.speak("Hallo " + response + " Was wollen Sie essen?")
 
                     } else {
+                        // Behandle Server-Errors als Fehler
+                        if (response.contains("Error processing image", ignoreCase = true) || 
+                            response.contains("no faces in the image", ignoreCase = true)) {
+                            errorMessage.value = "Kein Gesicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
+                            hasError.value = true
+                        }
                         delay(1000)
                         RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                         isLoading.value = false
                     }
                 }
             } catch (e: Exception) {
-                delay(1000)
-                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
-                Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                isLoading.value = false
+                withContext(Dispatchers.Main) {
+                    errorMessage.value = "Drücken Sie die obere Taste um sich anzumelden"
+                    hasError.value = true
+                    delay(1000)
+                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                    Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
+                    isLoading.value = false
+                }
             }
         }
     }
