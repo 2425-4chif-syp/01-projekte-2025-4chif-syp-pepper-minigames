@@ -21,6 +21,9 @@ fun FaceRecognitionScreen(
     onAuthenticationSuccess: (String) -> Unit,
     viewModel: FaceRecognitionViewModel = viewModel()
 ) {
+    // 🔹 Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
+    val devModeSkipFaceRecognition = true
+
     // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
@@ -77,9 +80,15 @@ fun FaceRecognitionScreen(
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Button(
                 onClick = {
+                    // 🔹 DEV-SHORTCUT: Gesichtserkennung überspringen
+                    if (devModeSkipFaceRecognition) {
+                        onAuthenticationSuccess("Nikola Mladenovic")
+                        return@Button
+                    }
+
                     if (errorMessage != null) {
                         viewModel.clearError()
                         isMonitoring = true
@@ -88,7 +97,7 @@ fun FaceRecognitionScreen(
                 },
                 modifier = Modifier.size(180.dp),
                 shape = MaterialTheme.shapes.large,
-                enabled = errorMessage != null && !isLoading
+                enabled = !isLoading && (errorMessage != null || devModeSkipFaceRecognition)
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -103,7 +112,7 @@ fun FaceRecognitionScreen(
                     )
                 }
             }
-            
+
             // Fehlermeldung anzeigen
             errorMessage?.let { error ->
                 Text(
