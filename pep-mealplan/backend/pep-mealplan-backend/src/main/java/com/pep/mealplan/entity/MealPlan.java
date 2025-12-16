@@ -3,28 +3,38 @@ package com.pep.mealplan.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
-@Table(
-        name = "MealPlan",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"date"})
-)
 public class MealPlan extends PanacheEntity {
 
     @Column(nullable = false)
-    public LocalDate date;  // Plan für welchen Tag
+    public LocalDate date;   // Der Tag, für den der Speiseplan gilt
 
-    @ManyToOne
-    @JoinColumn(name = "starter_id")
-    public Food starter;    // Vorspeise
+    // -------- Starter (Vorspeisen) --------
+    @ManyToMany
+    @JoinTable(
+            name = "mealplan_starters",
+            joinColumns = @JoinColumn(name = "mealplan_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_id")
+    )
+    public List<Food> starters;
 
-    @ManyToOne
-    @JoinColumn(name = "main_id")
-    public Food main;       // Hauptspeise
+    // -------- Main Dishes (Hauptspeisen) --------
+    @ManyToMany
+    @JoinTable(
+            name = "mealplan_mains",
+            joinColumns = @JoinColumn(name = "mealplan_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_id")
+    )
+    public List<Food> mains;
 
-    @ManyToOne
-    @JoinColumn(name = "dessert_id")
-    public Food dessert;    // Nachspeise
-
-    public MealPlan() {}
+    // -------- Desserts (Nachspeisen) --------
+    @ManyToMany
+    @JoinTable(
+            name = "mealplan_desserts",
+            joinColumns = @JoinColumn(name = "mealplan_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_id")
+    )
+    public List<Food> desserts;
 }

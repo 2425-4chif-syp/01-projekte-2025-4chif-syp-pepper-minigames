@@ -20,46 +20,84 @@ public class MealPlanService {
     @Inject
     FoodRepository foodRepo;
 
+    // -------------------------------------------------------------
+    // GET ALL
+    // -------------------------------------------------------------
+    public List<MealPlan> getAll() {
+        return mealPlanRepo.listAll();
+    }
 
+    // -------------------------------------------------------------
+    // GET BY ID
+    // -------------------------------------------------------------
+    public MealPlan getById(Long id) {
+        return mealPlanRepo.findById(id);
+    }
+
+    // -------------------------------------------------------------
+    // GET BY DATE
+    // -------------------------------------------------------------
     public MealPlan getByDate(LocalDate date) {
         return mealPlanRepo.find("date", date).firstResult();
     }
 
-    public List<MealPlan> getWeek(LocalDate startDate) {
-        LocalDate end = startDate.plusDays(6);
-        return mealPlanRepo.list("date between ?1 and ?2", startDate, end);
+    // -------------------------------------------------------------
+    // CREATE MEALPLAN
+    // -------------------------------------------------------------
+    @Transactional
+    public MealPlan create(LocalDate date) {
+        MealPlan mp = new MealPlan();
+        mp.date = date;
+
+        mp.starters = new java.util.ArrayList<>();
+        mp.mains = new java.util.ArrayList<>();
+        mp.desserts = new java.util.ArrayList<>();
+
+        mealPlanRepo.persist(mp);
+        return mp;
     }
 
+    // -------------------------------------------------------------
+    // ADD FOOD TO A CATEGORY
+    // -------------------------------------------------------------
     @Transactional
-    public MealPlan createMealPlan(LocalDate date, Long starterId, Long mainId, Long dessertId) {
+    public MealPlan addFood(Long mealPlanId, Long foodId, String category) {
 
-        MealPlan plan = new MealPlan();
-        plan.date = date;
+        MealPlan mp = mealPlanRepo.findById(mealPlanId);
+        Food food = foodRepo.findById(foodId);
 
-        plan.starter = foodRepo.findById(starterId);
-        plan.main = foodRepo.findById(mainId);
-        plan.dessert = foodRepo.findById(dessertId);
+        if (mp == null || food == null)
+            return null;
 
-        mealPlanRepo.persist(plan);
-        return plan;
+        switch (category.toLowerCase()) {
+            case "starter" -> mp.starters.add(food);
+            case "main" -> mp.mains.add(food);
+            case "dessert" -> mp.desserts.add(food);
+            default -> throw new IllegalArgumentException("Unknown category: " + category);
+        }
+
+        return mp;
     }
 
-
+    // -------------------------------------------------------------
+    // REMOVE FOOD FROM CATEGORY
+    // -------------------------------------------------------------
     @Transactional
-    public MealPlan updateMealPlan(LocalDate date, Long starterId, Long mainId, Long dessertId) {
+    public MealPlan removeFood(Long mealPlanId, Long foodId, String category) {
 
-        MealPlan plan = getByDate(date);
-        if (plan == null) return null;
+        MealPlan mp = mealPlanRepo.findById(mealPlanId);
+        Food food = foodRepo.findById(foodId);
 
-        if (starterId != null) plan.starter = foodRepo.findById(starterId);
-        if (mainId != null) plan.main = foodRepo.findById(mainId);
-        if (dessertId != null) plan.dessert = foodRepo.findById(dessertId);
+        if (mp == null || food == null)
+            return null;
 
-        return plan;
-    }
+        switch (category.toLowerCase()) {
+            case "starter" -> mp.starters.remove(food);
+            case "main" -> mp.mains.remove(food);
+            case "dessert" -> mp.desserts.remove(food);
+            default -> throw new IllegalArgumentException("Unknown category: " + category);
+        }
 
-    @Transactional
-    public boolean delete(LocalDate date) {
-        return mealPlanRepo.delete("date", date) > 0;
+        return mp;
     }
 }
