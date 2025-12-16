@@ -65,4 +65,17 @@ export class AppComponent implements OnInit {
     return userInfo?.preferred_username || userInfo?.name || 'User';
   }
 
+  // Rollen-Checks für Menü
+  public canViewPictures(): boolean {
+    return this.roleService.isAdmin() || this.roleService.isCaretaker();
+  }
+
+  public canViewStories(): boolean {
+    return this.roleService.isAdmin() || this.roleService.isCaretaker();
+  }
+
+  public isResident(): boolean {
+    return this.roleService.isResident();
+  }
+
 }

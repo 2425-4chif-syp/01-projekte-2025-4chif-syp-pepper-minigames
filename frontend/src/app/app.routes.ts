@@ -12,12 +12,17 @@ import { ResidentsComponent } from './residents/residents.component';
 import { ResidentDetailsComponent } from './resident-details/resident-details.component';
 import { AddResidentComponent } from './add-resident/add-resident.component';
 import { PreviewScreenComponent } from './preview-screen/preview-screen.component';
+import { MyPicturesComponent } from './my-pictures/my-pictures.component';
 
 export const routes: Routes = [
-  // Öffentliche Seiten - alle können zugreifen
-  {path: '', component: HomePageComponent, canActivate: [AuthGuard]},
-  {path: 'tagalongstory', component: TagalongstoryComponent, canActivate: [AuthGuard]},
-  {path: 'previewScreen/:id', component: PreviewScreenComponent, canActivate: [AuthGuard]},
+  // HomePage - nur für Admin & Caretaker (Residents werden zu /my-pictures umgeleitet)
+  {path: '', component: HomePageComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'caretaker'] }},
+  {path: 'home', component: HomePageComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'caretaker'] }},
+  {path: 'tagalongstory', component: TagalongstoryComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'caretaker'] }},
+  {path: 'previewScreen/:id', component: PreviewScreenComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'caretaker'] }},
+  
+  // Bewohner - nur eigene Bilder
+  {path: 'my-pictures', component: MyPicturesComponent, canActivate: [AuthGuard], data: { roles: ['resident'] }},
   
   // Story-Management - Admin & Caretaker
   {path: 'createstory', component: CreatestoryComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'caretaker'] }},

@@ -47,12 +47,31 @@ export class RoleService {
     return this.hasRole('caretaker');
   }
 
+  isResident(): boolean {
+    // WICHTIG: Wenn resident-Rolle vorhanden, IST er Resident - KEINE Priorisierung!
+    // Resident überschreibt alles andere
+    return this.hasRole('resident');
+  }
+
+  isPureResident(): boolean {
+    // Alias für bessere Lesbarkeit
+    return this.isResident();
+  }
+
   canManageResidents(): boolean {
     return this.isAdmin(); // Nur Admin kann Bewohner verwalten
   }
 
   canManageStories(): boolean {
     return this.isAdmin() || this.isCaretaker(); // Beide können Geschichten verwalten
+  }
+
+  canViewAllPictures(): boolean {
+    return this.isAdmin() || this.isCaretaker(); // Admin und Caretaker können alle Bilder sehen
+  }
+
+  canOnlyViewOwnPictures(): boolean {
+    return this.isResident(); // isResident() prüft bereits ob nur Bewohner
   }
 
   getUserInfo(): any {
