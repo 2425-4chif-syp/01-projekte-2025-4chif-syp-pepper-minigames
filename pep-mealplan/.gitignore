@@ -1,2 +1,15 @@
 backend/public/*.docx
 nohup.out
+backend-legacy/
+
+# Ignore build artifacts
+**/target/
+**/node_modules/
+
+# Ignore IDE config
+**/.idea/
+**/.vscode/
+
+# Ignore OS crap
+.DS_Store
+Thumbs.db
