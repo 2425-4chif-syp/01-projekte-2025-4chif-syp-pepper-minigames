@@ -2,6 +2,7 @@ package com.pep.mealplan.resource;
 
 import com.pep.mealplan.entity.Food;
 import com.pep.mealplan.entity.FoodAllergen;
+import com.pep.mealplan.resource.dto.FoodCreateRequest;
 import com.pep.mealplan.service.FoodAllergenService;
 import com.pep.mealplan.service.FoodService;
 import jakarta.inject.Inject;
@@ -94,4 +95,10 @@ public class FoodResource {
         foodAllergenService.removeAllergen(id, shortname);
     }
 
+    @POST
+    @Path("/create")
+    public Response createFromDto(FoodCreateRequest dto) {
+        Food created = foodService.createFromDto(dto);
+        return Response.status(Response.Status.CREATED).entity(created).build();
+    }
 }

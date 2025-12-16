@@ -1,9 +1,9 @@
 package com.pep.mealplan.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 
 import java.util.Set;
 
@@ -19,6 +19,11 @@ public class Food extends PanacheEntity {
 
     @OneToMany(mappedBy = "food")
     Set<FoodAllergen> allergens;
+
+    @ManyToOne
+    @JoinColumn(name = "PictureId")
+    public Picture picture;
+
 
     @Column(nullable = false)
     public Integer price; // Cent or integer value, adjust later
