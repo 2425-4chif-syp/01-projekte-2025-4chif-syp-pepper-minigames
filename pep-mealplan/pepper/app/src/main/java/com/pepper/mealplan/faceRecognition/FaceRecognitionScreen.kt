@@ -21,8 +21,8 @@ fun FaceRecognitionScreen(
     onAuthenticationSuccess: (String) -> Unit,
     viewModel: FaceRecognitionViewModel = viewModel()
 ) {
-    // 🔹 Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
-    val devModeSkipFaceRecognition = true
+    // Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
+    val devModeSkipFaceRecognition = false
 
     // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
@@ -83,7 +83,7 @@ fun FaceRecognitionScreen(
 
             Button(
                 onClick = {
-                    // 🔹 DEV-SHORTCUT: Gesichtserkennung überspringen
+                    // DEV-SHORTCUT: Gesichtserkennung überspringen
                     if (devModeSkipFaceRecognition) {
                         onAuthenticationSuccess("Nikola Mladenovic")
                         return@Button
