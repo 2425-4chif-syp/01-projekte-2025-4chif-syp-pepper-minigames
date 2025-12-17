@@ -5,11 +5,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "meal_order") // <-- FIX HIER
 public class Order extends PanacheEntity {
-
-    // -----------------------------
-    // RELATIONEN
-    // -----------------------------
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id")
@@ -18,10 +15,6 @@ public class Order extends PanacheEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "mealplan_id")
     public MealPlan mealPlan;
-
-    // -----------------------------
-    // AUSGEWÄHLTE SPEISEN (IDs)
-    // -----------------------------
 
     @ManyToOne
     @JoinColumn(name = "starter_id")
@@ -32,12 +25,12 @@ public class Order extends PanacheEntity {
     public Food selectedMain;
 
     @ManyToOne
+    @JoinColumn(name = "evening_id")
+    public Food selectedEvening;
+
+    @ManyToOne
     @JoinColumn(name = "dessert_id")
     public Food selectedDessert;
-
-    // -----------------------------
-    // TIMESTAMP
-    // -----------------------------
 
     @Column(nullable = false)
     public LocalDateTime createdAt;
