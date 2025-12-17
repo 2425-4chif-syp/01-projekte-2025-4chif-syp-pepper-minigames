@@ -39,11 +39,11 @@ import androidx.compose.material.ButtonDefaults
 import com.pepper.mealplan.RoboterActions
 import kotlinx.coroutines.Dispatchers
 
-
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MealPlanOverview(
     foundPerson: String = "",
+    onGoToOrder: () -> Unit,
     viewModel: MealPlanOverviewViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -211,9 +211,10 @@ fun MealPlanOverview(
 
 /**
  * Vertikaler Pager für einen Tag:
- *   Seite 0: Mittagessen (Suppe + Hauptgericht 1 & 2)
- *   Seite 1: Dessert
- *   Seite 2: Abendessen (1 & 2)
+ *   Seite 0: Suppe
+ *   Seite 1: Mittagessen (Hauptgericht 1 & 2)
+ *   Seite 2: Dessert
+ *   Seite 3: Abendessen (1 & 2)
  */
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -225,14 +226,13 @@ private fun DayPager(
     val coroutineScope = rememberCoroutineScope()
 
     VerticalPager(
-        count = 4, // jetzt 4 Seiten: Suppe, Mittag, Dessert, Abendessen
+        count = 4,
         state = pagerState,
         modifier = Modifier.fillMaxSize()
     ) { page ->
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Inhalt (Suppe / Mittag / Dessert / Abendessen)
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -250,7 +250,7 @@ private fun DayPager(
             val speechTextMeals = remember(day, page) {
                 buildSpeechTextForPage(day, page)
             }
-            val speechTextNav = remember(day, page) {
+            val speechTextNav = remember(page) {
                 buildNavigationSpeechForPage(page)
             }
 
@@ -300,7 +300,6 @@ private fun DayPager(
                 }
             }
 
-            // --- Hinweiszeile unten (was beim Wischen passiert) ---
             val hintText = when (page) {
                 0 -> "Wischen ⬇️ Mittagessen anzeigen"
                 1 -> "Wischen ⬆️ Suppe           Wischen ⬇️ Dessert anzeigen"
@@ -352,9 +351,7 @@ private fun SoupScreen(day: DayMealsUi) {
     }
 }
 
-
 // ---------- Seite 1: Mittagessen (Hauptgericht 1 & 2) ----------
-
 @Composable
 private fun MiddayScreen(day: DayMealsUi) {
     val main1 = day.meals.getOrNull(1)
@@ -372,7 +369,6 @@ private fun MiddayScreen(day: DayMealsUi) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Hauptgericht 1 & 2 teilen sich den Platz
         Row(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -403,9 +399,7 @@ private fun MiddayScreen(day: DayMealsUi) {
     }
 }
 
-
 // ---------- Seite 2: Dessert ----------
-
 @Composable
 private fun DessertScreen(day: DayMealsUi) {
     val dessert = day.meals.getOrNull(3)
@@ -436,8 +430,7 @@ private fun DessertScreen(day: DayMealsUi) {
     }
 }
 
-// ---------- Seite 3: Abendessen 1 & 2 ----------
-
+// ---------- Seite 3: Abendessen (1 & 2) ----------
 @Composable
 private fun DinnerScreen(day: DayMealsUi) {
     val dinner1 = day.meals.getOrNull(4)
@@ -486,20 +479,22 @@ private fun DinnerScreen(day: DayMealsUi) {
 }
 
 /**
- * Ordnet den Index der nächsten Mahlzeit (0..5) auf ein "Fenster" zu:
- *  0,1,2 -> Seite 0 (Mittagessen)
- *  3     -> Seite 1 (Dessert)
- *  4,5   -> Seite 2 (Abendessen)
+ * Ordnet den Index der nächsten Mahlzeit (0..5) auf eine Seite zu:
+ *  0       -> Seite 0 (Suppe)
+ *  1,2     -> Seite 1 (Mittagessen)
+ *  3       -> Seite 2 (Dessert)
+ *  4,5     -> Seite 3 (Abendessen)
  */
 private fun mapMealIndexToGroupIndex(mealIndex: Int): Int =
     when (mealIndex) {
-        0, 1, 2 -> 0
-        3 -> 1
-        4, 5 -> 2
+        0 -> 0
+        1, 2 -> 1
+        3 -> 2
+        4, 5 -> 3
         else -> 0
     }
 
-// ---------------- MenuSection – Bild passt sich Box-Höhe an ----------------
+// ---------------- MenuSection ----------------
 
 @Composable
 private fun MenuSection(
@@ -509,86 +504,90 @@ private fun MenuSection(
     foodType: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Box(
         modifier = modifier
-            .defaultMinSize(minHeight = 140.dp)   // statt defaultMinHeight
+            .defaultMinSize(minHeight = 140.dp)
             .background(
                 color = backgroundColor,
                 shape = RoundedCornerShape(12.dp)
             )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(16.dp)
     ) {
-        if (foodType != null) {
-            val context = LocalContext.current
-            val bitmap = remember(foodType) {
-                val imageRes = when (foodType) {
-                    "soup" -> R.drawable.soup
-                    "main" -> R.drawable.main
-                    "dessert" -> R.drawable.dessert
-                    else -> R.drawable.main
-                }
-
-                val options = BitmapFactory.Options().apply {
-                    inSampleSize = 4
-                    inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
-                }
-
-                try {
-                    val inputStream = context.resources.openRawResource(imageRes)
-                    val bmp = BitmapFactory.decodeStream(inputStream, null, options)
-                    inputStream.close()
-                    bmp?.asImageBitmap()
-                } catch (e: Exception) {
-                    null
-                }
-            }
-
-            if (bitmap != null) {
-                Image(
-                    bitmap = bitmap,
-                    contentDescription = "$title Bild",
-                    modifier = Modifier
-                        .fillMaxHeight()      // nimmt gesamte Box-Höhe ein
-                        .aspectRatio(1f)      // quadratisch
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            when (foodType) {
-                                "soup" -> Color(0xFF2196F3)
-                                "main" -> Color(0xFF4CAF50)
-                                "dessert" -> Color(0xFFFF9800)
-                                else -> Color.Gray
-                            }
-                        )
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-
-        Column(
-            modifier = Modifier.weight(1f)
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = foodName,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            if (foodType != null) {
+                val context = LocalContext.current
+                val bitmap = remember(foodType) {
+                    val imageRes = when (foodType) {
+                        "soup" -> R.drawable.soup
+                        "main" -> R.drawable.main
+                        "dessert" -> R.drawable.dessert
+                        else -> R.drawable.main
+                    }
+
+                    val options = BitmapFactory.Options().apply {
+                        inSampleSize = 4
+                        inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
+                    }
+
+                    try {
+                        val inputStream = context.resources.openRawResource(imageRes)
+                        val bmp = BitmapFactory.decodeStream(inputStream, null, options)
+                        inputStream.close()
+                        bmp?.asImageBitmap()
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = "$title Bild",
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                when (foodType) {
+                                    "soup" -> Color(0xFF2196F3)
+                                    "main" -> Color(0xFF4CAF50)
+                                    "dessert" -> Color(0xFFFF9800)
+                                    else -> Color.Gray
+                                }
+                            )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = foodName,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
@@ -598,43 +597,40 @@ private fun formatDate(calendar: Calendar): String {
     return sdf.format(calendar.time)
 }
 
-// ---- Hilfstexte für Pepper ----
+// ---------- Texte für Pepper ----------
 
 private fun buildSpeechTextForPage(day: DayMealsUi, page: Int): String {
-    val dayLabel = day.label // "Heute", "Morgen", "Übermorgen"
+    val dateText = formatDate(day.calendar)
 
     return when (page) {
         0 -> {
-            // Mittagessen
-            val soup = day.meals.getOrNull(0)?.foodName ?: "keine Suppe eingetragen"
-            val main1 = day.meals.getOrNull(1)?.foodName ?: "kein erstes Hauptgericht eingetragen"
-            val main2 = day.meals.getOrNull(2)?.foodName ?: "kein zweites Hauptgericht eingetragen"
-            "Für $dayLabel gibt es zum Mittagessen: Suppe $soup. " +
-                    "Erstes Hauptgericht: $main1. Zweites Hauptgericht: $main2."
+            val soup = day.meals.getOrNull(0)?.foodName ?: "keine Angabe"
+            "Am ${day.label}, dem $dateText, gibt es als Suppe: $soup."
         }
         1 -> {
-            // Dessert
-            val dessert = day.meals.getOrNull(3)?.foodName ?: "kein Dessert eingetragen"
-            "Für $dayLabel gibt es als Dessert: $dessert."
+            val m1 = day.meals.getOrNull(1)?.foodName ?: "keine Angabe"
+            val m2 = day.meals.getOrNull(2)?.foodName ?: "keine Angabe"
+            "Am ${day.label}, dem $dateText, gibt es zum Mittagessen: $m1 und $m2."
         }
         2 -> {
-            // Abendessen
-            val dinner1 = day.meals.getOrNull(4)?.foodName ?: "kein erstes Abendessen eingetragen"
-            val dinner2 = day.meals.getOrNull(5)?.foodName ?: "kein zweites Abendessen eingetragen"
-            "Für $dayLabel ist zum Abendessen eingetragen: erstes Abendessen $dinner1 und zweites Abendessen $dinner2."
+            val dessert = day.meals.getOrNull(3)?.foodName ?: "keine Angabe"
+            "Am ${day.label}, dem $dateText, gibt es als Dessert: $dessert."
         }
-        else -> "Es sind keine Mahlzeiten eingetragen."
+        3 -> {
+            val d1 = day.meals.getOrNull(4)?.foodName ?: "keine Angabe"
+            val d2 = day.meals.getOrNull(5)?.foodName ?: "keine Angabe"
+            "Am ${day.label}, dem $dateText, gibt es zum Abendessen: $d1 und $d2."
+        }
+        else -> "Ich habe für diese Seite keine Essensinformationen."
     }
 }
 
 private fun buildNavigationSpeechForPage(page: Int): String {
     return when (page) {
-        0 -> "Sie sehen gerade das Mittagessen. Sie können nach unten wischen, um das Dessert zu sehen. " +
-                "Nach links oder rechts wischen, um den Tag zu wechseln."
-        1 -> "Sie sehen gerade das Dessert. Wischen Sie nach oben, um wieder das Mittagessen zu sehen, " +
-                "oder nach unten, um das Abendessen zu sehen. Nach links oder rechts wischen wechselt den Tag."
-        2 -> "Sie sehen gerade das Abendessen. Wischen Sie nach oben, um wieder das Dessert zu sehen. " +
-                "Nach links oder rechts wischen wechselt den Tag."
-        else -> "Sie können nach oben oder unten wischen, um die Mahlzeit zu wechseln, und nach links oder rechts, um den Tag zu wechseln."
+        0 -> "Du siehst jetzt die Suppe. Wische nach unten, um das Mittagessen anzuzeigen. Wische nach rechts oder links, um den Tag zu wechseln."
+        1 -> "Du siehst jetzt das Mittagessen. Wische nach oben, um die Suppe zu sehen, oder nach unten, um das Dessert anzuzeigen. Nach rechts oder links wischen wechselt den Tag."
+        2 -> "Du siehst jetzt das Dessert. Wische nach oben für das Mittagessen, oder nach unten für das Abendessen. Mit einer Wischbewegung nach rechts oder links wechselst du den Tag."
+        3 -> "Du siehst jetzt das Abendessen. Wische nach oben, um das Dessert anzuzeigen. Nach rechts oder links wischen wechselt den Tag."
+        else -> "Mit Wischen nach oben oder unten wechselst du die Mahlzeit. Mit Wischen nach rechts oder links wechselst du den Tag."
     }
 }

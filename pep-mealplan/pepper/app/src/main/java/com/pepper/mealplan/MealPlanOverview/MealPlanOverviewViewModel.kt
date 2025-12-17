@@ -12,12 +12,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-// Eine Mahlzeit (Suppe, Hauptgericht, Dessert, Abendessen)
+// Eine Mahlzeit (z.B. Suppe, Hauptgericht 1, Dessert, Abendessen 1, ...)
 data class MealItem(
     val title: String,
     val foodName: String,
-    val foodType: String,
-    val timeMinutes: Int // Minuten seit Mitternacht
+    val foodType: String,   // "soup", "main", "dessert"
+    val timeMinutes: Int    // Uhrzeit als Minuten seit Mitternacht
 )
 
 // UI-Daten für einen Tag (Datum + alle Mahlzeiten)
@@ -33,28 +33,22 @@ class MealPlanOverviewViewModel(
     private val foundPerson: String = ""
 ) : ViewModel() {
 
-    var currentWeek by mutableStateOf(1)
-        private set
-
     var isLoading by mutableStateOf(true)
         private set
 
-    // Getter für foundPerson falls andere Komponenten darauf zugreifen müssen
-    val personName: String get() = foundPerson
+    // Heute + 2 Tage
+    var threeDayMeals by mutableStateOf<List<DayMealsUi>>(emptyList())
+        private set
+
+    // Index der nächsten Mahlzeit für heute (0..5)
+    var initialMealIndexToday by mutableStateOf(0)
+        private set
 
     private val allData by lazy { DataInserts.getAllData() }
 
     private val foodsMap by lazy {
         allData.foods.associateBy { it.id }
     }
-
-    // Heute + 2 Tage
-    var threeDayMeals by mutableStateOf<List<DayMealsUi>>(emptyList())
-        private set
-
-    // Index der nächsten Mahlzeit für heute
-    var initialMealIndexToday by mutableStateOf(0)
-        private set
 
     init {
         refreshData()
@@ -71,7 +65,7 @@ class MealPlanOverviewViewModel(
             val todayCal = Calendar.getInstance()
 
             // WeekNumber für heute (6-Wochen-Zyklus)
-            currentWeek = getWeekNumberForDate(todayCal)
+            val currentWeek = getWeekNumberForDate(todayCal)
 
             // Heute + 2 Tage aufbauen
             val days = (0..2).map { offset ->
@@ -111,7 +105,7 @@ class MealPlanOverviewViewModel(
         }
     }
 
-    // ---------------- Hilfsfunktionen ----------------
+    // ---------- Hilfsfunktionen ----------
 
     private fun buildDayMealsUi(
         calendar: Calendar,
@@ -139,7 +133,7 @@ class MealPlanOverviewViewModel(
         fun foodName(id: Int?): String =
             if (id != null) foodsMap[id]?.name ?: "Keine Angabe" else "Keine Angabe"
 
-        // Zeiten in Minuten (kannst du anpassen)
+        // Zeiten nur beispielhaft, kannst du anpassen
         val meals = listOf(
             MealItem(
                 title = "Suppe",
@@ -217,7 +211,7 @@ private fun Calendar.toWeekdayCode(): String =
 private fun getWeekNumberForDate(calendar: Calendar): Int {
     val base = Calendar.getInstance().apply {
         set(Calendar.YEAR, 2025)
-        set(Calendar.MONTH, Calendar.JANUARY) // 0
+        set(Calendar.MONTH, Calendar.JANUARY)
         set(Calendar.DAY_OF_MONTH, 6)        // Montag
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
