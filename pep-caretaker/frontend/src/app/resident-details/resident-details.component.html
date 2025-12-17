@@ -1,0 +1,206 @@
+<div class="min-h-screen flex items-start justify-center p-4 py-8">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-[90vw]">
+        <h1 class="text-3xl font-bold mb-6">Person - Detail</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Profilbild Bereich -->
+            <div class="flex flex-col items-center space-y-4">
+                @if (isEditing()) {
+                    <!-- Bearbeitungsmodus: Neues Bild hochladen -->
+                    @if (selectedImage()) {
+                        <div class="relative w-full">
+                            <img [src]="selectedImage()" 
+                                 alt="Neue Vorschau" 
+                                 class="w-full h-64 object-cover rounded-lg border-4 border-blue-300 shadow-md">
+                            <button (click)="removeNewImage()" 
+                                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <div class="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">Neues Bild</div>
+                        </div>
+                    } @else {
+                        <!-- Aktuelles Bild mit Upload-Option -->
+                        <div class="relative w-full">
+                            @if (currentProfileImage()) {
+                                <img [src]="currentProfileImage()" 
+                                     alt="Aktuelles Profilbild" 
+                                     class="w-full h-64 object-cover rounded-lg border-4 border-gray-200 shadow-md opacity-75">
+                            } @else {
+                                <div class="w-full h-64 bg-gray-100 rounded-lg border-4 border-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            }
+                            <!-- Upload-Button über dem Bild -->
+                            <label class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 cursor-pointer rounded-lg hover:bg-opacity-50 transition-all">
+                                <div class="text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="text-white font-semibold">Neues Bild wählen</p>
+                                </div>
+                                <input type="file" 
+                                       accept="image/*" 
+                                       (change)="onImageSelected($event)" 
+                                       class="hidden">
+                            </label>
+                        </div>
+                    }
+                } @else {
+                    <!-- Ansichtsmodus: Nur Anzeige -->
+                    @if (currentProfileImage()) {
+                        <img [src]="currentProfileImage()" 
+                             alt="Profilbild" 
+                             class="w-full h-64 object-cover rounded-lg border-4 border-gray-200 shadow-md">
+                    } @else {
+                        <div class="w-full h-64 bg-sky-500 rounded-lg flex items-center justify-center shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    }
+                }
+            </div>
+            
+            <div class="flex flex-col space-y-4">
+                <!-- ✅ Vorname - bearbeitbar -->
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Vorname:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editFirstName" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.firstName}}
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- ✅ Nachname - bearbeitbar -->
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Nachname:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editLastName" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.lastName}}
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- ✅ Zuständigkeit - bearbeitbar mit Select -->
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Zuständigkeit:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <select [(ngModel)]="editRole" 
+                                    (change)="onRoleChange($event)"
+                                    class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                                <option value="bewohner">Bewohner</option>
+                                <option value="worker">Worker</option>
+                            </select>
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.isWorker ? 'Worker' : 'Bewohner'}}
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- ✅ Zimmer-Nr - bearbeitbar -->
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Zimmer-Nr.:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="text" 
+                                   [(ngModel)]="editRoomNo" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.roomNo}}
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- ✅ Geburtstag - bearbeitbar -->
+                <div class="flex items-center">
+                    <label class="w-36 font-bold text-lg">Geburtstag:</label>
+                    <div class="flex-1">
+                        @if (isEditing()) {
+                            <input type="date" 
+                                   [(ngModel)]="editDob" 
+                                   class="w-full border border-gray-300 rounded p-2 bg-white text-center">
+                        } @else {
+                            <div class="border border-gray-300 rounded p-2 bg-gray-50 text-center">
+                                {{residentOfId()?.dob}}
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- ✅ Buttons - je nach Modus -->
+                <div class="flex items-center space-x-4 mt-6">
+                    @if (isEditing()) {
+                        <!-- Bearbeiten-Modus: Speichern & Abbrechen -->
+                        <button (click)="saveChanges()" 
+                               style="background-color: #22BABB;" class="px-4 py-2 text-white rounded hover:bg-green-700">
+                            Speichern
+                        </button>
+                        <button (click)="cancelEditing()" 
+                               style="background-color: #F24405;" class="px-4 py-2 text-white rounded hover:bg-gray-700">
+                            Abbrechen
+                        </button>
+                    } @else {
+                        <!-- Ansicht-Modus: Bearbeiten & Zurück -->
+                        <button (click)="startEditing()" 
+                               style="background-color: #22BABB;" class="px-4 py-2 text-white rounded hover:bg-blue-700">
+                            Bearbeiten
+                        </button>
+                        <button [routerLink]="['/residents']" 
+                                routerLinkActive="router-link-active" 
+                               style="background-color: #348888;"  class="px-4 py-2 text-white rounded hover:bg-gray-600">
+                            Zur Übersicht
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Bilder-Galerie - schmaler mit 3 Spalten -->
+        <div class="mt-8 p-4 bg-gray-100 rounded-lg shadow-inner">
+            <h2 class="text-xl font-bold mb-4 text-gray-700">Bilder-Galerie</h2>
+            <!-- ✅ ÄNDERUNG: 3 Spalten für schmalere Bilder -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @for (image of imagesOfPerson(); track $index) {
+                    <div class="transition-transform duration-300 hover:scale-105">
+                        <!-- ✅ Hover-Rahmenfarbe auf #348888 gesetzt, mit weicher Transition -->
+                        <div class="bg-white p-3 rounded-lg shadow-md border-2 border-gray-200 hover:border-[#348888] transition-colors duration-200 hover:shadow-lg">
+                            <img [src]="'data:image/png;base64,' + image.base64Image" 
+                                 alt="Person Image" 
+                                 class="w-full h-48 object-cover rounded-md">
+                        </div>
+                    </div>
+                }
+                @empty {
+                    <div class="col-span-full text-center py-8 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                        </svg>
+                        <p>No pictures available</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
