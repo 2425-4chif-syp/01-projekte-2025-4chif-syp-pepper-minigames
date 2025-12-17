@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
-import { RoleService } from '../role.service';
 
 
 @Component({
@@ -11,11 +10,5 @@ import { RoleService } from '../role.service';
   styleUrl: './home-page.component.css'
 })
 export class HomePageComponent {
-  
-  constructor(private roleService: RoleService) {}
-
-  isAdmin(): boolean {
-    return this.roleService.hasRole('admin');
-  }
 
 }
