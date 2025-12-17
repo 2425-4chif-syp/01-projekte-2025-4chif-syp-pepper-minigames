@@ -28,9 +28,11 @@ class RoboterActions {
         var qiContext: QiContext? = null
         var robotExecute: Boolean = false
 
-        fun speak(text: String): Future<Void>? {
+        private var lastSpeech: Future<Void>? = null
+
+        fun speak(text: String): java.util.concurrent.Future<Void>? {
             if (robotExecute) {
-                val say: Future<Say>? = SayBuilder.with(qiContext)
+                val say: java.util.concurrent.Future<Say>? = SayBuilder.with(qiContext)
                     .withText(text)
                     .buildAsync()
 
@@ -38,13 +40,29 @@ class RoboterActions {
                 }
 
                 return try {
-                    say.get().async().run()
+                    val runFuture = say.get().async().run()
+                    lastSpeech = runFuture
+                    runFuture
                 } catch (e: Exception) {
                     null
                 }
             }
-            return null;
+            return null
         }
+
+
+        fun stopSpeaking() {
+            if (robotExecute) {
+                try {
+                    lastSpeech?.cancel(true)
+                } catch (e: Exception) {
+                    Log.e(ContentValues.TAG, "Error stopping speech", e)
+                } finally {
+                    lastSpeech = null
+                }
+            }
+        }
+
 
         fun animation(ressource: Int){
             if(robotExecute){
