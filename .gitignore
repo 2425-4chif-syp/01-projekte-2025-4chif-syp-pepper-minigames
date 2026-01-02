@@ -86,3 +86,7 @@ node_modules/
 backend_v2/.env
 
 db-postgres
+
+# Ignore Syncthing Files and Folders
+
+.st*
