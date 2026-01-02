@@ -89,4 +89,6 @@ db-postgres
 
 # Ignore Syncthing Files and Folders
 
-.st*
+.stfolder
+.stversions
+.stignore
