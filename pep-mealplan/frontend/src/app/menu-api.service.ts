@@ -12,6 +12,9 @@ export interface DayPlan {
     dessert: string;
     eveningOne: string;
     eveningTwo: string;
+
+    selectedMenu?: 'one' | 'two' | null;
+    selectedEvening?: 'one' | 'two' | null;
 }
 
 export interface WeekPlan {
@@ -75,7 +78,7 @@ export class MenuAPIService {
         const dateString = date.toISOString().split('T')[0];
 
         return this.httpClient
-            .get<any[]>(`${API_URL}/api/menu/weekWithSpecials/${dateString}`)
+            .get<any[]>(`${API_URL}/api/menu/weekWithSpecials/${'2025-11-17'}`)
             .pipe(
                 map(data => {
                     const sortedDays = data.sort((a, b) => Number(a.WeekDay) - Number(b.WeekDay));

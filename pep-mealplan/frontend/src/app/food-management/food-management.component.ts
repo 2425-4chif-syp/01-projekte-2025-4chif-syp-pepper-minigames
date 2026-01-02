@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     FormControl,
@@ -15,6 +15,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
+import {ListboxModule} from "primeng/listbox";
 
 @Component({
     selector: 'app-food-management',
@@ -28,7 +29,8 @@ import { SelectModule } from 'primeng/select';
         InputTextModule,
         SelectModule,
         ButtonModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        ListboxModule
     ]
 })
 export class FoodManagementComponent implements OnInit {
@@ -38,9 +40,8 @@ export class FoodManagementComponent implements OnInit {
         { label: 'Nachspeise', value: 'dessert' }
     ];
 
-    nameFilter = new FormControl<string | null>('');
-    foods: Food[] = [];
-    filteredFood: Food[] = [];
+    foods = signal<Food[]>([]);
+    selectedFood = signal<Food|null>(null);
 
     newFood: Food = this.createEmptyFood();
     allergens: Allergen[] = [];
@@ -48,20 +49,14 @@ export class FoodManagementComponent implements OnInit {
 
     img = new Image();
     readonly apiUrl = API_URL;
-    searchLoading = false;
 
     constructor(private readonly menuApiService: MenuAPIService) {}
 
     ngOnInit(): void {
-        this.initSearchFilter();
         this.loadFoods();
         this.loadAllergens();
         this.restoreLastFoodType();
     }
-
-    // -----------------------------
-    // Init / Helper
-    // -----------------------------
 
     private createEmptyFood(): Food {
         return {
@@ -83,22 +78,6 @@ export class FoodManagementComponent implements OnInit {
         }
     }
 
-    private initSearchFilter(): void {
-        this.nameFilter.valueChanges
-            .pipe(
-                debounceTime(200),
-                distinctUntilChanged(),
-                tap(() => (this.searchLoading = true))
-            )
-            .subscribe((filterValue: string | null) => {
-                const term = (filterValue ?? '').toLowerCase();
-                this.filteredFood = this.foods.filter(food =>
-                    food.Name.toLowerCase().includes(term)
-                );
-                this.searchLoading = false;
-            });
-    }
-
     // -----------------------------
     // Data Loading
     // -----------------------------
@@ -106,12 +85,19 @@ export class FoodManagementComponent implements OnInit {
     loadFoods(): void {
         this.menuApiService.getFood().subscribe(data => {
             const foods = data ?? [];
-            this.foods = foods;
-            this.filteredFood = [...foods].sort((a, b) =>
-                a.Name.localeCompare(b.Name)
-            );
+            this.foods.set(foods);
         });
     }
+
+    onFoodSelected(food: Food | null): void {
+        if (!food) {
+            return;
+        }
+
+        this.selectedFood.set(food);
+        this.loadFood(food);
+    }
+
 
     private loadAllergens(): void {
         this.menuApiService.getAllergens().subscribe(data => {

@@ -14,7 +14,6 @@ interface PersonOption {
     code: string;
     id: number;
     hasSelection?: boolean;
-    missingCount?: number;
 }
 
 @Component({
@@ -37,13 +36,12 @@ export class WeekPlanManagementComponent implements OnInit {
 
     WEEK_DAYS = ['MO', 'DI', 'MI', 'DO', 'FR', 'SA', 'SO'];
 
-    activeWeekIndex = 0; // 0..3
-    private baseMonday: Date;
-
+    // Startdatum der aktuellen Woche (Montag) als ISO-String
     weekStart: string;
 
     currentWeekPlan: WeekPlan = {} as WeekPlan;
     currentWeekPlanCopy: WeekPlan = {} as WeekPlan;
+    specialDayPlans: DayPlan[] = [];
 
     weekPlanLoading = true;
 
@@ -58,75 +56,49 @@ export class WeekPlanManagementComponent implements OnInit {
         private residentApiService: UserAPIService,
         private fileSaverService: FileSaverService
     ) {
-        this.baseMonday = this.getThisWeeksMonday();
-        this.weekStart = this.toIsoDate(this.baseMonday);
+        const thisWeeksMonday = this.getThisWeeksMonday();
+        this.weekStart = thisWeeksMonday.toISOString().split('T')[0];
     }
 
     ngOnInit(): void {
         this.residentApiService.getResidents().subscribe({
             next: (res: Resident[]) => {
                 this.residents.set(res);
-
                 this.personSelectorList = this.residents().map((r) => ({
                     name: `${r.Firstname} ${r.Lastname}`,
                     code: r.id!.toString(),
                     id: r.id!,
-                    hasSelection: false,
-                    missingCount: 0
+                    hasSelection: false
                 }));
 
+                this.refreshPersonHasSelectionFlags();
                 this.isloading.set(false);
-                this.loadWeekPlan(new Date(this.weekStart));
             },
             error: (err) => {
                 alert(err);
             }
         });
+
+        // Immer nur die aktuelle Woche laden
+        this.loadWeekPlan(new Date(this.weekStart));
     }
 
-    // =========================
-    // WEEK SWITCH
-    // =========================
-
-    prevWeek(): void {
-        if (this.activeWeekIndex > 0) {
-            this.activeWeekIndex--;
-            this.applyWeekIndex();
-        }
-    }
-
-    nextWeek(): void {
-        if (this.activeWeekIndex < 3) {
-            this.activeWeekIndex++;
-            this.applyWeekIndex();
-        }
-    }
-
-    private applyWeekIndex(): void {
-        const newMonday = new Date(this.baseMonday);
-        newMonday.setDate(newMonday.getDate() + this.activeWeekIndex * 7);
-
-        this.weekStart = this.toIsoDate(newMonday);
-        this.loadWeekPlan(newMonday);
-    }
-
-    private toIsoDate(d: Date): string {
-        return d.toISOString().split('T')[0];
-    }
-
-    // =========================
-    // WORD-EXPORT
-    // =========================
+    // === WORD-EXPORT ===
 
     exportAsWord(): void {
+        // Export immer für die aktuelle Woche
         this.menuApiService.getExportedWord(this.weekStart).subscribe({
             next: (response) => {
-                const contentDisposition = response.headers.get('content-disposition');
+                const contentDisposition = response.headers.get(
+                    'content-disposition'
+                );
                 let filename = 'Speiseplan.docx';
 
                 if (contentDisposition) {
                     const matches =
-                        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(
+                            contentDisposition
+                        );
                     if (matches?.[1]) {
                         filename = matches[1].replace(/['"]/g, '');
                     }
@@ -141,9 +113,7 @@ export class WeekPlanManagementComponent implements OnInit {
         });
     }
 
-    // =========================
-    // DATUM
-    // =========================
+    // === DATUMSHILFE ===
 
     dateCleaned(index: number): string {
         const dateForDay = new Date(this.weekStart);
@@ -160,44 +130,37 @@ export class WeekPlanManagementComponent implements OnInit {
 
     private getThisWeeksMonday(base: Date = new Date()): Date {
         const d = new Date(base);
-        const day = d.getDay();
+        const day = d.getDay(); // 0 = So, 1 = Mo, ...
         const diff = d.getDate() - day + (day === 0 ? -6 : 1);
         d.setDate(diff);
         d.setHours(12, 0, 0, 0);
         return d;
     }
 
-    // =========================
-    // LOAD WEEK PLAN
-    // =========================
-
     private loadWeekPlan(date: Date): void {
         this.weekPlanLoading = true;
-
         this.menuApiService.getWeekPlan(date).subscribe((data) => {
             this.currentWeekPlan = data;
 
+            // Toggle-States initialisieren (falls vom Backend nicht gesetzt)
             this.currentWeekPlan.dayPlans.forEach((dp) => {
                 dp.selectedMenu = dp.selectedMenu ?? null;
                 dp.selectedEvening = dp.selectedEvening ?? null;
             });
 
-            this.currentWeekPlanCopy = JSON.parse(JSON.stringify(this.currentWeekPlan));
+            this.currentWeekPlanCopy = JSON.parse(
+                JSON.stringify(this.currentWeekPlan)
+            );
             this.weekPlanLoading = false;
 
-            // Badges neu für aktuelle Woche
-            this.refreshPersonHasSelectionFlags();
-
-            // Wenn Person gewählt -> apply
+            // Falls bereits eine Person ausgewählt ist → deren Auswahl anwenden
             if (this.selectedPersonOption) {
                 this.applySelectionsForSelectedPerson();
             }
         });
     }
 
-    // =========================
-    // STORAGE
-    // =========================
+    // === LOCALSTORAGE HILFSFUNKTIONEN ===
 
     private loadStoredSelections(): any {
         const raw = localStorage.getItem(this.STORAGE_KEY);
@@ -218,8 +181,9 @@ export class WeekPlanManagementComponent implements OnInit {
 
         const storage = this.loadStoredSelections();
         const weekKey = this.weekStart;
-
-        if (!storage[weekKey]) storage[weekKey] = {};
+        if (!storage[weekKey]) {
+            storage[weekKey] = {};
+        }
 
         const residentId = String(this.selectedPersonOption.id);
 
@@ -233,11 +197,11 @@ export class WeekPlanManagementComponent implements OnInit {
 
         storage[weekKey][residentId] = daySelections;
         this.saveStoredSelections(storage);
-
         this.refreshPersonHasSelectionFlags();
     }
 
     private applySelectionsForSelectedPerson(): void {
+        // Reset aller Toggles
         this.currentWeekPlan.dayPlans.forEach((dp) => {
             dp.selectedMenu = null;
             dp.selectedEvening = null;
@@ -248,7 +212,6 @@ export class WeekPlanManagementComponent implements OnInit {
         const storage = this.loadStoredSelections();
         const weekKey = this.weekStart;
         const residentId = String(this.selectedPersonOption.id);
-
         const storedWeek = storage[weekKey]?.[residentId];
         if (!storedWeek) return;
 
@@ -256,7 +219,6 @@ export class WeekPlanManagementComponent implements OnInit {
             const index = Number(idxStr);
             const dp = this.currentWeekPlan.dayPlans[index];
             if (!dp) return;
-
             const sel = storedWeek[idxStr];
             dp.selectedMenu = sel.selectedMenu ?? null;
             dp.selectedEvening = sel.selectedEvening ?? null;
@@ -268,42 +230,12 @@ export class WeekPlanManagementComponent implements OnInit {
         const weekKey = this.weekStart;
         const weekData = storage[weekKey] || {};
 
-        const totalSlots = (this.currentWeekPlan?.dayPlans?.length ?? 7) * 2;
-
         this.personSelectorList.forEach((p) => {
-            const residentWeek = weekData[String(p.id)];
-            const hasAny = !!residentWeek;
-
-            let selectedCount = 0;
-
-            if (residentWeek) {
-                Object.keys(residentWeek).forEach((idxStr) => {
-                    const sel = residentWeek[idxStr];
-                    if (sel?.selectedMenu) selectedCount++;
-                    if (sel?.selectedEvening) selectedCount++;
-                });
-            }
-
-            p.hasSelection = hasAny;
-            p.missingCount = hasAny ? Math.max(0, totalSlots - selectedCount) : 0;
+            p.hasSelection = !!weekData[String(p.id)];
         });
     }
 
-    // =========================
-    // SAVE BUTTON STATE
-    // =========================
-
-    hasAnySelectionForSelectedPerson(): boolean {
-        if (!this.selectedPersonOption) return false;
-
-        return this.currentWeekPlan.dayPlans?.some(
-            (dp) => !!dp.selectedMenu || !!dp.selectedEvening
-        );
-    }
-
-    // =========================
-    // UI HANDLER
-    // =========================
+    // === UI HANDLER ===
 
     onPersonSelected(person: PersonOption | null): void {
         this.selectedPersonOption = person;
@@ -314,17 +246,25 @@ export class WeekPlanManagementComponent implements OnInit {
         this.persistCurrentSelectionsForSelectedPerson();
     }
 
-    // =========================
-    // TOGGLES (wieder mit Persist!)
-    // =========================
+    // === TOGGLE-LOGIK ===
 
     toggleMenu(dayPlan: DayPlan, menu: 'one' | 'two'): void {
-        dayPlan.selectedMenu = dayPlan.selectedMenu === menu ? null : menu;
+        if (dayPlan.selectedMenu === menu) {
+            dayPlan.selectedMenu = null;
+        } else {
+            dayPlan.selectedMenu = menu;
+        }
         this.persistCurrentSelectionsForSelectedPerson();
     }
 
     toggleEvening(dayPlan: DayPlan, evening: 'one' | 'two'): void {
-        dayPlan.selectedEvening = dayPlan.selectedEvening === evening ? null : evening;
+        if (dayPlan.selectedEvening === evening) {
+            dayPlan.selectedEvening = null;
+        } else {
+            dayPlan.selectedEvening = evening;
+        }
         this.persistCurrentSelectionsForSelectedPerson();
     }
+
+    protected readonly console = console;
 }

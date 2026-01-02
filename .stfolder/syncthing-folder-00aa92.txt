@@ -1,0 +1,5 @@
+# This directory is a Syncthing folder marker.
+# Do not delete.
+
+folderID: d6zet-rtrpg
+created: 2025-12-10T13:36:02+01:00

@@ -1,51 +1,19 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-100">
-    <div class="flex flex-col md:flex-row gap-8 w-full max-w-6xl p-6">
+<div class="min-h-screen flex justify-center bg-indigo-200">
+    <div class="flex flex-col md:flex-row gap-8 w-full p-6">
 
         <!-- LEFT: Food-Liste -->
         <div class="w-full md:w-1/3 bg-white rounded-2xl shadow-md p-4 flex flex-col">
-            @if (foods.length !== 0) {
-                <!-- Suchfeld -->
-                <form class="mb-4 flex items-center gap-2">
-                    <input
-                            id="nameFilter"
-                            pInputText
-                            [formControl]="nameFilter"
-                            type="text"
-                            placeholder="Suchen..."
-                            class="w-full"
-                    />
-                </form>
-
-                @if (!searchLoading) {
-                    <table class="w-full border-collapse">
-                        <thead>
-                        <tr class="border-b border-slate-200">
-                            <th class="py-2 text-left text-sm font-semibold text-slate-600">
-                                Gerichtname
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            @for (food of filteredFood; track food) {
-                                <tr
-                                        class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
-                                        (click)="loadFood(food)"
-                                >
-                                    <td class="py-2 text-sm text-slate-800">
-                                        {{ food.Name }}
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                } @else {
-                    <div class="list-loading flex justify-center items-center min-h-[120px]">
-                        <p-progressSpinner
-                                [style]="{ width: '40px', height: '40px' }"
-                                strokeWidth="6"
-                        ></p-progressSpinner>
-                    </div>
-                }
+            @if (foods().length !== 0) {
+                <p-list-box
+                        [options]="foods()"
+                        [(ngModel)]="selectedFood"
+                        (ngModelChange)="onFoodSelected($event)"
+                        optionLabel="Name"
+                        [filter]="true"
+                        [listStyle]="{ 'max-height': '80vh', 'overflow': 'auto' }"
+                        class="w-full"
+                >
+                </p-list-box>
             } @else {
                 <div class="loading flex flex-col justify-center items-center h-full py-10">
                     <p-progressSpinner
@@ -59,13 +27,14 @@
             }
         </div>
 
+
         <!-- RIGHT: Formular -->
         <div class="w-full md:w-2/3 bg-white rounded-2xl shadow-md p-6">
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="gap-6">
 
                 <!-- Bildbereich -->
-                <div class="w-full lg:w-1/2 flex flex-col items-start">
-                    <div class="w-full h-44 rounded-lg overflow-hidden bg-slate-100">
+                <div class="">
+                    <div class="w-full h-52 rounded-lg overflow-hidden bg-slate-100">
                         @if (newFood.Picture.Base64) {
                             <img
                                     [src]="img.src"
@@ -102,9 +71,9 @@
                 </div>
 
                 <!-- Text / Formular -->
-                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                <div class="w-full flex flex-col gap-4 mt-5">
                     <div>
-                        <h2 class="text-xl font-semibold text-slate-800 mb-2">
+                        <h2 class="text-xl font-semibold text-slate-800">
                             {{ newFood.ID ? 'Gericht bearbeiten:' : 'Neues Gericht anlegen:' }}
                         </h2>
                     </div>
