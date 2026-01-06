@@ -10,7 +10,6 @@ import java.util.List;
 
 @Path("/api/allergens")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class AllergenResource {
 
     @Inject
@@ -25,10 +24,5 @@ public class AllergenResource {
     @Path("/{shortname}")
     public Allergen getOne(@PathParam("shortname") String shortname) {
         return service.findByShortname(shortname);
-    }
-
-    @POST
-    public Allergen create(Allergen allergen) {
-        return service.create(allergen);
     }
 }

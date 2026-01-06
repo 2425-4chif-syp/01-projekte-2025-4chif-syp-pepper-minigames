@@ -2,8 +2,6 @@ package com.pep.mealplan.service;
 
 import com.pep.mealplan.entity.Person;
 import com.pep.mealplan.repository.PersonRepository;
-import com.pep.mealplan.resource.dto.PersonCreateRequest;
-import com.pep.mealplan.resource.dto.PersonResponse;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,44 +16,25 @@ public class PersonService {
     PersonRepository personRepo;
 
     // GET ALL
-    public List<PersonResponse> getAll() {
-        return personRepo.listAll()
-                .stream()
-                .map(PersonResponse::fromEntity)
-                .toList();
+    public List<Person> getAll() {
+        return personRepo.listAll();
     }
 
     // GET BY ID
-    public PersonResponse getById(Long id) {
-        Person p = personRepo.findById(id);
-        return (p == null) ? null : PersonResponse.fromEntity(p);
+    public Person getById(Long id) {
+        return personRepo.findById(id);
+    }
+
+    // COUNT
+    public long count() {
+        return personRepo.count();
     }
 
     // CREATE
     @Transactional
-    public PersonResponse create(PersonCreateRequest req) {
-        Person p = new Person();
-        p.firstname = req.firstname;
-        p.lastname = req.lastname;
-        p.email = req.email;
-        p.faceId = req.faceId;
-
-        personRepo.persist(p);
-        return PersonResponse.fromEntity(p);
-    }
-
-    // UPDATE
-    @Transactional
-    public PersonResponse update(Long id, PersonCreateRequest req) {
-        Person p = personRepo.findById(id);
-        if (p == null) return null;
-
-        if (req.firstname != null) p.firstname = req.firstname;
-        if (req.lastname != null) p.lastname = req.lastname;
-        if (req.email != null) p.email = req.email;
-        if (req.faceId != null) p.faceId = req.faceId;
-
-        return PersonResponse.fromEntity(p);
+    public Person create(Person person) {
+        personRepo.persist(person);
+        return person;
     }
 
     // DELETE

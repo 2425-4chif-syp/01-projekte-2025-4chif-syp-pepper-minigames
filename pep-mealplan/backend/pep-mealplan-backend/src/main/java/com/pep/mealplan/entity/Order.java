@@ -2,41 +2,35 @@ package com.pep.mealplan.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "meal_order") // <-- FIX HIER
+@Table(
+        name = "orders",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"person_id", "order_date"})
+        }
+)
 public class Order extends PanacheEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id")
     public Person person;
 
+
+
+    @Column(name = "order_date", nullable = false)
+    public LocalDate date;
+
+
+
+    // genau EIN Mittagessen (Menu 1 oder Menu 2)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "mealplan_id")
-    public MealPlan mealPlan;
+    @JoinColumn(name = "selected_lunch_id")
+    public Food selectedLunch;
 
-    @ManyToOne
-    @JoinColumn(name = "starter_id")
-    public Food selectedStarter;
-
-    @ManyToOne
-    @JoinColumn(name = "main_id")
-    public Food selectedMain;
-
-    @ManyToOne
-    @JoinColumn(name = "evening_id")
-    public Food selectedEvening;
-
-    @ManyToOne
-    @JoinColumn(name = "dessert_id")
-    public Food selectedDessert;
-
-    @Column(nullable = false)
-    public LocalDateTime createdAt;
-
-    @PrePersist
-    void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+    // genau EIN Abendessen (Abend 1 oder Abend 2)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "selected_dinner_id")
+    public Food selectedDinner;
 }

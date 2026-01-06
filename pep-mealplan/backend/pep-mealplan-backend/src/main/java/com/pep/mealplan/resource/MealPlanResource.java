@@ -1,16 +1,15 @@
 package com.pep.mealplan.resource;
 
-import com.pep.mealplan.resource.dto.MealPlanCreateRequest;
-import com.pep.mealplan.resource.dto.MealPlanResponse;
+import com.pep.mealplan.entity.MealPlan;
 import com.pep.mealplan.service.MealPlanService;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.time.LocalDate;
 
-@Path("/mealplans")
+import java.util.List;
+
+@Path("/api/menu")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MealPlanResource {
@@ -18,79 +17,46 @@ public class MealPlanResource {
     @Inject
     MealPlanService service;
 
-    // -------------------------------------------------------
-    // GET ALL
-    // -------------------------------------------------------
+    // -------------------------------------------------
+    // READ
+    // -------------------------------------------------
+
     @GET
-    public Response getAll() {
-        return Response.ok(service.getAll()).build();
+    @Path("/week/{weekNumber}")
+    public List<MealPlan> getByWeek(@PathParam("weekNumber") int weekNumber) {
+        return service.getByWeek(weekNumber);
     }
 
-    // -------------------------------------------------------
-    // GET BY ID
-    // -------------------------------------------------------
     @GET
-    @Path("/{id}")
-    public Response getById(@PathParam("id") Long id) {
-        MealPlanResponse res = service.getById(id);
-        if (res == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(res).build();
+    @Path("/day/{weekNumber}/{weekDay}")
+    public MealPlan getByWeekAndDay(
+            @PathParam("weekNumber") int weekNumber,
+            @PathParam("weekDay") int weekDay
+    ) {
+        return service.getByWeekAndDay(weekNumber, weekDay);
     }
 
-    // -------------------------------------------------------
-    // GET BY DATE: /mealplans/date?value=2025-01-01
-    // -------------------------------------------------------
-    @GET
-    @Path("/date")
-    public Response getByDate(@QueryParam("value") String dateString) {
-        if (dateString == null)
-            return Response.status(Response.Status.BAD_REQUEST).entity("Missing date query param").build();
+    // -------------------------------------------------
+    // WRITE (UPSERT)
+    // -------------------------------------------------
 
-        LocalDate date = LocalDate.parse(dateString);
-        MealPlanResponse res = service.getByDate(date);
-
-        if (res == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(res).build();
-    }
-
-    // -------------------------------------------------------
-    // CREATE (DTO)
-    // -------------------------------------------------------
     @POST
-    public Response create(MealPlanCreateRequest dto) {
-        MealPlanResponse created = service.createFromDto(dto);
-        return Response.status(Response.Status.CREATED).entity(created).build();
+    public Response upsertDay(MealPlan plan) {
+        MealPlan saved = service.upsertDay(plan);
+        return Response.ok(saved).build();
     }
 
-    // -------------------------------------------------------
-    // ADD FOOD TO CATEGORY
-    // POST /mealplans/{id}/add?food=10&category=starter
-    // -------------------------------------------------------
     @POST
-    @Path("/{id}/add")
-    public Response addFood(
-            @PathParam("id") Long id,
-            @QueryParam("food") Long foodId,
-            @QueryParam("category") String category) {
-
-        MealPlanResponse result = service.addFood(id, foodId, category);
-        if (result == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(result).build();
+    @Path("/week")
+    public Response upsertWeek(List<MealPlan> plans) {
+        service.upsertWeek(plans);
+        return Response.ok().build();
     }
 
-    // -------------------------------------------------------
-    // REMOVE FOOD
-    // DELETE /mealplans/{id}/remove?food=10&category=main
-    // -------------------------------------------------------
     @DELETE
-    @Path("/{id}/remove")
-    public Response removeFood(
-            @PathParam("id") Long id,
-            @QueryParam("food") Long foodId,
-            @QueryParam("category") String category) {
-
-        MealPlanResponse result = service.removeFood(id, foodId, category);
-        if (result == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(result).build();
+    @Path("/wipe")
+    public Response wipeAll() {
+        service.deleteAll();
+        return Response.noContent().build();
     }
 }

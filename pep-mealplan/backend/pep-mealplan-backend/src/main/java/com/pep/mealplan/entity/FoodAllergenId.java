@@ -11,8 +11,9 @@ public class FoodAllergenId implements Serializable {
     @Column(name = "FoodId")
     public Long foodId;
 
-    @Column(name = "AllergenShortname")
+    @Column(name = "AllergenShortname", length = 5)
     public String allergenShortname;
+
 
     public FoodAllergenId() {}
 

@@ -1,7 +1,8 @@
 package com.pep.mealplan.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 
 @Entity
 public class Picture extends PanacheEntity {
@@ -14,10 +15,6 @@ public class Picture extends PanacheEntity {
 
     @Column(columnDefinition = "TEXT")
     public String base64;
-
-    @ManyToOne
-    @JoinColumn(name = "food_id")
-    public Food food;
 
     public Picture() {}
 }

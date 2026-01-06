@@ -2,39 +2,35 @@ package com.pep.mealplan.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.List;
-
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"weekNumber", "weekDay"})
+        }
+)
 public class MealPlan extends PanacheEntity {
 
     @Column(nullable = false)
-    public LocalDate date;   // Der Tag, für den der Speiseplan gilt
+    public int weekNumber;   // 1–4 (4-Wochen-Zyklus)
 
-    // -------- Starter (Vorspeisen) --------
-    @ManyToMany
-    @JoinTable(
-            name = "mealplan_starters",
-            joinColumns = @JoinColumn(name = "mealplan_id"),
-            inverseJoinColumns = @JoinColumn(name = "food_id")
-    )
-    public List<Food> starters;
+    @Column(nullable = false)
+    public int weekDay;      // 0 = Montag … 6 = Sonntag
 
-    // -------- Main Dishes (Hauptspeisen) --------
-    @ManyToMany
-    @JoinTable(
-            name = "mealplan_mains",
-            joinColumns = @JoinColumn(name = "mealplan_id"),
-            inverseJoinColumns = @JoinColumn(name = "food_id")
-    )
-    public List<Food> mains;
+    @ManyToOne
+    public Food soup;
 
-    // -------- Desserts (Nachspeisen) --------
-    @ManyToMany
-    @JoinTable(
-            name = "mealplan_desserts",
-            joinColumns = @JoinColumn(name = "mealplan_id"),
-            inverseJoinColumns = @JoinColumn(name = "food_id")
-    )
-    public List<Food> desserts;
+    @ManyToOne
+    public Food lunch1;
+
+    @ManyToOne
+    public Food lunch2;
+
+    @ManyToOne
+    public Food lunchDessert;
+
+    @ManyToOne
+    public Food dinner1;
+
+    @ManyToOne
+    public Food dinner2;
 }

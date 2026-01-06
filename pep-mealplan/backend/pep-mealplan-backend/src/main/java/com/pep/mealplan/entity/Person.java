@@ -3,7 +3,7 @@ package com.pep.mealplan.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-
+import java.time.LocalDate;
 @Entity
 public class Person extends PanacheEntity {
 
@@ -13,11 +13,9 @@ public class Person extends PanacheEntity {
     @Column(nullable = false)
     public String lastname;
 
-    @Column(nullable = false, unique = true)
-    public String email;
+    // optional
+    public LocalDate dob;
 
-    // Optional: später für Pepper Gesichtserkennung
+    // optional
     public String faceId;
-
-    public Person() {}
 }
