@@ -54,7 +54,7 @@ class FaceRecognitionViewModel : ViewModel(){
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
             try {
-                RoboterActions.speak("Ich mache kurz ein Foto von Ihnen")
+                RoboterActions.speak("Ich muss kurz überlegen, wer du bist.")
 
                 delay(3000)
 
@@ -81,8 +81,8 @@ class FaceRecognitionViewModel : ViewModel(){
                             response.contains("no faces in the image", ignoreCase = true)) {
                             errorMessage.value = "Kein Gesicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
                             hasError.value = true
-                        } else {  
-                            errorMessage.value = "Person nicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
+                        } else {
+                            errorMessage.value = "Person nicht erkannt - Melde dich bei einem Betreuer an.ya"
                             hasError.value = true
                         }
                         delay(1000)
