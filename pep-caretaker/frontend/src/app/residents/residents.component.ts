@@ -25,7 +25,7 @@ export class ResidentsComponent {
 
   residents = signal<Person[]>([]);
   profileImages = signal<Map<number, string>>(new Map());
-  memoryFilterActive = signal<boolean>(false);
+  filterMode = signal<'all' | 'workers' | 'residents'>('all');
   residentService = inject(ResidentServiceService);
   imageService = inject(ImageServiceService);
   dob = signal<string>('');
@@ -35,6 +35,35 @@ export class ResidentsComponent {
   isWorker = signal<boolean>(false);
   password = signal<string>('');
 
+  // Computed: Sortiert und gefiltert
+  sortedAndFilteredResidents = computed(() => {
+    let filtered = this.residents();
+    
+    // Filter anwenden
+    const mode = this.filterMode();
+    if (mode === 'workers') {
+      filtered = filtered.filter(p => p.isWorker === true);
+    } else if (mode === 'residents') {
+      filtered = filtered.filter(p => p.isWorker === false);
+    }
+    
+    // Sortierung: Erst Hilfskräfte, dann Bewohner, jeweils alphabetisch
+    return filtered.sort((a, b) => {
+      // 1. Nach isWorker sortieren (Hilfskräfte zuerst)
+      if (a.isWorker && !b.isWorker) return -1;
+      if (!a.isWorker && b.isWorker) return 1;
+      
+      // 2. Alphabetisch nach Nachname, dann Vorname
+      const lastNameCompare = (a.lastName || '').localeCompare(b.lastName || '');
+      if (lastNameCompare !== 0) return lastNameCompare;
+      return (a.firstName || '').localeCompare(b.firstName || '');
+    });
+  });
+
+  // Zähler für Filter-Buttons
+  workersCount = computed(() => this.residents().filter(p => p.isWorker === true).length);
+  residentsCount = computed(() => this.residents().filter(p => p.isWorker === false).length);
+
   ngOnInit() {
     this.getAllResidents();
   }
@@ -42,15 +71,18 @@ export class ResidentsComponent {
   getAllResidents(){
     this.residentService.getResidents().subscribe({
       next: data => {
-        const sortedData = data.sort((a, b) => a.id - b.id);
-        this.residents.set(sortedData);
-        console.log(this.residents())
-        this.loadProfileImages(sortedData);
+        this.residents.set(data);
+        console.log('Loaded residents:', this.residents());
+        this.loadProfileImages(data);
       },
       error: error=> {
         console.error("Laden der Personen fehlgeschlagen." + error.name);
       }
     });
+  }
+
+  setFilter(mode: 'all' | 'workers' | 'residents') {
+    this.filterMode.set(mode);
   }
 
   loadProfileImages(persons: Person[]) {

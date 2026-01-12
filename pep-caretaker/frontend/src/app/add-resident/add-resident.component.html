@@ -71,7 +71,75 @@
 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Passwort:</label>
-                    <input type="password" [(ngModel)]="password" class="rounded p-2 border border-gray-300 text-center w-full">
+                    <input type="password" 
+                           [(ngModel)]="password" 
+                           (focus)="showPasswordFeedback.set(true)"
+                           class="rounded p-2 border border-gray-300 text-center w-full">
+                    
+                    <!-- Passwort-Stärke-Anzeige -->
+                    @if (showPasswordFeedback() && password()) {
+                        <div class="mt-2 space-y-2">
+                            <!-- Stärke-Balken -->
+                            <div class="flex gap-1">
+                                @for (i of [1,2,3,4,5]; track i) {
+                                    <div class="flex-1 h-2 rounded"
+                                         [ngClass]="i <= passwordValidation().score ? 
+                                                    passwordValidator.getStrengthColor(passwordValidation().strength) : 
+                                                    'bg-gray-200'">
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Stärke-Text -->
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="font-semibold"
+                                      [ngClass]="{
+                                        'text-green-600': passwordValidation().strength === 'strong',
+                                        'text-yellow-600': passwordValidation().strength === 'medium',
+                                        'text-red-600': passwordValidation().strength === 'weak'
+                                      }">
+                                    {{passwordValidator.getStrengthText(passwordValidation().strength)}}
+                                </span>
+                                @if (passwordValidation().isValid) {
+                                    <span class="text-green-600 flex items-center gap-1 text-xs">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        ✓ Gültig
+                                    </span>
+                                }
+                            </div>
+                            
+                            <!-- Anforderungen-Checkliste -->
+                            <div class="bg-gray-50 rounded p-2 text-xs space-y-1">
+                                <div class="flex items-center gap-1.5"
+                                     [ngClass]="passwordValidation().checks.minLength ? 'text-green-600' : 'text-gray-400'">
+                                    <span [innerHTML]="passwordValidation().checks.minLength ? '✓' : '○'"></span>
+                                    Mindestens 8 Zeichen
+                                </div>
+                                <div class="flex items-center gap-1.5"
+                                     [ngClass]="passwordValidation().checks.hasUpperCase ? 'text-green-600' : 'text-gray-400'">
+                                    <span [innerHTML]="passwordValidation().checks.hasUpperCase ? '✓' : '○'"></span>
+                                    Ein Großbuchstabe (A-Z)
+                                </div>
+                                <div class="flex items-center gap-1.5"
+                                     [ngClass]="passwordValidation().checks.hasLowerCase ? 'text-green-600' : 'text-gray-400'">
+                                    <span [innerHTML]="passwordValidation().checks.hasLowerCase ? '✓' : '○'"></span>
+                                    Ein Kleinbuchstabe (a-z)
+                                </div>
+                                <div class="flex items-center gap-1.5"
+                                     [ngClass]="passwordValidation().checks.hasNumber ? 'text-green-600' : 'text-gray-400'">
+                                    <span [innerHTML]="passwordValidation().checks.hasNumber ? '✓' : '○'"></span>
+                                    Eine Zahl (0-9)
+                                </div>
+                                <div class="flex items-center gap-1.5"
+                                     [ngClass]="passwordValidation().checks.hasSpecialChar ? 'text-green-600' : 'text-gray-400'">
+                                    <span [innerHTML]="passwordValidation().checks.hasSpecialChar ? '✓' : '○'"></span>
+                                    Sonderzeichen (!&#64;#$%...)
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="flex flex-col space-y-1">
@@ -83,10 +151,12 @@
 
         <!-- Buttons -->
         <div class="flex justify-center gap-4 mt-6">
-            <button [disabled]="!firstName() || !lastName() || !dob() || !password() || !roomNo()" 
+            <button [disabled]="!firstName() || !lastName() || !dob() || !passwordValidation().isValid || !roomNo()" 
                     (click)="addPerson()" 
-                    style="background-color: #22BABB;" 
-                    class="btn text-white px-6 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+                    [ngClass]="passwordValidation().isValid && firstName() && lastName() ? 
+                              'bg-green-600 hover:bg-green-700' : 
+                              'bg-gray-400 cursor-not-allowed'"
+                    class="btn text-white px-6 py-2 rounded-lg disabled:opacity-60">
                 Person hinzufügen
             </button>
             <button [routerLink]="['/residents']" 

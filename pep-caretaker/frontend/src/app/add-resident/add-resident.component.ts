@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { PersonDto } from '../models/person-dto.model';
 import { ResidentServiceService } from '../service/resident-service.service';
 import { ImageServiceService } from '../service/image-service.service';
+import { PasswordValidatorService } from '../password-validator.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +12,7 @@ import { ImageModel } from '../models/image.model';
 
 @Component({
   selector: 'app-add-resident',
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './add-resident.component.html',
   styleUrl: './add-resident.component.css'
 })
@@ -19,6 +20,8 @@ export class AddResidentComponent {
   router = inject(Router)
   residentService = inject(ResidentServiceService);
   imageService = inject(ImageServiceService);
+  passwordValidator = inject(PasswordValidatorService);
+  
   dob = signal<string>('');
   firstName = signal<string>('');
   lastName = signal<string>('');
@@ -28,7 +31,14 @@ export class AddResidentComponent {
 
   selectedRole = signal<string>('');
   selectedImage = signal<string | null>(null);
-  imageFile = signal<File | null>(null); 
+  imageFile = signal<File | null>(null);
+  
+  // Passwort-Validierung
+  passwordValidation = computed(() => 
+    this.passwordValidator.validatePassword(this.password())
+  );
+  
+  showPasswordFeedback = signal<boolean>(false); 
 
   onRoleChange(event: any) {  
     const selectedValue = event.target.value;
