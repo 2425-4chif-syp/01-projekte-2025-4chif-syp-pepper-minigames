@@ -595,7 +595,7 @@ private fun MenuSection(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_explain_nav1),
-                            contentDescription = "Menü vorlesen",
+                            contentDescription = "Navigation erklären",
                             modifier = Modifier.size(90.dp)
                         )
                     }
