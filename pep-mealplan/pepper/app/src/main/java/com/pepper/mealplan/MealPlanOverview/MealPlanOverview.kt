@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.compose.ui.res.painterResource
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -571,16 +572,15 @@ private fun MenuSection(
                         onClick = onReadMenu,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(120.dp),
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = MaterialTheme.colors.primary
                         )
                     ) {
-                        Text(
-                            text = "Menü vorlesen",
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colors.onPrimary,
-                            textAlign = TextAlign.Center
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_read_menu1),
+                            contentDescription = "Menü vorlesen",
+                            modifier = Modifier.size(90.dp)
                         )
                     }
 
@@ -588,16 +588,15 @@ private fun MenuSection(
                         onClick = onExplainNav,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(120.dp),
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = MaterialTheme.colors.secondary
                         )
                     ) {
-                        Text(
-                            text = "Navigation erklären",
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colors.onSecondary,
-                            textAlign = TextAlign.Center
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_explain_nav1),
+                            contentDescription = "Menü vorlesen",
+                            modifier = Modifier.size(90.dp)
                         )
                     }
                 }
