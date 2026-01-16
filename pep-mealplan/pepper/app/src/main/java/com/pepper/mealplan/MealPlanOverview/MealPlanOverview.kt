@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -21,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -29,15 +30,12 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.pepper.mealplan.R
+import com.pepper.mealplan.RoboterActions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import com.pepper.mealplan.RoboterActions
-import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -47,7 +45,7 @@ fun MealPlanOverview(
     viewModel: MealPlanOverviewViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 return MealPlanOverviewViewModel(foundPerson) as T
             }
         }
@@ -230,6 +228,27 @@ private fun DayPager(
         state = pagerState,
         modifier = Modifier.fillMaxSize()
     ) { page ->
+
+        // Texte für Pepper pro Seite
+        val speechTextMeals = remember(day, page) {
+            buildSpeechTextForPage(day, page)
+        }
+        val speechTextNav = remember(page) {
+            buildNavigationSpeechForPage(page)
+        }
+
+        val onReadMenu: () -> Unit = {
+            coroutineScope.launch(Dispatchers.IO) {
+                RoboterActions.speak(speechTextMeals)
+            }
+        }
+
+        val onExplainNav: () -> Unit = {
+            coroutineScope.launch(Dispatchers.IO) {
+                RoboterActions.speak(speechTextNav)
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -239,64 +258,10 @@ private fun DayPager(
                     .fillMaxWidth()
             ) {
                 when (page) {
-                    0 -> SoupScreen(day = day)
-                    1 -> MiddayScreen(day = day)
-                    2 -> DessertScreen(day = day)
-                    3 -> DinnerScreen(day = day)
-                }
-            }
-
-            // --- Buttons für Vorlesen & Navigation erklären ---
-            val speechTextMeals = remember(day, page) {
-                buildSpeechTextForPage(day, page)
-            }
-            val speechTextNav = remember(page) {
-                buildNavigationSpeechForPage(page)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            RoboterActions.speak(speechTextMeals)
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.primary
-                    )
-                ) {
-                    Text(
-                        text = "Menü vorlesen",
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colors.onPrimary
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            RoboterActions.speak(speechTextNav)
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.secondary
-                    )
-                ) {
-                    Text(
-                        text = "Navigation erklären",
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colors.onSecondary
-                    )
+                    0 -> SoupScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
+                    1 -> MiddayScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
+                    2 -> DessertScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
+                    3 -> DinnerScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
                 }
             }
 
@@ -322,7 +287,11 @@ private fun DayPager(
 
 // ---------- Seite 0: Suppe ----------
 @Composable
-private fun SoupScreen(day: DayMealsUi) {
+private fun SoupScreen(
+    day: DayMealsUi,
+    onReadMenu: () -> Unit,
+    onExplainNav: () -> Unit
+) {
     val soup = day.meals.getOrNull(0)
 
     Column(
@@ -343,6 +312,8 @@ private fun SoupScreen(day: DayMealsUi) {
                 foodName = it.foodName,
                 backgroundColor = Color(0xFFE3F2FD),
                 foodType = it.foodType,
+                onReadMenu = onReadMenu,
+                onExplainNav = onExplainNav,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -353,7 +324,11 @@ private fun SoupScreen(day: DayMealsUi) {
 
 // ---------- Seite 1: Mittagessen (Hauptgericht 1 & 2) ----------
 @Composable
-private fun MiddayScreen(day: DayMealsUi) {
+private fun MiddayScreen(
+    day: DayMealsUi,
+    onReadMenu: () -> Unit,
+    onExplainNav: () -> Unit
+) {
     val main1 = day.meals.getOrNull(1)
     val main2 = day.meals.getOrNull(2)
 
@@ -379,17 +354,8 @@ private fun MiddayScreen(day: DayMealsUi) {
                     foodName = it.foodName,
                     backgroundColor = Color(0xFFF3E5F5),
                     foodType = it.foodType,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                )
-            }
-            main2?.let {
-                MenuSection(
-                    title = it.title,
-                    foodName = it.foodName,
-                    backgroundColor = Color(0xFFF3E5F5),
-                    foodType = it.foodType,
+                    onReadMenu = onReadMenu,
+                    onExplainNav = onExplainNav,
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f)
@@ -401,7 +367,11 @@ private fun MiddayScreen(day: DayMealsUi) {
 
 // ---------- Seite 2: Dessert ----------
 @Composable
-private fun DessertScreen(day: DayMealsUi) {
+private fun DessertScreen(
+    day: DayMealsUi,
+    onReadMenu: () -> Unit,
+    onExplainNav: () -> Unit
+) {
     val dessert = day.meals.getOrNull(3)
 
     Column(
@@ -422,6 +392,8 @@ private fun DessertScreen(day: DayMealsUi) {
                 foodName = it.foodName,
                 backgroundColor = Color(0xFFFFF3E0),
                 foodType = it.foodType,
+                onReadMenu = onReadMenu,
+                onExplainNav = onExplainNav,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -432,9 +404,12 @@ private fun DessertScreen(day: DayMealsUi) {
 
 // ---------- Seite 3: Abendessen (1 & 2) ----------
 @Composable
-private fun DinnerScreen(day: DayMealsUi) {
+private fun DinnerScreen(
+    day: DayMealsUi,
+    onReadMenu: () -> Unit,
+    onExplainNav: () -> Unit
+) {
     val dinner1 = day.meals.getOrNull(4)
-    val dinner2 = day.meals.getOrNull(5)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -458,17 +433,8 @@ private fun DinnerScreen(day: DayMealsUi) {
                     foodName = it.foodName,
                     backgroundColor = Color(0xFFE8F5E8),
                     foodType = it.foodType,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                )
-            }
-            dinner2?.let {
-                MenuSection(
-                    title = it.title,
-                    foodName = it.foodName,
-                    backgroundColor = Color(0xFFE8F5E8),
-                    foodType = it.foodType,
+                    onReadMenu = onReadMenu,
+                    onExplainNav = onExplainNav,
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f)
@@ -502,11 +468,13 @@ private fun MenuSection(
     foodName: String,
     backgroundColor: Color,
     foodType: String? = null,
+    onReadMenu: (() -> Unit)? = null,
+    onExplainNav: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .defaultMinSize(minHeight = 140.dp)
+            .defaultMinSize(minHeight = 200.dp)   // höher als vorher
             .background(
                 color = backgroundColor,
                 shape = RoundedCornerShape(12.dp)
@@ -517,6 +485,7 @@ private fun MenuSection(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Bild links
             if (foodType != null) {
                 val context = LocalContext.current
                 val bitmap = remember(foodType) {
@@ -572,6 +541,7 @@ private fun MenuSection(
                 Spacer(modifier = Modifier.width(16.dp))
             }
 
+            // Text in der Mitte
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -587,6 +557,50 @@ private fun MenuSection(
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold
                 )
+            }
+
+            // Rechts: Buttons untereinander im Kasten
+            if (onReadMenu != null && onExplainNav != null) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier.widthIn(min = 180.dp, max = 220.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = onReadMenu,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = MaterialTheme.colors.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Menü vorlesen",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colors.onPrimary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    Button(
+                        onClick = onExplainNav,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = MaterialTheme.colors.secondary
+                        )
+                    ) {
+                        Text(
+                            text = "Navigation erklären",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colors.onSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }
