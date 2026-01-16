@@ -64,9 +64,6 @@ class MealPlanOverviewViewModel(
 
             val todayCal = Calendar.getInstance()
 
-            // WeekNumber für heute (6-Wochen-Zyklus)
-            val currentWeek = getWeekNumberForDate(todayCal)
-
             // Heute + 2 Tage aufbauen
             val days = (0..2).map { offset ->
                 val cal = (todayCal.clone() as Calendar).apply {
@@ -74,10 +71,10 @@ class MealPlanOverviewViewModel(
                 }
                 val indexFromToday = offset
                 val weekdayCode = cal.toWeekdayCode()
-                val weekNumberForDate = getWeekNumberForDate(cal)
 
+                // 🔹 WICHTIG: aktuell NUR nach Wochentag filtern
                 val menu = allData.menus.firstOrNull {
-                    it.weekNumber == weekNumberForDate && it.weekday == weekdayCode
+                    it.weekday == weekdayCode
                 }
 
                 buildDayMealsUi(
@@ -90,7 +87,6 @@ class MealPlanOverviewViewModel(
 
             threeDayMeals = days
 
-            // nächste Mahlzeit für heute
             val nowMinutes = todayCal.get(Calendar.HOUR_OF_DAY) * 60 +
                     todayCal.get(Calendar.MINUTE)
 
@@ -104,6 +100,7 @@ class MealPlanOverviewViewModel(
             isLoading = false
         }
     }
+
 
     // ---------- Hilfsfunktionen ----------
 
