@@ -34,7 +34,7 @@ class FaceRecognitionViewModel : ViewModel(){
             
             if(currentHumanAwareness != null && !hasSpokenToPerson.value){
                 hasSpokenToPerson.value = true
-                RoboterActions.speak("Haben Sie schon Ihre Mahlzeiten eingetragen?")
+                RoboterActions.speak("Hallo! Hast du alle deine Mahlzeiten schon eingetragen?")
             }
             
             previousHumanAwareness = currentHumanAwareness
@@ -73,20 +73,22 @@ class FaceRecognitionViewModel : ViewModel(){
 
                         delay(2000)
                         onAuthenticationSuccess?.invoke()
-                        RoboterActions.speak("Hallo " + response + " Was wollen Sie essen?")
+                        RoboterActions.speak("Hallo " + response + "! Was möchtest du heute essen?")
 
                     } else {
                         // Behandle Server-Errors als Fehler
                         if (response.contains("Error processing image", ignoreCase = true) || 
                             response.contains("no faces in the image", ignoreCase = true)) {
-                            errorMessage.value = "Kein Gesicht erkannt - Drücken Sie die obere Taste um es erneut zu versuchen"
+                            errorMessage.value = "Kein Gesicht erkannt - Drücken die obere Taste um es erneut zu versuchen"
                             hasError.value = true
+                            delay(1000)
+                            RoboterActions.speak("Huch, ich konnte dein Gesicht nicht richtig sehen. Probieren wir es nochmal?")
                         } else {
-                            errorMessage.value = "Person nicht erkannt - Melde dich bei einem Betreuer an.ya"
+                            errorMessage.value = "Ich kenne dich noch nicht - Bitte melde dich bei einem Betreuer an."
                             hasError.value = true
+                            delay(1000)
+                            RoboterActions.speak("Oh, ich kenne dich leider noch nicht. Geh doch bitte kurz zu einem Betreuer, damit er dich anmelden kann!")
                         }
-                        delay(1000)
-                        RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
                         isLoading.value = false
                     }
                 }
@@ -95,7 +97,7 @@ class FaceRecognitionViewModel : ViewModel(){
                     errorMessage.value = "Drücken Sie die obere Taste um sich anzumelden"
                     hasError.value = true
                     delay(1000)
-                    RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                    RoboterActions.speak("Tut mir leid, ich habe gerade Probleme mich zu verbinden.")
                     Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     isLoading.value = false
                 }
