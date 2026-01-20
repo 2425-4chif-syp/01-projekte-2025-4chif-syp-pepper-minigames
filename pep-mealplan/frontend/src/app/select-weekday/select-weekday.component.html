@@ -1,22 +1,78 @@
-<div class="week-container">
-  <div class="header">
-    <button class="back-button" (click)="goBack()">Zurück</button>
-    <div class="person-name">{{ personName }}</div>
-    <div class="week-dates">
-      {{ daysOfWeek[0].date | date:'dd.MM.yyyy' }} - {{ daysOfWeek[6].date | date:'dd.MM.yyyy' }}
-    </div>
-  </div>
-  <div class="week-grid">
-    @for (day of daysOfWeek; track day) {
-      <div
-        class="day"
-        [ngClass]="{ ordered: day.hasOrder }"
-        (click)="onDayClick(day.date)">
-        <div class="day-content">
-          <div class="day-name">{{ day.dayName }}</div>
-          <div class="day-date">{{ day.date | date:'dd.MM.yyyy' }}</div>
+<div class="min-h-screen bg-slate-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <p-button
+                    icon="pi pi-arrow-left"
+                    label="Zurück"
+                    [text]="true"
+                    (onClick)="goBack()"
+                ></p-button>
+
+                <div class="text-center">
+                    <h1 class="text-xl font-bold text-slate-800">{{ personName }}</h1>
+                    <p class="text-sm text-slate-500">
+                        {{ daysOfWeek[0]?.date | date:'dd.MM.yyyy' }} - {{ daysOfWeek[6]?.date | date:'dd.MM.yyyy' }}
+                    </p>
+                </div>
+
+                <div class="w-20"></div>
+            </div>
         </div>
-      </div>
-    }
-  </div>
+    </div>
+
+    <!-- Week Grid -->
+    <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Wochentag auswählen</h2>
+            <p class="text-sm text-slate-500">Klicken Sie auf einen Tag, um die Bestellung aufzugeben</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            @for (day of daysOfWeek; track day) {
+                <div
+                    class="bg-white rounded-xl shadow-md p-4 cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+                    [class.ring-2]="day.hasOrder"
+                    [class.ring-green-500]="day.hasOrder"
+                    [class.bg-green-50]="day.hasOrder"
+                    (click)="onDayClick(day.date)"
+                >
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-slate-600 uppercase mb-1">
+                            {{ day.date | date:'EEE':'':'de' }}
+                        </p>
+                        <p class="text-3xl font-bold text-slate-800 mb-1">
+                            {{ day.date | date:'dd' }}
+                        </p>
+                        <p class="text-xs text-slate-500">
+                            {{ day.date | date:'MMM':'':'de' }}
+                        </p>
+
+                        @if (day.hasOrder) {
+                            <div class="mt-3">
+                                <p-tag value="Bestellt" severity="success" [rounded]="true"></p-tag>
+                            </div>
+                        } @else {
+                            <div class="mt-3">
+                                <p-tag value="Offen" severity="secondary" [rounded]="true"></p-tag>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-6 flex items-center gap-6 justify-center text-sm text-slate-600">
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                <span>Bestellt</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded-full bg-slate-200"></div>
+                <span>Noch nicht bestellt</span>
+            </div>
+        </div>
+    </div>
 </div>
