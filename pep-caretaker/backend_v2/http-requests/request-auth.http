@@ -1,4 +1,9 @@
-POST {{host}}/api/api/auth/text/verify
+POST {{host}}/api/auth/text/verify
 Content-Type: text/plain
 
 David Cristea
+
+###
+
+POST {{host}}/api/auth/face/verify
+Content-Type: application/json

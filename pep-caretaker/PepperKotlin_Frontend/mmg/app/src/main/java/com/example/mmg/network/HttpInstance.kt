@@ -1,5 +1,6 @@
 package com.example.mmg.network
 
+import android.util.Log
 import com.example.mmg.dto.MmgDto
 import com.example.mmg.dto.StepDto
 import com.example.mmg.network.service.MmgApiService
@@ -10,46 +11,89 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class HttpInstance {
-    companion object{
-        val BACKEND_URL = "http://192.88.24.188"
+    companion object {
+        private const val BACKEND_URL = "https://vm107.htl-leonding.ac.at/"
 
-        // Client-Objekt einmal erstellen und wiederverwenden
+        private val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+
+        private val sslContext = SSLContext.getInstance("TLS").apply {
+            init(null, trustAllCerts, SecureRandom())
+        }
+
         private val client = OkHttpClient.Builder()
-            .connectTimeout(90, TimeUnit.SECONDS)
-            .readTimeout(90, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .protocols(listOf(Protocol.HTTP_1_1))
+            .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
             .build()
 
-        val retrofit: Retrofit = Retrofit.Builder()
+        private val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(BACKEND_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
 
-        val apiService: MmgApiService = retrofit.create(MmgApiService::class.java)
+        private val apiService: MmgApiService = retrofit.create(MmgApiService::class.java)
 
-        suspend fun fetchMmgDtos(): List<MmgDto>? {
-            return withContext(Dispatchers.IO) {
+        suspend fun fetchMmgDtos(): List<MmgDto>? =
+            withContext(Dispatchers.IO) {
                 try {
-                    apiService.getMmgDtos()
+                    val response = apiService.getMmgDtos()
+                    if (response.isSuccessful) {
+                        response.body()
+                    } else {
+                        Log.e("API", "Error: ${response.code()} - ${response.message()}")
+                        null
+                    }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("API", "Exception: ${e.message}", e)
                     null
                 }
             }
-        }
 
-        suspend fun fetchMmgSteps(id: Int): List<StepDto>?{
-            return withContext(Dispatchers.IO){
+        suspend fun fetchMmgSteps(id: Int): List<StepDto>? =
+            withContext(Dispatchers.IO) {
                 try {
-                    apiService.getSteps(id)
-                }catch (e: Exception){
-                    e.printStackTrace()
+                    val response = apiService.getSteps(id)
+                    if (response.isSuccessful) {
+                        response.body()
+                    } else {
+                        Log.e("API", "Error: ${response.code()} - ${response.message()}")
+                        null
+                    }
+                } catch (e: Exception) {
+                    Log.e("API", "Exception: ${e.message}", e)
                     null
                 }
             }
-        }
+
+        suspend fun fetchImage(id: Int): ByteArray? =
+            withContext(Dispatchers.IO) {
+                try {
+                    val response = apiService.getImage(id)
+                    if (response.isSuccessful) {
+                        response.body()?.bytes()
+                    } else {
+                        Log.e("API", "Error fetching image: ${response.code()} - ${response.message()}")
+                        null
+                    }
+                } catch (e: Exception) {
+                    Log.e("API", "Exception fetching image: ${e.message}", e)
+                    null
+                }
+            }
     }
 }

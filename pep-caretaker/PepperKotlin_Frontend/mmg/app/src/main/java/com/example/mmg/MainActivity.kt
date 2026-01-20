@@ -8,11 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
-import com.example.mmg.presentation.MmgScreen
 import com.example.mmg.viewmodel.MmgViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mmg.navigation.AppNavigaton
 
@@ -25,30 +21,29 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         QiSDK.register(this, this)
 
         setContent {
+            mmgViewModel = viewModel()
             val navController = rememberNavController()
-            mmgViewModel = MmgViewModel(navController = navController)
             AppNavigaton(navController = navController, mmgViewModel = mmgViewModel)
         }
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        // Context für Pepper um seine Funktionen aufrufen zu können
         RoboterActions.qiContext = qiContext
-        Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
-        // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
         RoboterActions.robotExecute = true
+        Log.d("QiContext","${RoboterActions.robotExecute} / ${RoboterActions.qiContext}")
     }
 
     override fun onRobotFocusLost() {
-        QiSDK.unregister(this,this)
+        RoboterActions.robotExecute = false
+        RoboterActions.qiContext = null
+    }
+
+    override fun onDestroy() {
+        QiSDK.unregister(this, this)
         super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {
-
-        // Im Logcat werden Fehlermeldungen ausgeben, falls die Verbindung unterbrochen wird
-        if(reason != null){
-            Log.d("Reason:",reason)
-        }
+        // Robot focus was refused
     }
 }

@@ -45,8 +45,8 @@
         </div>      
       }@else -->
         <picture>
-          <source [srcset]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href + '?ngsw-bypass=true'" type="image/jpeg">
-          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + image.href + '?ngsw-bypass=true'" 
+          <source [srcset]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'" type="image/jpeg">
+          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'" 
                [alt]="image.description" 
                class="w-full h-48 object-cover">
         </picture>
@@ -62,7 +62,7 @@
       <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
   
       <img
-        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/' + selectedImage()?.href + '?ngsw-bypass=true'"
+        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + selectedImage()?.id + '?ngsw-bypass=true'"
         [alt]="selectedImage()?.description"
         class="w-full max-h-[60vh] object-contain mb-4" 
       />

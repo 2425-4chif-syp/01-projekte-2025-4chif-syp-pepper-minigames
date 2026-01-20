@@ -19,14 +19,14 @@ public class AwsClientProvider {
     public static RekognitionClient getRekognitionClient() {
         return RekognitionClient.builder()
                 .credentialsProvider(credentials)
-                .region(Region.US_EAST_1)
+                .region(Region.EU_CENTRAL_1)
                 .build();
     }
 
     public static DynamoDbClient getDynamoDbClient() {
         return DynamoDbClient.builder()
                 .credentialsProvider(credentials)
-                .region(Region.US_EAST_1)
+                .region(Region.EU_CENTRAL_1)
                 .build();
     }
 }
