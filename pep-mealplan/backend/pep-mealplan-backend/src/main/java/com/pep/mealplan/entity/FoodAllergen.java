@@ -3,6 +3,7 @@ package com.pep.mealplan.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "pe_foodallergen")
 public class FoodAllergen {
 
     @EmbeddedId
