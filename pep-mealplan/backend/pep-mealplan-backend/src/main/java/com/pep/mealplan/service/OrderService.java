@@ -115,11 +115,16 @@ public class OrderService {
     // -------------------------------------------------
 
     private boolean isValidLunch(Food food, MealPlan plan) {
-        return food.equals(plan.lunch1) || food.equals(plan.lunch2);
+        return isSameFood(food, plan.lunch1) || isSameFood(food, plan.lunch2);
     }
 
     private boolean isValidDinner(Food food, MealPlan plan) {
-        return food.equals(plan.dinner1) || food.equals(plan.dinner2);
+        return isSameFood(food, plan.dinner1) || isSameFood(food, plan.dinner2);
+    }
+
+    private boolean isSameFood(Food a, Food b) {
+        if (a == null || b == null) return false;
+        return a.id != null && a.id.equals(b.id);
     }
 
     // -------------------------------------------------
