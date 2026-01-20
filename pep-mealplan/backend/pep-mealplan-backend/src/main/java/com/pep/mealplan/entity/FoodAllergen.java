@@ -1,6 +1,7 @@
 package com.pep.mealplan.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "pe_foodallergen")
@@ -12,6 +13,7 @@ public class FoodAllergen {
     @ManyToOne
     @MapsId("foodId")   // Verbindet id.foodId ←→ Food.id
     @JoinColumn(name = "FoodId")
+    @JsonIgnore
     public Food food;
 
     @ManyToOne
