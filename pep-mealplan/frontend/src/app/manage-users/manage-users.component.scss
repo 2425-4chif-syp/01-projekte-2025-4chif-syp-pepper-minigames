@@ -1,7 +1,7 @@
 .container {
   display: flex;
   padding: 2rem;
-  background-color: #f4f6f8;
+  background-color: var(--pep-background);
   justify-content: center;
   gap: 2rem;
   flex-wrap: wrap;
@@ -9,9 +9,9 @@
 }
 
 .user-form, .user-list-box {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
   width: 100%;
   max-width: 600px;
   flex: 1;
@@ -25,7 +25,7 @@
 
 .user-form h2 {
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--pep-text-primary);
 }
 
 .user-form .form-group {
@@ -36,15 +36,24 @@
   display: block;
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #666;
+  color: var(--pep-text-secondary);
 }
 
 .user-form .form-group input {
   width: 95%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--pep-border);
+  border-radius: var(--pep-radius-sm);
   font-size: 1rem;
+  background-color: var(--pep-surface);
+  color: var(--pep-text-primary);
+  transition: border-color var(--pep-transition), box-shadow var(--pep-transition);
+
+  &:focus {
+    outline: none;
+    border-color: var(--pep-primary);
+    box-shadow: 0 0 0 2px var(--pep-primary-100);
+  }
 }
 
 .user-form .button-container {
@@ -55,16 +64,16 @@
 
 .user-form .button-container button {
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--pep-radius-sm);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color var(--pep-transition-slow);
 }
 
 .user-form .button-container button:hover {
-  background-color: #0056b3;
+  background-color: var(--pep-primary-dark);
 }
 
 .user-list-box {
@@ -80,11 +89,19 @@
 
 .filter-form input {
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--pep-border);
+  border-radius: var(--pep-radius-sm);
   font-size: 1rem;
   width: 100%;
   max-width: 300px;
+  background-color: var(--pep-surface);
+  color: var(--pep-text-primary);
+
+  &:focus {
+    outline: none;
+    border-color: var(--pep-primary);
+    box-shadow: 0 0 0 2px var(--pep-primary-100);
+  }
 }
 
 .user-list {
@@ -100,44 +117,45 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--pep-border);
   user-select: none;
+  transition: background-color var(--pep-transition);
 }
 
 .user-list li:hover {
-  background-color: #f0f0f0;
+  background-color: var(--pep-surface-alt);
 }
 
 .user-list span {
-  color: #333;
+  color: var(--pep-text-primary);
 }
 
 .user-list button {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  border-radius: 4px;
-  transition: background-color 0.3s, color 0.3s;
+  border-radius: var(--pep-radius-sm);
+  transition: background-color var(--pep-transition-slow), color var(--pep-transition-slow);
   border: none;
   cursor: pointer;
 }
 
 .user-list .delete-button {
-  background-color: #dc3545;
-  color: #fff;
+  background-color: var(--pep-danger);
+  color: var(--pep-text-inverse);
 }
 
 .user-list .delete-button:hover {
-  background-color: #c82333;
+  background-color: #DC2626;
 }
 
 .no-users-message {
   padding: 10px;
   text-align: center;
-  color: #999;
+  color: var(--pep-text-muted);
   font-style: italic;
-  background-color: #f0f0f0;
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
+  background-color: var(--pep-surface-alt);
+  border: 1px solid var(--pep-border);
+  border-radius: var(--pep-radius);
 }
 
 .list-loading {

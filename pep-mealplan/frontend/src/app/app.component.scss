@@ -1,0 +1,7 @@
+.nav-item-inactive {
+  color: white !important;
+
+  &:hover {
+    color: var(--pep-primary-dark) !important;
+  }
+}

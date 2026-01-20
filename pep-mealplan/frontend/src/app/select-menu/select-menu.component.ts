@@ -4,11 +4,16 @@ import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { API_URL } from '../constants';
-import { Resident } from '../residents-api.service';
+import { UserAPIService } from '../services/residents-api.service';
+import { MenuAPIService } from '../services/menu-api.service';
+import { Resident } from '../models/resident.model';
+
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-select-menu',
-    imports: [CommonModule],
+    imports: [CommonModule, ButtonModule, TagModule],
     templateUrl: './select-menu.component.html',
     styleUrls: ['./select-menu.component.scss']
 })
@@ -26,8 +31,14 @@ export class SelectMenuComponent implements OnInit {
   menu: any = null;
   userId: number | null = null;
 
-  constructor(private route: ActivatedRoute, @Inject(Router) private router: Router,
-              private http: HttpClient, private sanitizer: DomSanitizer) {}
+  constructor(
+    private route: ActivatedRoute,
+    @Inject(Router) private router: Router,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer,
+    private residentApi: UserAPIService,
+    private menuApi: MenuAPIService
+  ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -69,12 +80,16 @@ export class SelectMenuComponent implements OnInit {
   private loadResident(): void {
     if (!this.name) return;
     const parts = this.name.split(' ');
-    const first = encodeURIComponent(parts[0]);
-    const last = encodeURIComponent(parts.slice(1).join(' '));
-    this.http.get<Resident[]>(`${API_URL}/api/residents?FirstName=${first}&LastName=${last}`).subscribe(res => {
-      if (res.length > 0) {
-        const r: any = res[0] as any;
-        this.userId = r.id ?? r.ID;
+    const first = parts[0]?.trim() ?? '';
+    const last = parts.slice(1).join(' ').trim();
+    this.residentApi.getResidents().subscribe((res: Resident[]) => {
+      const match = res.find(
+        (r) =>
+          r.firstname.toLowerCase() === first.toLowerCase() &&
+          r.lastname.toLowerCase() === last.toLowerCase()
+      );
+      if (match?.id != null) {
+        this.userId = match.id;
         this.loadExistingOrder();
       }
     });
@@ -82,7 +97,9 @@ export class SelectMenuComponent implements OnInit {
 
   private loadMenu(): void {
     if (!this.rawDate) return;
-    this.http.get<any>(`${API_URL}/api/menu/date/${this.rawDate}`).subscribe(data => {
+    const [year, month, day] = this.rawDate.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    this.menuApi.getMenuForDate(date).subscribe((data) => {
       this.menu = data;
       this.loadExistingOrder();
     });
@@ -92,18 +109,20 @@ export class SelectMenuComponent implements OnInit {
     if (!this.userId || !this.rawDate || !this.menu) return;
     this.http.get<any[]>(`${API_URL}/api/orders/date/${this.rawDate}`).subscribe({
       next: data => {
-        const existing = data.find(o => o.User && (o.User.ID === this.userId || o.User.id === this.userId));
+        const existing = data.find(
+          (o) => o.person && o.person.id === this.userId
+        );
         if (existing) {
-          const lunchId = Number(existing.SelectedLunchID);
-          const dinnerId = Number(existing.SelectedDinnerID);
-          if (lunchId === Number(this.menu.Lunch1ID)) {
+          const lunchId = Number(existing.selectedLunch?.id);
+          const dinnerId = Number(existing.selectedDinner?.id);
+          if (lunchId && lunchId === Number(this.menu.lunch1?.id)) {
             this.selectedMeal = 'Lunch1';
-          } else if (lunchId === Number(this.menu.Lunch2ID)) {
+          } else if (lunchId && lunchId === Number(this.menu.lunch2?.id)) {
             this.selectedMeal = 'Lunch2';
           }
-          if (dinnerId === Number(this.menu.Dinner1ID)) {
+          if (dinnerId && dinnerId === Number(this.menu.dinner1?.id)) {
             this.selectedDinner = 'Dinner1';
-          } else if (dinnerId === Number(this.menu.Dinner2ID)) {
+          } else if (dinnerId && dinnerId === Number(this.menu.dinner2?.id)) {
             this.selectedDinner = 'Dinner2';
           }
         }else{
@@ -117,12 +136,17 @@ export class SelectMenuComponent implements OnInit {
 
   private saveOrder(): void {
     if (!this.userId || !this.rawDate || !this.menu) return;
+    if (!this.selectedMeal || !this.selectedDinner) return;
+    const lunch =
+      this.selectedMeal === 'Lunch1' ? this.menu.lunch1 : this.menu.lunch2;
+    const dinner =
+      this.selectedDinner === 'Dinner1' ? this.menu.dinner1 : this.menu.dinner2;
+    if (!lunch?.id || !dinner?.id) return;
     const payload = {
-      Date: this.rawDate,
-      UserID: this.userId,
-      DessertSelected: false,
-      SelectedLunchID: this.selectedMeal === 'Lunch1' ? Number(this.menu.Lunch1ID) : this.selectedMeal === 'Lunch2' ? Number(this.menu.Lunch2ID) : null,
-      SelectedDinnerID: this.selectedDinner === 'Dinner1' ? Number(this.menu.Dinner1ID) : this.selectedDinner === 'Dinner2' ? Number(this.menu.Dinner2ID) : null
+      date: this.rawDate,
+      person: { id: this.userId },
+      selectedLunch: { id: Number(lunch.id) },
+      selectedDinner: { id: Number(dinner.id) }
     };
     this.http.put(`${API_URL}/api/orders/by-user-date`, payload).subscribe({
       next: () => this.loadExistingOrder(),
@@ -131,8 +155,8 @@ export class SelectMenuComponent implements OnInit {
   }
 
   imgSrc(food: any): SafeUrl {
-    if (!food || !food.Picture) return '' as any;
-    const url = `data:${food.Picture.MediaType};base64,${food.Picture.Base64}`;
+    if (!food || !food.picture) return '' as any;
+    const url = `data:${food.picture.mediaType};base64,${food.picture.base64}`;
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
@@ -155,7 +179,7 @@ export class SelectMenuComponent implements OnInit {
 
   // Zurück zur vorherigen Seite
   goBack(): void {
-    this.router.navigate(['/select-weekday', this.name]);
+    this.router.navigate(['/order-day', this.name]);
   }
 
   previousDate(): void {
@@ -163,7 +187,7 @@ export class SelectMenuComponent implements OnInit {
     if (currentDate.getDay() === 1) return;
     currentDate.setDate(currentDate.getDate() - 1);
     const newDate = this.getFormattedDateForUrl(currentDate);
-    this.router.navigate(['/select-menu', this.name, newDate]);
+    this.router.navigate(['/order-menu', this.name, newDate]);
   }
 
   nextDate(): void {
@@ -171,7 +195,7 @@ export class SelectMenuComponent implements OnInit {
     if (currentDate.getDay() === 0) return;
     currentDate.setDate(currentDate.getDate() + 1);
     const newDate = this.getFormattedDateForUrl(currentDate);
-    this.router.navigate(['/select-menu', this.name, newDate]);
+    this.router.navigate(['/order-menu', this.name, newDate]);
   }
 
   getDateFromFormattedString(formattedString: string): Date {

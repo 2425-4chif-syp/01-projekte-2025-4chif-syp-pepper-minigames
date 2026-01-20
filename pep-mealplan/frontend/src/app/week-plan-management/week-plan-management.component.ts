@@ -1,21 +1,20 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { DayPlan, WeekPlan, MenuAPIService } from '../menu-api.service';
-import { UserAPIService, Resident } from '../residents-api.service';
+import { MenuAPIService } from '../services/menu-api.service';
+import { UserAPIService } from '../services/residents-api.service';
+import { OrdersAPIService, OrderUpsertPayload } from '../services/orders-api.service';
+import { ApiMealPlan } from '../models/api-meal-plan.model';
+import { DayPlan } from '../models/day-plan.model';
+import { PersonOption } from '../models/person-option.model';
+import { Resident } from '../models/resident.model';
+import { WeekPlan } from '../models/week-plan.model';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FileSaverService } from 'ngx-filesaver';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
-import { NgClass } from '@angular/common';
-
-interface PersonOption {
-    name: string;
-    code: string;
-    id: number;
-    hasSelection?: boolean;
-    missingCount?: number;
-}
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-week-plan-management',
@@ -28,7 +27,8 @@ interface PersonOption {
         MultiSelectModule,
         ButtonModule,
         ListboxModule,
-        NgClass
+        CardModule,
+        TagModule
     ],
     standalone: true
 })
@@ -53,10 +53,13 @@ export class WeekPlanManagementComponent implements OnInit {
     personSelectorList: PersonOption[] = [];
     selectedPersonOption: PersonOption | null = null;
 
+    saveState: 'idle' | 'saving' | 'saved' = 'idle';
+
     constructor(
         private menuApiService: MenuAPIService,
         private residentApiService: UserAPIService,
-        private fileSaverService: FileSaverService
+        private fileSaverService: FileSaverService,
+        private ordersApiService: OrdersAPIService
     ) {
         this.baseMonday = this.getThisWeeksMonday();
         this.weekStart = this.toIsoDate(this.baseMonday);
@@ -68,7 +71,7 @@ export class WeekPlanManagementComponent implements OnInit {
                 this.residents.set(res);
 
                 this.personSelectorList = this.residents().map((r) => ({
-                    name: `${r.Firstname} ${r.Lastname}`,
+                    name: `${r.firstname} ${r.lastname}`,
                     code: r.id!.toString(),
                     id: r.id!,
                     hasSelection: false,
@@ -111,7 +114,11 @@ export class WeekPlanManagementComponent implements OnInit {
     }
 
     private toIsoDate(d: Date): string {
-        return d.toISOString().split('T')[0];
+        const date = new Date(d);
+        const year = date.getFullYear();
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const day = (`0${date.getDate()}`).slice(-2);
+        return `${year}-${month}-${day}`;
     }
 
     // =========================
@@ -119,24 +126,16 @@ export class WeekPlanManagementComponent implements OnInit {
     // =========================
 
     exportAsWord(): void {
-        this.menuApiService.getExportedWord(this.weekStart).subscribe({
-            next: (response) => {
-                const contentDisposition = response.headers.get('content-disposition');
-                let filename = 'Speiseplan.docx';
-
-                if (contentDisposition) {
-                    const matches =
-                        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
-                    if (matches?.[1]) {
-                        filename = matches[1].replace(/['"]/g, '');
-                    }
-                }
-
-                this.fileSaverService.save(response.body, filename);
+        this.menuApiService.getExportedOrders(this.weekStart).subscribe({
+            next: (orders) => {
+                const blob = new Blob([JSON.stringify(orders, null, 2)], {
+                    type: 'application/json'
+                });
+                this.fileSaverService.save(blob, 'orders.json');
             },
             error: (error) => {
-                console.error('Fehler beim Word-Export:', error);
-                alert('Fehler beim Herunterladen des Word-Dokuments!');
+                console.error('Fehler beim Export:', error);
+                alert('Fehler beim Herunterladen des Exports!');
             }
         });
     }
@@ -235,6 +234,7 @@ export class WeekPlanManagementComponent implements OnInit {
         this.saveStoredSelections(storage);
 
         this.refreshPersonHasSelectionFlags();
+        this.saveSelectionsToBackend();
     }
 
     private applySelectionsForSelectedPerson(): void {
@@ -311,7 +311,16 @@ export class WeekPlanManagementComponent implements OnInit {
     }
 
     onSaveSelections(): void {
+        this.saveState = 'saving';
         this.persistCurrentSelectionsForSelectedPerson();
+
+        // Show saved state after a brief delay, then reset
+        setTimeout(() => {
+            this.saveState = 'saved';
+            setTimeout(() => {
+                this.saveState = 'idle';
+            }, 1500);
+        }, 500);
     }
 
     // =========================
@@ -326,5 +335,88 @@ export class WeekPlanManagementComponent implements OnInit {
     toggleEvening(dayPlan: DayPlan, evening: 'one' | 'two'): void {
         dayPlan.selectedEvening = dayPlan.selectedEvening === evening ? null : evening;
         this.persistCurrentSelectionsForSelectedPerson();
+    }
+
+    private saveSelectionsToBackend(): void {
+        if (!this.selectedPersonOption) return;
+
+        const personId = this.selectedPersonOption.id;
+        const dayPlans = this.currentWeekPlan.dayPlans ?? [];
+
+        dayPlans.forEach((dayPlan) => {
+            if (!dayPlan.selectedMenu || !dayPlan.selectedEvening) return;
+            if (!dayPlan.date) return;
+
+            this.menuApiService.getMenuForDate(dayPlan.date).subscribe({
+                next: (menu: ApiMealPlan) => {
+                    console.log('Menu from API:', menu);
+                    console.log('DayPlan:', dayPlan);
+
+                    const payload = this.buildOrderPayload(
+                        menu,
+                        dayPlan,
+                        personId
+                    );
+                    console.log('Payload to send:', payload);
+
+                    if (!payload) return;
+
+                    this.ordersApiService.upsertOrder(payload).subscribe({
+                        next: (res) => {
+                            console.log('Order saved successfully:', res);
+                        },
+                        error: (err) => {
+                            console.error('Failed to save order', err);
+                        }
+                    });
+                },
+                error: (err) => {
+                    console.error('Failed to load menu for order save', err);
+                }
+            });
+        });
+    }
+
+    private buildOrderPayload(
+        menu: ApiMealPlan,
+        dayPlan: DayPlan,
+        personId: number
+    ): OrderUpsertPayload | null {
+        if (!dayPlan.selectedMenu || !dayPlan.selectedEvening) return null;
+        if (!dayPlan.date) return null;
+
+        const selectedLunchName =
+            dayPlan.selectedMenu === 'one' ? dayPlan.menuOne : dayPlan.menuTwo;
+        const selectedDinnerName =
+            dayPlan.selectedEvening === 'one'
+                ? dayPlan.eveningOne
+                : dayPlan.eveningTwo;
+
+        const lunchId = this.findMenuItemIdByName(
+            [menu.lunch1, menu.lunch2],
+            selectedLunchName
+        );
+        const dinnerId = this.findMenuItemIdByName(
+            [menu.dinner1, menu.dinner2],
+            selectedDinnerName
+        );
+
+        if (!lunchId || !dinnerId) return null;
+
+        return {
+            date: this.toIsoDate(dayPlan.date),
+            personId: personId,
+            selectedLunchId: lunchId,
+            selectedDinnerId: dinnerId
+        };
+    }
+
+    private findMenuItemIdByName(
+        options: Array<{ id?: number; name?: string } | null | undefined>,
+        name: string | null | undefined
+    ): number | null {
+        if (!name) return null;
+        const match = options.find((opt) => opt?.name === name);
+        return match?.id != null ? Number(match.id) : null;
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "pe_food")
 public class Food extends PanacheEntity {
 
     @Column(nullable = false)

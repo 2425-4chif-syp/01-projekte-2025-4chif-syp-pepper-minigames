@@ -8,15 +8,15 @@
   max-width: 1200px;
   margin: 20px auto;
   padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
 }
 
 h2,
 .text-center {
   text-align: center;
-  color: #333;
+  color: var(--pep-text-primary);
 }
 
 table {
@@ -26,44 +26,40 @@ table {
 }
 
 thead {
-  background: #f4f4f4;
+  background: var(--pep-surface-alt);
 }
 
 thead th {
   padding: 10px;
   text-align: left;
-  background-color: lightgray;
-  border-bottom: 2px solid #ddd;
+  background-color: var(--pep-primary-50);
+  color: var(--pep-text-primary);
+  border-bottom: 2px solid var(--pep-border);
   position: sticky;
   top: 0;
   z-index: 1;
+  font-weight: 600;
 }
 
 tbody tr {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--pep-border);
+  transition: background-color var(--pep-transition);
 }
 
 tbody tr:nth-child(even) {
-  background: #f9f9f9;
+  background: var(--pep-surface-alt);
+}
+
+tbody tr:hover {
+  background-color: var(--pep-primary-50);
 }
 
 td {
   padding: 10px;
+  color: var(--pep-text-primary);
 }
 
 .menu-dishes {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  overflow-x: hidden;
-  padding: 10px;
-  white-space: nowrap;
-}
-.menu-dishes{
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -76,7 +72,7 @@ td {
 .centered-text {
   width: 100%;
   text-align: center;
-  margin: 0 auto; /* Wichtig für die Zentrierung */
+  margin: 0 auto;
 }
 
 .orders-table-wrapper {
@@ -102,12 +98,13 @@ td {
   flex-grow: 1;
   max-width: 200px;
   min-width: 150px;
-  background: #f9f9f9;
+  background: var(--pep-surface-alt);
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  border-radius: var(--pep-radius-sm);
+  box-shadow: var(--pep-shadow-sm);
   text-align: center;
   white-space: nowrap;
+  color: var(--pep-text-primary);
 }
 
 .view-options {

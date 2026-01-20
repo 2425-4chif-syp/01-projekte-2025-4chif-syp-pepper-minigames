@@ -8,14 +8,19 @@ import {
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { Allergen, Food, MenuAPIService, Picture } from '../menu-api.service';
+import { MenuAPIService } from '../services/menu-api.service';
+import { Allergen } from '../models/allergen.model';
+import { Food } from '../models/food.model';
+import { Picture } from '../models/picture.model';
 import { API_URL } from '../constants';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
-import {ListboxModule} from "primeng/listbox";
+import { ListboxModule } from 'primeng/listbox';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-food-management',
@@ -30,7 +35,9 @@ import {ListboxModule} from "primeng/listbox";
         SelectModule,
         ButtonModule,
         ProgressSpinnerModule,
-        ListboxModule
+        ListboxModule,
+        CardModule,
+        TagModule
     ]
 })
 export class FoodManagementComponent implements OnInit {
@@ -60,21 +67,21 @@ export class FoodManagementComponent implements OnInit {
 
     private createEmptyFood(): Food {
         return {
-            Name: '',
-            Allergens: [],
-            Type: '',
-            Picture: {
-                Base64: '',
-                Name: '',
-                MediaType: ''
+            name: '',
+            allergens: [],
+            type: '',
+            picture: {
+                base64: '',
+                name: '',
+                mediaType: ''
             } as Picture
         } as Food;
     }
 
     private restoreLastFoodType(): void {
         const lastSelectedType = localStorage.getItem('lastFoodType');
-        if (!this.newFood.Type && lastSelectedType) {
-            this.newFood.Type = lastSelectedType;
+        if (!this.newFood.type && lastSelectedType) {
+            this.newFood.type = lastSelectedType;
         }
     }
 
@@ -129,19 +136,19 @@ export class FoodManagementComponent implements OnInit {
 
         const reader = new FileReader();
 
-        this.newFood.Picture.Name = file.name.split('.')[0];
+        this.newFood.picture!.name = file.name.split('.')[0];
         const fileExtension = file.name.split('.').pop()?.toLowerCase() ?? '';
 
         switch (fileExtension) {
             case 'jpg':
             case 'jpeg':
-                this.newFood.Picture.MediaType = 'image/jpeg';
+                this.newFood.picture!.mediaType = 'image/jpeg';
                 break;
             case 'png':
-                this.newFood.Picture.MediaType = 'image/png';
+                this.newFood.picture!.mediaType = 'image/png';
                 break;
             default:
-                this.newFood.Picture.MediaType = 'image/jpeg';
+                this.newFood.picture!.mediaType = 'image/jpeg';
                 break;
         }
 
@@ -165,11 +172,11 @@ export class FoodManagementComponent implements OnInit {
                 ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                 const base64Data = canvas
-                    .toDataURL(this.newFood.Picture.MediaType, 0.7)
+                    .toDataURL(this.newFood.picture!.mediaType, 0.7)
                     .split(',')
                     .pop() as string;
 
-                this.newFood.Picture.Base64 = base64Data;
+                this.newFood.picture!.base64 = base64Data;
 
                 const compressedSize = base64Data.length * 3 / 4;
                 console.log(`Komprimierte Größe: ${compressedSize} Bytes`);
@@ -181,7 +188,7 @@ export class FoodManagementComponent implements OnInit {
                 );
 
                 this.img.src =
-                    'data:' + this.newFood.Picture.MediaType + ';base64,' + base64Data;
+                    'data:' + this.newFood.picture!.mediaType + ';base64,' + base64Data;
             };
         };
     }
@@ -191,26 +198,22 @@ export class FoodManagementComponent implements OnInit {
     // -----------------------------
 
     addFood(): void {
-        this.newFood.Allergens = this.allergens
+        this.newFood.allergens = this.allergens
             .filter((_, index) => this.allergensChecked[index])
-            .map(a => a.Shortname);
+            .map(a => a.shortname);
 
-        if (this.newFood.ID) {
-            this.menuApiService.updateFood(this.newFood).subscribe({
-                next: () => {
-                    this.loadFoods();
-                    this.resetForm();
-                }
-            });
-        } else {
-            this.menuApiService.addFood(this.newFood).subscribe({
-                next: () => {
-                    this.loadFoods();
-                    this.resetForm();
-                },
-                error: () => alert('Ein Fehler ist beim Speichern aufgetreten.')
-            });
+        if (this.newFood.id) {
+            alert('Änderungen bestehender Gerichte werden vom Backend derzeit nicht unterstützt.');
+            return;
         }
+
+        this.menuApiService.addFood(this.newFood).subscribe({
+            next: () => {
+                this.loadFoods();
+                this.resetForm();
+            },
+            error: () => alert('Ein Fehler ist beim Speichern aufgetreten.')
+        });
     }
 
     deleteFood(id: number, name: string): void {
@@ -233,16 +236,19 @@ export class FoodManagementComponent implements OnInit {
 
     loadFood(food: Food): void {
         this.newFood = { ...food };
+        if (!this.newFood.picture) {
+            this.newFood.picture = { base64: '', name: '', mediaType: '' };
+        }
 
         this.allergensChecked = this.allergens.map(a =>
-            (this.newFood.Allergens || []).includes(a.Shortname)
+            (this.newFood.allergens || []).includes(a.shortname)
         );
 
-        if (food.Picture && (food.Picture.Base64 || (food.Picture as any).Bytes)) {
+        if (food.picture && (food.picture.base64 || (food.picture as any).Bytes)) {
             const base64Bytes =
-                food.Picture.Base64 || (food.Picture as any).Bytes;
+                food.picture.base64 || (food.picture as any).Bytes;
             const mediaType =
-                food.Picture.MediaType || (food.Picture as any).mediaType;
+                food.picture.mediaType || (food.picture as any).mediaType;
 
             let imageData = base64Bytes;
             try {
@@ -265,5 +271,19 @@ export class FoodManagementComponent implements OnInit {
         this.restoreLastFoodType();
         this.allergensChecked = new Array(this.allergens.length).fill(false);
         this.img = new Image();
+    }
+
+    getFoodTypeLabel(type: string): string {
+        const found = this.foodTypes.find(t => t.value === type);
+        return found?.label ?? type;
+    }
+
+    getFoodTypeSeverity(type: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+        switch (type) {
+            case 'soup': return 'warn';
+            case 'main': return 'success';
+            case 'dessert': return 'info';
+            default: return 'secondary';
+        }
     }
 }

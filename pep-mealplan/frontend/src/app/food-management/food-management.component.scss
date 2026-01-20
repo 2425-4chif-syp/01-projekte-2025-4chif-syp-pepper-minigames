@@ -1,4 +1,3 @@
-/* Grundlegende Stile für die gesamte Seite */
 html, body {
   height: 100%;
   margin: 0;
@@ -8,35 +7,33 @@ html, body {
 }
 
 body {
-  background-color: #f4f6f8;
-  font-family: Arial, sans-serif;
+  background-color: var(--pep-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Hauptcontainer */
 .container {
   display: flex;
-  flex-direction: row; /* Elemente nebeneinander anordnen */
+  flex-direction: row;
   justify-content: center;
   align-items: flex-start;
   gap: 2rem;
-  flex-wrap: nowrap; /* Spalten bleiben nebeneinander */
+  flex-wrap: nowrap;
   padding: 2rem;
   box-sizing: border-box;
   max-width: 1200px;
   width: 100%;
 }
 
-/* Layout: Zwei Spalten */
 .food-form {
-  flex: 2; /* Größer als die food-box */
+  flex: 2;
   min-width: 400px;
   max-width: 70%;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
   padding: 2rem;
   display: flex;
-  flex-direction: row; /* Bild und Formular nebeneinander */
+  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -47,9 +44,9 @@ body {
   flex: 1;
   min-width: 300px;
   max-width: 30%;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
   display: flex;
   user-select: none;
   flex-direction: column;
@@ -58,8 +55,6 @@ body {
   min-height: 300px;
 }
 
-/* Container für Formular-Inhalte */
-/* Container, der Bild und Text nebeneinander anordnet */
 ::ng-deep .form-container {
   display: flex;
   flex-direction: row;
@@ -85,27 +80,24 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--pep-radius-sm);
 }
 
-
-#foodNameInput{
+#foodNameInput {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
 }
 
-#name{
+#name {
   font-size: 1.2rem;
-  color: #000007;
+  color: var(--pep-text-primary);
 }
 
-/* Überschrift */
 .food-form h2 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--pep-text-primary);
 }
 
-/* Formulargruppen */
 .food-form .form-group {
   margin-bottom: 1.5rem;
 }
@@ -114,10 +106,9 @@ body {
   display: block;
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #666;
+  color: var(--pep-text-secondary);
 }
 
-/* Allergene */
 .food-form .allergens {
   display: flex;
   flex-wrap: wrap;
@@ -126,18 +117,21 @@ body {
 }
 
 .food-form .allergens .checkbox-container {
-  flex: 1 1 calc(33.333% - 1rem); /* 3 Spalten */
+  flex: 1 1 calc(33.333% - 1rem);
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--pep-border);
+  border-radius: var(--pep-radius-sm);
   padding: 0.5rem;
-  background-color: #fff;
-  transition: background-color 0.3s, border-color 0.3s;
+  background-color: var(--pep-surface);
+  transition: background-color var(--pep-transition-slow), border-color var(--pep-transition-slow);
+
+  &:hover {
+    border-color: var(--pep-primary-light);
+  }
 }
 
-/* Suchfeld */
 .filter-form {
   margin-bottom: 1.5rem;
   display: flex;
@@ -147,14 +141,21 @@ body {
 
 .filter-form input {
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--pep-border);
+  border-radius: var(--pep-radius-sm);
   font-size: 1rem;
   width: 100%;
   max-width: 300px;
+  background-color: var(--pep-surface);
+  color: var(--pep-text-primary);
+
+  &:focus {
+    outline: none;
+    border-color: var(--pep-primary);
+    box-shadow: 0 0 0 2px var(--pep-primary-100);
+  }
 }
 
-/* Tabelle */
 .food-table {
   width: 100%;
   border-collapse: collapse;
@@ -164,37 +165,35 @@ body {
 .food-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--pep-border);
 }
 
 .food-table tbody tr:hover {
-  background-color: #f0f0f0;
+  background-color: var(--pep-surface-alt);
   cursor: pointer;
 }
 
-/* Upload-Bereich */
 .upload-container {
   text-align: center;
   margin-top: 1rem;
 }
 
 .upload-button {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--pep-radius-sm);
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition: background-color var(--pep-transition-slow), box-shadow var(--pep-transition-slow);
 }
 
 .upload-button:hover {
-  background-color: #0056b3;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  background-color: var(--pep-primary-dark);
+  box-shadow: var(--pep-shadow);
 }
 
-/* Buttons */
 .food-form .button-container {
   display: flex;
   justify-content: flex-end;
@@ -205,22 +204,19 @@ body {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--pep-radius-sm);
   cursor: pointer;
 }
 
 .button-container button.mat-raised-button {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
 }
 
 .button-container button.mat-raised-button:hover {
-  background-color: #0056b3;
+  background-color: var(--pep-primary-dark);
 }
 
-/* RESPONSIVENESS */
-
-/* Tablet (bis 1024px) */
 @media (max-width: 1024px) {
   .container {
     flex-direction: column;
@@ -235,7 +231,7 @@ body {
 
   .food-form {
     padding: 1.5rem;
-    flex-direction: column; /* Wechsel auf untereinander */
+    flex-direction: column;
     align-items: center;
   }
 
@@ -253,17 +249,16 @@ body {
   }
 
   .food-form .allergens .checkbox-container {
-    flex: 1 1 calc(50% - 1rem); /* 2 Spalten */
+    flex: 1 1 calc(50% - 1rem);
   }
 }
 
 .error {
-  color: red;
+  color: var(--pep-danger);
   font-size: 0.9rem;
   margin-top: 0.3rem;
 }
 
-/* Smartphone (bis 768px) */
 @media (max-width: 768px) {
   .food-form,
   .food-box {
@@ -286,7 +281,7 @@ body {
   }
 
   .food-form .allergens .checkbox-container {
-    flex: 1 1 100%; /* 1 Spalte */
+    flex: 1 1 100%;
   }
 
   .filter-form input {
@@ -298,7 +293,7 @@ body {
   }
 
   .food-form {
-    flex-direction: column; /* Bild und Formular untereinander */
+    flex-direction: column;
   }
 
   .image-container {
@@ -311,7 +306,6 @@ body {
   }
 }
 
-/* Kleine Smartphones (bis 480px) */
 @media (max-width: 480px) {
   .food-form .allergens .checkbox-container {
     flex: 1 1 100%;
@@ -354,6 +348,7 @@ body {
 
 .loading-text {
   margin-top: 1rem;
+  color: var(--pep-text-secondary);
 }
 
 .list-loading {
