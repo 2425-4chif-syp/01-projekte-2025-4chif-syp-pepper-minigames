@@ -1,28 +1,43 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressBarModule } from 'primeng/progressbar';
 
-import { UserAPIService, Resident } from '../residents-api.service';
-import { MenuAPIService, WeekPlan, DayPlan } from '../menu-api.service';
+import { MenuAPIService } from '../services/menu-api.service';
+import { UserAPIService } from '../services/residents-api.service';
+import { DayPlan } from '../models/day-plan.model';
+import { PersonalOrderRow } from '../models/personal-order-row.model';
+import { Resident } from '../models/resident.model';
+import { WeekPlan } from '../models/week-plan.model';
 
 type ViewOption = 'personal' | 'kueche';
-
-interface PersonalOrderRow {
-  residentId: number;
-  name: string;
-  soup: string | null;
-  lunch: string | null;
-  dessert: string | null;
-  dinner: string | null;
-}
 
 @Component({
   selector: 'app-overview-orders',
   templateUrl: './overview-orders.component.html',
   styleUrls: ['./overview-orders.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RadioButtonModule, NgClass]
+  imports: [
+        CommonModule,
+        FormsModule,
+        RadioButtonModule,
+        CardModule,
+        ButtonModule,
+        DatePickerModule,
+        TableModule,
+        TagModule,
+        TooltipModule,
+        ProgressSpinnerModule,
+        ProgressBarModule
+    ]
 })
 export class OverviewOrdersComponent implements OnInit {
   private readonly STORAGE_KEY = 'pepper_resident_week_selections';
@@ -153,7 +168,7 @@ export class OverviewOrdersComponent implements OnInit {
 
     for (const r of this.residents) {
       const residentId = Number(r.id);
-      const name = `${r.Firstname} ${r.Lastname}`;
+      const name = `${r.firstname} ${r.lastname}`;
 
       const residentWeek = weekData[String(residentId)];
       const daySel = residentWeek?.[String(this.dayIndex)];
@@ -250,8 +265,10 @@ export class OverviewOrdersComponent implements OnInit {
 
   private toIsoDate(d: Date): string {
     const date = new Date(d);
-    date.setHours(12, 0, 0, 0);
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = (`0${date.getMonth() + 1}`).slice(-2);
+    const day = (`0${date.getDate()}`).slice(-2);
+    return `${year}-${month}-${day}`;
   }
 
   private getMonday(base: Date): Date {
