@@ -1,181 +1,238 @@
 @if (food && allergens) {
-    <div class="container">
-        <div class="food-form">
-            <div class="form-group name-input-container flex flex-wrap gap-4 items-center">
-                <input
-                        id="name"
-                        [(ngModel)]="food.Name"
-                        placeholder="Name"
-                        class="border rounded px-3 py-2 w-full max-w-sm"
-                />
+    <div class="min-h-screen bg-slate-50 p-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-slate-800">Gericht bearbeiten</h1>
+                <p class="text-slate-500 mt-1">{{ food.name || 'Unbenannt' }}</p>
+            </div>
 
-                <!-- Typ-Auswahl mit PrimeNG Select + Tailwind -->
-                <div class="w-full max-w-xs">
-                    <label
-                            for="type"
-                            class="block mb-1 text-sm font-medium text-gray-700"
-                    >
-                        Typ
-                    </label>
-                    <p-select
-                            inputId="type"
+            <p-card styleClass="shadow-md">
+                <!-- Header with name and type -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-slate-600 mb-2">Name</label>
+                        <input
+                            id="name"
+                            pInputText
+                            [(ngModel)]="food.name"
+                            placeholder="Name des Gerichts"
                             class="w-full"
-                            [(ngModel)]="food.Type"
+                        />
+                    </div>
+
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-slate-600 mb-2">Typ</label>
+                        <p-select
+                            inputId="type"
+                            [(ngModel)]="food.type"
                             [options]="foodTypes"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Typ auswählen"
-                    ></p-select>
+                            styleClass="w-full"
+                        ></p-select>
+                    </div>
                 </div>
 
-                <div class="button-group" id="saveAndImageUpload">
-                    <input
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Allergens Column -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-3">Allergene</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[0]"
+                                [class.border-indigo-300]="allergensChecked[0]"
+                                [class.border-slate-200]="!allergensChecked[0]"
+                                [class.hover:border-indigo-200]="!allergensChecked[0]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[0]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">A - Gluten</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[1]"
+                                [class.border-indigo-300]="allergensChecked[1]"
+                                [class.border-slate-200]="!allergensChecked[1]"
+                                [class.hover:border-indigo-200]="!allergensChecked[1]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[1]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">B - Krebstiere</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[2]"
+                                [class.border-indigo-300]="allergensChecked[2]"
+                                [class.border-slate-200]="!allergensChecked[2]"
+                                [class.hover:border-indigo-200]="!allergensChecked[2]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[2]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">C - Eier</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[3]"
+                                [class.border-indigo-300]="allergensChecked[3]"
+                                [class.border-slate-200]="!allergensChecked[3]"
+                                [class.hover:border-indigo-200]="!allergensChecked[3]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[3]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">D - Fisch</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[4]"
+                                [class.border-indigo-300]="allergensChecked[4]"
+                                [class.border-slate-200]="!allergensChecked[4]"
+                                [class.hover:border-indigo-200]="!allergensChecked[4]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[4]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">E - Erdnüsse</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[5]"
+                                [class.border-indigo-300]="allergensChecked[5]"
+                                [class.border-slate-200]="!allergensChecked[5]"
+                                [class.hover:border-indigo-200]="!allergensChecked[5]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[5]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">F - Sojabohnen</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[6]"
+                                [class.border-indigo-300]="allergensChecked[6]"
+                                [class.border-slate-200]="!allergensChecked[6]"
+                                [class.hover:border-indigo-200]="!allergensChecked[6]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[6]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">G - Milch</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[7]"
+                                [class.border-indigo-300]="allergensChecked[7]"
+                                [class.border-slate-200]="!allergensChecked[7]"
+                                [class.hover:border-indigo-200]="!allergensChecked[7]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[7]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">H - Schalenfrüchte</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[8]"
+                                [class.border-indigo-300]="allergensChecked[8]"
+                                [class.border-slate-200]="!allergensChecked[8]"
+                                [class.hover:border-indigo-200]="!allergensChecked[8]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[8]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">L - Sellerie</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[9]"
+                                [class.border-indigo-300]="allergensChecked[9]"
+                                [class.border-slate-200]="!allergensChecked[9]"
+                                [class.hover:border-indigo-200]="!allergensChecked[9]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[9]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">M - Senf</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[10]"
+                                [class.border-indigo-300]="allergensChecked[10]"
+                                [class.border-slate-200]="!allergensChecked[10]"
+                                [class.hover:border-indigo-200]="!allergensChecked[10]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[10]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">N - Sesam</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[11]"
+                                [class.border-indigo-300]="allergensChecked[11]"
+                                [class.border-slate-200]="!allergensChecked[11]"
+                                [class.hover:border-indigo-200]="!allergensChecked[11]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[11]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">O - Sulfite</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[12]"
+                                [class.border-indigo-300]="allergensChecked[12]"
+                                [class.border-slate-200]="!allergensChecked[12]"
+                                [class.hover:border-indigo-200]="!allergensChecked[12]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[12]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">P - Lupinen</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all"
+                                [class.bg-indigo-50]="allergensChecked[13]"
+                                [class.border-indigo-300]="allergensChecked[13]"
+                                [class.border-slate-200]="!allergensChecked[13]"
+                                [class.hover:border-indigo-200]="!allergensChecked[13]"
+                            >
+                                <p-checkbox [(ngModel)]="allergensChecked[13]" [binary]="true"></p-checkbox>
+                                <span class="text-sm text-slate-700">R - Weichtiere</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Image Column -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-3">Bild</label>
+                        <div
+                            class="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-dashed border-slate-300 hover:border-indigo-400 transition-colors cursor-pointer group"
+                            (click)="fileUpload.click()"
+                        >
+                            @if (food.picture?.base64) {
+                                <img
+                                    [src]="'data:' + food.picture?.mediaType + ';base64,' + food.picture?.base64"
+                                    alt="Gericht Bild"
+                                    class="w-full h-full object-cover"
+                                />
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <i class="pi pi-camera text-white text-2xl"></i>
+                                </div>
+                            } @else {
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                                    <i class="pi pi-image text-4xl mb-2"></i>
+                                    <span class="text-sm">Klicken zum Hochladen</span>
+                                </div>
+                            }
+                        </div>
+                        <input
                             type="file"
                             id="picture"
                             (change)="onFileSelected($event)"
                             hidden
                             #fileUpload
-                    />
-                    <button
-                            mat-raised-button
-                            color="primary"
-                            style="margin-left: 10px;"
-                            (click)="fileUpload.click()"
-                    >
-                        Neues Bild hochladen
-                    </button>
-                    <button
-                            mat-raised-button
-                            color="primary"
-                            id="saveButton"
-                            (click)="updateFood()"
-                    >
-                        Speichern
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-content">
-                <div class="allergens-column">
-                    <div class="form-group">
-                        <label>Allergene:</label>
-                        <div class="allergens">
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[0] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[0]" />
-                                <span class="checkbox-label">A - Gluten</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[1] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[1]" />
-                                <span class="checkbox-label">B - Krebstiere</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[2] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[2]" />
-                                <span class="checkbox-label">C - Eier</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[3] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[3]" />
-                                <span class="checkbox-label">D - Fisch</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[4] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[4]" />
-                                <span class="checkbox-label">E - Erdnüsse</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[5] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[5]" />
-                                <span class="checkbox-label">F - Sojabohnen</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[6] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[6]" />
-                                <span class="checkbox-label">G - Milch</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[7] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[7]" />
-                                <span class="checkbox-label">H - Schalenfrüchte</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[8] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[8]" />
-                                <span class="checkbox-label">L - Sellerie</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[9] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[9]" />
-                                <span class="checkbox-label">M - Senf</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[10] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[10]" />
-                                <span class="checkbox-label">N - Sesam</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[11] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[11]" />
-                                <span class="checkbox-label"
-                                >O - Schwefeldioxid und Sulfite</span
-                                >
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[12] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[12]" />
-                                <span class="checkbox-label">P - Lupinen</span>
-                            </label>
-                            <label
-                                    class="checkbox-container"
-                                    [ngClass]="{ selected: allergensChecked[13] }"
-                            >
-                                <input type="checkbox" [(ngModel)]="allergensChecked[13]" />
-                                <span class="checkbox-label">R - Weichtiere</span>
-                            </label>
-                        </div>
+                            accept="image/*"
+                        />
                     </div>
                 </div>
 
-                <div class="details-column">
-                    <div class="form-group">
-                        @if (food.Picture.Base64) {
-                            <img
-                                    [src]="'data:' + food.Picture.MediaType + ';base64,' + food.Picture.Base64"
-                                    [style.width.px]="img.width"
-                                    [style.height.px]="img.height"
-                            />
-                        }
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-end gap-2">
+                        <p-button
+                            label="Bild hochladen"
+                            icon="pi pi-upload"
+                            [outlined]="true"
+                            (onClick)="fileUpload.click()"
+                        ></p-button>
+                        <p-button
+                            label="Speichern"
+                            icon="pi pi-check"
+                            (onClick)="updateFood()"
+                        ></p-button>
                     </div>
-                </div>
-            </div>
+                </ng-template>
+            </p-card>
         </div>
     </div>
 }
