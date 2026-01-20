@@ -1,6 +1,6 @@
 package com.pep.mealplan.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -11,7 +11,11 @@ import java.time.LocalDate;
                 @UniqueConstraint(columnNames = {"person_id", "order_date"})
         }
 )
-public class Order extends PanacheEntity {
+public class Order extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id")
