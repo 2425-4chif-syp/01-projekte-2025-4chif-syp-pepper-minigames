@@ -33,11 +33,11 @@ export class AppComponent implements OnInit{
         });
 
         this.items = [
-            { label: 'WOCHENPLAN', root: true, routerLink: '/week-plan-management' },
-            { label: 'BESTELLUNGEN', root: true, routerLink: '/overview-orders' },
-            { label: 'BEWOHNER', root: true, routerLink: '/manage-users' },
-            { label: 'GERICHTE', root: true, routerLink: '/food-management' },
-            { label: 'PLANNER', root: true, routerLink: '/raster' }
+            { label: 'WOCHENPLAN', root: true, routerLink: '/menu-week' },
+            { label: 'BESTELLUNGEN', root: true, routerLink: '/orders' },
+            { label: 'BEWOHNER', root: true, routerLink: '/users' },
+            { label: 'GERICHTE', root: true, routerLink: '/foods' },
+            { label: 'PLANNER', root: true, routerLink: '/menu-grid' }
         ];
     }
 
