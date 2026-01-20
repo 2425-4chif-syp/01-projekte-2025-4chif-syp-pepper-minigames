@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CdkDragDrop, CdkDrag, DragDropModule } from '@angular/cdk/drag-drop';
-import { debounceTime, of, forkJoin, distinctUntilChanged, delay, Observable } from 'rxjs';
+import { debounceTime, of, forkJoin, distinctUntilChanged } from 'rxjs';
 import { switchMap, map, catchError, tap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { HttpClient } from '@angular/common/http';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { DayPlan, Food, MenuAPIService, WeekPlan } from '../menu-api.service';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { InputTextModule } from 'primeng/inputtext';
+
+import { MenuAPIService } from '../services/menu-api.service';
+import { DayPlan } from '../models/day-plan.model';
+import { Food } from '../models/food.model';
+import { WeekPlan } from '../models/week-plan.model';
 
 @Component({
     selector: 'app-raster',
@@ -19,13 +23,11 @@ import { DayPlan, Food, MenuAPIService, WeekPlan } from '../menu-api.service';
         ReactiveFormsModule,
         FormsModule,
         DragDropModule,
-        MatButtonModule,
-        MatIconModule,
-        // TODO: `HttpClientModule` should not be imported into a component directly.
-        // Please refactor the code to add `provideHttpClient()` call to the provider list in the
-        // application bootstrap logic and remove the `HttpClientModule` import from this component.
-        MatTooltipModule,
-        MatProgressSpinnerModule,
+        CardModule,
+        ButtonModule,
+        TagModule,
+        ProgressSpinnerModule,
+        InputTextModule,
     ],
     templateUrl: './raster.component.html',
     styleUrls: ['./raster.component.scss'],
@@ -42,7 +44,7 @@ export class RasterComponent implements OnInit {
     'Sonntag',
   ];
   currentWeek = 1;
-  maxWeek = 6;
+  maxWeek = 4;
   foods: Food[] = [];
   filteredFood: Food[] = [];
   nameFilter = new FormControl('');
@@ -62,8 +64,7 @@ export class RasterComponent implements OnInit {
   }
 
   constructor(
-    private menuApiService: MenuAPIService,
-    private http: HttpClient
+    private menuApiService: MenuAPIService
   ) {}
 
   ngOnInit() {
@@ -104,7 +105,7 @@ export class RasterComponent implements OnInit {
               const merged = [...byName];
               byType.forEach((food: Food) => {
                 const exists = merged.some(
-                  (f) => (f.ID ?? f.Name) === (food.ID ?? food.Name)
+                  (f) => (f.id ?? f.name) === (food.id ?? food.name)
                 );
                 if (!exists) {
                   merged.push(food);
@@ -124,11 +125,7 @@ export class RasterComponent implements OnInit {
   }
 
   loadCycleLength() {
-    this.http
-      .get<{ cycleLength: number }>('http://localhost:3000/api/cycle-length')
-      .subscribe((res) => {
-        this.maxWeek = res.cycleLength;
-      });
+    // Backend nutzt einen 4-Wochen-Zyklus.
   }
 
   prevWeek() {
@@ -177,11 +174,8 @@ export class RasterComponent implements OnInit {
   onCsvUpload(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.weekPlanLoading = true;
-      this.uploadRaster(file).subscribe((plan: WeekPlan) => {
-        this.currentWeekPlan = plan;
-        this.weekPlanLoading = false;
-      });
+      alert('CSV-Import wird vom Backend derzeit nicht unterstützt.');
+      event.target.value = '';
     }
   }
 
@@ -204,7 +198,7 @@ export class RasterComponent implements OnInit {
         plan.dayPlans.forEach((dayPlan, index) => {
           const dayName = this.WEEK_DAYS[index];
           for (const key of Object.keys(dayPlan) as (keyof DayPlan)[]) {
-            if (dayPlan[key] === food.Name) {
+            if (dayPlan[key] === food.name) {
               matches.push(`Woche ${week}, ${dayName}`);
               break;
             }
@@ -246,7 +240,7 @@ export class RasterComponent implements OnInit {
       try {
         const plan: WeekPlan = JSON.parse(stored);
         if (
-          plan.dayPlans.some((day) => Object.values(day).includes(food.Name))
+          plan.dayPlans.some((day) => Object.values(day).includes(food.name))
         ) {
           return true;
         }
@@ -267,7 +261,7 @@ export class RasterComponent implements OnInit {
       const dayIndex = parseInt(match[2], 10);
 
       if (
-        this.currentWeekPlan.dayPlans[dayIndex]?.[field] === draggedFood.Name
+        this.currentWeekPlan.dayPlans[dayIndex]?.[field] === draggedFood.name
       ) {
         this.currentWeekPlan.dayPlans[dayIndex][field] = '' as any;
         this.triggerAutosave();
@@ -284,36 +278,36 @@ export class RasterComponent implements OnInit {
   }
 
   soupPredicate(drag: CdkDrag<Food>, _drop: any): boolean {
-    return drag.data && drag.data.Type === 'soup';
+    return drag.data && drag.data.type === 'soup';
   }
 
   mainPredicate(drag: CdkDrag<Food>, _drop: any): boolean {
     return (
-      drag.data && (drag.data.Type === 'main' || drag.data.Type === 'soup')
+      drag.data && (drag.data.type === 'main' || drag.data.type === 'soup')
     );
   }
 
   dessertPredicate(drag: CdkDrag<Food>, _drop: any): boolean {
-    return drag.data && drag.data.Type === 'dessert';
+    return drag.data && drag.data.type === 'dessert';
   }
 
   onMainDrop(event: any, day: DayPlan, field: keyof DayPlan) {
     if (event.previousContainer !== event.container) {
       const food = event.item.data as Food;
-      day[field] = food.Name as any;
+      day[field] = food.name as any;
       this.triggerAutosave();
     }
   }
 
   onSoupDrop(event: any, day: DayPlan) {
     const food = event.item.data as Food;
-    day.daySoup = food.Name as any;
+    day.daySoup = food.name as any;
     this.triggerAutosave();
   }
 
   onDessertDrop(event: any, day: DayPlan) {
     const food = event.item.data as Food;
-    day.dessert = food.Name as any;
+    day.dessert = food.name as any;
     this.triggerAutosave();
   }
 
@@ -332,39 +326,17 @@ export class RasterComponent implements OnInit {
     return this.menuApiService.getRasterWeek(_week);
   }
 
-  private uploadRaster(file: File) {
-    const reader = new FileReader();
-    const obs = new Observable<WeekPlan>((observer) => {
-      reader.onload = () => {
-        const csv = reader.result as string;
-        this.menuApiService.postCSVMenu(csv).subscribe({
-          next: () => {
-            this.getWeekPlan(this.currentWeek).subscribe((plan) => {
-              observer.next(plan);
-              observer.complete();
-            });
-          },
-          error: (e) => observer.error(e),
-        });
-      };
-    });
-    reader.readAsText(file);
-    return obs;
-  }
-
   private saveWeekPlan(plan: WeekPlan) {
-    const payload = {
-      WeekNumber: this.currentWeek,
-      menus: plan.dayPlans.map((d, i) => ({
-        WeekDay: i, // 0 = Montag, 1 = Dienstag, etc.
-        SoupID: this.getFoodIdByName(d.daySoup),
-        M1ID: this.getFoodIdByName(d.menuOne),
-        M2ID: this.getFoodIdByName(d.menuTwo),
-        LunchDessertID: this.getFoodIdByName(d.dessert),
-        A1ID: this.getFoodIdByName(d.eveningOne),
-        A2ID: this.getFoodIdByName(d.eveningTwo),
-      })),
-    };
+    const payload = plan.dayPlans.map((d, i) => ({
+      weekNumber: this.currentWeek,
+      weekDay: i,
+      soup: this.getFoodRefByName(d.daySoup),
+      lunch1: this.getFoodRefByName(d.menuOne),
+      lunch2: this.getFoodRefByName(d.menuTwo),
+      lunchDessert: this.getFoodRefByName(d.dessert),
+      dinner1: this.getFoodRefByName(d.eveningOne),
+      dinner2: this.getFoodRefByName(d.eveningTwo),
+    }));
     return this.menuApiService.updateWeekMenu(payload);
   }
 
@@ -377,7 +349,26 @@ export class RasterComponent implements OnInit {
     return of([]);
   }
 
-  private getFoodIdByName(name: string): number {
-    return this.foods.find(f => f.Name === name)?.ID ?? 0;
+  private getFoodRefByName(name: string): { id: number } | null {
+    const id = this.foods.find((f) => f.name === name)?.id ?? 0;
+    return id ? { id } : null;
+  }
+
+  getFoodTypeLabel(type: string): string {
+    switch (type) {
+      case 'soup': return 'Suppe';
+      case 'main': return 'Hauptgericht';
+      case 'dessert': return 'Nachspeise';
+      default: return type;
+    }
+  }
+
+  getFoodTypeSeverity(type: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
+    switch (type) {
+      case 'soup': return 'warn';
+      case 'main': return 'success';
+      case 'dessert': return 'info';
+      default: return 'secondary';
+    }
   }
 }
