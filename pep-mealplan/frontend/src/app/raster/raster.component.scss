@@ -6,10 +6,10 @@
 
 .week-plan {
   flex: 2;
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius-xl);
   padding: 24px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--pep-shadow-lg);
   display: flex;
   flex-direction: column;
   max-height: 700px;
@@ -45,6 +45,7 @@
     .week-label {
       font-size: 14px;
       font-weight: 600;
+      color: var(--pep-text-primary);
     }
   }
 
@@ -54,11 +55,12 @@
     align-items: center;
     text-align: center;
     padding: 10px 0;
-    background-color: #f7f7f7;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--pep-surface-alt);
+    border-top: 1px solid var(--pep-border);
+    border-bottom: 1px solid var(--pep-border);
     font-weight: 600;
     font-size: 13px;
+    color: var(--pep-text-primary);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -66,7 +68,7 @@
 }
 
 .day-label {
-  background-color: #eef3f9;
+  background-color: var(--pep-primary-50);
   font-weight: 600;
   text-align: center;
   padding: 6px 8px;
@@ -74,6 +76,7 @@
   font-size: 13px;
   margin-top: 10px;
   margin-bottom: 6px;
+  color: var(--pep-primary-dark);
 }
 
 .food-row {
@@ -84,7 +87,7 @@
 
 .food-card {
   min-height: 36px;
-  border-radius: 8px;
+  border-radius: var(--pep-radius);
   padding: 6px 8px;
   font-weight: 500;
   font-size: 13px;
@@ -92,78 +95,80 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: 0.2s ease;
-  background-color: #f9f9f9;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: var(--pep-transition);
+  background-color: var(--pep-surface-alt);
+  box-shadow: var(--pep-shadow-sm);
 
   &.soup-card {
-    background-color: #ffe9cc;
+    background-color: var(--pep-soup);
   }
 
   &.menu-card {
-    background-color: #d9f7d9;
+    background-color: var(--pep-menu);
   }
 
   &.dessert-card {
-    background-color: #ffdce0;
+    background-color: var(--pep-dessert);
   }
 
   &.evening-card {
-    background-color: #ddeeff;
+    background-color: var(--pep-evening);
   }
 
   &.not-allowed {
     opacity: 0.5;
-    border: 1px dashed red;
+    border: 1px dashed var(--pep-danger);
   }
 
   p {
     margin: 0;
     font-size: 13px;
+    color: var(--pep-text-primary);
   }
 }
 
 .food-item {
-  background: #fff;
-  border-radius: 6px;
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius-sm);
   padding: 4px 6px;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid #ccc;
+  border: 1px solid var(--pep-border);
   width: 100%;
   box-sizing: border-box;
   text-align: center;
   cursor: grab;
-  transition: background-color 0.2s ease, border 0.2s ease;
+  transition: background-color var(--pep-transition), border var(--pep-transition);
+  color: var(--pep-text-primary);
 }
 
-// Stil der gesetzten Items je nach Slot (übernimmt Slot-Hintergrund)
+// Food items inside category cards inherit the card's background
 .soup-card .food-item {
-  background-color: #ffe9cc;
+  background-color: var(--pep-soup);
   border: none;
 }
 
 .menu-card .food-item {
-  background-color: #d9f7d9;
+  background-color: var(--pep-menu);
   border: none;
 }
 
 .dessert-card .food-item {
-  background-color: #ffdce0;
+  background-color: var(--pep-dessert);
   border: none;
 }
 
 .evening-card .food-item {
-  background-color: #ddeeff;
+  background-color: var(--pep-evening);
   border: none;
 }
 
 .food-list {
   flex: 1;
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--pep-surface);
+  border-radius: var(--pep-radius-xl);
   padding: 24px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--pep-shadow-lg);
   display: flex;
   flex-direction: column;
   max-height: 700px;
@@ -172,6 +177,7 @@
     font-weight: 700;
     margin-bottom: 10px;
     font-size: 16px;
+    color: var(--pep-text-primary);
   }
 
   form {
@@ -181,8 +187,16 @@
       width: 100%;
       padding: 6px 10px;
       font-size: 13px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      border: 1px solid var(--pep-border);
+      border-radius: var(--pep-radius-sm);
+      background-color: var(--pep-surface);
+      color: var(--pep-text-primary);
+
+      &:focus {
+        outline: none;
+        border-color: var(--pep-primary);
+        box-shadow: 0 0 0 2px var(--pep-primary-100);
+      }
     }
   }
 
@@ -195,39 +209,38 @@
   }
 
   .food-card {
-    background: #fefefe;
-    border-radius: 6px;
+    background: var(--pep-surface);
+    border-radius: var(--pep-radius-sm);
     padding: 6px 10px;
     font-weight: 500;
     font-size: 13px;
     text-align: left;
     justify-content: flex-start;
     cursor: grab;
-    border: 1px solid #ddd;
-    transition: 0.2s ease;
-    color: black;
+    border: 1px solid var(--pep-border);
+    transition: var(--pep-transition);
+    color: var(--pep-text-primary);
 
     &:hover {
-      background-color: #f0f0f0;
+      background-color: var(--pep-surface-alt);
+      border-color: var(--pep-primary-light);
     }
 
     &.used {
-      background-color: darkgray;
-      color: white;
+      background-color: var(--pep-text-secondary);
+      color: var(--pep-text-inverse);
     }
   }
-
 }
 
 @media (max-height: 900px) {
-
   .week-plan,
   .food-list {
     max-height: 600px;
   }
 }
 
-/* Scrollbars ausblenden */
+// Hide scrollbars
 .creation-container::-webkit-scrollbar,
 .food-container::-webkit-scrollbar {
   width: 0px;
@@ -240,7 +253,7 @@
   -ms-overflow-style: none;
 }
 
-/* Dragging Platzhalter ausblenden */
+// Dragging placeholder styling
 .food-card.cdk-drop-list-dragging {
   border: none !important;
 }
@@ -257,16 +270,16 @@
 .custom-tooltip {
   position: fixed;
   z-index: 1000;
-  background: #333;
-  color: white;
+  background: var(--pep-text-primary);
+  color: var(--pep-text-inverse);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--pep-radius-sm);
   font-size: 13px;
   max-width: 280px;
   pointer-events: none;
   white-space: normal;
   line-height: 1.4;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--pep-shadow-md);
 }
 
 .loading {
