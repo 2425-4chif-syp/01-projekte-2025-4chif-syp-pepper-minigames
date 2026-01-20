@@ -8,17 +8,17 @@
 }
 
 .food-form {
-  background: #fff;
+  background: var(--pep-surface);
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
   max-width: 1200px;
   width: 100%;
   box-sizing: border-box;
 
   h2 {
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--pep-text-primary);
   }
 
   .form-content {
@@ -58,8 +58,8 @@
       max-width: 100%;
       height: auto;
       margin-top: 1rem;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: var(--pep-radius-sm);
+      box-shadow: var(--pep-shadow-sm);
       user-select: none;
     }
   }
@@ -92,11 +92,20 @@
 
     input {
       padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid var(--pep-border);
+      border-radius: var(--pep-radius-sm);
       font-size: 1rem;
       width: 100%;
       max-width: 300px;
+      background-color: var(--pep-surface);
+      color: var(--pep-text-primary);
+      transition: border-color var(--pep-transition), box-shadow var(--pep-transition);
+
+      &:focus {
+        outline: none;
+        border-color: var(--pep-primary);
+        box-shadow: 0 0 0 2px var(--pep-primary-100);
+      }
 
       @media (max-width: 480px) {
         max-width: 100%;
@@ -105,7 +114,7 @@
 
     label {
       font-size: 1rem;
-      color: #666;
+      color: var(--pep-text-secondary);
     }
 
     .allergens {
@@ -117,20 +126,27 @@
     .checkbox-container {
       display: flex;
       align-items: center;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid var(--pep-border);
+      border-radius: var(--pep-radius-sm);
       padding: 0.5rem;
-      background-color: #fff;
-      transition: background-color 0.3s, border-color 0.3s;
+      background-color: var(--pep-surface);
+      transition: background-color var(--pep-transition-slow), border-color var(--pep-transition-slow);
       flex: 1 1 calc(50% - 1rem);
       box-sizing: border-box;
 
+      &:hover {
+        border-color: var(--pep-primary-light);
+      }
+
       input[type="checkbox"] {
         margin-right: 0.5rem;
+        width: auto;
+        max-width: none;
       }
 
       .checkbox-label {
         white-space: nowrap;
+        color: var(--pep-text-primary);
       }
 
       @media (max-width: 480px) {
