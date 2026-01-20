@@ -10,11 +10,12 @@
             @if (item.root) {
                 <a
                         pRipple
-                        class="flex items-center cursor-pointer px-8 py-2 overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full"
+                        class="flex items-center cursor-pointer px-8 py-2
+                        overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full"
                         [routerLink]="item.routerLink"
                         [ngClass]="{
                             'bg-white text-indigo-700 shadow-md': currentRoute() === item.routerLink,
-                            'text-white hover:text-indigo-700': currentRoute() !== item.routerLink
+                            'nav-item-inactive': currentRoute() !== item.routerLink
                         }"
                 >
                     <span>{{ item.label }}</span>
