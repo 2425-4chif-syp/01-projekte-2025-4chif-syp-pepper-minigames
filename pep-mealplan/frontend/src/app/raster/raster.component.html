@@ -1,127 +1,134 @@
-<div cdkDropListGroup class="container" *ngIf="!isLoading; else loadingRaster">
+@if (!isLoading) {
+  <div cdkDropListGroup class="container">
     <!-- Linker Bereich: Rasterplan -->
     <div class="week-plan">
-        <h2>Rasterplan erstellen</h2>
-        <div class="header">
-            <div class="header-top">
-                <button mat-icon-button color="primary" (click)="prevWeek()">
-                    <mat-icon>chevron_left</mat-icon>
-                </button>
-                <div class="week-label">Woche {{ currentWeek }}</div>
-                <button mat-icon-button color="primary" (click)="nextWeek()">
-                    <mat-icon>chevron_right</mat-icon>
-                </button>
-            </div>
-            <div class="header-bottom">
-                <div>Tagessuppe</div>
-                <div>Menü 1</div>
-                <div>Menü 2</div>
-                <div>Nachspeise</div>
-                <div>Abend 1</div>
-                <div>Abend 2</div>
-            </div>
+      <h2>Rasterplan erstellen</h2>
+      <div class="header">
+        <div class="header-top">
+          <button mat-icon-button color="primary" (click)="prevWeek()">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <div class="week-label">Woche {{ currentWeek }}</div>
+          <button mat-icon-button color="primary" (click)="nextWeek()">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
         </div>
-        <div class="creation-container">
-            <ng-container *ngFor="let dayPlan of currentWeekPlan.dayPlans; let i = index">
-                <div class="day-label">{{ WEEK_DAYS[i] }}</div>
-
-                <div class="food-row">
-                    <!-- Tagessuppe -->
-                    <div class="food-card soup-card" cdkDropList [cdkDropListEnterPredicate]="soupPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onSoupDrop($event, dayPlan)" [id]="'drop-daySoup-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.daySoup" cdkDrag class="food-item" (click)="removeFood(dayPlan, 'daySoup')">
-                            <p>{{ dayPlan.daySoup }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Menü 1 -->
-                    <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuOne')" [id]="'drop-menuOne-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.menuOne" cdkDrag class="food-item" (click)="removeFood(dayPlan, 'menuOne')">
-                            <p>{{ dayPlan.menuOne }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Menü 2 -->
-                    <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuTwo')" [id]="'drop-menuTwo-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.menuTwo" cdkDrag class="food-item" (click)="removeFood(dayPlan, 'menuTwo')">
-                            <p>{{ dayPlan.menuTwo }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Nachspeise -->
-                    <div class="food-card dessert-card" cdkDropList [cdkDropListEnterPredicate]="dessertPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onDessertDrop($event, dayPlan)" [id]="'drop-dessert-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.dessert" cdkDrag class="food-item" (click)="removeFood(dayPlan, 'dessert')">
-                            <p>{{ dayPlan.dessert }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Abend 1 -->
-                    <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningOne')" [id]="'drop-eveningOne-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.eveningOne" cdkDrag class="food-item"
-                            (click)="removeFood(dayPlan, 'eveningOne')">
-                            <p>{{ dayPlan.eveningOne }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Abend 2 -->
-                    <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
-                        (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
-                        (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningTwo')" [id]="'drop-eveningTwo-' + i"
-                        [ngClass]="{'not-allowed': !isDropAllowed}">
-                        <div *ngIf="dayPlan.eveningTwo" cdkDrag class="food-item"
-                            (contextmenu)="removeFood(dayPlan, 'eveningTwo'); $event.preventDefault()">
-                            <p>{{ dayPlan.eveningTwo }}</p>
-                        </div>
-                    </div>
+        <div class="header-bottom">
+          <div>Tagessuppe</div>
+          <div>Menü 1</div>
+          <div>Menü 2</div>
+          <div>Nachspeise</div>
+          <div>Abend 1</div>
+          <div>Abend 2</div>
+        </div>
+      </div>
+      <div class="creation-container">
+        @for (dayPlan of currentWeekPlan.dayPlans; track dayPlan; let i = $index) {
+          <div class="day-label">{{ WEEK_DAYS[i] }}</div>
+          <div class="food-row">
+            <!-- Tagessuppe -->
+            <div class="food-card soup-card" cdkDropList [cdkDropListEnterPredicate]="soupPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onSoupDrop($event, dayPlan)" [id]="'drop-daySoup-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.daySoup) {
+                <div cdkDrag class="food-item" (click)="removeFood(dayPlan, 'daySoup')">
+                  <p>{{ dayPlan.daySoup }}</p>
                 </div>
-            </ng-container>
-        </div>
+              }
+            </div>
+            <!-- Menü 1 -->
+            <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuOne')" [id]="'drop-menuOne-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.menuOne) {
+                <div cdkDrag class="food-item" (click)="removeFood(dayPlan, 'menuOne')">
+                  <p>{{ dayPlan.menuOne }}</p>
+                </div>
+              }
+            </div>
+            <!-- Menü 2 -->
+            <div class="food-card menu-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onMainDrop($event, dayPlan, 'menuTwo')" [id]="'drop-menuTwo-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.menuTwo) {
+                <div cdkDrag class="food-item" (click)="removeFood(dayPlan, 'menuTwo')">
+                  <p>{{ dayPlan.menuTwo }}</p>
+                </div>
+              }
+            </div>
+            <!-- Nachspeise -->
+            <div class="food-card dessert-card" cdkDropList [cdkDropListEnterPredicate]="dessertPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onDessertDrop($event, dayPlan)" [id]="'drop-dessert-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.dessert) {
+                <div cdkDrag class="food-item" (click)="removeFood(dayPlan, 'dessert')">
+                  <p>{{ dayPlan.dessert }}</p>
+                </div>
+              }
+            </div>
+            <!-- Abend 1 -->
+            <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningOne')" [id]="'drop-eveningOne-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.eveningOne) {
+                <div cdkDrag class="food-item"
+                  (click)="removeFood(dayPlan, 'eveningOne')">
+                  <p>{{ dayPlan.eveningOne }}</p>
+                </div>
+              }
+            </div>
+            <!-- Abend 2 -->
+            <div class="food-card evening-card" cdkDropList [cdkDropListEnterPredicate]="mainPredicate"
+              (cdkDragEntered)="onDragEntered($event)" (cdkDragExited)="onDragExited($event)"
+              (cdkDropListDropped)="onMainDrop($event, dayPlan, 'eveningTwo')" [id]="'drop-eveningTwo-' + i"
+              [ngClass]="{'not-allowed': !isDropAllowed}">
+              @if (dayPlan.eveningTwo) {
+                <div cdkDrag class="food-item"
+                  (contextmenu)="removeFood(dayPlan, 'eveningTwo'); $event.preventDefault()">
+                  <p>{{ dayPlan.eveningTwo }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     </div>
-
     <!-- Rechter Bereich: Essensliste -->
     <div class="food-list">
-        <h2>Essen</h2>
-        <form>
-            <label for="nameFilter">Suche nach Namen:</label>
-            <input id="nameFilter" [formControl]="nameFilter" type="text" />
-        </form>
-
-        <div class="food-container" cdkDropList (cdkDropListDropped)="dropFoodInFoods($event)">
-            <ng-container *ngIf="!searchLoading; else searchLoadingTpl">
-                <div *ngFor="let food of filteredFood" class="food-card" (mouseenter)="showTooltip(food, $event)"
-                    (mouseleave)="hideTooltip()" [ngClass]="{ 'used': isFoodUsed(food) }" cdkDrag [cdkDragData]="food">
-                    <p>{{ food.Name }}</p>
-                </div>
-
-                <div class="custom-tooltip" *ngIf="tooltip.visible" [style.top.px]="tooltip.y" [style.left.px]="tooltip.x">
-                    <div [innerHTML]="tooltip.content"></div>
-                </div>
-            </ng-container>
-        </div>
-        <ng-template #searchLoadingTpl>
-            <div class="list-loading">
-                <mat-spinner></mat-spinner>
+      <h2>Essen</h2>
+      <form>
+        <label for="nameFilter">Suche nach Namen:</label>
+        <input id="nameFilter" [formControl]="nameFilter" type="text" />
+      </form>
+      <div class="food-container" cdkDropList (cdkDropListDropped)="dropFoodInFoods($event)">
+        @if (!searchLoading) {
+          @for (food of filteredFood; track food) {
+            <div class="food-card" (mouseenter)="showTooltip(food, $event)"
+              (mouseleave)="hideTooltip()" [ngClass]="{ 'used': isFoodUsed(food) }" cdkDrag [cdkDragData]="food">
+              <p>{{ food.Name }}</p>
             </div>
-        </ng-template>
+          }
+          @if (tooltip.visible) {
+            <div class="custom-tooltip" [style.top.px]="tooltip.y" [style.left.px]="tooltip.x">
+              <div [innerHTML]="tooltip.content"></div>
+            </div>
+          }
+        } @else {
+          <div class="list-loading">
+            <mat-spinner></mat-spinner>
+          </div>
+        }
+      </div>
     </div>
-</div>
-<ng-template #loadingRaster>
+  </div>
+} @else {
   <div class="loading">
     <mat-spinner></mat-spinner>
     <p>Raster wird geladen</p>
   </div>
-</ng-template>
+}

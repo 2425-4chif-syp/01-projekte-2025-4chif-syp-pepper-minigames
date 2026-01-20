@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.0-oracle
+    container_name: menuassistent_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: app            # set root password
+      MYSQL_DATABASE: menu_assistent      # create the DB
+    ports:
+      - "3307:3306"                       # app connects on 3307
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-papp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  db_data:
+    driver: local

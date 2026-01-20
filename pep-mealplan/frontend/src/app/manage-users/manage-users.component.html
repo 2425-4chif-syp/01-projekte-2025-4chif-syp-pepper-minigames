@@ -1,55 +1,140 @@
-<div class="container">
-  <div class="user-list-box">
-    <div class="filter-form">
-      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Suchen..." />
-    </div>
-    <ng-container *ngIf="!searchLoading; else searchLoadingTpl">
-      <ul class="user-list">
-        <li *ngFor="let user of filteredUsers()" class="user-item">
-          <span>{{ user.Firstname }} {{ user.Lastname }}
-            <small *ngIf="user.DOB">({{ user.DOB | date: 'dd.MM.yyyy' }})</small></span>
-          <button class="delete-button" (click)="deleteUser(user)">
-            Löschen
-          </button>
-        </li>
-        <li *ngIf="filteredUsers().length === 0" class="no-users-message">
-          Keine Benutzer gefunden.
-        </li>
-      </ul>
-    </ng-container>
-    <ng-template #searchLoadingTpl>
-      <div class="list-loading">
-        <mat-spinner></mat-spinner>
-      </div>
-    </ng-template>
-  </div>
+<div class="min-h-screen bg-slate-100 flex justify-center px-4 py-8">
+    <div class="flex w-full max-w-6xl flex-col gap-6 lg:flex-row">
 
-  <div class="user-form">
-    <h2>Neue Person hinzufügen</h2>
-    <div class="form-group">
-      <label for="firstName">Vorname</label>
-      <input
-        type="text"
-        id="firstName"
-        [(ngModel)]="newUser.Firstname"
-        placeholder="Vorname"
-      />
+        <!-- LINKER BEREICH: USER-LISTE -->
+        <div class="flex-1 min-w-[280px] bg-white rounded-xl shadow-md p-6">
+            <!-- Filter -->
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input
+                        type="text"
+                        [(ngModel)]="searchTerm"
+                        (ngModelChange)="onSearchChange()"
+                        placeholder="Suchen..."
+                        class="w-full sm:max-w-xs rounded-md border border-slate-300 px-3 py-2 text-sm
+                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+            </div>
+
+            <!-- Liste -->
+            @if (!searchLoading) {
+                <ul class="max-h-96 overflow-y-auto divide-y divide-slate-200">
+                    @if (filteredUsers().length > 0) {
+                        @for (user of filteredUsers(); track user) {
+                            <li class="flex items-center justify-between gap-3 px-1 py-3 text-sm">
+                <span class="text-slate-800">
+                  {{ user.Firstname }} {{ user.Lastname }}
+                    @if (user.DOB) {
+                        <small class="ml-1 text-xs text-slate-500">
+                      ({{ user.DOB | date: 'dd.MM.yyyy' }})
+                    </small>
+                    }
+                </span>
+
+                                <button
+                                        class="inline-flex items-center rounded-md bg-red-500 px-3 py-1.5 text-xs font-semibold
+                         text-white shadow-sm transition hover:bg-red-600 focus:outline-none
+                         focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+                                        (click)="deleteUser(user)"
+                                >
+                                    Löschen
+                                </button>
+                            </li>
+                        }
+                    }
+
+                    @if (filteredUsers().length === 0) {
+                        <li
+                                class="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm italic text-slate-500"
+                        >
+                            Keine Benutzer gefunden.
+                        </li>
+                    }
+                </ul>
+            } @else {
+                <div class="flex min-h-[120px] items-center justify-center">
+                    <mat-spinner diameter="40"></mat-spinner>
+                </div>
+            }
+        </div>
+
+        <!-- RECHTER BEREICH: NEUEN USER ANLEGEN -->
+        <div class="flex-1 min-w-[280px] bg-white rounded-xl shadow-md p-6">
+            <h2 class="mb-4 text-lg font-semibold text-slate-800">
+                Neue Person hinzufügen
+            </h2>
+
+            <div class="space-y-4">
+                <!-- Vorname -->
+                <div>
+                    <label
+                            for="firstName"
+                            class="mb-1 block text-sm font-medium text-slate-600"
+                    >
+                        Vorname
+                    </label>
+                    <input
+                            type="text"
+                            id="firstName"
+                            [(ngModel)]="newUser.Firstname"
+                            placeholder="Vorname"
+                            class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                <!-- Nachname -->
+                <div>
+                    <label
+                            for="lastName"
+                            class="mb-1 block text-sm font-medium text-slate-600"
+                    >
+                        Nachname
+                    </label>
+                    <input
+                            type="text"
+                            id="lastName"
+                            [(ngModel)]="newUser.Lastname"
+                            placeholder="Nachname"
+                            class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                <!-- Geburtsdatum (optional) -->
+                @if (showDobInput) {
+                    <div id="dobInput">
+                        <label
+                                for="dob"
+                                class="mb-1 block text-sm font-medium text-slate-600"
+                        >
+                            Geburtsdatum
+                            <span class="block text-xs font-normal text-slate-500">
+                (benötigt, weil es eine andere Person mit diesem Namen gibt)
+              </span>
+                        </label>
+                        <input
+                                type="date"
+                                id="dob"
+                                [(ngModel)]="newUser.DOB"
+                                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                    </div>
+                }
+
+                <!-- Button -->
+                <div class="flex justify-end">
+                    <button
+                            (click)="addUser()"
+                            class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm
+                   font-semibold text-white shadow-sm transition
+                   hover:bg-indigo-700 focus:outline-none focus:ring-2
+                   focus:ring-indigo-500 focus:ring-offset-1"
+                    >
+                        Hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-      <label for="lastName">Nachname</label>
-      <input
-        type="text"
-        id="lastName"
-        [(ngModel)]="newUser.Lastname"
-        placeholder="Nachname"
-      />
-    </div>
-    <div class="form-group" id="dobInput" *ngIf="showDobInput">
-      <label for="dob">Geburtsdatum (benötigt weil es eine andere Person mit diesem Namen gibt)</label>
-      <input type="date" id="dobInput" [(ngModel)]="newUser.DOB" placeholder="Geburtsdatum" />
-    </div>
-    <div class="button-container">
-      <button (click)="addUser()">Hinzufügen</button>
-    </div>
-  </div>
 </div>

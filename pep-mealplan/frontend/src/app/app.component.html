@@ -1,30 +1,33 @@
-<div class="topbar" *ngIf="showNavbar">
-  <div class="menu">
-    <h1>Menü Assistent</h1>
-  </div>
-  <div class="routing-container">
-    <a
-      routerLink="/week-plan-management"
-      [class.active]="currentUrl === '/week-plan-management'"
-      >Wochenplan</a>
-    <a
-      routerLink="/overview-orders"
-      [class.active]="currentUrl === '/overview-orders'"
-      >Bestellungsübersicht</a>
-    <a
-      routerLink="/manage-users"
-      [class.active]="currentUrl === '/manage-users'"
-      >Bewohner/innen Verwaltung</a>
-    <a
-      routerLink="/food-management"
-      [class.active]="currentUrl === '/food-management'"
-      >Gerichte</a>
-    <a
-      routerLink="/raster"
-      [class.active]="currentUrl === '/raster'"
-      >Raster</a>
-  </div>
+<div class="bg-indigo-500 flex items-center justify-around px-8 py-4">
+    <img src="assets/pepper.ico" alt="Pepper Icon" class="w-12"/>
+
+    <p-megaMenu
+            [model]="items"
+            class="bg-transparent border-0 shadow-none"
+            [style]="{ 'background': 'transparent', 'border': 'none', 'box-shadow': 'none', 'width': 'auto' }"
+    >
+        <ng-template #item let-item>
+            @if (item.root) {
+                <a
+                        pRipple
+                        class="flex items-center cursor-pointer px-8 py-2 overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full"
+                        [routerLink]="item.routerLink"
+                        [ngClass]="{
+                            'bg-white text-indigo-700 shadow-md': currentRoute() === item.routerLink,
+                            'text-white hover:text-indigo-700': currentRoute() !== item.routerLink
+                        }"
+                >
+                    <span>{{ item.label }}</span>
+                </a>
+            }
+        </ng-template>
+    </p-megaMenu>
+
+    <img
+            class="w-12 h-12 rounded-full object-cover"
+            src="assets/pepper.ico"
+            alt="User"
+    />
 </div>
-<div>
-  <router-outlet></router-outlet>
-</div>
+
+<router-outlet></router-outlet>

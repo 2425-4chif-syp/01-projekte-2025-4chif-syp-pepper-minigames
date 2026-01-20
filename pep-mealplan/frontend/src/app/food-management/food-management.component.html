@@ -1,149 +1,152 @@
-<div class="container">
-  <div class="food-box">
-    <ng-container *ngIf="foods.length !== 0; else loadingFood">
-      <form class="filter-form">
-        <input id="nameFilter" [formControl]="nameFilter" type="text" placeholder="Suchen..." />
-      </form>
-      <ng-container *ngIf="!searchLoading; else searchLoadingTpl">
-        <table class="food-table">
-          <thead>
-            <tr>
-              <th>Gerichtname</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let food of filteredFood" (click)="loadFood(food)">
-              <td>{{ food.Name }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </ng-container>
-    </ng-container>
-    <ng-template #loadingFood>
-      <div class="loading">
-        <mat-spinner></mat-spinner>
-        <div class="loading-text">Gerichte werden geladen</div>
-      </div>
-    </ng-template>
-    <ng-template #searchLoadingTpl>
-      <div class="list-loading">
-        <mat-spinner></mat-spinner>
-      </div>
-    </ng-template>
-  </div>
+<div class="min-h-screen flex justify-center bg-indigo-200">
+    <div class="flex flex-col md:flex-row gap-8 w-full p-6">
 
-  <div class="food-form">
-    <div class="form-container">
-      <div class="image-container">
-        <ng-container *ngIf="newFood.Picture?.Base64; else previewImage">
-          <img [src]="img.src" id="previewImageNewFood" alt="Gericht Bild" (click)="fileUpload.click()"
-            style="cursor: pointer;" />
-        </ng-container>
-        <ng-template #previewImage>
-          <img [src]="apiUrl + '/images/preview-image.png'" id="previewImageNewFood" crossorigin="anonymous"
-            alt="Vorschau Bild" (click)="fileUpload.click()" style="cursor: pointer;" />
-        </ng-template>
-        <div *ngIf="!newFood.Picture?.Base64" class="error">Bild ist erforderlich</div>
-        <input type="file" id="picture" (change)="onFileSelected($event)" hidden #fileUpload />
-      </div>
-
-      <div id="foodNameInput">
-        <h2>{{ newFood.ID ? 'Gericht bearbeiten:' : 'Neues Gericht anlegen:' }}</h2>
-        <div class="form-group" id="nameInput">
-          <input id="name" [(ngModel)]="newFood.Name" name="foodName" placeholder="Name" required />
-          <div *ngIf="!newFood.Name" class="error">Name ist erforderlich</div>
+        <!-- LEFT: Food-Liste -->
+        <div class="w-full md:w-1/3 bg-white rounded-2xl shadow-md p-4 flex flex-col">
+            @if (foods().length !== 0) {
+                <p-list-box
+                        [options]="foods()"
+                        [(ngModel)]="selectedFood"
+                        (ngModelChange)="onFoodSelected($event)"
+                        optionLabel="Name"
+                        [filter]="true"
+                        [listStyle]="{ 'max-height': '80vh', 'overflow': 'auto' }"
+                        class="w-full"
+                >
+                </p-list-box>
+            } @else {
+                <div class="loading flex flex-col justify-center items-center h-full py-10">
+                    <p-progressSpinner
+                            [style]="{ width: '40px', height: '40px' }"
+                            strokeWidth="6"
+                    ></p-progressSpinner>
+                    <div class="loading-text mt-4 text-sm text-slate-600">
+                        Gerichte werden geladen
+                    </div>
+                </div>
+            }
         </div>
 
-        <div class="form-group">
-          <mat-form-field>
-            <mat-label>Typ</mat-label>
-            <mat-select [(ngModel)]="newFood.Type" name="foodType" required (ngModelChange)="onFoodTypeChange($event)">
-              <mat-option value="" disabled>Bitte auswählen</mat-option>
-              <mat-option value="soup">Suppe</mat-option>
-              <mat-option value="main">Hauptgericht</mat-option>
-              <mat-option value="dessert">Nachspeise</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div *ngIf="!newFood.Type" class="error">Typ ist erforderlich</div>
+
+        <!-- RIGHT: Formular -->
+        <div class="w-full md:w-2/3 bg-white rounded-2xl shadow-md p-6">
+            <div class="gap-6">
+
+                <!-- Bildbereich -->
+                <div class="">
+                    <div class="w-full h-52 rounded-lg overflow-hidden bg-slate-100">
+                        @if (newFood.Picture.Base64) {
+                            <img
+                                    [src]="img.src"
+                                    id="previewImageNewFood"
+                                    alt="Gericht Bild"
+                                    (click)="fileUpload.click()"
+                                    class="w-full h-full object-cover cursor-pointer"
+                            />
+                        } @else {
+                            <img
+                                    [src]="apiUrl + '/images/preview-image.png'"
+                                    id="previewImageNewFood"
+                                    crossorigin="anonymous"
+                                    alt="Vorschau Bild"
+                                    (click)="fileUpload.click()"
+                                    class="w-full h-full object-cover cursor-pointer"
+                            />
+                        }
+                    </div>
+
+                    @if (!newFood.Picture.Base64) {
+                        <div class="mt-2 text-sm text-red-500">
+                            Bild ist erforderlich
+                        </div>
+                    }
+
+                    <input
+                            type="file"
+                            id="picture"
+                            (change)="onFileSelected($event)"
+                            hidden
+                            #fileUpload
+                    />
+                </div>
+
+                <!-- Text / Formular -->
+                <div class="w-full flex flex-col gap-4 mt-5">
+                    <div>
+                        <h2 class="text-xl font-semibold text-slate-800">
+                            {{ newFood.ID ? 'Gericht bearbeiten:' : 'Neues Gericht anlegen:' }}
+                        </h2>
+                    </div>
+
+                    <!-- Name -->
+                    <div class="flex flex-col gap-1">
+                        <input
+                                id="name"
+                                pInputText
+                                [(ngModel)]="newFood.Name"
+                                name="foodName"
+                                placeholder="Name"
+                                required
+                                class="w-full"
+                        />
+                        @if (!newFood.Name) {
+                            <div class="text-sm text-red-500">
+                                Name ist erforderlich
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Typ (PrimeNG Select) -->
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm text-slate-600 mb-1">Typ</label>
+                        <p-select
+                                class="w-full"
+                                [options]="foodTypes"
+                                optionLabel="label"
+                                optionValue="value"
+                                [(ngModel)]="newFood.Type"
+                                name="foodType"
+                                [showClear]="true"
+                                placeholder="Bitte auswählen"
+                                (onChange)="onFoodTypeChange($event.value)"
+                        ></p-select>
+                        @if (!newFood.Type) {
+                            <div class="text-sm text-red-500">
+                                Typ ist erforderlich
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex flex-wrap justify-end gap-3">
+                @if (newFood.ID) {
+                    <button
+                            pButton
+                            type="button"
+                            label="Löschen"
+                            severity="danger"
+                            (click)="deleteFood(newFood.ID, newFood.Name)"
+                    ></button>
+
+                    <button
+                            pButton
+                            type="button"
+                            label="Abbrechen"
+                            severity="secondary"
+                            (click)="resetForm()"
+                    ></button>
+                }
+                <button
+                        pButton
+                        type="button"
+                        [label]="newFood.ID ? 'Speichern' : 'Hinzufügen'"
+                        severity="primary"
+                        (click)="addFood()"
+                        [disabled]="!newFood.Name || !newFood.Type || !newFood.Picture.Base64"
+                ></button>
+            </div>
         </div>
-      </div>
     </div>
-
-    <!-- May be DEPRECATED in the Future
-    <div class="form-group">
-      <label>Allergene:</label>
-      <div class="allergens">
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[0] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[0]" />
-          <span class="checkbox-label">A - Gluten</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[1] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[1]" />
-          <span class="checkbox-label">B - Krebstiere</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[2] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[2]" />
-          <span class="checkbox-label">C - Eier</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[3] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[3]" />
-          <span class="checkbox-label">D - Fisch</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[4] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[4]" />
-          <span class="checkbox-label">E - Erdnüsse</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[5] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[5]" />
-          <span class="checkbox-label">F - Sojabohnen</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[6] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[6]" />
-          <span class="checkbox-label">G - Milch</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[7] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[7]" />
-          <span class="checkbox-label">H - Schalenfrüchte</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[8] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[8]" />
-          <span class="checkbox-label">L - Sellerie</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[9] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[9]" />
-          <span class="checkbox-label">M - Senf</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[10] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[10]" />
-          <span class="checkbox-label">N - Sesam</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[11] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[11]" />
-          <span class="checkbox-label">O - Schwefeldioxid und Sulfite</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[12] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[12]" />
-          <span class="checkbox-label">P - Lupinen</span>
-        </label>
-        <label class="checkbox-container" [ngClass]="{ selected: allergensChecked[13] }">
-          <input type="checkbox" [(ngModel)]="allergensChecked[13]" />
-          <span class="checkbox-label">R - Weichtiere</span>
-        </label>
-      </div>
-    </div> -->
-
-    <div class="button-container">
-      <button *ngIf="newFood.ID" mat-raised-button color="warn" (click)="deleteFood(newFood.ID, newFood.Name)"
-        style="margin-left: 1rem;">
-        Löschen
-      </button>
-      <button *ngIf="newFood.ID" mat-raised-button color="default" (click)="resetForm()" style="margin-left: 1rem;">
-        Abbrechen
-      </button>
-      <button mat-raised-button color="primary" (click)="addFood()"
-        [disabled]="!newFood.Name || !newFood.Type || !newFood.Picture.Base64">
-        {{ newFood.ID ? 'Speichern' : 'Hinzufügen' }}
-      </button>
-    </div>
-  </div>
 </div>

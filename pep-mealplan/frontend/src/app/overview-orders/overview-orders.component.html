@@ -1,79 +1,252 @@
-<div class="view-options" style="margin-top: 5px;">
-  <mat-slide-toggle [checked]="viewOption === 'kueche'" (change)="onToggleView($event.checked)">
-    {{ viewOption === 'kueche' ? 'Küche' : 'Personal' }}
-  </mat-slide-toggle>
-</div>
-<div class="orders-container">
-  <!-- Bestell-Statistiken -->
-  <div class="order-stats" *ngIf="menu; else noMenu">
-    <h3 class="text-center">Bestellungen am {{ selectedDate | date: 'dd.MM.yyyy' }}</h3>
-    <!-- Gerichte-Statistik nur anzeigen, wenn die Küche-Ansicht aktiv ist -->
-    <ng-container *ngIf="viewOption === 'kueche'">
-      <div class="menu-dishes">
-        <div class="centered-text">
-          <div class="menu-dishes">
-            <div><b>{{ menu.Soup }}:</b> ({{ orderStats.Soup }}) &nbsp;</div>
-            <div><b>{{ menu.Lunch1 }}:</b> ({{ orderStats.Lunch1 }}) &nbsp;</div>
-            <div><b>{{ menu.Lunch2 }}:</b> ({{ orderStats.Lunch2 }}) &nbsp;</div>
-            <div><b>{{ menu.LunchDessert }}:</b> ({{ orderStats.LunchDessert }}) &nbsp;</div>
-            <div><b>{{ menu.Dinner1 }}:</b> ({{ orderStats.Dinner1 }}) &nbsp;</div>
-            <div><b>{{ menu.Dinner2 }}:</b> ({{ orderStats.Dinner2 }})</div>
-          </div>
+<div class="bg-slate-50 min-h-screen p-4">
+    <!-- HEADER BAR -->
+    <div class="bg-slate-200 rounded-2xl p-3 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-gray-900">Bestellungen</h2>
+
+            <!-- VIEW RADIO -->
+            <div class="flex items-center gap-4 bg-white rounded-xl px-3 py-2 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <p-radioButton
+                            name="view"
+                            inputId="viewPersonal"
+                            [value]="'personal'"
+                            [(ngModel)]="viewOption"
+                    ></p-radioButton>
+                    <label for="viewPersonal" class="text-sm font-semibold text-gray-700 cursor-pointer">
+                        Personal
+                    </label>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <p-radioButton
+                            name="view"
+                            inputId="viewKueche"
+                            [value]="'kueche'"
+                            [(ngModel)]="viewOption"
+                    ></p-radioButton>
+                    <label for="viewKueche" class="text-sm font-semibold text-gray-700 cursor-pointer">
+                        Küche
+                    </label>
+                </div>
+            </div>
         </div>
-      </div>
-    </ng-container>
-  </div>
-  <ng-template #noMenu>
-    <div class="order-stats">
-      <h3>Bestellungen am {{ selectedDate | date: 'dd.MM.yyyy' }}</h3>
-      <ng-container *ngIf="viewOption === 'kueche'">
-        <div class="menu-dishes">
-        <div><b>Suppe:</b> ({{ orderStats.Soup }}) &nbsp;</div>
-        <div><b>Mittagessen 1:</b> ({{ orderStats.Lunch1 }}) &nbsp;</div>
-        <div><b>Mittagessen 2:</b> ({{ orderStats.Lunch2 }}) &nbsp;</div>
-        <div><b>Nachspeise:</b> ({{ orderStats.LunchDessert }}) &nbsp;</div>
-        <div><b>Abendessen 1:</b> ({{ orderStats.Dinner1 }}) &nbsp;</div>
-        <div><b>Abendessen 2:</b> ({{ orderStats.Dinner2 }})</div>
+
+        <!-- DATE NAV (wie Wochenplan) -->
+        <div class="flex items-center gap-3">
+            <button
+                    class="p-2 rounded-full bg-white shadow-sm hover:bg-slate-100 active:scale-95 transition"
+                    (click)="changeDay(-1)"
+                    type="button"
+                    aria-label="Vorheriger Tag"
+            >
+                <i class="pi pi-chevron-left"></i>
+            </button>
+
+            <div class="flex flex-col items-center leading-tight flex-1">
+                <div class="text-sm font-bold text-gray-900">
+                    {{ displaySelectedDate() }}
+                </div>
+                <div class="text-[11px] font-semibold text-gray-600">
+                    {{ displaySelectedWeekday() }}
+                </div>
+            </div>
+
+            <button
+                    class="p-2 rounded-full bg-white shadow-sm hover:bg-slate-100 active:scale-95 transition"
+                    (click)="changeDay(1)"
+                    type="button"
+                    aria-label="Nächster Tag"
+            >
+                <i class="pi pi-chevron-right"></i>
+            </button>
+
+            <!-- direkter Sprung -->
+            <div class="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm">
+                <i class="pi pi-calendar text-gray-600 text-sm"></i>
+                <input
+                        class="text-sm outline-none bg-transparent"
+                        type="date"
+                        [(ngModel)]="selectedDate"
+                        (change)="refreshForDate()"
+                />
+            </div>
         </div>
-      </ng-container>
     </div>
-  </ng-template>
-  
 
-  <!-- Bewohner-Statistiken -->
-  <div class="resident-stats" *ngIf="residentCount">
-    <p><b>Bestellt:</b> {{ orderedCount }}</p>
-    <p><b>Fehlend:</b> {{ missingCount }}</p>
-  </div>
+    <!-- MAIN FULLSCREEN CARD -->
+    <div class="mt-4 bg-white rounded-2xl shadow-md overflow-hidden">
+        <!-- TOP SUMMARY -->
+        <div class="p-4 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <div class="text-sm text-gray-600">Bestellungen am</div>
+                <div class="text-lg font-bold text-gray-900">{{ displaySelectedDate() }}</div>
+            </div>
 
-  <!-- Datums-Filter -->
-  <div class="date-filter">
-    <input type="date" id="dateFilter" [(ngModel)]="selectedDate" (change)="filterOrders()">
-  </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="px-3 py-2 rounded-xl bg-slate-50 border text-sm font-bold text-gray-800">
+                    Bewohner: {{ residentCount }}
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-green-50 text-green-800 text-sm font-bold">
+                    Bestellt: {{ orderedCount }}
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-red-50 text-red-800 text-sm font-bold">
+                    Fehlend: {{ missingCount }}
+                </div>
+            </div>
+        </div>
 
-  <!-- Bestellungen (Tabelle, wenn nicht "Küche") -->
-  <div class="orders-table-wrapper" *ngIf="viewOption !== 'kueche'">
-    <table>
-      <thead>
-        <tr>
-          <th>Bewohner</th>
-          <th>Suppe</th>
-          <th>Mittagessen</th>
-          <th>Nachspeise</th>
-          <th>Abendessen</th>
-          <th>Bestellt am</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let order of filteredOrders">
-          <td>{{ order.User.Firstname }} {{ order.User.Lastname }}</td>
-          <td>{{ order.Soup.Name }}</td>
-          <td>{{ order.SelectedLunch.Name }}</td>
-          <td>{{ order.DessertSelected ? order.LunchDessert.Name : 'Keine' }}</td>
-          <td>{{ order.SelectedDinner.Name }}</td>
-          <td>{{ order.OrderedAt }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        @if (loading) {
+            <div class="p-10 text-center text-gray-600">Lade Daten...</div>
+        } @else {
+
+            <!-- KÜCHE VIEW -->
+            @if (viewOption === 'kueche') {
+                <div class="p-4">
+                    @if (dayPlan) {
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                            <div class="rounded-2xl border p-4 bg-[#fff7ed]">
+                                <div class="text-xs font-bold text-gray-600">SUPPE</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.daySoup || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.Soup }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-orange-300" [style.width.%]="percent(orderStats.Soup)"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border p-4 bg-[#ecfdf5]">
+                                <div class="text-xs font-bold text-gray-600">MITTAG 1</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.menuOne || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.Lunch1 }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-300" [style.width.%]="percent(orderStats.Lunch1)"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border p-4 bg-[#ecfdf5]">
+                                <div class="text-xs font-bold text-gray-600">MITTAG 2</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.menuTwo || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.Lunch2 }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-300" [style.width.%]="percent(orderStats.Lunch2)"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border p-4 bg-[#fce7f3]">
+                                <div class="text-xs font-bold text-gray-600">DESSERT</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.dessert || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.LunchDessert }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-pink-300" [style.width.%]="percent(orderStats.LunchDessert)"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border p-4 bg-[#eff6ff]">
+                                <div class="text-xs font-bold text-gray-600">ABEND 1</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.eveningOne || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.Dinner1 }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-300" [style.width.%]="percent(orderStats.Dinner1)"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border p-4 bg-[#eff6ff]">
+                                <div class="text-xs font-bold text-gray-600">ABEND 2</div>
+                                <div class="mt-1 font-bold text-gray-900 line-clamp-2">{{ dayPlan.eveningTwo || '-' }}</div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-700">Anzahl</span>
+                                    <span class="text-base font-extrabold text-gray-900">{{ orderStats.Dinner2 }}</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-300" [style.width.%]="percent(orderStats.Dinner2)"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-sm text-gray-600">
+                            Grundlage: {{ orderedCount }} Bestellungen
+                        </div>
+                    } @else {
+                        <div class="p-6 text-center text-gray-600">
+                            Kein Wochenplan/DayPlan für dieses Datum.
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- PERSONAL VIEW -->
+            @if (viewOption === 'personal') {
+                <div class="p-4">
+                    <div class="overflow-auto rounded-2xl border">
+                        <table class="w-full text-sm">
+                            <thead class="sticky top-0 bg-slate-100 z-10">
+                            <tr class="text-left text-gray-700">
+                                <th class="p-3 font-bold">Bewohner</th>
+                                <th class="p-3 font-bold">Suppe</th>
+                                <th class="p-3 font-bold">Mittag</th>
+                                <th class="p-3 font-bold">Dessert</th>
+                                <th class="p-3 font-bold">Abend</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                                @for (o of personalOrders; track o) {
+                                    <tr class="border-t hover:bg-slate-50">
+                                        <td class="p-3 font-semibold text-gray-900">
+                                            {{ o.name }}
+                                        </td>
+
+                                        <td class="p-3 text-gray-700">
+                                            {{ o.soup || '-' }}
+                                        </td>
+
+                                        <td class="p-3 text-gray-700">
+                      <span class="px-2 py-1 rounded-full text-xs font-bold"
+                            [ngClass]="o.lunch ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-600'">
+                        {{ o.lunch || 'Nicht gewählt' }}
+                      </span>
+                                        </td>
+
+                                        <td class="p-3 text-gray-700">
+                                            {{ o.dessert || '-' }}
+                                        </td>
+
+                                        <td class="p-3 text-gray-700">
+                      <span class="px-2 py-1 rounded-full text-xs font-bold"
+                            [ngClass]="o.dinner ? 'bg-blue-50 text-blue-800' : 'bg-slate-100 text-slate-600'">
+                        {{ o.dinner || 'Nicht gewählt' }}
+                      </span>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (!personalOrders || personalOrders.length === 0) {
+                                    <tr>
+                                        <td class="p-6 text-center text-gray-600" colspan="5">
+                                            Keine Bestellungen für diesen Tag.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </div>

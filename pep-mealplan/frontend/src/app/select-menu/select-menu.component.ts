@@ -7,11 +7,10 @@ import { API_URL } from '../constants';
 import { Resident } from '../residents-api.service';
 
 @Component({
-  selector: 'app-select-menu',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './select-menu.component.html',
-  styleUrls: ['./select-menu.component.scss']
+    selector: 'app-select-menu',
+    imports: [CommonModule],
+    templateUrl: './select-menu.component.html',
+    styleUrls: ['./select-menu.component.scss']
 })
 export class SelectMenuComponent implements OnInit {
   name: string | null = null;
