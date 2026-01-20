@@ -1,42 +1,86 @@
-<div id="content">
-  <h1 style="text-align: center; margin-bottom: 40px; font-size: 40px">
-    @if (!showNames) {
-      Wählen Sie einen Buchstaben
-    } @else {
-      Wählen Sie einen Namen
-    }
-  </h1>
+<div class="min-h-screen bg-slate-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                @if (showNames) {
+                    <p-button
+                        icon="pi pi-arrow-left"
+                        label="Zurück"
+                        [text]="true"
+                        (onClick)="backToLetters()"
+                    ></p-button>
+                } @else {
+                    <div class="w-20"></div>
+                }
 
-  @if (!showNames) {
-    <main class="container">
-      <section class="letter-grid">
-        @for (letter of filteredLetters; track letter) {
-          <div class="letter-box" (click)="filterByLetter(letter)">
-            {{ letter }}
-          </div>
-        }
-      </section>
-    </main>
-  }
+                <div class="text-center">
+                    <h1 class="text-xl font-bold text-slate-800">Bewohner auswählen</h1>
+                    <p class="text-sm text-slate-500">
+                        @if (showNames) {
+                            Bewohner mit "{{ selectedLetter }}"
+                        } @else {
+                            Wählen Sie einen Anfangsbuchstaben
+                        }
+                    </p>
+                </div>
 
-  @if (showNames) {
-    <main class="container">
-      <h2 style="text-align: center; margin-bottom: 20px;">
-        Namen mit dem Buchstaben "{{ selectedLetter }}"
-      </h2>
-      <section class="row">
-        <div class="name-row">
-          @for (user of filteredUsers; track user) {
-            <div class="name-col">
-              <a [routerLink]="['/select-weekday', user.Firstname + ' ' + user.Lastname]"
-                class="name-button">
-                {{ user.Lastname }} {{ user.Firstname }}
-              </a>
+                <div class="w-20"></div>
             </div>
-          }
         </div>
-      </section>
-      <button (click)="backToLetters()" class="back-button">Zurück</button>
-    </main>
-  }
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-4xl mx-auto p-4 md:p-6">
+        @if (!showNames) {
+            <!-- Alphabet Grid -->
+            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-9 gap-3">
+                @for (letter of filteredLetters; track letter) {
+                    <button
+                        class="aspect-square flex items-center justify-center text-2xl font-bold rounded-xl bg-white shadow-md hover:shadow-lg hover:bg-indigo-50 hover:text-indigo-600 transition-all cursor-pointer text-slate-700"
+                        (click)="filterByLetter(letter)"
+                    >
+                        {{ letter }}
+                    </button>
+                }
+            </div>
+
+            @if (filteredLetters.length === 0) {
+                <div class="text-center py-12 text-slate-500">
+                    <i class="pi pi-users text-4xl mb-3 block text-slate-300"></i>
+                    <p>Keine Bewohner vorhanden</p>
+                </div>
+            }
+        } @else {
+            <!-- Names List -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @for (user of filteredUsers; track user) {
+                    <a
+                        [routerLink]="['/order-day', user.firstname + ' ' + user.lastname]"
+                        class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-lg hover:bg-indigo-50 transition-all cursor-pointer group"
+                    >
+                        <p-avatar
+                            [label]="user.firstname.charAt(0) + user.lastname.charAt(0)"
+                            styleClass="bg-indigo-100 text-indigo-700 group-hover:bg-indigo-200"
+                            shape="circle"
+                            size="large"
+                        ></p-avatar>
+                        <div>
+                            <p class="font-semibold text-slate-800 group-hover:text-indigo-700">
+                                {{ user.lastname }}, {{ user.firstname }}
+                            </p>
+                        </div>
+                        <i class="pi pi-chevron-right ml-auto text-slate-400 group-hover:text-indigo-500"></i>
+                    </a>
+                }
+            </div>
+
+            @if (filteredUsers.length === 0) {
+                <div class="text-center py-12 text-slate-500">
+                    <i class="pi pi-user-minus text-4xl mb-3 block text-slate-300"></i>
+                    <p>Keine Bewohner mit "{{ selectedLetter }}" gefunden</p>
+                </div>
+            }
+        }
+    </div>
 </div>
