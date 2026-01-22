@@ -9,6 +9,10 @@ on:
       - '.github/workflows/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -40,7 +44,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.TEMP_GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Find and set image tag
         run: |
@@ -72,7 +76,7 @@ jobs:
             echo "Content of dir:"
             ls -lah
 
-            # Hol dir das neue Image von GHCR
+            # Pull nur den Service backend2 (muss im docker-compose.yaml auf der VM wirklich so heißen)
             docker compose -f docker-compose.yaml pull backend2
 
             # Starte nur backend2 neu (DB bleibt unberührt)
