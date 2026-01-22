@@ -5,18 +5,16 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "food")
 public class Food extends PanacheEntity {
 
-    @Column(nullable = false)
+    @Column(name="name", nullable=false)
     public String name;
 
-    @Column(nullable = false)
-    public String type; // soup | main | dessert
-
-    @OneToMany(mappedBy = "food", fetch = FetchType.LAZY)
-    public Set<FoodAllergen> allergens;
+    @Column(name="type", nullable=false)
+    public String type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PictureId")
+    @JoinColumn(name = "pictureid")
     public Picture picture;
 }

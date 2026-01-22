@@ -4,15 +4,13 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name="allergen")
 public class Allergen extends PanacheEntityBase {
 
     @Id
-    @Column(length = 5)
+    @Column(name="shortname", length=5)
     public String shortname;
 
-    @Column(nullable = false)
+    @Column(name="description", nullable=false)
     public String description;
-
-
-    public Allergen() {}
 }

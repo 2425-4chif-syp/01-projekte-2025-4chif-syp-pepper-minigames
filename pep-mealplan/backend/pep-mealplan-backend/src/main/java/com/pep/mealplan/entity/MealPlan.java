@@ -3,34 +3,30 @@ package com.pep.mealplan.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 @Entity
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"weekNumber", "weekDay"})
-        }
-)
+@Table(name="mealplan", uniqueConstraints = @UniqueConstraint(columnNames={"weeknumber","weekday"}))
 public class MealPlan extends PanacheEntity {
 
-    @Column(nullable = false)
-    public int weekNumber;   // 1–4 (4-Wochen-Zyklus)
+    @Column(name="weeknumber", nullable=false)
+    public int weekNumber;
 
-    @Column(nullable = false)
-    public int weekDay;      // 0 = Montag … 6 = Sonntag
+    @Column(name="weekday", nullable=false)
+    public int weekDay;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="soup_id")
     public Food soup;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="lunch1_id")
     public Food lunch1;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="lunch2_id")
     public Food lunch2;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="lunchdessert_id")
     public Food lunchDessert;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="dinner1_id")
     public Food dinner1;
 
-    @ManyToOne
+    @ManyToOne @JoinColumn(name="dinner2_id")
     public Food dinner2;
 }

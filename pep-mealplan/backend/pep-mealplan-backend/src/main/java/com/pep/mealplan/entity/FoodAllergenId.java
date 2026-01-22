@@ -8,12 +8,11 @@ import java.util.Objects;
 @Embeddable
 public class FoodAllergenId implements Serializable {
 
-    @Column(name = "FoodId")
+    @Column(name = "foodid")
     public Long foodId;
 
-    @Column(name = "AllergenShortname", length = 5)
+    @Column(name = "allergenshortname", length = 5)
     public String allergenShortname;
-
 
     public FoodAllergenId() {}
 
@@ -27,8 +26,8 @@ public class FoodAllergenId implements Serializable {
         if (this == o) return true;
         if (!(o instanceof FoodAllergenId)) return false;
         FoodAllergenId that = (FoodAllergenId) o;
-        return Objects.equals(foodId, that.foodId) &&
-                Objects.equals(allergenShortname, that.allergenShortname);
+        return Objects.equals(foodId, that.foodId)
+                && Objects.equals(allergenShortname, that.allergenShortname);
     }
 
     @Override

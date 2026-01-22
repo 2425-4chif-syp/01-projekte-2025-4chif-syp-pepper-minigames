@@ -3,19 +3,20 @@ package com.pep.mealplan.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "foodallergen")
 public class FoodAllergen {
 
     @EmbeddedId
     public FoodAllergenId id;
 
     @ManyToOne
-    @MapsId("foodId")   // Verbindet id.foodId ←→ Food.id
-    @JoinColumn(name = "FoodId")
+    @MapsId("foodId")
+    @JoinColumn(name = "foodid")
     public Food food;
 
     @ManyToOne
-    @MapsId("allergenShortname") // id.allergenShortname ←→ Allergen.shortname
-    @JoinColumn(name = "AllergenShortname")
+    @MapsId("allergenShortname")
+    @JoinColumn(name = "allergenshortname")
     public Allergen allergen;
 
     public FoodAllergen() {}
