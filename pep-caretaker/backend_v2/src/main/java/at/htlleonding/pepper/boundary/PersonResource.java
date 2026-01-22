@@ -2,6 +2,7 @@
 
     import at.htlleonding.pepper.domain.Person;
     import at.htlleonding.pepper.dto.PersonDto;
+    import at.htlleonding.pepper.repository.ImageRepository;
     import at.htlleonding.pepper.repository.PersonRepository;
     import jakarta.enterprise.context.ApplicationScoped;
     import jakarta.inject.Inject;
@@ -24,6 +25,9 @@
     public class PersonResource {
         @Inject
         PersonRepository personRepository;
+
+        @Inject
+        ImageRepository imageRepository;
 
         //region Person Endpoint
         @GET
@@ -102,11 +106,21 @@
         @Path("/{id}")
         @Transactional
         public Response deletePerson(@PathParam("id") Long id) {
+            Person person = personRepository.findById(id);
+            if (person == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Person nicht gefunden").build();
+            }
+            
+            // Lösche zuerst alle Bilder der Person
+            long deletedImages = imageRepository.delete("person.id", id);
+            
+            // Lösche die Person
             boolean deleted = personRepository.deleteById(id);
             if (!deleted) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Person nicht gefunden").build();
             }
-            return Response.ok("Person gelöscht").build();
+            
+            return Response.ok(String.format("Person und %d Bild(er) gelöscht", deletedImages)).build();
         }
         //endregion
 

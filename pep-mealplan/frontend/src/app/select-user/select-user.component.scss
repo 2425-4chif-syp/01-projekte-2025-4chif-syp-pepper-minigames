@@ -4,12 +4,12 @@
 }
 
 .container {
-  background-color: #d9d9d9;
+  background-color: var(--pep-surface-alt);
   display: flex;
   flex-direction: column;
   padding: 20px;
   margin: 16px;
-  border-radius: 5px;
+  border-radius: var(--pep-radius-sm);
 }
 
 .letter-grid {
@@ -23,15 +23,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
+  background-color: var(--pep-surface);
   font-size: calc(100px * 0.75);
   font-weight: bold;
   text-align: center;
-  border-radius: 5px;
+  border-radius: var(--pep-radius-sm);
   cursor: pointer;
   width: 100px;
   height: 100px;
   position: relative;
+  color: var(--pep-text-primary);
+  transition: background-color var(--pep-transition), transform var(--pep-transition);
+  border: 1px solid var(--pep-border);
+
+  &:hover {
+    background-color: var(--pep-primary-50);
+    transform: scale(1.02);
+    border-color: var(--pep-primary-light);
+  }
 }
 
 .letter-box span {
@@ -40,9 +49,7 @@
   justify-content: center;
   height: 100%;
   width: 100%;
-  font-size: calc(
-    0.75 * min(100px, 100px)
-  );
+  font-size: calc(0.75 * min(100px, 100px));
 }
 
 .name-row {
@@ -57,18 +64,24 @@
 
 .name-button {
   flex-grow: 1;
-  color: #000;
+  color: var(--pep-text-primary);
   width: 100%;
   justify-content: center;
   font-weight: bold;
   font-size: 2rem;
   text-align: center;
   text-decoration: none;
-  border: none;
+  border: 1px solid var(--pep-border);
   cursor: pointer;
   padding: 30px 26px;
-  border-radius: 5px;
-  background-color: #f0f0f0;
+  border-radius: var(--pep-radius-sm);
+  background-color: var(--pep-surface);
+  transition: background-color var(--pep-transition), border-color var(--pep-transition);
+
+  &:hover {
+    background-color: var(--pep-primary-50);
+    border-color: var(--pep-primary-light);
+  }
 }
 
 .back-button {
@@ -76,11 +89,16 @@
   margin: 20px auto;
   padding: 10px 20px;
   font-size: 1.2rem;
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--pep-radius-sm);
   cursor: pointer;
+  transition: background-color var(--pep-transition-slow);
+
+  &:hover {
+    background-color: var(--pep-primary-dark);
+  }
 }
 
 #content {

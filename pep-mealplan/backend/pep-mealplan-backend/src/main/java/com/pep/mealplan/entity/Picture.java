@@ -1,18 +1,22 @@
 package com.pep.mealplan.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.*;   // <- WICHTIG (damit @Table gefunden wird)
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "picture")
+@Table(name = "pe_picture")
 public class Picture extends PanacheEntity {
 
-    @Column(columnDefinition = "TEXT")
-    public String base64;
+    @Column(nullable = false)
+    public String name;
 
     @Column(nullable = false)
     public String mediaType;
 
-    @Column(nullable = false)
-    public String name;
+    @Column(columnDefinition = "TEXT")
+    public String base64;
+
+    public Picture() {}
 }

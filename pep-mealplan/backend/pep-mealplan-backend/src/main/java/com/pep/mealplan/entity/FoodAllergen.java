@@ -1,22 +1,24 @@
 package com.pep.mealplan.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "foodallergen")
+@Table(name = "pe_foodallergen")
 public class FoodAllergen {
 
     @EmbeddedId
     public FoodAllergenId id;
 
     @ManyToOne
-    @MapsId("foodId")
-    @JoinColumn(name = "foodid")
+    @MapsId("foodId")   // Verbindet id.foodId ←→ Food.id
+    @JoinColumn(name = "FoodId")
+    @JsonIgnore
     public Food food;
 
     @ManyToOne
-    @MapsId("allergenShortname")
-    @JoinColumn(name = "allergenshortname")
+    @MapsId("allergenShortname") // id.allergenShortname ←→ Allergen.shortname
+    @JoinColumn(name = "AllergenShortname")
     public Allergen allergen;
 
     public FoodAllergen() {}

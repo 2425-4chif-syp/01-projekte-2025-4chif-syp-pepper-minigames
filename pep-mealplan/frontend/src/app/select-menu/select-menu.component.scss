@@ -43,13 +43,18 @@
   justify-content: center;
   align-items: center;
   padding: 2vmin;
-  border: 2px solid #ccc;
-  border-radius: 10px;
+  border: 2px solid var(--pep-border);
+  border-radius: var(--pep-radius-lg);
   font-size: 1.8vmin;
-  background-color: #f8f9fa;
+  background-color: var(--pep-surface);
   flex: 1 1 auto;
   overflow: hidden;
   user-select: none;
+  transition: border-color var(--pep-transition), background-color var(--pep-transition);
+
+  &:hover {
+    border-color: var(--pep-primary-light);
+  }
 }
 
 .meal-image {
@@ -57,8 +62,8 @@
   height: auto;
   max-width: 40vmin;
   max-height: 40vmin;
-  border-radius: 10px;
-  transition: width 0.3s, height 0.3s;
+  border-radius: var(--pep-radius-lg);
+  transition: width var(--pep-transition-slow), height var(--pep-transition-slow);
 }
 
 .details {
@@ -69,11 +74,12 @@
 .meal-type,
 .allergens {
   font-size: 2vmin;
+  color: var(--pep-text-primary);
 }
 
 .selected {
-  border-color: #28a745;
-  background-color: #d4edda;
+  border-color: var(--pep-success);
+  background-color: var(--pep-success-light);
 }
 
 .navigation {
@@ -84,41 +90,42 @@
 }
 
 .date-nav-button {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--pep-radius);
   cursor: pointer;
   font-size: 1.5vmin;
   padding: 1vmin 2.5vmin;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: background-color var(--pep-transition-slow), transform var(--pep-transition);
 }
 
 .date-nav-button:hover {
-  background-color: #0056b3;
+  background-color: var(--pep-primary-dark);
   transform: scale(1.1);
 }
 
 .date-nav-button:focus {
   outline: none;
-  box-shadow: 0 0 5px #0056b3;
+  box-shadow: 0 0 0 2px var(--pep-primary-100);
 }
 
 .date-nav-button:disabled {
-  background-color: #cccccc;
-  color: #666666;
+  background-color: var(--pep-border);
+  color: var(--pep-text-muted);
   cursor: not-allowed;
   transform: none;
 }
 
 .date-nav-button:disabled:hover {
-  background-color: #cccccc;
+  background-color: var(--pep-border);
   transform: none;
 }
 
 h1 {
   font-size: 3vmin;
   margin: 0 2vmin;
+  color: var(--pep-text-primary);
 }
 
 .header {
@@ -129,16 +136,21 @@ h1 {
 .back-button {
   font-size: 2vmin;
   padding: 0.5vmin 0.5vmin;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--pep-primary);
+  color: var(--pep-text-inverse);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--pep-radius);
   cursor: pointer;
   margin-top: 5px;
   margin-right: 10px;
   position: absolute;
   top: 10px;
   left: 10px;
+  transition: background-color var(--pep-transition-slow);
+
+  &:hover {
+    background-color: var(--pep-primary-dark);
+  }
 }
 
 .icon {

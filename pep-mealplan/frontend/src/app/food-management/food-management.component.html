@@ -1,151 +1,179 @@
-<div class="min-h-screen flex justify-center bg-indigo-200">
-    <div class="flex flex-col md:flex-row gap-8 w-full p-6">
-
-        <!-- LEFT: Food-Liste -->
-        <div class="w-full md:w-1/3 bg-white rounded-2xl shadow-md p-4 flex flex-col">
-            @if (foods().length !== 0) {
-                <p-list-box
-                        [options]="foods()"
-                        [(ngModel)]="selectedFood"
-                        (ngModelChange)="onFoodSelected($event)"
-                        optionLabel="Name"
-                        [filter]="true"
-                        [listStyle]="{ 'max-height': '80vh', 'overflow': 'auto' }"
-                        class="w-full"
-                >
-                </p-list-box>
-            } @else {
-                <div class="loading flex flex-col justify-center items-center h-full py-10">
-                    <p-progressSpinner
-                            [style]="{ width: '40px', height: '40px' }"
-                            strokeWidth="6"
-                    ></p-progressSpinner>
-                    <div class="loading-text mt-4 text-sm text-slate-600">
-                        Gerichte werden geladen
-                    </div>
-                </div>
-            }
+<div class="min-h-screen bg-slate-50 p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Gerichte verwalten</h1>
+            <p class="text-slate-500 mt-1">Erstellen und bearbeiten Sie Gerichte für den Speiseplan</p>
         </div>
 
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- LEFT: Food List -->
+            <div class="w-full lg:w-1/3">
+                <p-card styleClass="shadow-md">
+                    <ng-template pTemplate="header">
+                        <div class="px-4 pt-4">
+                            <h2 class="text-lg font-semibold text-slate-800">Gerichte</h2>
+                        </div>
+                    </ng-template>
 
-        <!-- RIGHT: Formular -->
-        <div class="w-full md:w-2/3 bg-white rounded-2xl shadow-md p-6">
-            <div class="gap-6">
-
-                <!-- Bildbereich -->
-                <div class="">
-                    <div class="w-full h-52 rounded-lg overflow-hidden bg-slate-100">
-                        @if (newFood.Picture.Base64) {
-                            <img
-                                    [src]="img.src"
-                                    id="previewImageNewFood"
-                                    alt="Gericht Bild"
-                                    (click)="fileUpload.click()"
-                                    class="w-full h-full object-cover cursor-pointer"
-                            />
-                        } @else {
-                            <img
-                                    [src]="apiUrl + '/images/preview-image.png'"
-                                    id="previewImageNewFood"
-                                    crossorigin="anonymous"
-                                    alt="Vorschau Bild"
-                                    (click)="fileUpload.click()"
-                                    class="w-full h-full object-cover cursor-pointer"
-                            />
-                        }
-                    </div>
-
-                    @if (!newFood.Picture.Base64) {
-                        <div class="mt-2 text-sm text-red-500">
-                            Bild ist erforderlich
+                    @if (foods().length !== 0) {
+                        <p-listbox
+                            [options]="foods()"
+                            [(ngModel)]="selectedFood"
+                            (ngModelChange)="onFoodSelected($event)"
+                            optionLabel="name"
+                            [filter]="true"
+                            filterPlaceHolder="Suchen..."
+                            [listStyle]="{ 'max-height': '65vh', 'overflow': 'auto' }"
+                            styleClass="w-full border-0"
+                        >
+                            <ng-template let-food pTemplate="item">
+                                <div class="flex items-center gap-3 py-1">
+                                    <p-tag
+                                        [value]="getFoodTypeLabel(food.type)"
+                                        [severity]="getFoodTypeSeverity(food.type)"
+                                        [rounded]="true"
+                                    ></p-tag>
+                                    <span class="font-medium text-slate-700">{{ food.name }}</span>
+                                </div>
+                            </ng-template>
+                        </p-listbox>
+                    } @else {
+                        <div class="flex flex-col items-center justify-center py-12">
+                            <p-progressSpinner
+                                [style]="{ width: '48px', height: '48px' }"
+                                strokeWidth="4"
+                                animationDuration="1s"
+                            ></p-progressSpinner>
+                            <p class="mt-4 text-sm text-slate-500">Gerichte werden geladen...</p>
                         </div>
                     }
-
-                    <input
-                            type="file"
-                            id="picture"
-                            (change)="onFileSelected($event)"
-                            hidden
-                            #fileUpload
-                    />
-                </div>
-
-                <!-- Text / Formular -->
-                <div class="w-full flex flex-col gap-4 mt-5">
-                    <div>
-                        <h2 class="text-xl font-semibold text-slate-800">
-                            {{ newFood.ID ? 'Gericht bearbeiten:' : 'Neues Gericht anlegen:' }}
-                        </h2>
-                    </div>
-
-                    <!-- Name -->
-                    <div class="flex flex-col gap-1">
-                        <input
-                                id="name"
-                                pInputText
-                                [(ngModel)]="newFood.Name"
-                                name="foodName"
-                                placeholder="Name"
-                                required
-                                class="w-full"
-                        />
-                        @if (!newFood.Name) {
-                            <div class="text-sm text-red-500">
-                                Name ist erforderlich
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Typ (PrimeNG Select) -->
-                    <div class="flex flex-col gap-1">
-                        <label class="text-sm text-slate-600 mb-1">Typ</label>
-                        <p-select
-                                class="w-full"
-                                [options]="foodTypes"
-                                optionLabel="label"
-                                optionValue="value"
-                                [(ngModel)]="newFood.Type"
-                                name="foodType"
-                                [showClear]="true"
-                                placeholder="Bitte auswählen"
-                                (onChange)="onFoodTypeChange($event.value)"
-                        ></p-select>
-                        @if (!newFood.Type) {
-                            <div class="text-sm text-red-500">
-                                Typ ist erforderlich
-                            </div>
-                        }
-                    </div>
-                </div>
+                </p-card>
             </div>
 
-            <!-- Buttons -->
-            <div class="mt-6 flex flex-wrap justify-end gap-3">
-                @if (newFood.ID) {
-                    <button
-                            pButton
-                            type="button"
-                            label="Löschen"
-                            severity="danger"
-                            (click)="deleteFood(newFood.ID, newFood.Name)"
-                    ></button>
+            <!-- RIGHT: Form -->
+            <div class="w-full lg:w-2/3">
+                <p-card styleClass="shadow-md">
+                    <ng-template pTemplate="header">
+                        <div class="px-4 pt-4">
+                            <h2 class="text-lg font-semibold text-slate-800">
+                                {{ newFood.id ? 'Gericht bearbeiten' : 'Neues Gericht anlegen' }}
+                            </h2>
+                        </div>
+                    </ng-template>
 
-                    <button
-                            pButton
-                            type="button"
-                            label="Abbrechen"
-                            severity="secondary"
-                            (click)="resetForm()"
-                    ></button>
-                }
-                <button
-                        pButton
-                        type="button"
-                        [label]="newFood.ID ? 'Speichern' : 'Hinzufügen'"
-                        severity="primary"
-                        (click)="addFood()"
-                        [disabled]="!newFood.Name || !newFood.Type || !newFood.Picture.Base64"
-                ></button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Image Section -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-2">Bild</label>
+                            <div
+                                class="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-dashed border-slate-300 hover:border-indigo-400 transition-colors cursor-pointer group"
+                                (click)="fileUpload.click()"
+                            >
+                                @if (newFood.picture?.base64) {
+                                    <img
+                                        [src]="img.src"
+                                        alt="Gericht Bild"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <i class="pi pi-camera text-white text-2xl"></i>
+                                    </div>
+                                } @else {
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                                        <i class="pi pi-image text-4xl mb-2"></i>
+                                        <span class="text-sm">Klicken zum Hochladen</span>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!newFood.picture?.base64) {
+                                <small class="text-red-500 mt-1 block">
+                                    <i class="pi pi-exclamation-circle mr-1"></i>
+                                    Bild ist erforderlich
+                                </small>
+                            }
+
+                            <input
+                                type="file"
+                                accept="image/*"
+                                (change)="onFileSelected($event)"
+                                hidden
+                                #fileUpload
+                            />
+                        </div>
+
+                        <!-- Form Fields -->
+                        <div class="space-y-4">
+                            <!-- Name -->
+                            <div>
+                                <label for="foodName" class="block text-sm font-medium text-slate-600 mb-2">Name</label>
+                                <input
+                                    id="foodName"
+                                    pInputText
+                                    [(ngModel)]="newFood.name"
+                                    placeholder="Name des Gerichts"
+                                    class="w-full"
+                                />
+                                @if (!newFood.name) {
+                                    <small class="text-red-500 mt-1 block">
+                                        <i class="pi pi-exclamation-circle mr-1"></i>
+                                        Name ist erforderlich
+                                    </small>
+                                }
+                            </div>
+
+                            <!-- Type -->
+                            <div>
+                                <label for="foodType" class="block text-sm font-medium text-slate-600 mb-2">Typ</label>
+                                <p-select
+                                    id="foodType"
+                                    [options]="foodTypes"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    [(ngModel)]="newFood.type"
+                                    [showClear]="true"
+                                    placeholder="Typ auswählen"
+                                    (onChange)="onFoodTypeChange($event.value)"
+                                    styleClass="w-full"
+                                ></p-select>
+                                @if (!newFood.type) {
+                                    <small class="text-red-500 mt-1 block">
+                                        <i class="pi pi-exclamation-circle mr-1"></i>
+                                        Typ ist erforderlich
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template pTemplate="footer">
+                        <div class="flex flex-wrap justify-end gap-2">
+                            @if (newFood.id) {
+                                <p-button
+                                    label="Löschen"
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    [outlined]="true"
+                                    (onClick)="deleteFood(newFood.id, newFood.name)"
+                                ></p-button>
+                                <p-button
+                                    label="Abbrechen"
+                                    icon="pi pi-times"
+                                    severity="secondary"
+                                    [outlined]="true"
+                                    (onClick)="resetForm()"
+                                ></p-button>
+                            }
+                            <p-button
+                                [label]="newFood.id ? 'Speichern' : 'Hinzufügen'"
+                                [icon]="newFood.id ? 'pi pi-check' : 'pi pi-plus'"
+                                (onClick)="addFood()"
+                                [disabled]="!newFood.name || !newFood.type || !newFood.picture?.base64"
+                            ></p-button>
+                        </div>
+                    </ng-template>
+                </p-card>
             </div>
         </div>
     </div>

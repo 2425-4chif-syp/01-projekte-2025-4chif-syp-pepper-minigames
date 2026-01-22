@@ -1,234 +1,183 @@
 @if (!isloading()) {
-    <div class="grid grid-cols-[3fr_1fr] bg-slate-50 min-h-screen">
-        <!-- LINKER BEREICH: WOCHENPLAN -->
-        <div class="rounded-xl">
-            <h1 class="text-2xl font-bold text-black bg-slate-200 p-2 text-center">
-                WOCHENPLAN
-            </h1>
+    <div class="min-h-screen bg-slate-50">
+        <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-6 p-6">
+            <!-- LEFT: Weekly Plan -->
+            <div>
+                <p-card styleClass="shadow-md">
+                    <ng-template pTemplate="header">
+                        <div class="p-4 bg-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <h1 class="text-xl font-bold text-slate-800">Wochenplan</h1>
+                            <div class="flex gap-2">
+                                <p-button
+                                    (onClick)="exportAsWord()"
+                                    label="Als JSON"
+                                    icon="pi pi-download"
+                                    severity="secondary"
+                                    [outlined]="true"
+                                ></p-button>
+                                <p-button
+                                    (onClick)="onSaveSelections()"
+                                    [label]="saveState === 'saving' ? 'Speichern...' : saveState === 'saved' ? 'Gespeichert!' : 'Speichern'"
+                                    [icon]="saveState === 'saving' ? 'pi pi-spin pi-spinner' : saveState === 'saved' ? 'pi pi-check-circle' : 'pi pi-check'"
+                                    [severity]="saveState === 'saved' ? 'success' : 'primary'"
+                                    [disabled]="!hasAnySelectionForSelectedPerson() || saveState === 'saving'"
+                                ></p-button>
+                            </div>
+                        </div>
+                    </ng-template>
 
-            <div class="flex p-2 justify-between items-center bg-slate-200">
-                <p-button
-                        (click)="exportAsWord()"
-                        label="Als Word herunterladen"
-                        severity="danger"
-                >
-                </p-button>
-
-                <p-button
-                        (click)="onSaveSelections()"
-                        label="Speichern"
-                        severity="success"
-                        [disabled]="!hasAnySelectionForSelectedPerson()"
-                >
-                </p-button>
-            </div>
-
-            <div
-                    class="grid grid-cols-6 gap-4 text-center max-h-[80vh] overflow-y-auto
-               bg-white shadow-md relative select-none box-border rounded-b-2xl p-5"
-            >
-                <!-- Sticky Header -->
-                <div class="col-span-6 bg-white font-bold p-4 sticky top-0 z-10">
-                    <!-- WEEK SWITCHER -->
-                    <div class="flex items-center justify-center gap-3">
+                    <!-- Week Switcher -->
+                    <div class="flex items-center justify-center gap-4 mb-6">
                         <p-button
-                                icon="pi pi-chevron-left"
-                                severity="secondary"
-                                [rounded]="true"
-                                [text]="true"
-                                (click)="prevWeek()"
+                            icon="pi pi-chevron-left"
+                            [rounded]="true"
+                            [outlined]="true"
+                            (onClick)="prevWeek()"
                         ></p-button>
 
-                        <!-- Week + first date of that week -->
-                        <div class="flex flex-col items-center leading-tight">
-                            <div class="font-bold text-sm">
-                                Week {{ activeWeekIndex + 1 }}
-                            </div>
-                            <div class="text-[11px] font-semibold text-gray-600">
-                                {{ dateCleaned(0) }}
-                            </div>
+                        <div class="text-center min-w-32">
+                            <div class="text-lg font-bold text-slate-800">Woche {{ activeWeekIndex + 1 }}</div>
+                            <div class="text-sm text-slate-500">{{ dateCleaned(0) }}</div>
                         </div>
 
                         <p-button
-                                icon="pi pi-chevron-right"
-                                severity="secondary"
-                                [rounded]="true"
-                                [text]="true"
-                                (click)="nextWeek()"
+                            icon="pi pi-chevron-right"
+                            [rounded]="true"
+                            [outlined]="true"
+                            (onClick)="nextWeek()"
                         ></p-button>
                     </div>
 
-                    <div class="flex justify-between items-center gap-2 mt-3">
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            SUPPE
-                        </div>
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            1. MENÜ
-                        </div>
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            2. MENÜ
-                        </div>
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            DESSERT
-                        </div>
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            1. ABEND
-                        </div>
-                        <div class="flex-1 p-2 text-center bg-[#e6f0ff] rounded font-bold text-xs md:text-sm">
-                            2. ABEND
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tageszeilen -->
-                @for (dayPlan of currentWeekPlan!.dayPlans; track dayPlan; let i = $index) {
-                    <div
-                            class="col-span-6 font-bold text-xs rounded-3xl
-                   text-gray-800 bg-[#eef3f9] px-2 py-2 my-1"
-                    >
-                        {{ WEEK_DAYS[i] }} - {{ dateCleaned(i) }}
+                    <!-- Column Headers -->
+                    <div class="grid grid-cols-6 gap-2 mb-4">
+                        <div class="p-2 text-center bg-amber-100 rounded-lg font-semibold text-xs text-amber-800">SUPPE</div>
+                        <div class="p-2 text-center bg-green-100 rounded-lg font-semibold text-xs text-green-800">MENÜ 1</div>
+                        <div class="p-2 text-center bg-green-100 rounded-lg font-semibold text-xs text-green-800">MENÜ 2</div>
+                        <div class="p-2 text-center bg-pink-100 rounded-lg font-semibold text-xs text-pink-800">DESSERT</div>
+                        <div class="p-2 text-center bg-blue-100 rounded-lg font-semibold text-xs text-blue-800">ABEND 1</div>
+                        <div class="p-2 text-center bg-blue-100 rounded-lg font-semibold text-xs text-blue-800">ABEND 2</div>
                     </div>
 
-                    <!-- SUPPE -->
-                    <div
-                            class="border border-gray-300 p-2 rounded-2xl flex justify-center items-center h-[70px] text-xs
-                   md:text-sm font-bold shadow-sm transition-transform duration-200
-                   select-none cursor-pointer overflow-hidden bg-[#ffe9cc]"
-                    >
-                        @if (dayPlan.daySoup) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.daySoup }}</p>
+                    <!-- Day Rows -->
+                    <div class="max-h-[60vh] overflow-y-auto space-y-4">
+                        @for (dayPlan of currentWeekPlan!.dayPlans; track dayPlan; let i = $index) {
+                            <!-- Day Header -->
+                            <div class="font-semibold text-sm text-slate-700 bg-slate-100 px-3 py-2 rounded-lg">
+                                {{ WEEK_DAYS[i] }} - {{ dateCleaned(i) }}
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-2">
+                                <!-- Soup -->
+                                <div class="h-16 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center p-2 text-xs font-medium text-center text-slate-700">
+                                    {{ dayPlan.daySoup || '-' }}
+                                </div>
+
+                                <!-- Menu 1 -->
+                                <div
+                                    (click)="toggleMenu(dayPlan, 'one')"
+                                    class="h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center p-2 text-xs font-medium text-center cursor-pointer transition-all hover:shadow-md"
+                                    [class.opacity-40]="dayPlan.selectedMenu === 'two'"
+                                    [class.ring-2]="dayPlan.selectedMenu === 'one'"
+                                    [class.ring-green-500]="dayPlan.selectedMenu === 'one'"
+                                >
+                                    {{ dayPlan.menuOne || '-' }}
+                                </div>
+
+                                <!-- Menu 2 -->
+                                <div
+                                    (click)="toggleMenu(dayPlan, 'two')"
+                                    class="h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center p-2 text-xs font-medium text-center cursor-pointer transition-all hover:shadow-md"
+                                    [class.opacity-40]="dayPlan.selectedMenu === 'one'"
+                                    [class.ring-2]="dayPlan.selectedMenu === 'two'"
+                                    [class.ring-green-500]="dayPlan.selectedMenu === 'two'"
+                                >
+                                    {{ dayPlan.menuTwo || '-' }}
+                                </div>
+
+                                <!-- Dessert -->
+                                <div class="h-16 rounded-xl bg-pink-50 border border-pink-200 flex items-center justify-center p-2 text-xs font-medium text-center text-slate-700">
+                                    {{ dayPlan.dessert || '-' }}
+                                </div>
+
+                                <!-- Evening 1 -->
+                                <div
+                                    (click)="toggleEvening(dayPlan, 'one')"
+                                    class="h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center p-2 text-xs font-medium text-center cursor-pointer transition-all hover:shadow-md"
+                                    [class.opacity-40]="dayPlan.selectedEvening === 'two'"
+                                    [class.ring-2]="dayPlan.selectedEvening === 'one'"
+                                    [class.ring-indigo-500]="dayPlan.selectedEvening === 'one'"
+                                >
+                                    {{ dayPlan.eveningOne || '-' }}
+                                </div>
+
+                                <!-- Evening 2 -->
+                                <div
+                                    (click)="toggleEvening(dayPlan, 'two')"
+                                    class="h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center p-2 text-xs font-medium text-center cursor-pointer transition-all hover:shadow-md"
+                                    [class.opacity-40]="dayPlan.selectedEvening === 'one'"
+                                    [class.ring-2]="dayPlan.selectedEvening === 'two'"
+                                    [class.ring-indigo-500]="dayPlan.selectedEvening === 'two'"
+                                >
+                                    {{ dayPlan.eveningTwo || '-' }}
+                                </div>
                             </div>
                         }
                     </div>
-
-                    <!-- MENÜ 1 -->
-                    <div
-                            (click)="toggleMenu(dayPlan, 'one')"
-                            [ngClass]="{
-              'opacity-40': dayPlan.selectedMenu === 'two',
-              'ring-2 ring-green-500': dayPlan.selectedMenu === 'one'
-            }"
-                            class="border border-gray-300 p-2 flex justify-center items-center
-                   h-[70px] text-xs md:text-sm font-bold shadow-sm transition-transform
-                   duration-200 select-none cursor-pointer overflow-hidden bg-[#d9f7d9] rounded-2xl"
-                    >
-                        @if (dayPlan.menuOne) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.menuOne }}</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- MENÜ 2 -->
-                    <div
-                            (click)="toggleMenu(dayPlan, 'two')"
-                            [ngClass]="{
-              'opacity-40': dayPlan.selectedMenu === 'one',
-              'ring-2 ring-green-500': dayPlan.selectedMenu === 'two'
-            }"
-                            class="border border-gray-300 p-2 rounded-2xl flex justify-center items-center h-[70px] text-xs md:text-sm
-                   font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#d9f7d9]"
-                    >
-                        @if (dayPlan.menuTwo) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.menuTwo }}</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- DESSERT -->
-                    <div
-                            class="border border-gray-300 p-2 rounded-2xl flex justify-center items-center h-[70px] text-xs md:text-sm
-                   font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ffdce0]"
-                    >
-                        @if (dayPlan.dessert) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.dessert }}</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- ABEND 1 -->
-                    <div
-                            (click)="toggleEvening(dayPlan, 'one')"
-                            [ngClass]="{
-              'opacity-40': dayPlan.selectedEvening === 'two',
-              'ring-2 ring-blue-500': dayPlan.selectedEvening === 'one'
-            }"
-                            class="border border-gray-300 p-2 flex rounded-2xl justify-center items-center h-[70px] text-xs md:text-sm
-                   font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ddeeff]"
-                    >
-                        @if (dayPlan.eveningOne) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.eveningOne }}</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- ABEND 2 -->
-                    <div
-                            (click)="toggleEvening(dayPlan, 'two')"
-                            [ngClass]="{
-              'opacity-40': dayPlan.selectedEvening === 'one',
-              'ring-2 ring-blue-500': dayPlan.selectedEvening === 'two'
-            }"
-                            class="border border-gray-300 p-2 flex rounded-2xl justify-center items-center h-[70px] text-xs md:text-sm
-                   font-bold shadow-sm transition-transform duration-200 select-none cursor-pointer overflow-hidden bg-[#ddeeff]"
-                    >
-                        @if (dayPlan.eveningTwo) {
-                            <div class="text-xs md:text-sm px-1">
-                                <p>{{ dayPlan.eveningTwo }}</p>
-                            </div>
-                        }
-                    </div>
-                }
+                </p-card>
             </div>
-        </div>
 
-        <!-- RECHTER BEREICH: PERSONEN-LISTE -->
-        <div>
-            <div class="card flex justify-center">
-                <p-listbox
+            <!-- RIGHT: Person Selector -->
+            <div>
+                <p-card styleClass="shadow-md">
+                    <ng-template pTemplate="header">
+                        <div class="px-4 pt-4">
+                            <h2 class="text-lg font-semibold text-slate-800">Bewohner</h2>
+                        </div>
+                    </ng-template>
+
+                    <p-listbox
                         [options]="personSelectorList"
                         [(ngModel)]="selectedPersonOption"
                         (ngModelChange)="onPersonSelected($event)"
                         optionLabel="name"
                         [filter]="true"
-                        [listStyle]="{ 'max-height': '80vh', 'overflow': 'auto' }"
-                        [filterPlaceHolder]="'Nach name suchen...'"
-                        class="w-full"
-                >
-                    <ng-template pTemplate="item" let-person>
-                        <div class="flex items-center justify-between w-full gap-2">
-                            <div class="flex items-center gap-2">
-                                @if (person.hasSelection && (person.missingCount ?? 0) === 0) {
-                                    <i class="pi pi-check text-green-500 text-xs"></i>
-                                }
-                                <span>{{ person.name }}</span>
-                            </div>
+                        [listStyle]="{ 'max-height': '60vh', 'overflow': 'auto' }"
+                        filterPlaceHolder="Suchen..."
+                        styleClass="w-full border-0"
+                    >
+                        <ng-template pTemplate="item" let-person>
+                            <div class="flex items-center justify-between w-full gap-2 py-1">
+                                <div class="flex items-center gap-2">
+                                    @if (person.hasSelection && (person.missingCount ?? 0) === 0) {
+                                        <i class="pi pi-check-circle text-green-500"></i>
+                                    } @else if (person.hasSelection && (person.missingCount ?? 0) > 0) {
+                                        <i class="pi pi-exclamation-circle text-amber-500"></i>
+                                    } @else {
+                                        <i class="pi pi-circle text-slate-300"></i>
+                                    }
+                                    <span class="text-slate-700">{{ person.name }}</span>
+                                </div>
 
-                            @if (person.hasSelection && (person.missingCount ?? 0) > 0) {
-                                <span class="text-[11px] font-bold px-2 py-1 rounded-full bg-red-100 text-red-700">
-                  {{ person.missingCount }} offen
-                </span>
-                            }
-                        </div>
-                    </ng-template>
-                </p-listbox>
+                                @if (person.hasSelection && (person.missingCount ?? 0) > 0) {
+                                    <p-tag
+                                        [value]="person.missingCount + ' offen'"
+                                        severity="warn"
+                                        [rounded]="true"
+                                    ></p-tag>
+                                }
+                            </div>
+                        </ng-template>
+                    </p-listbox>
+                </p-card>
             </div>
         </div>
     </div>
 } @else {
-    <div class="flex flex-col justify-center items-center h-screen gap-4">
-        <div class="text-center">
-            <p-progressSpinner
-                    strokeWidth="8"
-                    fill="transparent"
-                    animationDuration=".5s"
-                    [style]="{ width: '50px', height: '50px' }"
-            />
-            <p class="p-5">WOCHENPLAN Loading</p>
-        </div>
+    <div class="flex flex-col justify-center items-center h-screen gap-4 bg-slate-50">
+        <p-progressSpinner
+            strokeWidth="4"
+            [style]="{ width: '50px', height: '50px' }"
+        ></p-progressSpinner>
+        <p class="text-slate-500">Wochenplan wird geladen...</p>
     </div>
 }

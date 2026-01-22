@@ -1,0 +1,43 @@
+// PEP Mealplan Global Styles
+@use "tailwindcss";
+@use "primeicons/primeicons.css";
+@use "styles/variables";
+
+// Base styles
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--pep-background);
+  color: var(--pep-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.5;
+}
+
+// Global link styles
+a {
+  color: var(--pep-primary);
+  text-decoration: none;
+  transition: color var(--pep-transition-fast);
+
+  &:hover {
+    color: var(--pep-primary-dark);
+  }
+}
+
+// Utility classes
+.pep-surface {
+  background-color: var(--pep-surface);
+  border-radius: var(--pep-radius);
+  box-shadow: var(--pep-shadow);
+}
+
+.pep-card {
+  background-color: var(--pep-surface);
+  border-radius: var(--pep-radius-lg);
+  box-shadow: var(--pep-shadow-lg);
+  padding: 1.5rem;
+}
