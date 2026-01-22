@@ -35,6 +35,29 @@ jobs:
         run: |
           ./mvnw -B clean package -DskipTests
 
+      # ---------- Frontend build (Angular) ----------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'pep-mealplan/frontend/package-lock.json'
+
+      - name: Install frontend deps
+        working-directory: pep-mealplan/frontend
+        run: npm ci
+
+      - name: Build frontend (Angular)
+        working-directory: pep-mealplan/frontend
+        run: npm run build
+
+      - name: Debug dist (must exist)
+        working-directory: pep-mealplan/frontend
+        run: |
+          ls -lah
+          ls -lah dist
+          find dist -maxdepth 3 -type d
+
       # ---------- Docker / GHCR ----------
       - name: Set up docker buildx
         uses: docker/setup-buildx-action@v3
@@ -58,7 +81,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Frontend image (Angular + Nginx)
+      # Frontend image (Nginx serving dist)
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
@@ -88,7 +111,7 @@ jobs:
             echo "PWD: $(pwd)"
             ls -lah
 
-            # Pull nur die Mealplan Images
+            # Pull nur Mealplan Images
             docker compose -f docker-compose.yaml pull mealplan-backend mealplan-frontend
 
             # Restart nur Mealplan Services
