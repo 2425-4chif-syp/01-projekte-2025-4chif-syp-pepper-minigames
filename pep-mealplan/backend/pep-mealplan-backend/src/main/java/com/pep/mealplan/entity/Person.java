@@ -9,6 +9,11 @@ import java.time.LocalDate;
 @Table(name = "pe_person")
 public class Person extends PanacheEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pe_id")
+    public Long id;
+
     @Column(nullable = false)
     public String firstname;
 
