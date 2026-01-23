@@ -112,11 +112,11 @@ jobs:
             ls -lah
 
             # Pull nur Mealplan Images
-            docker compose -f docker-compose.yaml pull mealplan-backend mealplan-frontend
+            docker compose -f mealplan.yaml pull mealplan-backend mealplan-frontend
 
             # Restart nur Mealplan Services
-            docker compose -f docker-compose.yaml up -d mealplan-backend mealplan-frontend
+            docker compose -f mealplan.yaml up -d mealplan-backend mealplan-frontend
 
-            docker compose -f docker-compose.yaml ps
-            docker compose -f docker-compose.yaml logs --tail=80 mealplan-backend
-            docker compose -f docker-compose.yaml logs --tail=80 mealplan-frontend
+            docker compose -f mealplan.yaml ps
+            docker compose -f mealplan.yaml logs --tail=80 mealplan-backend
+            docker compose -f mealplan.yaml logs --tail=80 mealplan-frontend
