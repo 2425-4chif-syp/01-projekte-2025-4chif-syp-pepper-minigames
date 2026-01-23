@@ -49,7 +49,8 @@ jobs:
 
       - name: Build frontend (Angular)
         working-directory: pep-mealplan/frontend
-        run: npm run build
+        run: npm run build -- --base-href /mealplan/ --deploy-url /mealplan/
+
 
       - name: Debug dist (must exist)
         working-directory: pep-mealplan/frontend
