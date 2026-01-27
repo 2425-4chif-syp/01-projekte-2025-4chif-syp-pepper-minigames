@@ -14,7 +14,7 @@ public class Picture extends PanacheEntityBase {
     @Column(nullable = false)
     public String name;
 
-    @Column(nullable = false)
+    @Column(name = "mediatype", nullable = false)
     public String mediaType;
 
     @Column(columnDefinition = "TEXT")
