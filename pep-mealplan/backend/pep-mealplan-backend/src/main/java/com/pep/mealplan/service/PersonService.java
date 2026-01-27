@@ -33,6 +33,7 @@ public class PersonService {
     // CREATE
     @Transactional
     public Person create(Person person) {
+        person.id = null; // Ensure ID is null so PostgreSQL generates it
         personRepo.persist(person);
         return person;
     }
