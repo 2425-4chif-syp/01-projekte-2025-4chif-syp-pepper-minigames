@@ -11,16 +11,16 @@ import { SelectMenuComponent } from './select-menu/select-menu.component';
 import { RasterComponent } from './raster/raster.component';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'foods' },
-  { path: 'foods', component: FoodManagementComponent },
-  { path: 'menu-week', component: WeekPlanManagementComponent },
-  { path: 'food', component: FoodEditorComponent },
-  { path: 'users', component: ManageUsersComponent },
-  { path: 'orders', component: OverviewOrdersComponent },
-  { path: 'order', component: SelectUserComponent },
-  { path: 'order-day/:name', component: SelectWeekdayComponent },
-  { path: 'order-menu/:name/:date', component: SelectMenuComponent },
-  { path: 'menu-grid', component: RasterComponent }
+  { path: 'mealplan', pathMatch: 'full', redirectTo: 'foods' },
+  { path: 'mealplan/foods', component: FoodManagementComponent },
+  { path: 'mealplan/menu-week', component: WeekPlanManagementComponent },
+  { path: 'mealplan/food', component: FoodEditorComponent },
+  { path: 'mealplan/users', component: ManageUsersComponent },
+  { path: 'mealplan/orders', component: OverviewOrdersComponent },
+  { path: 'mealplan/order', component: SelectUserComponent },
+  { path: 'mealplan/order-day/:name', component: SelectWeekdayComponent },
+  { path: 'mealplan/order-menu/:name/:date', component: SelectMenuComponent },
+  { path: 'mealplan/menu-grid', component: RasterComponent }
 ];
 
 @NgModule({
