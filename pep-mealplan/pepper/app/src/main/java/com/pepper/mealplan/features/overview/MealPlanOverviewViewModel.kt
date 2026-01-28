@@ -18,7 +18,8 @@ data class MealItem(
     val title: String,
     val foodName: String,
     val foodType: String,   // "soup", "main", "dessert"
-    val timeMinutes: Int    // Uhrzeit als Minuten seit Mitternacht
+    val timeMinutes: Int,   // Uhrzeit als Minuten seit Mitternacht
+    val pictureId: Int? = null  // ID des Fotos
 )
 
 // UI-Daten für einen Tag (Datum + alle Mahlzeiten)
@@ -144,43 +145,35 @@ class MealPlanOverviewViewModel(
         fun foodName(food: ApiFoodDto?): String =
             food?.name ?: "Keine Angabe"
 
-        // Zeiten nur beispielhaft, kannst du anpassen
+        // Nur die ersten Optionen für Overview (später personalisiert)
         val meals = listOf(
             MealItem(
                 title = "Suppe",
                 foodName = foodName(menu.soup),
                 foodType = "soup",
-                timeMinutes = 11 * 60 + 30
+                timeMinutes = 11 * 60 + 30,
+                pictureId = menu.soup?.picture?.id
             ),
             MealItem(
-                title = "Hauptgericht 1",
+                title = "Hauptgericht",
                 foodName = foodName(menu.lunch1),
                 foodType = "main",
-                timeMinutes = 12 * 60
-            ),
-            MealItem(
-                title = "Hauptgericht 2",
-                foodName = foodName(menu.lunch2),
-                foodType = "main",
-                timeMinutes = 12 * 60 + 15
+                timeMinutes = 12 * 60,
+                pictureId = menu.lunch1?.picture?.id
             ),
             MealItem(
                 title = "Dessert",
                 foodName = foodName(menu.lunchDessert),
                 foodType = "dessert",
-                timeMinutes = 13 * 60
+                timeMinutes = 13 * 60,
+                pictureId = menu.lunchDessert?.picture?.id
             ),
             MealItem(
-                title = "Abendessen 1",
+                title = "Abendessen",
                 foodName = foodName(menu.dinner1),
                 foodType = "main",
-                timeMinutes = 17 * 60 + 30
-            ),
-            MealItem(
-                title = "Abendessen 2",
-                foodName = foodName(menu.dinner2),
-                foodType = "main",
-                timeMinutes = 18 * 60
+                timeMinutes = 17 * 60 + 30,
+                pictureId = menu.dinner1?.picture?.id
             )
         )
 

@@ -22,7 +22,7 @@ fun FaceRecognitionScreen(
     viewModel: FaceRecognitionViewModel = viewModel()
 ) {
     // Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
-    val devModeSkipFaceRecognition = true
+    val devModeSkipFaceRecognition = false
 
     // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
