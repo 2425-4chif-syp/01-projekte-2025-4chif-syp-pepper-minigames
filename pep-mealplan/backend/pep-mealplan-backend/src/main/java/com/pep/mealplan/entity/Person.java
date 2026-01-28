@@ -10,17 +10,18 @@ public class Person extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "p_id")
     public Long id;
 
-    @Column(nullable = false)
+    @Column(name = "p_first_name")
     public String firstname;
 
-    @Column(nullable = false)
+    @Column(name = "p_last_name")
     public String lastname;
 
-    // optional
+    @Column(name = "p_dob")
     public LocalDate dob;
 
-    // optional
+    @Column(name = "p_face_id")
     public String faceId;
 }
