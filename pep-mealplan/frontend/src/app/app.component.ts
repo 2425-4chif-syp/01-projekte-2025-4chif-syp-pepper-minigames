@@ -37,7 +37,8 @@ export class AppComponent implements OnInit{
             { label: 'BESTELLUNGEN', root: true, routerLink: '/orders' },
             { label: 'BEWOHNER', root: true, routerLink: '/users' },
             { label: 'GERICHTE', root: true, routerLink: '/foods' },
-            { label: 'PLANNER', root: true, routerLink: '/menu-grid' }
+            { label: 'PLANNER', root: true, routerLink: '/menu-grid' },
+            { label: 'PEPPER DASHBOARD', root: true, url: 'https://vm107.htl-leonding.ac.at/', target: '_blank' }
         ];
     }
 
