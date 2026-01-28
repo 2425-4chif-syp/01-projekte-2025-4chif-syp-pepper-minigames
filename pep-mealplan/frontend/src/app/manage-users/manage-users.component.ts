@@ -37,6 +37,7 @@ export class ManageUsersComponent implements OnInit {
     searchTerm: string = '';
     searchLoading = false;
     newUser: Resident = { firstname: '', lastname: '', dob: '' };
+    newUserDob: Date | null = null;
     showDobInput = false;
 
     constructor(private userApiService: UserAPIService) {}
@@ -90,23 +91,23 @@ export class ManageUsersComponent implements OnInit {
                     user.lastname.toLowerCase() === this.newUser.lastname.toLowerCase()
             );
 
-            if (userExists && !this.newUser.dob) {
+            if (userExists && !this.newUserDob) {
                 this.showDobInput = true;
                 return;
             }
 
-            if (!this.newUser.dob) {
+            if (this.newUserDob) {
+                const date = this.newUserDob;
+                this.newUser.dob = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            } else {
                 this.newUser.dob = '2130-01-01';
             }
 
             this.userApiService.addResident(this.newUser).subscribe({
                 next: (user) => {
-                    if (user.dob === '2130-01-01') {
-                        user.dob = '2130-01-01';
-                    }
-
                     this.users.push(user);
                     this.newUser = { firstname: '', lastname: '', dob: '' };
+                    this.newUserDob = null;
                     this.loadUsers();
                     this.showDobInput = false;
                 },
