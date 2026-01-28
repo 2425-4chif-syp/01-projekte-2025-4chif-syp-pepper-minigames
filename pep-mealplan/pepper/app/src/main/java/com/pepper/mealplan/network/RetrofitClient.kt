@@ -3,10 +3,13 @@ package com.pepper.mealplan.network
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import com.pepper.mealplan.network.api.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
@@ -14,36 +17,36 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class HttpInstance {
-    companion object {
-        val BACKEND_URL = "https://vm107.htl-leonding.ac.at/" // Use HTTPS if required
+object RetrofitClient {
+    private const val BASE_URL = "https://vm107.htl-leonding.ac.at/"
 
-        // Create a trust manager that accepts all certificates (for development only!)
-        private val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        })
+    // Create a trust manager that accepts all certificates (for development only!)
+    private val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+        override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+    })
 
-        private val client = OkHttpClient.Builder()
-            .connectTimeout(90, TimeUnit.SECONDS)
-            .readTimeout(90, TimeUnit.SECONDS)
-            .protocols(listOf(Protocol.HTTP_1_1))
-            .apply {
-                // Configure SSL to trust all certificates (ONLY for development!)
-                val sslContext = SSLContext.getInstance("SSL")
-                sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-                sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
-                hostnameVerifier { _, _ -> true }
-            }
-            .build()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(90, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .protocols(listOf(Protocol.HTTP_1_1))
+        .apply {
+            // Configure SSL to trust all certificates (ONLY for development!)
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+            sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+            hostnameVerifier { _, _ -> true }
+        }
+        .build()
+
 
         suspend fun sendPostRequestImage(imageBitMap: ImageBitmap): String =
             withContext(Dispatchers.IO) {
-                val url = BACKEND_URL + "api/auth/face/verify"
+                val url = BASE_URL + "api/auth/face/verify"
 
                 val bitmap: Bitmap = imageBitMap.asAndroidBitmap()
-                
+
                 // Skaliere das Bild auf eine maximale Größe runter
                 val maxWidth = 800
                 val maxHeight = 600
@@ -63,7 +66,7 @@ class HttpInstance {
                 // Verwende JPEG mit 70% Qualität statt PNG mit 100%
                 scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
                 val byteArray = byteArrayOutputStream.toByteArray()
-                
+
                 println("Image size: ${byteArray.size} bytes (${byteArray.size / 1024} KB)")
 
                 val requestBody = RequestBody.create(
@@ -93,7 +96,31 @@ class HttpInstance {
                     println("Error: ${e.message}")
                     e.printStackTrace()
                     ""
-                }
-            }
+                } }
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val ordersApi: OrdersApiService by lazy {
+        retrofit.create(OrdersApiService::class.java)
+    }
+
+    val menuApi: MenuApiService by lazy {
+        retrofit.create(MenuApiService::class.java)
+    }
+
+    val foodsApi: FoodsApiService by lazy {
+        retrofit.create(FoodsApiService::class.java)
+    }
+
+    val allergensApi: AllergensApiService by lazy {
+        retrofit.create(AllergensApiService::class.java)
+    }
+
+    val residentsApi: ResidentsApiService by lazy {
+        retrofit.create(ResidentsApiService::class.java)
     }
 }
