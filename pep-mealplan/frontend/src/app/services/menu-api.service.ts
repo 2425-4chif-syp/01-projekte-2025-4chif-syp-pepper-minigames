@@ -115,11 +115,11 @@ export class MenuAPIService {
     };
   }
 
-  private serializeFoodForCreate(food: Food): Partial<ApiFood> {
+  private serializeFoodForCreate(food: Food): { name: string; type: string; pictureId?: number } {
     return {
       name: food.name,
       type: food.type,
-      picture: food.picture ?? undefined,
+      pictureId: food.picture?.id ?? undefined,
     };
   }
 
