@@ -1,1 +1,1 @@
-export const API_URL = '/mealplan/api';
+export const API_URL = '/mealplan';
