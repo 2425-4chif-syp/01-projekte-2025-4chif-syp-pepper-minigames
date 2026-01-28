@@ -23,8 +23,7 @@ public class Food extends PanacheEntityBase {
     @OneToMany(mappedBy = "food", fetch = FetchType.LAZY)
     public Set<FoodAllergen> allergens;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PictureId")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "f_i_id")
     public Picture picture;
 }
