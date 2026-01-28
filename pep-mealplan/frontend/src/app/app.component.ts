@@ -1,9 +1,13 @@
 import {Component, OnInit, signal} from '@angular/core';
 import {Router, NavigationEnd, Event, RouterOutlet, RouterLink} from '@angular/router';
 import {MegaMenuItem} from "primeng/api";
-import {NgClass} from "@angular/common";
+import {NgClass, NgIf} from "@angular/common";
 import {MegaMenuModule} from "primeng/megamenu";
 import {Ripple} from "primeng/ripple";
+import {AuthGuard} from "./guards/auth.guard";
+import {RoleService} from "./services/role.service";
+import {ButtonModule} from "primeng/button";
+import {TooltipModule} from "primeng/tooltip";
 
 @Component({
     selector: 'app-root',
@@ -11,10 +15,13 @@ import {Ripple} from "primeng/ripple";
     styleUrls: ['./app.component.scss'],
     imports: [
         NgClass,
+        NgIf,
         RouterOutlet,
         RouterLink,
         MegaMenuModule,
-        Ripple
+        Ripple,
+        ButtonModule,
+        TooltipModule
     ],
     standalone: true
 })
@@ -22,7 +29,11 @@ export class AppComponent implements OnInit{
     items: MegaMenuItem[] | undefined;
     currentRoute = signal<string>("");
 
-    constructor(private router: Router) {}
+    constructor(
+        private router: Router,
+        private authGuard: AuthGuard,
+        private roleService: RoleService
+    ) {}
 
     ngOnInit() {
 
@@ -42,4 +53,15 @@ export class AppComponent implements OnInit{
         ];
     }
 
+    get currentUser(): string {
+        return this.roleService.getUsername();
+    }
+
+    get isLoggedIn(): boolean {
+        return !!localStorage.getItem('kc_token');
+    }
+
+    logout(): void {
+        this.authGuard.logout();
+    }
 }

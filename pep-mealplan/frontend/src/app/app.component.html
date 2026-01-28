@@ -36,11 +36,17 @@
         </ng-template>
     </p-megaMenu>
 
-    <img
-            class="w-12 h-12 rounded-full object-cover"
-            src="assets/pepper.ico"
-            alt="User"
-    />
+    <div *ngIf="isLoggedIn" class="flex items-center gap-4">
+        <span class="text-white font-semibold">{{ currentUser }}</span>
+        <p-button
+            icon="pi pi-sign-out"
+            severity="secondary"
+            [rounded]="true"
+            [text]="true"
+            (click)="logout()"
+            pTooltip="Abmelden"
+        />
+    </div>
 </div>
 
 <router-outlet></router-outlet>
