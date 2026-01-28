@@ -6,4 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class OrderRepository implements PanacheRepository<Order> {
+
+    public long deleteByPersonId(Long personId) {
+        return delete("person.id", personId);
+    }
 }
