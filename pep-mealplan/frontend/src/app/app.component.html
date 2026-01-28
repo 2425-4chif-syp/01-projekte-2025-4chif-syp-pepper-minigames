@@ -8,18 +8,30 @@
     >
         <ng-template #item let-item>
             @if (item.root) {
-                <a
-                        pRipple
-                        class="flex items-center cursor-pointer px-8 py-2
-                        overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full"
-                        [routerLink]="item.routerLink"
-                        [ngClass]="{
-                            'bg-white text-indigo-700 shadow-md': currentRoute() === item.routerLink,
-                            'nav-item-inactive': currentRoute() !== item.routerLink
-                        }"
-                >
-                    <span>{{ item.label }}</span>
-                </a>
+                @if (item.url) {
+                    <a
+                            pRipple
+                            class="flex items-center cursor-pointer px-8 py-2
+                            overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full nav-item-inactive"
+                            [href]="item.url"
+                            [target]="item.target || '_self'"
+                    >
+                        <span>{{ item.label }}</span>
+                    </a>
+                } @else {
+                    <a
+                            pRipple
+                            class="flex items-center cursor-pointer px-8 py-2
+                            overflow-hidden relative font-semibold text-lg uppercase transition-all rounded-full"
+                            [routerLink]="item.routerLink"
+                            [ngClass]="{
+                                'bg-white text-indigo-700 shadow-md': currentRoute() === item.routerLink,
+                                'nav-item-inactive': currentRoute() !== item.routerLink
+                            }"
+                    >
+                        <span>{{ item.label }}</span>
+                    </a>
+                }
             }
         </ng-template>
     </p-megaMenu>
