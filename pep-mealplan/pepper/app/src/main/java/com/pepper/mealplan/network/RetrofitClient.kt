@@ -45,62 +45,63 @@ object RetrofitClient {
         .build()
 
 
-        suspend fun sendPostRequestImage(imageBitMap: ImageBitmap): String =
-            withContext(Dispatchers.IO) {
-                val url = BASE_URL + "api/auth/face/verify"
+    suspend fun sendPostRequestImage(imageBitMap: ImageBitmap): String =
+        withContext(Dispatchers.IO) {
+            val url = BASE_URL + "api/auth/face/verify"
 
-                val bitmap: Bitmap = imageBitMap.asAndroidBitmap()
+            val bitmap: Bitmap = imageBitMap.asAndroidBitmap()
 
-                // Skaliere das Bild auf eine maximale Größe runter
-                val maxWidth = 800
-                val maxHeight = 600
-                val scaledBitmap = if (bitmap.width > maxWidth || bitmap.height > maxHeight) {
-                    val ratio = minOf(
-                        maxWidth.toFloat() / bitmap.width,
-                        maxHeight.toFloat() / bitmap.height
-                    )
-                    val newWidth = (bitmap.width * ratio).toInt()
-                    val newHeight = (bitmap.height * ratio).toInt()
-                    Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-                } else {
-                    bitmap
-                }
-
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                // Verwende JPEG mit 70% Qualität statt PNG mit 100%
-                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
-                val byteArray = byteArrayOutputStream.toByteArray()
-
-                println("Image size: ${byteArray.size} bytes (${byteArray.size / 1024} KB)")
-
-                val requestBody = RequestBody.create(
-                    "application/octet-stream".toMediaTypeOrNull(),
-                    byteArray
+            // Skaliere das Bild auf eine maximale Größe runter
+            val maxWidth = 800
+            val maxHeight = 600
+            val scaledBitmap = if (bitmap.width > maxWidth || bitmap.height > maxHeight) {
+                val ratio = minOf(
+                    maxWidth.toFloat() / bitmap.width,
+                    maxHeight.toFloat() / bitmap.height
                 )
+                val newWidth = (bitmap.width * ratio).toInt()
+                val newHeight = (bitmap.height * ratio).toInt()
+                Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+            } else {
+                bitmap
+            }
 
-                val request = Request.Builder()
-                    .url(url)
-                    .post(requestBody)
-                    .build()
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            // Verwende JPEG mit 70% Qualität statt PNG mit 100%
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
+            val byteArray = byteArrayOutputStream.toByteArray()
 
-                try {
-                    val response: Response = client.newCall(request).execute()
-                    val responseBody = response.body?.string()
+            println("Image size: ${byteArray.size} bytes (${byteArray.size / 1024} KB)")
 
-                    println("Status Code: ${response.code}")
-                    println("Response Body: $responseBody")
+            val requestBody = RequestBody.create(
+                "application/octet-stream".toMediaTypeOrNull(),
+                byteArray
+            )
 
-                    if (responseBody.isNullOrEmpty()) {
-                        println("Error: Response is empty or null!")
-                        ""
-                    } else {
-                        responseBody
-                    }
-                } catch (e: Exception) {
-                    println("Error: ${e.message}")
-                    e.printStackTrace()
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
+
+            try {
+                val response: Response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                println("Status Code: ${response.code}")
+                println("Response Body: $responseBody")
+
+                if (responseBody.isNullOrEmpty()) {
+                    println("Error: Response is empty or null!")
                     ""
-                } }
+                } else {
+                    responseBody
+                }
+            } catch (e: Exception) {
+                println("Error: ${e.message}")
+                e.printStackTrace()
+                ""
+            }
+        }
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -127,4 +128,5 @@ object RetrofitClient {
     val residentsApi: ResidentsApiService by lazy {
         retrofit.create(ResidentsApiService::class.java)
     }
+
 }

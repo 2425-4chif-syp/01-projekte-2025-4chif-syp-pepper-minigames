@@ -2,6 +2,7 @@ package com.pepper.mealplan.network.api
 
 import com.pepper.mealplan.network.dto.ApiFoodDto
 import com.pepper.mealplan.network.dto.FoodCreateDto
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -28,4 +29,7 @@ interface FoodsApiService {
     
     @DELETE("mealplan/api/foods/{id}")
     suspend fun deleteFood(@Path("id") id: Int): Response<Unit>
+    
+    @GET("imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F{id}?ngsw-bypass=true")
+    suspend fun getImage(@Path("id") id: Int): Response<ResponseBody>
 }
