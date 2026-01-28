@@ -10,15 +10,15 @@ INSERT INTO pe_allergen (shortname, description) VALUES
   ('M', 'Senf'),
   ('O', 'Schwefeldioxid und Sulfite');
 
--- Pictures (OVERRIDING SYSTEM VALUE für IDENTITY columns mit expliziten IDs)
-INSERT INTO pe_picture (id, name, mediatype, base64) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'frittatensuppe', 'image/png', 'BASE64_1'),
-  (2, 'wiener_schnitzel', 'image/png', 'BASE64_2'),
-  (3, 'tafelspitz', 'image/png', 'BASE64_3'),
-  (4, 'apfelstrudel', 'image/png', 'BASE64_4');
+-- Images (OVERRIDING SYSTEM VALUE für IDENTITY columns mit expliziten IDs)
+INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) OVERRIDING SYSTEM VALUE VALUES
+  (1, NULL, 'frittatensuppe', NULL, NULL),
+  (2, NULL, 'wiener_schnitzel', NULL, NULL),
+  (3, NULL, 'tafelspitz', NULL, NULL),
+  (4, NULL, 'apfelstrudel', NULL, NULL);
 
 -- Foods
-INSERT INTO pe_food (id, name, type, pictureid) OVERRIDING SYSTEM VALUE VALUES
+INSERT INTO pe_food (id, name, type, f_i_id) OVERRIDING SYSTEM VALUE VALUES
   (1, 'Frittatensuppe', 'soup', 1),
   (2, 'Griessnockerlsuppe', 'soup', NULL),
   (3, 'Rindsuppe', 'soup', NULL),
@@ -62,7 +62,7 @@ INSERT INTO pe_foodallergen (foodid, allergenshortname) VALUES
   (19, 'A'), (19, 'C'), (19, 'G');
 
 -- Persons
-INSERT INTO pe_person (id, firstname, lastname, dob, faceid) OVERRIDING SYSTEM VALUE VALUES
+INSERT INTO pe_person (p_id, p_first_name, p_last_name, p_dob, p_face_id) OVERRIDING SYSTEM VALUE VALUES
   (1, 'Johann', 'Gruber', '1988-04-12', NULL),
   (2, 'Anna', 'Huber', '1992-09-03', NULL),
   (3, 'Franz', 'Bauer', '1979-01-27', NULL),
@@ -109,8 +109,8 @@ INSERT INTO pe_order (person_id, order_date, selected_lunch_id, selected_dinner_
   (5, '2026-01-17', 12, 5);
 
 -- Reset IDENTITY sequences nach hardcoded ID inserts
-SELECT setval('pe_picture_id_seq', (SELECT MAX(id) FROM pe_picture));
+SELECT setval('pe_image_i_id_seq', (SELECT MAX(i_id) FROM pe_image));
 SELECT setval('pe_food_id_seq', (SELECT MAX(id) FROM pe_food));
-SELECT setval('pe_person_id_seq', (SELECT MAX(id) FROM pe_person));
+SELECT setval('pe_person_p_id_seq', (SELECT MAX(p_id) FROM pe_person));
 SELECT setval('pe_mealplan_id_seq', (SELECT MAX(id) FROM pe_mealplan));
 SELECT setval('pe_order_id_seq', (SELECT MAX(id) FROM pe_order));
