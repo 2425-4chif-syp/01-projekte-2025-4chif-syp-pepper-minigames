@@ -1,4 +1,4 @@
-package com.pepper.mealplan.faceRecognition
+package com.pepper.mealplan.features.face
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

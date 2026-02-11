@@ -1,4 +1,4 @@
-package com.pepper.mealplan.createMealPlan
+package com.pepper.mealplan.features.create
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image

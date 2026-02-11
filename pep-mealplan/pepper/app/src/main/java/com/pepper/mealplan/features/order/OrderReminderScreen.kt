@@ -1,4 +1,4 @@
-package com.pepper.mealplan.orderReminder
+package com.pepper.mealplan.features.order
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

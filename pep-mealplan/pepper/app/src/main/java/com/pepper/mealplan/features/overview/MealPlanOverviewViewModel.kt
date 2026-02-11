@@ -1,13 +1,14 @@
-package com.pepper.mealplan.MealPlanOverview
+package com.pepper.mealplan.features.overview
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepper.mealplan.data.DataInserts
-import com.pepper.mealplan.network.dto.FoodDto
-import com.pepper.mealplan.network.dto.MenuDto
+import com.pepper.mealplan.data.menu.MenuRepository
+import com.pepper.mealplan.data.foods.FoodsRepository
+import com.pepper.mealplan.network.dto.ApiMealPlanDto
+import com.pepper.mealplan.network.dto.ApiFoodDto
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -17,7 +18,8 @@ data class MealItem(
     val title: String,
     val foodName: String,
     val foodType: String,   // "soup", "main", "dessert"
-    val timeMinutes: Int    // Uhrzeit als Minuten seit Mitternacht
+    val timeMinutes: Int,   // Uhrzeit als Minuten seit Mitternacht
+    val pictureId: Int? = null  // ID des Fotos
 )
 
 // UI-Daten für einen Tag (Datum + alle Mahlzeiten)
@@ -25,7 +27,7 @@ data class DayMealsUi(
     val calendar: Calendar,
     val label: String,       // "Heute", "Morgen", "Übermorgen"
     val weekdayCode: String, // "MO", "DI", ...
-    val menu: MenuDto?,
+    val menu: ApiMealPlanDto?,
     val meals: List<MealItem>
 )
 
@@ -44,23 +46,30 @@ class MealPlanOverviewViewModel(
     var initialMealIndexToday by mutableStateOf(0)
         private set
 
-    private val allData by lazy { DataInserts.getAllData() }
-
-    private val foodsMap by lazy {
-        allData.foods.associateBy { it.id }
-    }
+    private val menuRepository = MenuRepository()
+    private val foodsRepository = FoodsRepository()
+    
+    private var foodsMap by mutableStateOf<Map<Int, ApiFoodDto>>(emptyMap())
 
     init {
         refreshData()
     }
 
-    fun getFoodById(id: Int?): FoodDto? {
+    fun getFoodById(id: Int?): ApiFoodDto? {
         return if (id != null) foodsMap[id] else null
     }
 
     fun refreshData() {
         viewModelScope.launch {
             isLoading = true
+
+            // Lade alle Foods vom Backend
+            val foodsResult = foodsRepository.getAllFoods()
+            foodsResult.onSuccess { foods ->
+                foodsMap = foods.filterNotNull().associateBy { it.id ?: 0 }
+            }.onFailure { error ->
+                println("Fehler beim Laden der Foods: ${error.message}")
+            }
 
             val todayCal = Calendar.getInstance()
 
@@ -71,10 +80,16 @@ class MealPlanOverviewViewModel(
                 }
                 val indexFromToday = offset
                 val weekdayCode = cal.toWeekdayCode()
+                val weekNumber = getWeekNumberForDate(cal)
+                val weekDay = cal.toWeekDayIndex()
 
-                // 🔹 WICHTIG: aktuell NUR nach Wochentag filtern
-                val menu = allData.menus.firstOrNull {
-                    it.weekday == weekdayCode
+                // Lade Menü vom Backend
+                var menu: ApiMealPlanDto? = null
+                val menuResult = menuRepository.getMenuForDate(weekNumber, weekDay)
+                menuResult.onSuccess { apiMenu ->
+                    menu = apiMenu
+                }.onFailure { error ->
+                    println("Fehler beim Laden des Menüs für Tag $weekDay, Woche $weekNumber: ${error.message}")
                 }
 
                 buildDayMealsUi(
@@ -108,7 +123,7 @@ class MealPlanOverviewViewModel(
         calendar: Calendar,
         indexFromToday: Int,
         weekdayCode: String,
-        menu: MenuDto?
+        menu: ApiMealPlanDto?
     ): DayMealsUi {
         val label = when (indexFromToday) {
             0 -> "Heute"
@@ -127,46 +142,45 @@ class MealPlanOverviewViewModel(
             )
         }
 
-        fun foodName(id: Int?): String =
-            if (id != null) foodsMap[id]?.name ?: "Keine Angabe" else "Keine Angabe"
+        fun foodName(food: ApiFoodDto?): String =
+            food?.name ?: "Keine Angabe"
 
-        // Zeiten nur beispielhaft, kannst du anpassen
+        // Debug: Prüfe ob Bilder vorhanden sind
+        println("DEBUG: Soup picture ID: ${menu.soup?.picture?.id}, Food ID: ${menu.soup?.id}")
+        println("DEBUG: Lunch1 picture ID: ${menu.lunch1?.picture?.id}, Food ID: ${menu.lunch1?.id}")
+        println("DEBUG: LunchDessert picture ID: ${menu.lunchDessert?.picture?.id}, Food ID: ${menu.lunchDessert?.id}")
+        println("DEBUG: Dinner1 picture ID: ${menu.dinner1?.picture?.id}, Food ID: ${menu.dinner1?.id}")
+
+        // Nur die ersten Optionen für Overview (später personalisiert)
+        // Verwende Food-ID statt Picture-ID, da Backend keine Picture-Daten sendet
         val meals = listOf(
             MealItem(
                 title = "Suppe",
-                foodName = foodName(menu.soupId),
+                foodName = foodName(menu.soup),
                 foodType = "soup",
-                timeMinutes = 11 * 60 + 30
+                timeMinutes = 11 * 60 + 30,
+                pictureId = menu.soup?.id
             ),
             MealItem(
-                title = "Hauptgericht 1",
-                foodName = foodName(menu.m1Id),
+                title = "Hauptgericht",
+                foodName = foodName(menu.lunch1),
                 foodType = "main",
-                timeMinutes = 12 * 60
-            ),
-            MealItem(
-                title = "Hauptgericht 2",
-                foodName = foodName(menu.m2Id),
-                foodType = "main",
-                timeMinutes = 12 * 60 + 15
+                timeMinutes = 12 * 60,
+                pictureId = menu.lunch1?.id
             ),
             MealItem(
                 title = "Dessert",
-                foodName = foodName(menu.lunchDessertId),
+                foodName = foodName(menu.lunchDessert),
                 foodType = "dessert",
-                timeMinutes = 13 * 60
+                timeMinutes = 13 * 60,
+                pictureId = menu.lunchDessert?.id
             ),
             MealItem(
-                title = "Abendessen 1",
-                foodName = foodName(menu.a1Id),
+                title = "Abendessen",
+                foodName = foodName(menu.dinner1),
                 foodType = "main",
-                timeMinutes = 17 * 60 + 30
-            ),
-            MealItem(
-                title = "Abendessen 2",
-                foodName = foodName(menu.a2Id),
-                foodType = "main",
-                timeMinutes = 18 * 60
+                timeMinutes = 17 * 60 + 30,
+                pictureId = menu.dinner1?.id
             )
         )
 
@@ -204,7 +218,20 @@ private fun Calendar.toWeekdayCode(): String =
         else -> "MO"
     }
 
-// 6-Wochen-Zyklus (WeekNumber 1..6) ohne java.time
+// Wochentag-Index (0 = Montag, 6 = Sonntag)
+private fun Calendar.toWeekDayIndex(): Int =
+    when (get(Calendar.DAY_OF_WEEK)) {
+        Calendar.MONDAY -> 0
+        Calendar.TUESDAY -> 1
+        Calendar.WEDNESDAY -> 2
+        Calendar.THURSDAY -> 3
+        Calendar.FRIDAY -> 4
+        Calendar.SATURDAY -> 5
+        Calendar.SUNDAY -> 6
+        else -> 0
+    }
+
+// 4-Wochen-Zyklus (WeekNumber 1..4) ohne java.time
 private fun getWeekNumberForDate(calendar: Calendar): Int {
     val base = Calendar.getInstance().apply {
         set(Calendar.YEAR, 2025)
@@ -220,9 +247,9 @@ private fun getWeekNumberForDate(calendar: Calendar): Int {
     val millisPerWeek = 7L * 24L * 60L * 60L * 1000L
     val weeksBetween = diffMillis / millisPerWeek
 
-    var index = (weeksBetween % 6).toInt()
-    if (index < 0) index += 6
-    return index + 1 // 1..6
+    var index = (weeksBetween % 4).toInt()
+    if (index < 0) index += 4
+    return index + 1 // 1..4
 }
 
 private fun getGermanWeekdayFromCode(code: String): String =

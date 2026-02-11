@@ -13,6 +13,47 @@ import java.util.List;
 public class PictureService {
 
     @Inject
+    PictureRepository repository;
+
+    // ---------------------------------------
+    // READ
+    // ---------------------------------------
+
+    public List<Picture> getAll() {
+        return repository.listAll();
+    }
+
+    public Picture getById(Long id) {
+        return repository.findById(id);
+    }
+
+    public List<Picture> searchByName(String name) {
+        return repository.list(
+                "LOWER(name) LIKE ?1",
+                "%" + name.toLowerCase() + "%"
+        );
+    }
+
+    // ---------------------------------------
+    // WRITE
+    // ---------------------------------------
+
+    @Transactional
+    public Picture create(Picture picture) {
+        repository.persist(picture);
+        return picture;
+    }
+
+    @Transactional
+    public Picture update(Long id, Picture picture) {
+        Picture existing = repository.findById(id);
+        if (existing == null) {
+            return null;
+        }
+        existing.name = picture.name;
+        existing.mediaType = picture.mediaType;
+        existing.base64 = picture.base64;
+        return existing;
     PictureRepository pictureRepo;
 
     public List<Picture> getAll() {
@@ -41,6 +82,7 @@ public class PictureService {
 
     @Transactional
     public boolean delete(Long id) {
+        return repository.deleteById(id);
         return pictureRepo.deleteById(id);
     }
 }

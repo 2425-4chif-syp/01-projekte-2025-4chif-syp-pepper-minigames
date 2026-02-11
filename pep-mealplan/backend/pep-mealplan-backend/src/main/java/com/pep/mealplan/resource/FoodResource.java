@@ -21,12 +21,10 @@ public class FoodResource {
     // -------------------------------------------------
     // READ
     // -------------------------------------------------
-
     @GET
     public List<Food> getAll() {
         return foodService.getAll();
     }
-
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") Long id) {
@@ -59,6 +57,16 @@ public class FoodResource {
         return Response.status(Response.Status.CREATED)
                 .entity(created)
                 .build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") Long id, Food food) {
+        Food updated = foodService.update(id, food);
+        if (updated == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(updated).build();
     }
 
     @DELETE

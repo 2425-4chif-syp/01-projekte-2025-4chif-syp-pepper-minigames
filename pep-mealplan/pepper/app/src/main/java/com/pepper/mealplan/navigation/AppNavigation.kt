@@ -21,11 +21,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.pepper.mealplan.MealPlanOverview.MealPlanOverview
-import com.pepper.mealplan.createMealPlan.CreateMealPlan
+import com.pepper.mealplan.features.overview.MealPlanOverview
+import com.pepper.mealplan.features.create.CreateMealPlan
 import com.pepper.mealplan.data.order.MealOrderRepositoryProvider
-import com.pepper.mealplan.faceRecognition.FaceRecognitionScreen
-import com.pepper.mealplan.orderReminder.OrderReminderScreen
+import com.pepper.mealplan.features.face.FaceRecognitionScreen
+import com.pepper.mealplan.features.order.OrderReminderScreen
 
 sealed class BottomNavItem(
     val route: String,

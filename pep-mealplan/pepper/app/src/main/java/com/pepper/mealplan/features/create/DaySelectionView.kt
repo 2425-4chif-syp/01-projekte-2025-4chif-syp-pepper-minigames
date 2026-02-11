@@ -1,4 +1,4 @@
-package com.pepper.mealplan.createMealPlan
+package com.pepper.mealplan.features.create
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

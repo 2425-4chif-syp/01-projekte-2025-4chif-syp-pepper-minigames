@@ -1,4 +1,4 @@
-package com.pepper.mealplan.faceRecognition
+package com.pepper.mealplan.features.face
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import android.util.Log
 import kotlinx.coroutines.*
 import com.pepper.mealplan.RoboterActions
-import com.pepper.mealplan.network.HttpInstance
 import java.util.*
+import com.pepper.mealplan.network.RetrofitClient
 
 class FaceRecognitionViewModel : ViewModel(){
     
@@ -64,7 +64,7 @@ class FaceRecognitionViewModel : ViewModel(){
 
                 val capturedImage = capturedImageDeferred.await()
 
-                val response = HttpInstance.sendPostRequestImage(capturedImage)
+                val response = RetrofitClient.sendPostRequestImage(capturedImage)
                 Log.d("Response", "${response}")
 
                 withContext(Dispatchers.Main) {

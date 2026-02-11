@@ -1,6 +1,17 @@
 package com.pep.mealplan.resource;
 
 import com.pep.mealplan.entity.Picture;
+import com.pep.mealplan.service.PictureService;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import java.util.List;
+
+@Path("/api/pictures")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 import com.pep.mealplan.resource.dto.ImageDto;
 import com.pep.mealplan.resource.dto.ImageJson;
 import com.pep.mealplan.service.PictureService;
@@ -21,6 +32,17 @@ public class PictureResource {
     @Inject
     PictureService pictureService;
 
+    // -------------------------------------------------
+    // READ
+    // -------------------------------------------------
+
+    @GET
+    public List<Picture> getAll() {
+        return pictureService.getAll();
+    }
+
+    @GET
+    @Path("/{id}")
     @Context
     UriInfo uriInfo;
 
@@ -57,6 +79,37 @@ public class PictureResource {
         if (picture == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        return Response.ok(picture).build();
+    }
+
+    @GET
+    @Path("/name/{name}")
+    public List<Picture> searchByName(@PathParam("name") String name) {
+        return pictureService.searchByName(name);
+    }
+
+    // -------------------------------------------------
+    // WRITE
+    // -------------------------------------------------
+
+    @POST
+    public Response create(Picture picture) {
+        Picture created = pictureService.create(picture);
+        return Response.status(Response.Status.CREATED)
+                .entity(created)
+                .build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") Long id, Picture picture) {
+        Picture updated = pictureService.update(id, picture);
+        if (updated == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(updated).build();
+    }
+
         return Response.ok(convertToDto(picture)).build();
     }
 
