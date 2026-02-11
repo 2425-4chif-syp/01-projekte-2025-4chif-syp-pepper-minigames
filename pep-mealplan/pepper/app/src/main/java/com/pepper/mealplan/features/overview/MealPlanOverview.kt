@@ -468,16 +468,24 @@ private fun MenuSection(
 
     // Lade das Bild vom Backend, wenn pictureId vorhanden ist
     LaunchedEffect(pictureId) {
+        println("DEBUG MenuSection: pictureId = $pictureId")
         if (pictureId != null) {
+            println("DEBUG MenuSection: Starting to fetch image for ID $pictureId")
             isLoadingImage = true
             coroutineScope.launch(Dispatchers.IO) {
-                val imageBytes = com.pepper.mealplan.network.RetrofitClient.foodsApi.getImage(pictureId) as ByteArray
+                val imageBytes = com.pepper.mealplan.network.RetrofitClient.fetchImage(pictureId)
+                println("DEBUG MenuSection: Image bytes received: ${imageBytes?.size ?: 0} bytes")
                 if (imageBytes != null) {
                     val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    println("DEBUG MenuSection: Bitmap decoded: ${bitmap != null}")
                     imageBitmap = bitmap?.asImageBitmap()
+                } else {
+                    println("DEBUG MenuSection: No image bytes received")
                 }
                 isLoadingImage = false
             }
+        } else {
+            println("DEBUG MenuSection: pictureId is null, skipping image fetch")
         }
     }
 

@@ -1,6 +1,7 @@
 package com.pepper.mealplan.network
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import com.pepper.mealplan.network.api.*
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import com.pepper.mealplan.network.api.FoodsApiService
 
 object RetrofitClient {
     private const val BASE_URL = "https://vm107.htl-leonding.ac.at/"
@@ -100,6 +102,21 @@ object RetrofitClient {
                 println("Error: ${e.message}")
                 e.printStackTrace()
                 ""
+            }
+        }
+    suspend fun fetchImage(id: Int): ByteArray? =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = foodsApi.getImage(id)
+                if (response.isSuccessful) {
+                    response.body()?.bytes()
+                } else {
+                    Log.e("API", "Error fetching image: ${response.code()} - ${response.message()}")
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("API", "Exception fetching image: ${e.message}", e)
+                null
             }
         }
 

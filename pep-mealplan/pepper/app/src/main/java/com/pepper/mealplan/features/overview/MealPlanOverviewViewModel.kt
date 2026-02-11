@@ -145,35 +145,42 @@ class MealPlanOverviewViewModel(
         fun foodName(food: ApiFoodDto?): String =
             food?.name ?: "Keine Angabe"
 
+        // Debug: Prüfe ob Bilder vorhanden sind
+        println("DEBUG: Soup picture ID: ${menu.soup?.picture?.id}, Food ID: ${menu.soup?.id}")
+        println("DEBUG: Lunch1 picture ID: ${menu.lunch1?.picture?.id}, Food ID: ${menu.lunch1?.id}")
+        println("DEBUG: LunchDessert picture ID: ${menu.lunchDessert?.picture?.id}, Food ID: ${menu.lunchDessert?.id}")
+        println("DEBUG: Dinner1 picture ID: ${menu.dinner1?.picture?.id}, Food ID: ${menu.dinner1?.id}")
+
         // Nur die ersten Optionen für Overview (später personalisiert)
+        // Verwende Food-ID statt Picture-ID, da Backend keine Picture-Daten sendet
         val meals = listOf(
             MealItem(
                 title = "Suppe",
                 foodName = foodName(menu.soup),
                 foodType = "soup",
                 timeMinutes = 11 * 60 + 30,
-                pictureId = menu.soup?.picture?.id
+                pictureId = menu.soup?.id
             ),
             MealItem(
                 title = "Hauptgericht",
                 foodName = foodName(menu.lunch1),
                 foodType = "main",
                 timeMinutes = 12 * 60,
-                pictureId = menu.lunch1?.picture?.id
+                pictureId = menu.lunch1?.id
             ),
             MealItem(
                 title = "Dessert",
                 foodName = foodName(menu.lunchDessert),
                 foodType = "dessert",
                 timeMinutes = 13 * 60,
-                pictureId = menu.lunchDessert?.picture?.id
+                pictureId = menu.lunchDessert?.id
             ),
             MealItem(
                 title = "Abendessen",
                 foodName = foodName(menu.dinner1),
                 foodType = "main",
                 timeMinutes = 17 * 60 + 30,
-                pictureId = menu.dinner1?.picture?.id
+                pictureId = menu.dinner1?.id
             )
         )
 
