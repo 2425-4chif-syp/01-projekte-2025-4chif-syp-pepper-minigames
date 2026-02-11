@@ -9,9 +9,11 @@
                     <!-- Bearbeitungsmodus: Neues Bild hochladen -->
                     @if (selectedImage()) {
                         <div class="relative w-full">
+                            <div class="w-full h-80 bg-gray-50 rounded-lg border-4 border-blue-300 shadow-md flex items-center justify-center p-4">
                             <img [src]="selectedImage()" 
-                                 alt="Neue Vorschau" 
-                                 class="w-full h-64 object-cover rounded-lg border-4 border-blue-300 shadow-md">
+                                     alt="Neue Vorschau" 
+                                     class="max-w-full max-h-full object-contain rounded-lg">
+                            </div>
                             <button (click)="removeNewImage()" 
                                     class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -24,9 +26,11 @@
                         <!-- Aktuelles Bild mit Upload-Option -->
                         <div class="relative w-full">
                             @if (currentProfileImage()) {
-                                <img [src]="currentProfileImage()" 
-                                     alt="Aktuelles Profilbild" 
-                                     class="w-full h-64 object-cover rounded-lg border-4 border-gray-200 shadow-md opacity-75">
+                                <div class="w-full h-80 bg-gray-50 rounded-lg border-4 border-gray-200 shadow-md flex items-center justify-center p-4">
+                                    <img [src]="currentProfileImage()" 
+                                         alt="Aktuelles Profilbild" 
+                                         class="max-w-full max-h-full object-contain rounded-lg opacity-95">
+                                </div>
                             } @else {
                                 <div class="w-full h-64 bg-gray-100 rounded-lg border-4 border-gray-200 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -52,9 +56,9 @@
                 } @else {
                     <!-- Ansichtsmodus: Nur Anzeige -->
                     @if (currentProfileImage()) {
-                        <img [src]="currentProfileImage()" 
-                             alt="Profilbild" 
-                             class="w-full h-64 object-cover rounded-lg border-4 border-gray-200 shadow-md">
+                        <div class="w-full h-80 bg-gray-50 rounded-lg flex items-center justify-center border-4 border-gray-200 shadow-md p-4">
+                            <img [src]="currentProfileImage()" alt="Profilbild" class="max-w-full max-h-full object-contain rounded-lg">
+                        </div>
                     } @else {
                         <div class="w-full h-64 bg-sky-500 rounded-lg flex items-center justify-center shadow-md">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-white" viewBox="0 0 20 20" fill="currentColor">
@@ -184,11 +188,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @for (image of imagesOfPerson(); track $index) {
                     <div class="transition-transform duration-300 hover:scale-105">
-                        <!-- ✅ Hover-Rahmenfarbe auf #348888 gesetzt, mit weicher Transition -->
-                        <div class="bg-white p-3 rounded-lg shadow-md border-2 border-gray-200 hover:border-[#348888] transition-colors duration-200 hover:shadow-lg">
-                            <img [src]="'data:image/png;base64,' + image.base64Image" 
-                                 alt="Person Image" 
-                                 class="w-full h-48 object-cover rounded-md">
+                        <!-- Card with consistent aspect and click-to-open -->
+                        <div class="bg-white p-3 rounded-lg shadow-md border-2 border-gray-200 hover:border-[#348888] transition-colors duration-200 hover:shadow-lg cursor-pointer"
+                             (click)="openGalleryImage(image)">
+                            <div class="w-full bg-gray-50 rounded-md overflow-hidden flex items-center justify-center" style="height:12rem;">
+                                <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'" 
+                                     alt="Person Image" 
+                                     loading="lazy"
+                                     class="max-w-full max-h-full object-contain rounded-md">
+                            </div>
                         </div>
                     </div>
                 }
@@ -200,6 +208,19 @@
                         <p>No pictures available</p>
                     </div>
                 }
+            </div>
+        </div>
+        <!-- Modal for enlarged gallery image -->
+        <div *ngIf="selectedGalleryImage()" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl overflow-hidden shadow-2xl max-w-4xl w-full p-4 relative mx-4">
+                <button (click)="closeGalleryImage()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
+                <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + selectedGalleryImage()?.id + '?ngsw-bypass=true'" 
+                     [alt]="selectedGalleryImage()?.description || 'Bild'" 
+                     class="w-full max-h-[80vh] object-contain mb-4" />
+                <div class="text-center font-semibold text-lg mb-4">{{ selectedGalleryImage()?.description }}</div>
+                <div class="flex justify-center gap-4">
+                    <button (click)="closeGalleryImage();" class="px-6 py-2 bg-gray-300 text-black rounded-lg shadow">Schließen</button>
+                </div>
             </div>
         </div>
     </div>

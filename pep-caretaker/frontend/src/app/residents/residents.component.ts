@@ -99,7 +99,7 @@ export class ResidentsComponent {
         if (result.images.length > 0) {
           // Verwende Base64-Daten direkt als Data-URL
           const base64Image = result.images[0].base64Image;
-          imageMap.set(result.personId, `data:image/png;base64,${base64Image}`);
+          imageMap.set(result.personId, 'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + result.images[0]?.id + '?ngsw-bypass=true');
         }
       });
       this.profileImages.set(imageMap);

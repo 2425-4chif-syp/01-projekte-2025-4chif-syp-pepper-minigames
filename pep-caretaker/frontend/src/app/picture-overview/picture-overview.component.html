@@ -35,25 +35,20 @@
     </button>
   </div>
 
-  <div class="grid grid-cols-4 gap-6 mt-5">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-5">
     <div *ngFor="let image of images()" class="bg-white shadow-lg rounded-lg overflow-hidden" (click)="openPreview(image)">
-      <!--TODO: if ändern-->
-      <!--@if (image.description == "/9j/4AAQSkZJRgABAQEASABIAAA=") {
-        <img src="../assets/images/defaultIcon2.jpg" class="w-full h-48 object-cover"> 
-        <div class="p-4 bg-blue-600 text-white text-center font-semibold">
-          {{ image.description }}
-        </div>      
-      }@else -->
-        <picture>
-          <source [srcset]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'" type="image/jpeg">
-          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'" 
-               [alt]="image.description" 
-               class="w-full h-48 object-cover">
-        </picture>
-        <div style="background-color: #9EF8EE;" class="p-4 text-black text-center font-semibold">
+      <!-- Thumbnail card: padded container with contain to show full image -->
+      <div class="p-3">
+        <div class="w-full bg-gray-50 rounded-md overflow-hidden flex items-center justify-center" style="height:12rem;">
+          <img [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + image?.id + '?ngsw-bypass=true'"
+               [alt]="image.description"
+               loading="lazy"
+               class="max-w-full max-h-full object-contain rounded-md transition-transform duration-200 hover:scale-105">
+        </div>
+        <div style="background-color: #9EF8EE;" class="p-3 text-black text-center font-semibold truncate" [title]="image.description">
           {{ image.description }}
         </div>
-      
+      </div>
     </div>
   </div>
 
@@ -62,9 +57,9 @@
       <button (click)="closePreview()" class="absolute top-2 right-4 text-3xl font-bold text-gray-600 hover:text-black p-2">✕</button>
   
       <img
-        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + selectedImage()?.id + '?ngsw-bypass=true'"
+        [src]="'https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/1200x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F' + selectedImage()?.id + '?ngsw-bypass=true'"
         [alt]="selectedImage()?.description"
-        class="w-full max-h-[60vh] object-contain mb-4" 
+        class="w-full max-h-[80vh] object-contain mb-4" 
       />
       <div class="text-center font-semibold text-xl mb-4">
         {{ selectedImage()?.description }} 

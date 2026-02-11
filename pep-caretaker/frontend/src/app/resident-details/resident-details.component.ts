@@ -65,6 +65,16 @@ export class ResidentDetailsComponent implements OnInit {
   images = signal<ImageDto[]>([]);
 
   imagesOfPerson = signal<ImageDto[]>([]);
+  // Modal preview for gallery images
+  selectedGalleryImage = signal<ImageDto | null>(null);
+
+  openGalleryImage(image: ImageDto) {
+    this.selectedGalleryImage.set(image);
+  }
+
+  closeGalleryImage() {
+    this.selectedGalleryImage.set(null);
+  }
 
   ngOnInit() {  
     this.activatedRoute.params.subscribe(
@@ -93,7 +103,13 @@ export class ResidentDetailsComponent implements OnInit {
         this.imagesOfPerson.set(data);
         // Setze das erste Bild als aktuelles Profilbild
         if (data.length > 0) {
-          this.currentProfileImage.set('data:image/png;base64,' + data[0].base64Image);
+          const first = data[0];
+          if (first && first.id) {
+            // Use Imagor URL for faster/responsive delivery
+            this.currentProfileImage.set(this.getImagorUrl(first.id, 800));
+          } else {
+            this.currentProfileImage.set('data:image/png;base64,' + first.base64Image);
+          }
         }
       },
       error: error => {
@@ -101,6 +117,15 @@ export class ResidentDetailsComponent implements OnInit {
       }
     });
   }    
+
+  /**
+   * Build an Imagor URL for an image id. Uses backend host encoding similar to other components.
+   * width: pixel width to fit into (height auto)
+   */
+  getImagorUrl(imageId: number, width = 800): string {
+    if (!imageId) return '';
+    return `https://vm107.htl-leonding.ac.at/imagor/unsafe/fit-in/${width}x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F${imageId}?ngsw-bypass=true`;
+  }
 
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
