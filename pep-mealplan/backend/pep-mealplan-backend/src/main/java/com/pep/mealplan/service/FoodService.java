@@ -73,6 +73,9 @@ public class FoodService {
         // Initialize lazy collection before session closes
         existing.allergens.size();
         return existing;
+    }
+
+    @Transactional
     public Food create(String name, String type, Long pictureId) {
         Food food = new Food();
         food.name = name;
