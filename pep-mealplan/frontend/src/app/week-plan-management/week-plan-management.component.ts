@@ -234,7 +234,6 @@ export class WeekPlanManagementComponent implements OnInit {
         this.saveStoredSelections(storage);
 
         this.refreshPersonHasSelectionFlags();
-        this.saveSelectionsToBackend();
     }
 
     private applySelectionsForSelectedPerson(): void {
@@ -293,11 +292,12 @@ export class WeekPlanManagementComponent implements OnInit {
     // SAVE BUTTON STATE
     // =========================
 
-    hasAnySelectionForSelectedPerson(): boolean {
+    hasAllSelectionsForSelectedPerson(): boolean {
         if (!this.selectedPersonOption) return false;
+        if (!this.currentWeekPlan.dayPlans?.length) return false;
 
-        return this.currentWeekPlan.dayPlans?.some(
-            (dp) => !!dp.selectedMenu || !!dp.selectedEvening
+        return this.currentWeekPlan.dayPlans.every(
+            (dp) => !!dp.selectedMenu && !!dp.selectedEvening
         );
     }
 
@@ -313,6 +313,7 @@ export class WeekPlanManagementComponent implements OnInit {
     onSaveSelections(): void {
         this.saveState = 'saving';
         this.persistCurrentSelectionsForSelectedPerson();
+        this.saveSelectionsToBackend();
 
         // Show saved state after a brief delay, then reset
         setTimeout(() => {
@@ -324,7 +325,7 @@ export class WeekPlanManagementComponent implements OnInit {
     }
 
     // =========================
-    // TOGGLES (wieder mit Persist!)
+    // TOGGLES
     // =========================
 
     toggleMenu(dayPlan: DayPlan, menu: 'one' | 'two'): void {

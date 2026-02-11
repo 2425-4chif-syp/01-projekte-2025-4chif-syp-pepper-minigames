@@ -9,9 +9,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { MenuAPIService } from '../services/menu-api.service';
+import { ImageApiService } from '../services/image-api.service';
 import { Allergen } from '../models/allergen.model';
 import { Food } from '../models/food.model';
-import { Picture } from '../models/picture.model';
+import { Picture, ImageDto } from '../models/picture.model';
 import { API_URL } from '../constants';
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -57,7 +58,16 @@ export class FoodManagementComponent implements OnInit {
     img = new Image();
     readonly apiUrl = API_URL;
 
-    constructor(private readonly menuApiService: MenuAPIService) {}
+    // Image upload state
+    uploading = false;
+    previewUrl: string | null = null;
+    selectedImageId: number | null = null;
+    imageDescription: string = '';
+
+    constructor(
+        private readonly menuApiService: MenuAPIService,
+        private readonly imageApiService: ImageApiService
+    ) {}
 
     ngOnInit(): void {
         this.loadFoods();
@@ -134,61 +144,58 @@ export class FoodManagementComponent implements OnInit {
             return;
         }
 
+        this.uploading = true;
         const reader = new FileReader();
-
-        this.newFood.picture!.name = file.name.split('.')[0];
-        const fileExtension = file.name.split('.').pop()?.toLowerCase() ?? '';
-
-        switch (fileExtension) {
-            case 'jpg':
-            case 'jpeg':
-                this.newFood.picture!.mediaType = 'image/jpeg';
-                break;
-            case 'png':
-                this.newFood.picture!.mediaType = 'image/png';
-                break;
-            default:
-                this.newFood.picture!.mediaType = 'image/jpeg';
-                break;
-        }
 
         reader.readAsDataURL(file);
         reader.onload = () => {
-            const img = new Image();
-            img.src = reader.result as string;
+            const imgElement = new Image();
+            imgElement.src = reader.result as string;
 
-            const originalSize = (reader.result as string).length * 3 / 4;
-            console.log(`Originalgröße: ${originalSize} Bytes`);
-
-            img.onload = () => {
+            imgElement.onload = () => {
+                // Resize image
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const maxWidth = 500;
-                const scale = maxWidth / img.width;
+                const maxWidth = 800;
+                const scale = Math.min(1, maxWidth / imgElement.width);
 
-                canvas.width = maxWidth;
-                canvas.height = img.height * scale;
+                canvas.width = imgElement.width * scale;
+                canvas.height = imgElement.height * scale;
 
-                ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx?.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
 
-                const base64Data = canvas
-                    .toDataURL(this.newFood.picture!.mediaType, 0.7)
-                    .split(',')
-                    .pop() as string;
+                const dataUrl = canvas.toDataURL('image/png', 0.8);
+                const base64Data = dataUrl.split(',')[1];
 
-                this.newFood.picture!.base64 = base64Data;
+                // Show preview immediately using data URL
+                this.previewUrl = dataUrl;
+                this.img.src = dataUrl;
 
-                const compressedSize = base64Data.length * 3 / 4;
-                console.log(`Komprimierte Größe: ${compressedSize} Bytes`);
-                console.log(
-                    `Reduktion: ${(
-                        ((originalSize - compressedSize) / originalSize) *
-                        100
-                    ).toFixed(2)}%`
-                );
+                // Upload to backend
+                this.imageApiService.upload({
+                    base64Image: base64Data,
+                    description: this.imageDescription || undefined
+                }).subscribe({
+                    next: (uploaded) => {
+                        this.selectedImageId = uploaded.id;
 
-                this.img.src =
-                    'data:' + this.newFood.picture!.mediaType + ';base64,' + base64Data;
+                        // Set picture reference for food
+                        this.newFood.picture = {
+                            id: uploaded.id,
+                            description: uploaded.description,
+                            base64: base64Data
+                        };
+
+                        this.uploading = false;
+                    },
+                    error: (err) => {
+                        console.error('Error uploading image:', err);
+                        alert('Fehler beim Hochladen des Bildes');
+                        this.uploading = false;
+                        this.previewUrl = null;
+                        this.img = new Image();
+                    }
+                });
             };
         };
     }
@@ -244,11 +251,17 @@ export class FoodManagementComponent implements OnInit {
             (this.newFood.allergens || []).includes(a.shortname)
         );
 
-        if (food.picture && (food.picture.base64 || (food.picture as any).Bytes)) {
+        // Handle image - check if we have an ID (new backend) or base64 (legacy)
+        if (food.picture?.id) {
+            this.selectedImageId = food.picture.id;
+            this.previewUrl = this.imageApiService.getImageUrl(food.picture.id);
+            this.img.src = this.previewUrl;
+            this.imageDescription = food.picture.description || '';
+        } else if (food.picture && (food.picture.base64 || (food.picture as any).Bytes)) {
             const base64Bytes =
                 food.picture.base64 || (food.picture as any).Bytes;
             const mediaType =
-                food.picture.mediaType || (food.picture as any).mediaType;
+                food.picture.mediaType || (food.picture as any).mediaType || 'image/png';
 
             let imageData = base64Bytes;
             try {
@@ -261,8 +274,11 @@ export class FoodManagementComponent implements OnInit {
             }
 
             this.img.src = `data:${mediaType};base64,${imageData}`;
+            this.previewUrl = this.img.src;
         } else {
             this.img = new Image();
+            this.previewUrl = null;
+            this.selectedImageId = null;
         }
     }
 
@@ -271,6 +287,9 @@ export class FoodManagementComponent implements OnInit {
         this.restoreLastFoodType();
         this.allergensChecked = new Array(this.allergens.length).fill(false);
         this.img = new Image();
+        this.previewUrl = null;
+        this.selectedImageId = null;
+        this.imageDescription = '';
     }
 
     getFoodTypeLabel(type: string): string {

@@ -32,7 +32,7 @@
                                 <p class="text-gray-600 font-semibold">Bild auswählen</p>
                                 <p class="text-gray-400 text-sm mt-1">(optional)</p>
                             </div>
-                            <input type="file" 
+                            <input data-testid="profileImage" type="file" 
                                    accept="image/*" 
                                    (change)="onImageSelected($event)" 
                                    class="hidden">
@@ -45,17 +45,17 @@
             <div class="flex flex-col space-y-4">
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Vorname:</label>
-                    <input type="text" [(ngModel)]="firstName" class="rounded p-2 border border-gray-300 text-center w-full">
+                    <input data-testid="firstName" type="text" [(ngModel)]="firstName" class="rounded p-2 border border-gray-300 text-center w-full">
                 </div>
                 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Nachname:</label>
-                    <input type="text" [(ngModel)]="lastName" class="rounded p-2 border border-gray-300 text-center w-full">
+                    <input data-testid="lastName" type="text" [(ngModel)]="lastName" class="rounded p-2 border border-gray-300 text-center w-full">
                 </div>
                 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Zuständigkeit:</label>
-                    <select [(ngModel)]="selectedRole" 
+                    <select data-testid="role" [(ngModel)]="selectedRole" 
                             (change)="onRoleChange($event)"
                             class="rounded p-2 border border-gray-300 text-center w-full">
                         <option value="" disabled selected>Rolle auswählen</option>
@@ -66,12 +66,12 @@
                 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Geburtstag:</label>
-                    <input type="date" [(ngModel)]="dob" class="rounded p-2 border border-gray-300 text-center w-full">
+                    <input data-testid="dob" type="date" [(ngModel)]="dob" class="rounded p-2 border border-gray-300 text-center w-full">
                 </div>
 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Passwort:</label>
-                    <input type="password" 
+                    <input data-testid="password" type="password" 
                            [(ngModel)]="password" 
                            (focus)="showPasswordFeedback.set(true)"
                            class="rounded p-2 border border-gray-300 text-center w-full">
@@ -144,25 +144,25 @@
 
                 <div class="flex flex-col space-y-1">
                     <label class="font-bold text-lg">Zimmer-Nr.:</label>
-                    <input type="text" [(ngModel)]="roomNo" class="rounded p-2 border border-gray-300 text-center w-full">
+                    <input data-testid="roomNo" type="text" [(ngModel)]="roomNo" class="rounded p-2 border border-gray-300 text-center w-full">
                 </div>
             </div>
         </div>
 
         <!-- Buttons -->
-        <div class="flex justify-center gap-4 mt-6">
-            <button [disabled]="!firstName() || !lastName() || !dob() || !passwordValidation().isValid || !roomNo()" 
+        <div class="flex justify-center gap-4 mt-6">    
+            <button [routerLink]="['/residents']" 
+                    style="background-color: #F24405;" 
+                    class="btn text-white px-6 py-2 rounded-lg hover:opacity-90">
+                Abbrechen
+            </button>
+            <button data-testid="submitPerson" [disabled]="!firstName() || !lastName() || !dob() || !passwordValidation().isValid || !roomNo()" 
                     (click)="addPerson()" 
                     [ngClass]="passwordValidation().isValid && firstName() && lastName() ? 
                               'bg-green-600 hover:bg-green-700' : 
                               'bg-gray-400 cursor-not-allowed'"
                     class="btn text-white px-6 py-2 rounded-lg disabled:opacity-60">
                 Person hinzufügen
-            </button>
-            <button [routerLink]="['/residents']" 
-                    style="background-color: #F24405;" 
-                    class="btn text-white px-6 py-2 rounded-lg hover:opacity-90">
-                Abbrechen
             </button>
         </div>
     </div>

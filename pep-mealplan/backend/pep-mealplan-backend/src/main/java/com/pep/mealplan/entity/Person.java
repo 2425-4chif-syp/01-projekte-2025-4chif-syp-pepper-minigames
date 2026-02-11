@@ -1,23 +1,27 @@
 package com.pep.mealplan.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.*;
 import java.time.LocalDate;
+
 @Entity
 @Table(name = "pe_person")
-public class Person extends PanacheEntity {
+public class Person extends PanacheEntityBase {
 
-    @Column(nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "p_id")
+    public Long id;
+
+    @Column(name = "p_first_name")
     public String firstname;
 
-    @Column(nullable = false)
+    @Column(name = "p_last_name")
     public String lastname;
 
-    // optional
+    @Column(name = "p_dob")
     public LocalDate dob;
 
-    // optional
+    @Column(name = "p_face_id")
     public String faceId;
 }

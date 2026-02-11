@@ -1,6 +1,7 @@
 package com.pep.mealplan.service;
 
 import com.pep.mealplan.entity.Person;
+import com.pep.mealplan.repository.OrderRepository;
 import com.pep.mealplan.repository.PersonRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,6 +15,9 @@ public class PersonService {
 
     @Inject
     PersonRepository personRepo;
+
+    @Inject
+    OrderRepository orderRepo;
 
     // GET ALL
     public List<Person> getAll() {
@@ -33,6 +37,7 @@ public class PersonService {
     // CREATE
     @Transactional
     public Person create(Person person) {
+        person.id = null; // Ensure ID is null so PostgreSQL generates it
         personRepo.persist(person);
         return person;
     }
@@ -54,6 +59,7 @@ public class PersonService {
     // DELETE
     @Transactional
     public boolean delete(Long id) {
+        orderRepo.deleteByPersonId(id);
         return personRepo.deleteById(id);
     }
 }

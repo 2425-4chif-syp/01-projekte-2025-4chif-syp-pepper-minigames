@@ -1,4 +1,16 @@
--- Seed data (Austrian-themed)
+-- Server import script (matches vm107 schema)
+-- Clears existing data first, then re-inserts
+
+-- Delete in correct order (foreign key dependencies)
+DELETE FROM pe_order;
+DELETE FROM pe_mealplan;
+DELETE FROM pe_foodallergen;
+DELETE FROM pe_food;
+DELETE FROM pe_picture;
+-- Clear pe_image references to persons before deleting persons
+UPDATE pe_image SET i_p_id = NULL WHERE i_p_id IS NOT NULL;
+DELETE FROM pe_person;
+DELETE FROM pe_allergen;
 
 -- Allergens
 INSERT INTO pe_allergen (shortname, description) VALUES
@@ -10,15 +22,15 @@ INSERT INTO pe_allergen (shortname, description) VALUES
   ('M', 'Senf'),
   ('O', 'Schwefeldioxid und Sulfite');
 
--- Images (OVERRIDING SYSTEM VALUE für IDENTITY columns mit expliziten IDs)
-INSERT INTO pe_image (i_id, i_p_id, i_description, i_url, i_image) OVERRIDING SYSTEM VALUE VALUES
-  (1, NULL, 'frittatensuppe', NULL, NULL),
-  (2, NULL, 'wiener_schnitzel', NULL, NULL),
-  (3, NULL, 'tafelspitz', NULL, NULL),
-  (4, NULL, 'apfelstrudel', NULL, NULL);
+-- Pictures (server schema: id, name, mediatype, base64)
+INSERT INTO pe_picture (id, name, mediatype, base64) OVERRIDING SYSTEM VALUE VALUES
+  (1, 'frittatensuppe', 'image/jpeg', NULL),
+  (2, 'wiener_schnitzel', 'image/jpeg', NULL),
+  (3, 'tafelspitz', 'image/jpeg', NULL),
+  (4, 'apfelstrudel', 'image/jpeg', NULL);
 
--- Foods
-INSERT INTO pe_food (id, name, type, f_i_id) OVERRIDING SYSTEM VALUE VALUES
+-- Foods (server uses "pictureid")
+INSERT INTO pe_food (id, name, type, pictureid) OVERRIDING SYSTEM VALUE VALUES
   (1, 'Frittatensuppe', 'soup', 1),
   (2, 'Griessnockerlsuppe', 'soup', NULL),
   (3, 'Rindsuppe', 'soup', NULL),
@@ -69,7 +81,7 @@ INSERT INTO pe_person (p_id, p_first_name, p_last_name, p_dob, p_face_id) OVERRI
   (4, 'Theresia', 'Steiner', '1985-11-15', NULL),
   (5, 'Klara', 'Hofer', '1995-06-21', NULL);
 
--- Meal plans (4-week cycle, 7 days)
+-- Meal plans
 INSERT INTO pe_mealplan (id, weeknumber, weekday, soup_id, lunch1_id, lunch2_id, lunchdessert_id, dinner1_id, dinner2_id) OVERRIDING SYSTEM VALUE VALUES
   (1, 1, 0, 1, 5, 6, 13, 7, 8),
   (2, 1, 1, 2, 9, 10, 14, 11, 12),
@@ -100,7 +112,7 @@ INSERT INTO pe_mealplan (id, weeknumber, weekday, soup_id, lunch1_id, lunch2_id,
   (27, 4, 5, 3, 9, 8, 18, 12, 5),
   (28, 4, 6, 4, 11, 10, 19, 6, 7);
 
--- Orders (ohne hardcoded IDs)
+-- Orders
 INSERT INTO pe_order (person_id, order_date, selected_lunch_id, selected_dinner_id) VALUES
   (1, '2026-01-13', 5, 7),
   (2, '2026-01-14', 9, 11),
@@ -108,9 +120,9 @@ INSERT INTO pe_order (person_id, order_date, selected_lunch_id, selected_dinner_
   (4, '2026-01-16', 8, 10),
   (5, '2026-01-17', 12, 5);
 
--- Reset IDENTITY sequences nach hardcoded ID inserts
-SELECT setval('pe_image_i_id_seq', (SELECT MAX(i_id) FROM pe_image));
-SELECT setval('pe_food_id_seq', (SELECT MAX(id) FROM pe_food));
-SELECT setval('pe_person_p_id_seq', (SELECT MAX(p_id) FROM pe_person));
-SELECT setval('pe_mealplan_id_seq', (SELECT MAX(id) FROM pe_mealplan));
-SELECT setval('pe_order_id_seq', (SELECT MAX(id) FROM pe_order));
+-- Reset sequences
+SELECT setval(pg_get_serial_sequence('pe_picture', 'id'), (SELECT COALESCE(MAX(id), 1) FROM pe_picture));
+SELECT setval(pg_get_serial_sequence('pe_food', 'id'), (SELECT COALESCE(MAX(id), 1) FROM pe_food));
+SELECT setval(pg_get_serial_sequence('pe_person', 'p_id'), (SELECT COALESCE(MAX(p_id), 1) FROM pe_person));
+SELECT setval(pg_get_serial_sequence('pe_mealplan', 'id'), (SELECT COALESCE(MAX(id), 1) FROM pe_mealplan));
+SELECT setval(pg_get_serial_sequence('pe_order', 'id'), (SELECT COALESCE(MAX(id), 1) FROM pe_order));

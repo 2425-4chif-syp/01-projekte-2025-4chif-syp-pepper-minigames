@@ -20,7 +20,7 @@
                                     [label]="saveState === 'saving' ? 'Speichern...' : saveState === 'saved' ? 'Gespeichert!' : 'Speichern'"
                                     [icon]="saveState === 'saving' ? 'pi pi-spin pi-spinner' : saveState === 'saved' ? 'pi pi-check-circle' : 'pi pi-check'"
                                     [severity]="saveState === 'saved' ? 'success' : 'primary'"
-                                    [disabled]="!hasAnySelectionForSelectedPerson() || saveState === 'saving'"
+                                    [disabled]="!hasAllSelectionsForSelectedPerson() || saveState === 'saving'"
                                 ></p-button>
                             </div>
                         </div>

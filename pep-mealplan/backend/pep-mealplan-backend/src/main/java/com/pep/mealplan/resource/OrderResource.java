@@ -62,8 +62,9 @@ public class OrderResource {
 
     @POST
     public Response create(OrderCreateDTO dto) {
+        Order order = service.create(dto);
         return Response.status(Response.Status.CREATED)
-                .entity(service.create(dto))
+                .entity(java.util.Map.of("id", order.id))
                 .build();
     }
 

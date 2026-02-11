@@ -95,8 +95,8 @@ public class OrderService {
 
         // UPSERT (person + date)
         Order existing = orderRepo.find(
-                "person = ?1 and date = ?2",
-                order.person,
+                "person.id = ?1 and date = ?2",
+                order.person.id,
                 order.date
         ).firstResult();
 
@@ -174,7 +174,7 @@ public class OrderService {
     }
 
         // -------------------------------------------------
-    // SIMPLE CREATE
+    // SIMPLE CREATE (with upsert by personId + date)
     // -------------------------------------------------
         @Transactional
         public Order create(OrderCreateDTO dto) {
@@ -199,13 +199,29 @@ public class OrderService {
                 throw new BadRequestException("Food existiert nicht");
             }
 
+            // Check for existing order by personId and date
+            Order existing = orderRepo.find(
+                    "person.id = ?1 and date = ?2",
+                    dto.personId,
+                    dto.date
+            ).firstResult();
+
+            if (existing != null) {
+                // Update existing order
+                existing.selectedLunch = lunch;
+                existing.selectedDinner = dinner;
+                return existing;
+            }
+
+            // Create new order
             Order order = new Order();
             order.person = person;
             order.date = dto.date;
             order.selectedLunch = lunch;
             order.selectedDinner = dinner;
 
-            return upsert(order);
+            orderRepo.persist(order);
+            return order;
         }
 
 

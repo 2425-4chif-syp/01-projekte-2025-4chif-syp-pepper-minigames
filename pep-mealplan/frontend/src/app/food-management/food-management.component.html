@@ -68,11 +68,20 @@
                             <label class="block text-sm font-medium text-slate-600 mb-2">Bild</label>
                             <div
                                 class="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border-2 border-dashed border-slate-300 hover:border-indigo-400 transition-colors cursor-pointer group"
+                                [class.pointer-events-none]="uploading"
                                 (click)="fileUpload.click()"
                             >
-                                @if (newFood.picture?.base64) {
+                                @if (uploading) {
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-100">
+                                        <p-progressSpinner
+                                            [style]="{ width: '40px', height: '40px' }"
+                                            strokeWidth="4"
+                                        ></p-progressSpinner>
+                                        <span class="text-sm text-slate-500 mt-2">Wird hochgeladen...</span>
+                                    </div>
+                                } @else if (previewUrl || newFood.picture?.id || newFood.picture?.base64) {
                                     <img
-                                        [src]="img.src"
+                                        [src]="previewUrl || img.src"
                                         alt="Gericht Bild"
                                         class="w-full h-full object-cover"
                                     />
@@ -87,7 +96,7 @@
                                 }
                             </div>
 
-                            @if (!newFood.picture?.base64) {
+                            @if (!previewUrl && !newFood.picture?.id && !newFood.picture?.base64 && !uploading) {
                                 <small class="text-red-500 mt-1 block">
                                     <i class="pi pi-exclamation-circle mr-1"></i>
                                     Bild ist erforderlich
@@ -101,6 +110,20 @@
                                 hidden
                                 #fileUpload
                             />
+
+                            <!-- Image Description -->
+                            <div class="mt-3">
+                                <label for="imageDescription" class="block text-sm font-medium text-slate-600 mb-2">
+                                    Bildbeschreibung
+                                </label>
+                                <input
+                                    id="imageDescription"
+                                    pInputText
+                                    [(ngModel)]="imageDescription"
+                                    placeholder="Beschreibung des Bildes"
+                                    class="w-full"
+                                />
+                            </div>
                         </div>
 
                         <!-- Form Fields -->
@@ -169,7 +192,7 @@
                                 [label]="newFood.id ? 'Speichern' : 'Hinzufügen'"
                                 [icon]="newFood.id ? 'pi pi-check' : 'pi pi-plus'"
                                 (onClick)="addFood()"
-                                [disabled]="!newFood.name || !newFood.type || !newFood.picture?.base64"
+                                [disabled]="!newFood.name || !newFood.type || (!previewUrl && !newFood.picture?.id && !newFood.picture?.base64) || uploading"
                             ></p-button>
                         </div>
                     </ng-template>

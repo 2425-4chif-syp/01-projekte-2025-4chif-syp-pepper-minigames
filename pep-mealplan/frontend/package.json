@@ -24,6 +24,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@types/file-saver": "^2.0.7",
     "file-saver": "^2.0.5",
+    "keycloak-js": "^26.2.2",
     "ngx-filesaver": "^17.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.3.0",

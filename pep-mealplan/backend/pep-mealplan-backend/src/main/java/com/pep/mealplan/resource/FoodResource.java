@@ -1,6 +1,7 @@
 package com.pep.mealplan.resource;
 
 import com.pep.mealplan.entity.Food;
+import com.pep.mealplan.resource.dto.FoodCreateDTO;
 import com.pep.mealplan.service.FoodService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -51,8 +52,8 @@ public class FoodResource {
     // -------------------------------------------------
 
     @POST
-    public Response create(Food food) {
-        Food created = foodService.create(food);
+    public Response create(FoodCreateDTO dto) {
+        Food created = foodService.create(dto.name(), dto.type(), dto.pictureId());
         return Response.status(Response.Status.CREATED)
                 .entity(created)
                 .build();

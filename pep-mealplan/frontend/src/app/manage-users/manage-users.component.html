@@ -129,23 +129,28 @@
                         />
                     </div>
 
-                    <!-- Date of Birth (conditional) -->
+                    <!-- Date of Birth -->
+                    <div>
+                        <label for="dob" class="block text-sm font-medium text-slate-600 mb-2">
+                            Geburtsdatum
+                        </label>
+                        <p-datepicker
+                            id="dob"
+                            [(ngModel)]="newUserDob"
+                            dateFormat="dd.mm.yy"
+                            [showIcon]="true"
+                            placeholder="Geburtsdatum wählen"
+                            styleClass="w-full"
+                        ></p-datepicker>
+                    </div>
+
+                    <!-- Duplicate name warning -->
                     @if (showDobInput) {
                         <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                            <label for="dob" class="block text-sm font-medium text-amber-800 mb-2">
+                            <p class="text-sm text-amber-800">
                                 <i class="pi pi-info-circle mr-1"></i>
-                                Geburtsdatum
-                            </label>
-                            <p class="text-xs text-amber-700 mb-2">
                                 Es gibt bereits eine Person mit diesem Namen. Bitte Geburtsdatum angeben.
                             </p>
-                            <p-datepicker
-                                id="dob"
-                                [(ngModel)]="newUser.dob"
-                                dateFormat="dd.mm.yy"
-                                [showIcon]="true"
-                                styleClass="w-full"
-                            ></p-datepicker>
                         </div>
                     }
                 </div>
