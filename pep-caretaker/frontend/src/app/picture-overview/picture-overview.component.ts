@@ -87,13 +87,14 @@ export class PictureOverviewComponent {
     this.imagesService.getImageNew().subscribe(
       {
         next: data=>{
-          const encodedImages = data.items.map(image => ({
-          ...image,
-          href: this.transformImageUrl(image.href),
-          originalHref: image.href 
-        }));
-          this.images.set(encodedImages);
-          this.standartImages.set(encodedImages);
+            // Map and then reverse so newest images (assumed at the end) appear first
+            const encodedImages = data.items.map(image => ({
+              ...image,
+              href: this.transformImageUrl(image.href),
+              originalHref: image.href 
+            })).reverse();
+            this.images.set(encodedImages);
+            this.standartImages.set(encodedImages);
           console.log(this.images());
         },
         error: err=>{
