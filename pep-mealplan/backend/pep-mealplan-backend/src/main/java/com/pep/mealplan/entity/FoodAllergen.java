@@ -9,7 +9,6 @@ public class FoodAllergen {
 
     @EmbeddedId
     public FoodAllergenId id;
-
     @ManyToOne
     @MapsId("foodId")   // Verbindet id.foodId ←→ Food.id
     @JoinColumn(name = "FoodId")

@@ -37,6 +37,20 @@ public class PersonService {
         return person;
     }
 
+    // UPDATE
+    @Transactional
+    public Person update(Long id, Person person) {
+        Person existing = personRepo.findById(id);
+        if (existing == null) {
+            return null;
+        }
+        existing.firstname = person.firstname;
+        existing.lastname = person.lastname;
+        existing.dob = person.dob;
+        existing.faceId = person.faceId;
+        return existing;
+    }
+
     // DELETE
     @Transactional
     public boolean delete(Long id) {

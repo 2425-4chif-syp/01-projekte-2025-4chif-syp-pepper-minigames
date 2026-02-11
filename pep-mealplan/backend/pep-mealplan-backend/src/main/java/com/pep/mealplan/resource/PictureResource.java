@@ -1,7 +1,7 @@
 package com.pep.mealplan.resource;
 
-import com.pep.mealplan.entity.Food;
-import com.pep.mealplan.service.FoodService;
+import com.pep.mealplan.entity.Picture;
+import com.pep.mealplan.service.PictureService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -9,41 +9,37 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
-@Path("/api/foods")
+@Path("/api/pictures")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class FoodResource {
+public class PictureResource {
 
     @Inject
-    FoodService foodService;
+    PictureService pictureService;
 
     // -------------------------------------------------
     // READ
     // -------------------------------------------------
+
     @GET
-    public List<Food> getAll() {
-        return foodService.getAll();
-    }
-    @GET
-    @Path("/{id}")
-    public Response getById(@PathParam("id") Long id) {
-        Food food = foodService.getById(id);
-        if (food == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return Response.ok(food).build();
+    public List<Picture> getAll() {
+        return pictureService.getAll();
     }
 
     @GET
-    @Path("/type/{type}")
-    public List<Food> getByType(@PathParam("type") String type) {
-        return foodService.getByType(type);
+    @Path("/{id}")
+    public Response getById(@PathParam("id") Long id) {
+        Picture picture = pictureService.getById(id);
+        if (picture == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(picture).build();
     }
 
     @GET
     @Path("/name/{name}")
-    public List<Food> getByName(@PathParam("name") String name) {
-        return foodService.searchByName(name);
+    public List<Picture> searchByName(@PathParam("name") String name) {
+        return pictureService.searchByName(name);
     }
 
     // -------------------------------------------------
@@ -51,8 +47,8 @@ public class FoodResource {
     // -------------------------------------------------
 
     @POST
-    public Response create(Food food) {
-        Food created = foodService.create(food);
+    public Response create(Picture picture) {
+        Picture created = pictureService.create(picture);
         return Response.status(Response.Status.CREATED)
                 .entity(created)
                 .build();
@@ -60,8 +56,8 @@ public class FoodResource {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Long id, Food food) {
-        Food updated = foodService.update(id, food);
+    public Response update(@PathParam("id") Long id, Picture picture) {
+        Picture updated = pictureService.update(id, picture);
         if (updated == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -71,7 +67,7 @@ public class FoodResource {
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        boolean deleted = foodService.delete(id);
+        boolean deleted = pictureService.delete(id);
         if (!deleted) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
