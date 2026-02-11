@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -29,7 +30,7 @@ interface FoodsApiService {
     
     @DELETE("mealplan/api/foods/{id}")
     suspend fun deleteFood(@Path("id") id: Int): Response<Unit>
-    
-    @GET("imagor/unsafe/fit-in/800x0/http%3A%2F%2Fbackend%3A8080%2Fapi%2Fimage%2Fpicture%2F{id}?ngsw-bypass=true")
+
+    @GET("mealplan/api/images/picture/{id}")
     suspend fun getImage(@Path("id") id: Int): Response<ResponseBody>
 }
