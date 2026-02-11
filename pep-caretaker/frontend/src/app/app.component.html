@@ -1,5 +1,5 @@
 <div id="appComp" data-theme="light" class="h-full overflow-hidden">
-  <nav>
+  <nav class="fixed top-0 left-0 right-0 z-50">
     <div class="navbar bg-base-100">
       <!-- Nur für Admin & Caretaker: Menü-Button -->
       @if (!isResident()) {
@@ -51,6 +51,9 @@
       </div>
     </div>
   </nav>
+
+  <!-- Spacer: gleiche Höhe wie die Navbar, damit Inhalt nicht vom fixed Header überlappt wird -->
+  <div class="h-16" aria-hidden="true"></div>
 
   <div class="drawer z-50">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
