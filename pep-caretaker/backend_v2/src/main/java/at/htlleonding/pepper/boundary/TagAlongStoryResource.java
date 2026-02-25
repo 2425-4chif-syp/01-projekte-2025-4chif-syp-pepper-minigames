@@ -3,6 +3,7 @@ package at.htlleonding.pepper.boundary;
 import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.dto.GameDto;
 import at.htlleonding.pepper.dto.StepDto;
+import at.htlleonding.pepper.dto.TagAlongStoryDto;
 import at.htlleonding.pepper.domain.Game;
 import at.htlleonding.pepper.domain.Step;
 import at.htlleonding.pepper.repository.GameRepository;
@@ -19,6 +20,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("tagalongstories")
 @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +54,17 @@ public class TagAlongStoryResource {
                     .entity("No tag along stories found.")
                     .build();
         }
-        return Response.ok(tagAlongStories).build();
+        
+        List<TagAlongStoryDto> dtos = tagAlongStories.stream()
+                .map(game -> new TagAlongStoryDto(
+                        game.getId(),
+                        game.getName(),
+                        game.isEnabled(),
+                        game.getGameType()
+                ))
+                .collect(Collectors.toList());
+        
+        return Response.ok(dtos).build();
     }
 
     @GET
