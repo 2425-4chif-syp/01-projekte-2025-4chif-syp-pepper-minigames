@@ -2,6 +2,7 @@ package at.htlleonding.pepper.boundary;
 
 import at.htlleonding.pepper.domain.Image;
 import at.htlleonding.pepper.dto.GameDto;
+import at.htlleonding.pepper.dto.ImageDto;
 import at.htlleonding.pepper.dto.StepDto;
 import at.htlleonding.pepper.dto.TagAlongStoryDto;
 import at.htlleonding.pepper.domain.Game;
@@ -59,6 +60,11 @@ public class TagAlongStoryResource {
                 .map(game -> new TagAlongStoryDto(
                         game.getId(),
                         game.getName(),
+                        game.getStoryIcon() != null ? new ImageDto(
+                                game.getStoryIcon().getId(),
+                                game.getStoryIcon().getUrl(),
+                                game.getStoryIcon().getDescription()
+                        ) : null,
                         game.isEnabled(),
                         game.getGameType()
                 ))
