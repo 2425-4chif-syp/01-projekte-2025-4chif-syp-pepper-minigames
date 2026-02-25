@@ -172,6 +172,7 @@ public class TagAlongStoryResource {
                                 step.getImage().getUrl(),
                                 step.getImage().getDescription()
                         ) : null,
+                        step.getMove(),
                         step.getText(),
                         step.getDurationInSeconds()
                 ))
