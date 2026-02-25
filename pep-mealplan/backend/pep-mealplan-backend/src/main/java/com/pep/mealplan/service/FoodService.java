@@ -64,11 +64,13 @@ public class FoodService {
         }
         existing.name = food.name;
         existing.type = food.type;
-        if (food.picture != null) {
-            if (food.picture.id == null) {
-                pictureRepository.persist(food.picture);
-            }
+        if (food.picture != null && food.picture.id != null) {
+            existing.picture = pictureRepository.findById(food.picture.id);
+        } else if (food.picture != null) {
+            pictureRepository.persist(food.picture);
             existing.picture = food.picture;
+        } else {
+            existing.picture = null;
         }
         // Initialize lazy collection before session closes
         existing.allergens.size();

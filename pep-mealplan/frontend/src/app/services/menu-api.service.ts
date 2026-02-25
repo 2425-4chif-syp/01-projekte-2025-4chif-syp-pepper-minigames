@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, throwError } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { API_URL } from '../constants';
 import { Allergen } from '../models/allergen.model';
 import { ApiFood } from '../models/api-food.model';
@@ -84,8 +84,15 @@ export class MenuAPIService {
     return this.httpClient.delete(`${API_URL}/api/foods/${id}`);
   }
 
-  public updateFood(_food: Food): Observable<never> {
-    return throwError(() => new Error('Food update is not supported by the API.'));
+  public updateFood(food: Food): Observable<Food> {
+    const payload = {
+      name: food.name,
+      type: food.type,
+      picture: food.picture?.id ? { id: food.picture.id } : null,
+    };
+    return this.httpClient
+      .put<ApiFood>(`${API_URL}/api/foods/${food.id}`, payload)
+      .pipe(map((updated) => this.mapFood(updated)));
   }
 
   public getAllergens(): Observable<Allergen[]> {
