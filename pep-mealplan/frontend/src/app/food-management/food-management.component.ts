@@ -210,7 +210,13 @@ export class FoodManagementComponent implements OnInit {
             .map(a => a.shortname);
 
         if (this.newFood.id) {
-            alert('Änderungen bestehender Gerichte werden vom Backend derzeit nicht unterstützt.');
+            this.menuApiService.updateFood(this.newFood).subscribe({
+                next: () => {
+                    this.loadFoods();
+                    this.resetForm();
+                },
+                error: () => alert('Ein Fehler ist beim Aktualisieren aufgetreten.')
+            });
             return;
         }
 
