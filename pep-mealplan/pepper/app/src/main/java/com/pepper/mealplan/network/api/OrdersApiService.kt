@@ -6,12 +6,13 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import com.pepper.mealplan.network.dto.ExportOrderDto
 
 interface OrdersApiService {
     
     @POST("mealplan/api/orders")
     suspend fun upsertOrder(@Body payload: OrderUpsertDto): Response<Any>
-    
+
     @GET("mealplan/api/orders/export/{date}")
-    suspend fun getExportedOrders(@Path("date") date: String): Response<List<Any>>
+    suspend fun getExportedOrders(@Path("date") date: String): Response<List<ExportOrderDto>>
 }
