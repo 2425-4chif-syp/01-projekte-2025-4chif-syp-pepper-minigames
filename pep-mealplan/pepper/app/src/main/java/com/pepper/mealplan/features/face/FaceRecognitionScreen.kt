@@ -1,13 +1,18 @@
 package com.pepper.mealplan.features.face
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -67,25 +72,72 @@ fun FaceRecognitionScreen(
         }
     }
 
+    val statusText = when {
+        isLoading -> "Ich erkenne gerade das Gesicht."
+        errorMessage != null -> "Bitte erneut versuchen."
+        else -> "Bitte vor den Roboter stellen."
+    }
+
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFFF2F8FF), Color(0xFFEAF6F1))
+                )
+            )
     ) {
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 28.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(22.dp)
         ) {
-            Text(
-                text = "Gesichtserkennung",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Gesichtserkennung",
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = statusText,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF294861),
+                        textAlign = TextAlign.Center
+                    )
+                    if (devModeSkipFaceRecognition) {
+                        Text(
+                            text = "Testmodus aktiv",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF8A3E00)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             Button(
                 onClick = {
                     // DEV-SHORTCUT: Gesichtserkennung überspringen
                     if (devModeSkipFaceRecognition) {
-                        onAuthenticationSuccess("lleo messi")
+                        onAuthenticationSuccess("Amir Mohamadi")
                         return@Button
                     }
 
@@ -95,33 +147,50 @@ fun FaceRecognitionScreen(
                         viewModel.takePicture()
                     }
                 },
-                modifier = Modifier.size(180.dp),
-                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.size(240.dp),
+                shape = RoundedCornerShape(120.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (errorMessage != null) Color(0xFFEF5350) else MaterialTheme.colorScheme.primary
+                ),
                 enabled = !isLoading && (errorMessage != null || devModeSkipFaceRecognition)
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(60.dp),
+                        modifier = Modifier.size(74.dp),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Kamera starten",
-                        modifier = Modifier.size(100.dp)
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Kamera starten",
+                            modifier = Modifier.size(118.dp)
+                        )
+                        Text(
+                            text = if (errorMessage != null) "Nochmal" else "Start",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
-            // Fehlermeldung anzeigen
-            errorMessage?.let { error ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.96f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
                 Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    text = errorMessage
+                        ?: "Wenn nichts passiert, bitte einmal auf die große Kamera-Taste tippen.",
+                    color = if (errorMessage != null) MaterialTheme.colorScheme.error else Color(0xFF1F2937),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 )
             }
         }

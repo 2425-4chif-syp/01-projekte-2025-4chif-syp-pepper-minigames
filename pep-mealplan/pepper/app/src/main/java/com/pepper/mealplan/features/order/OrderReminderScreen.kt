@@ -1,10 +1,13 @@
 package com.pepper.mealplan.features.order
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -70,35 +74,16 @@ fun OrderReminderScreen(
         }
     }
 
-    // ---------- Text für Anzeige ----------
-    val mainText = remember(missingByDay) {
+    val summaryText = remember(missingByDay) {
+        val missingCount = missingByDay.sumOf { day ->
+            (if (day.lunchMissing) 1 else 0) + (if (day.dinnerMissing) 1 else 0)
+        }
         if (missingByDay.isEmpty()) {
-            namePart + "alle Mahlzeiten der nächsten Tage sind bereits bestellt."
-        } else if (missingByDay.size == 1) {
-            val first = missingByDay.first()
-            val weekDay = formatWeekday(first.dateKey)
-            val niceDate = formatDateKey(first.dateKey)
-            val whatMissing = missingMealsText(first.lunchMissing, first.dinnerMissing)
-
-            namePart +
-                    "für $weekDay, den $niceDate hast du $whatMissing noch nicht bestellt.\n\n" +
-                    "Wenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
-                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
+            "Sehr gut. Es ist aktuell keine Bestellung mehr offen."
+        } else if (missingCount == 1) {
+            "Es fehlt noch 1 Bestellung."
         } else {
-            val header =
-                namePart + "für die nächsten Tage hast du noch nicht alle Mahlzeiten bestellt:\n\n"
-
-            val listText = missingByDay.joinToString(separator = "\n") { day ->
-                val weekDay = formatWeekday(day.dateKey)
-                val niceDate = formatDateKey(day.dateKey)
-                val whatMissing = missingMealsText(day.lunchMissing, day.dinnerMissing)
-                "- am $weekDay, den $niceDate: $whatMissing"
-            }
-
-            header +
-                    listText +
-                    "\n\nWenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
-                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
+            "Es fehlen noch $missingCount Bestellungen."
         }
     }
 
@@ -144,42 +129,93 @@ fun OrderReminderScreen(
 
     val scrollState = rememberScrollState()
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 24.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFF5FAFF), Color(0xFFEAF6F1))
+                )
+            )
+            .padding(horizontal = 24.dp, vertical = 18.dp)
     ) {
-        Column(
+        Text(
+            text = "Bestell-Erinnerung",
+            fontSize = 38.sp,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
             modifier = Modifier
-                .align(Alignment.TopCenter)
                 .fillMaxWidth()
-                .verticalScroll(scrollState)
-                .padding(bottom = 120.dp),
+                .padding(top = 6.dp)
+        )
+
+        Text(
+            text = if (foundPerson.isNotBlank()) "Hallo $foundPerson" else "Hallo",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp, bottom = 10.dp)
+        )
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 14.dp),
+            shape = RoundedCornerShape(18.dp),
+            backgroundColor = Color.White,
+            elevation = 6.dp
         ) {
             Text(
-                text = "Bestell-Erinnerung",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
+                text = summaryText,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            Text(
-                text = mainText,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1B1B1B),
+                textAlign = TextAlign.Center
             )
         }
 
-        Row(
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp),
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (missingByDay.isEmpty()) {
+                Card(
+                    shape = RoundedCornerShape(18.dp),
+                    backgroundColor = Color(0xFFE8F5E9),
+                    elevation = 4.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Alles erledigt.\nDu kannst den Essensplan ansehen.",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 18.dp, vertical = 20.dp),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFF1B5E20)
+                    )
+                }
+            } else {
+                missingByDay.forEach { day ->
+                    ReminderDayCard(day = day)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
@@ -192,13 +228,14 @@ fun OrderReminderScreen(
                     .height(80.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.primary
-                )
+                ),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
                     text = "Bestellung starten",
                     color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center
                 )
             }
@@ -212,14 +249,15 @@ fun OrderReminderScreen(
                     .weight(1f)
                     .height(80.dp),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF4CAF50)
-                )
+                    backgroundColor = Color(0xFF2E7D32)
+                ),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
                     text = "Nur Essensplan anzeigen",
                     color = Color.White,
                     fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center
                 )
             }
@@ -227,11 +265,68 @@ fun OrderReminderScreen(
     }
 }
 
+@Composable
+private fun ReminderDayCard(day: DayMissing) {
+    val weekDay = formatWeekday(day.dateKey)
+    val niceDate = formatDateKey(day.dateKey)
+
+    Card(
+        shape = RoundedCornerShape(18.dp),
+        backgroundColor = Color.White,
+        elevation = 5.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "$weekDay, $niceDate",
+                fontSize = 27.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF102A43)
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (day.lunchMissing) {
+                    MissingBadge(text = "Mittagessen fehlt", color = Color(0xFFFFF3E0), textColor = Color(0xFF8A3E00))
+                }
+                if (day.dinnerMissing) {
+                    MissingBadge(text = "Abendessen fehlt", color = Color(0xFFFFEBEE), textColor = Color(0xFF9B1B1B))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MissingBadge(
+    text: String,
+    color: Color,
+    textColor: Color
+) {
+    Card(
+        backgroundColor = color,
+        shape = RoundedCornerShape(14.dp),
+        elevation = 0.dp
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
+    }
+}
+
 private data class DayMissing(
     val dateKey: String,
     val lunchMissing: Boolean,
     val dinnerMissing: Boolean
-)
+)        
 
 // Textbaustein: was fehlt an diesem Tag?
 private fun missingMealsText(lunchMissing: Boolean, dinnerMissing: Boolean): String {
