@@ -12,13 +12,13 @@ data class ExportOrderDto(
 
 data class ExportFoodDto(
     @SerializedName("id") val id: Int,
-    @SerializedName("name") val name: String,
-    @SerializedName("type") val type: String,
+    @SerializedName("name") val name: String?,
+    @SerializedName("type") val type: String?,
     @SerializedName("picture") val picture: ExportPictureDto? = null
 )
 
 data class ExportPictureDto(
     @SerializedName("id") val id: Int,
-    @SerializedName("description") val description: String? = null,
-    @SerializedName("url") val url: String? = null
+    @SerializedName("description") val description: String?,
+    @SerializedName("url") val url: String?
 )

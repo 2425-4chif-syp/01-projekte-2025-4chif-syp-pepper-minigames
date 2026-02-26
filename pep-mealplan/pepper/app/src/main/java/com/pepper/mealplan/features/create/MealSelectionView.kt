@@ -12,170 +12,245 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.pepper.mealplan.R
+import androidx.compose.ui.unit.sp
+import com.pepper.mealplan.RoboterActions
+import com.pepper.mealplan.data.menu.MenuRepository
+import com.pepper.mealplan.network.RetrofitClient
+import com.pepper.mealplan.network.dto.ApiMealPlanDto
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+private data class FoodOptionUi(
+    val foodId: Int,
+    val name: String,
+    val pictureId: Int?,
+)
 
 @Composable
 fun MealSelectionView(
     weekNumber: Int,
     dayShort: String,
-    mealStep: MealStep,
+    mealStep: MealStep,               // nur MAIN oder EVENING
     onBackClick: () -> Unit,
-    onMealSelected: (Int) -> Unit
+    onMealSelected: (Int) -> Unit,
+    dayLabel: String
 ) {
-    val (title, imageRes, mealIds) = when (mealStep) {
-        MealStep.SOUP -> Triple("Suppe", R.drawable.soup, getSoupIds())
-        MealStep.MAIN -> Triple("Mittagsessen", R.drawable.main, getMainIds())
-        MealStep.DESSERT -> Triple("Dessert", R.drawable.dessert, getDessertIds())
-        MealStep.EVENING -> Triple("Abendessen", R.drawable.main, getEveningIds()) // Using main.jpg for evening too
+    val menuRepository = remember { MenuRepository() }
+
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var options by remember { mutableStateOf<List<FoodOptionUi>>(emptyList()) }
+
+    val weekDayIndex = remember(dayShort) { dayShortToIndex(dayShort) }
+    val title = if (mealStep == MealStep.MAIN) "Mittagessen auswählen" else "Abendessen auswählen"
+
+    // Pepper spricht freundlich
+    LaunchedEffect(dayShort, mealStep) {
+        val dayText = when (dayShort) {
+            "MO" -> "Montag"
+            "DI" -> "Dienstag"
+            "MI" -> "Mittwoch"
+            "DO" -> "Donnerstag"
+            "FR" -> "Freitag"
+            "SA" -> "Samstag"
+            "SO" -> "Sonntag"
+            else -> "heute"
+        }
+        val mealText = if (mealStep == MealStep.MAIN) "Mittagessen" else "Abendessen"
+        RoboterActions.speak("Alles klar. Für $dayLabel kannst du jetzt dein $mealText auswählen. Tippe bitte auf eine der beiden Speisen.")
     }
-    
+
+    LaunchedEffect(weekNumber, weekDayIndex, mealStep) {
+        isLoading = true
+        error = null
+        options = emptyList()
+
+        val res = menuRepository.getMenuForDate(weekNumber, weekDayIndex)
+        res.onSuccess { menu ->
+            options = buildOptions(menu, mealStep)
+            if (options.size < 2) {
+                error = "Für diesen Tag sind nicht genug Speisen vorhanden."
+            }
+        }.onFailure { e ->
+            error = e.message ?: "Fehler beim Laden des Menüs"
+        }
+
+        isLoading = false
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        // Header with back button
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 24.dp),
+                .padding(bottom = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier.padding(end = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Zurück"
-                )
+            IconButton(onClick = {
+                RoboterActions.stopSpeaking()
+                onBackClick()
+            }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Zurück")
             }
-            
+
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
-        
-        // Content based on meal step
-        when (mealStep) {
-            MealStep.SOUP, MealStep.DESSERT -> {
-                // Single image for soup and dessert
-                OptimizedImageCard(
-                    imageRes = imageRes,
-                    title = title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp) // Reduziert von 400dp auf 250dp
-                        .clickable { 
-                            onMealSelected(mealIds.first())
-                        }
-                )
+
+        if (isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            
-            MealStep.MAIN, MealStep.EVENING -> {
-                // Two images for main and evening meals
-                Text(
-                    text = "Wähle eine Option:",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Option 1 (left) - uses main1.jpg
-                    OptimizedImageCard(
-                        imageRes = R.drawable.main1,
-                        title = "Option 1",
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(200.dp) // Reduziert von 300dp auf 200dp
-                            .clickable { 
-                                onMealSelected(mealIds[0])
-                            }
-                    )
-                    
-                    // Option 2 (right) - uses main.jpg
-                    OptimizedImageCard(
-                        imageRes = R.drawable.main,
-                        title = "Option 2",
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(200.dp) // Reduziert von 300dp auf 200dp
-                            .clickable { 
-                                onMealSelected(mealIds[1])
-                            }
-                    )
-                }
+            return
+        }
+
+        if (error != null) {
+            Text(
+                text = error!!,
+                color = Color.Red,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    RoboterActions.stopSpeaking()
+                    onBackClick()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                modifier = Modifier.fillMaxWidth().height(60.dp)
+            ) {
+                Text("Zurück", color = Color.White, fontWeight = FontWeight.Bold)
             }
+            return
+        }
+
+        // 2 Optionen nebeneinander
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FoodOptionCard(
+                option = options[0],
+                modifier = Modifier.weight(1f),
+                onClick = { onMealSelected(options[0].foodId) }
+            )
+            FoodOptionCard(
+                option = options[1],
+                modifier = Modifier.weight(1f),
+                onClick = { onMealSelected(options[1].foodId) }
+            )
         }
     }
 }
 
 @Composable
-private fun OptimizedImageCard(
-    imageRes: Int,
-    title: String,
-    modifier: Modifier = Modifier
+private fun FoodOptionCard(
+    option: FoodOptionUi,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    
-    // Optimierte Bildladung mit reduzierten Optionen
-    val bitmap = remember(imageRes) {
-        val options = BitmapFactory.Options().apply {
-            inSampleSize = 2 // Reduziert die Bildgröße um Faktor 2
-            inPreferredConfig = android.graphics.Bitmap.Config.RGB_565 // Weniger Speicherverbrauch
-        }
-        
-        try {
-            val inputStream = context.resources.openRawResource(imageRes)
-            val bmp = BitmapFactory.decodeStream(inputStream, null, options)
-            inputStream.close()
-            bmp?.asImageBitmap()
-        } catch (e: Exception) {
-            null
-        }
-    }
-    
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        modifier = modifier
+            .height(300.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        if (bitmap != null) {
-            Image(
-                bitmap = bitmap,
-                contentDescription = title,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit // Geändert von Crop zu Fit
+        Column(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            BackendImage(
+                pictureId = option.pictureId,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(190.dp)
+                    .clip(RoundedCornerShape(12.dp))
             )
-        } else {
-            // Fallback bei Ladeproblemen
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+
+            Text(
+                text = option.name,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
 
-// Helper functions to get meal IDs (simplified for now)
-private fun getSoupIds(): List<Int> = listOf(11) // Soup IDs from DataInserts
-private fun getMainIds(): List<Int> = listOf(1, 2) // First two main dish IDs
-private fun getDessertIds(): List<Int> = listOf(21) // Dessert IDs
-private fun getEveningIds(): List<Int> = listOf(3, 4) // Evening meal IDs
+@Composable
+private fun BackendImage(
+    pictureId: Int?,
+    modifier: Modifier = Modifier
+) {
+    var bmp by remember { mutableStateOf<ImageBitmap?>(null) }
+    var loading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(pictureId) {
+        bmp = null
+        if (pictureId == null) return@LaunchedEffect
+
+        loading = true
+        val bytes = withContext(Dispatchers.IO) { RetrofitClient.fetchImage(pictureId) }
+        if (bytes != null) {
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            bmp = bitmap?.asImageBitmap()
+        }
+        loading = false
+    }
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        when {
+            bmp != null -> Image(
+                bitmap = bmp!!,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            loading -> CircularProgressIndicator()
+            else -> Text("Kein Bild")
+        }
+    }
+}
+
+private fun buildOptions(menu: ApiMealPlanDto, mealStep: MealStep): List<FoodOptionUi> {
+    fun option(food: com.pepper.mealplan.network.dto.ApiFoodDto?): FoodOptionUi? {
+        val id = food?.id ?: return null
+        val name = food.name ?: return null
+        val picId = food.picture?.id
+        return FoodOptionUi(foodId = id, name = name, pictureId = picId)
+    }
+
+    return when (mealStep) {
+        MealStep.MAIN -> listOfNotNull(option(menu.lunch1), option(menu.lunch2))
+        MealStep.EVENING -> listOfNotNull(option(menu.dinner1), option(menu.dinner2))
+    }
+}
+
+private fun dayShortToIndex(dayShort: String): Int = when (dayShort) {
+    "MO" -> 0
+    "DI" -> 1
+    "MI" -> 2
+    "DO" -> 3
+    "FR" -> 4
+    "SA" -> 5
+    "SO" -> 6
+    else -> 0
+}

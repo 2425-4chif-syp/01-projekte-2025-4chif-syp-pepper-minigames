@@ -1,16 +1,14 @@
 package com.pepper.mealplan.features.create
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -20,7 +18,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun CreateMealPlan(
     foundPerson: String = "",
-    viewModel: CreateMealPlanViewModel = viewModel(
+    onBackToMenu: () -> Unit,
+    vm: CreateMealPlanViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -29,38 +28,64 @@ fun CreateMealPlan(
         }
     )
 ) {
-    when {
-        viewModel.showMealSelection && viewModel.selectedDay != null && viewModel.selectedWeek != null -> {
-            // Meal selection view
-            MealSelectionView(
-                weekNumber = viewModel.selectedWeek!!,
-                dayShort = viewModel.selectedDay!!,
-                mealStep = viewModel.currentMealStep,
-                onBackClick = { viewModel.backToDaySelection() },
-                onMealSelected = { mealId -> viewModel.selectMeal(mealId) }
+    // Wenn fertig -> Menü
+    LaunchedEffect(vm.navigateToMenu) {
+        if (vm.navigateToMenu) onBackToMenu()
+    }
+
+    when (vm.stage) {
+        CreateStage.DAY_PICK -> {
+            DaysPickView(
+                days = vm.pendingDays,
+                onDayClick = { vm.onDayClicked(it) },
+                onBackClick = { vm.onBackPressedToMenu() }
             )
         }
-        viewModel.showDayView && viewModel.selectedWeek != null -> {
-            // Day selection view
-            DaySelectionView(
-                weekNumber = viewModel.selectedWeek!!,
-                completedDays = viewModel.completedDays,
-                onBackClick = { viewModel.backToWeekSelection() },
-                onDayClick = { dayShort -> viewModel.selectDay(dayShort) }
+
+        CreateStage.MEALTYPE_PICK -> {
+            MealTypePickView(
+                dayLabel = vm.selectedDay?.label ?: "",
+                dateText = vm.selectedDay?.displayDate ?: "",
+                onPickLunch = { vm.onMealTypeClicked(MissingMealType.LUNCH) },
+                onPickDinner = { vm.onMealTypeClicked(MissingMealType.DINNER) },
+                onBack = { vm.backFromMealTypePicker() }
             )
         }
-        else -> {
-            // Week selection view
-            WeekSelectionView(
-                onWeekClick = { weekNumber -> viewModel.selectWeek(weekNumber) }
-            )
+
+        CreateStage.MEAL_SELECTION -> {
+            val day = vm.selectedDay
+            if (day != null) {
+                // Wichtig: day.label für Pepper (Heute/Morgen/Übermorgen)
+                MealSelectionView(
+                    weekNumber = day.weekNumber,
+                    dayShort = day.dayShort,
+                    mealStep = vm.currentMealStep,
+                    dayLabel = day.label,            // ✅ brauchst du in MealSelectionView (siehe unten)
+                    onBackClick = { vm.onSelectionBack() },
+                    onMealSelected = { foodId -> vm.onFoodChosen(foodId) }
+                )
+
+                vm.errorMessage?.let { msg ->
+                    // optional: du kannst später einen Snackbar/Overlay machen
+                    // aktuell lassen wir es still, weil UI sonst unruhig wird
+                }
+            } else {
+                // Fallback
+                DaysPickView(
+                    days = vm.pendingDays,
+                    onDayClick = { vm.onDayClicked(it) },
+                    onBackClick = { vm.onBackPressedToMenu() }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun WeekSelectionView(
-    onWeekClick: (Int) -> Unit
+private fun DaysPickView(
+    days: List<NextDayUi>,
+    onDayClick: (NextDayUi) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -69,89 +94,143 @@ private fun WeekSelectionView(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Title
         Text(
-            text = "Mahlzeiten auswählen",
+            text = "Bestellung",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-        
-        // Week boxes in 2x2 grid
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            WeekBox(
-                weekNumber = 1,
+
+        // Wenn keine Tage -> sollte eigentlich direkt ins Menü navigieren
+        if (days.isEmpty()) {
+            Text("Es gibt nichts mehr zu bestellen.")
+            Spacer(Modifier.height(12.dp))
+            Button(
+                onClick = onBackClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+            ) {
+                Text("Zurück", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+            return
+        }
+
+        // 2x2 Grid: bis zu 3 Tage + Zurück
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            DayBox(
+                title = days.getOrNull(0)?.label ?: "",
+                dateText = days.getOrNull(0)?.displayDate ?: "",
                 modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { onWeekClick(1) }
+                onClick = { days.getOrNull(0)?.let(onDayClick) }
             )
-            WeekBox(
-                weekNumber = 2,
+            DayBox(
+                title = days.getOrNull(1)?.label ?: "",
+                dateText = days.getOrNull(1)?.displayDate ?: "",
                 modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { onWeekClick(2) }
+                onClick = { days.getOrNull(1)?.let(onDayClick) }
             )
         }
-        
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            WeekBox(
-                weekNumber = 3,
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            DayBox(
+                title = days.getOrNull(2)?.label ?: "",
+                dateText = days.getOrNull(2)?.displayDate ?: "",
                 modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { onWeekClick(3) }
+                onClick = { days.getOrNull(2)?.let(onDayClick) }
             )
-            WeekBox(
-                weekNumber = 4,
+
+            BackRedBox(
                 modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { onWeekClick(4) }
+                onClick = onBackClick
             )
         }
     }
 }
 
 @Composable
-private fun WeekBox(
-    weekNumber: Int,
+private fun DayBox(
+    title: String,
+    dateText: String,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit
 ) {
-    // Calculate date ranges for each week
-    val dateRange = when (weekNumber) {
-        1 -> "24.11.2025 - 30.11.2025"
-        2 -> "01.12.2025 - 07.12.2025"
-        3 -> "08.12.2025 - 14.12.2025"
-        4 -> "15.12.2025 - 21.12.2025"
-        else -> ""
-    }
-    
     Card(
-        modifier = modifier
-            .clickable { onClick() },
+        modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "Woche $weekNumber",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = dateRange,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(dateText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+        }
+    }
+}
+
+@Composable
+private fun BackRedBox(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFD32F2F)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Zurück", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+    }
+}
+
+@Composable
+private fun MealTypePickView(
+    dayLabel: String,
+    dateText: String,
+    onPickLunch: () -> Unit,
+    onPickDinner: () -> Unit,
+    onBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "$dayLabel – $dateText",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Card(
+                modifier = Modifier.weight(1f).height(150.dp).clickable { onPickLunch() },
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Mittagessen bestellen", fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Card(
+                modifier = Modifier.weight(1f).height(150.dp).clickable { onPickDinner() },
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Abendessen bestellen", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Button(
+            onClick = onBack,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+            modifier = Modifier.fillMaxWidth().height(60.dp)
+        ) {
+            Text("Zurück", color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }

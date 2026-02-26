@@ -35,11 +35,11 @@ class OrdersRepository {
 
     suspend fun getExportedOrders(date: String): Result<List<ExportOrderDto>> = withContext(Dispatchers.IO) {
         try {
-            val response = RetrofitClient.ordersApi.getExportedOrders(date)
+            val response = api.getExportedOrders(date)
             if (response.isSuccessful) {
                 Result.success(response.body().orEmpty())
             } else {
-                Result.failure(Exception("getExportedOrders failed: ${response.code()} ${response.message()}"))
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
