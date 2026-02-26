@@ -11,8 +11,11 @@ import com.pepper.mealplan.data.foods.FoodsRepository
 import com.pepper.mealplan.data.menu.MenuRepository
 import com.pepper.mealplan.data.order.MealOrderRepositoryProvider
 import com.pepper.mealplan.data.order.MealSlot
+import com.pepper.mealplan.data.orders.OrdersRepository
+import com.pepper.mealplan.data.residents.ResidentsRepository
 import com.pepper.mealplan.network.dto.ApiMealPlanDto
 import com.pepper.mealplan.network.dto.ApiFoodDto
+import com.pepper.mealplan.network.dto.ExportOrderDto
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -60,6 +63,8 @@ class MealPlanOverviewViewModel(
 
     private val menuRepository = MenuRepository()
     private val foodsRepository = FoodsRepository()
+    private val residentsRepository = ResidentsRepository()
+    private val ordersRepository = OrdersRepository()
 
     private var foodsMap by mutableStateOf<Map<Int, ApiFoodDto>>(emptyMap())
 
@@ -87,6 +92,7 @@ class MealPlanOverviewViewModel(
             }
 
             val todayCal = Calendar.getInstance()
+            val personId = resolvePersonId()
 
             // 2) Tage + Menüs laden
             val days = (0..2).map { offset ->
@@ -107,6 +113,8 @@ class MealPlanOverviewViewModel(
                     println("Fehler beim Laden des Menüs für Tag $weekDay, Woche $weekNumber: ${error.message}")
                 }
 
+                val orderForPerson = loadOrderForPerson(dateKey, personId)
+
                 println("MENU DEBUG: soup=${menu?.soup?.name}, lunch1=${menu?.lunch1?.name}, pic=${menu?.lunch1?.picture?.id}")
 
                 buildDayMealsUi(
@@ -114,7 +122,8 @@ class MealPlanOverviewViewModel(
                     dateKey = dateKey,
                     indexFromToday = offset,
                     weekdayCode = weekdayCode,
-                    menu = menu
+                    menu = menu,
+                    orderForPerson = orderForPerson
                 )
 
             }
@@ -139,7 +148,7 @@ class MealPlanOverviewViewModel(
             threeDayMeals = threeDayMeals.map { day ->
                 day.copy(
                     meals = day.meals.map { meal ->
-                        val pid = meal.foodId?.let { foodIdToPictureId[it] }
+                        val pid = meal.foodId?.let { foodIdToPictureId[it] } ?: meal.pictureId
                         meal.copy(pictureId = pid)
                     }
                 )
@@ -180,7 +189,8 @@ class MealPlanOverviewViewModel(
         dateKey: String,
         indexFromToday: Int,
         weekdayCode: String,
-        menu: ApiMealPlanDto?
+        menu: ApiMealPlanDto?,
+        orderForPerson: ExportOrderDto?
     ): DayMealsUi {
         val label = when (indexFromToday) {
             0 -> "Heute"
@@ -223,11 +233,13 @@ class MealPlanOverviewViewModel(
             ),
             MealItem(
                 title = "Hauptgericht",
-                foodName = menu.lunch1?.name ?: "Keine Angabe",
+                foodName = orderForPerson?.selectedLunch?.name
+                    ?: menu.lunch1?.name
+                    ?: "Keine Angabe",
                 foodType = "main",
                 timeMinutes = 12 * 60,
-                foodId = menu.lunch1?.id,
-                pictureId = menu.lunch1?.picture?.id
+                foodId = orderForPerson?.selectedLunch?.id ?: menu.lunch1?.id,
+                pictureId = orderForPerson?.selectedLunch?.picture?.id ?: menu.lunch1?.picture?.id
             ),
             MealItem(
                 title = "Dessert",
@@ -239,11 +251,13 @@ class MealPlanOverviewViewModel(
             ),
             MealItem(
                 title = "Abendessen",
-                foodName = menu.dinner1?.name ?: "Keine Angabe",
+                foodName = orderForPerson?.selectedDinner?.name
+                    ?: menu.dinner1?.name
+                    ?: "Keine Angabe",
                 foodType = "main",
                 timeMinutes = 17 * 60 + 30,
-                foodId = menu.dinner1?.id,
-                pictureId = menu.dinner1?.picture?.id
+                foodId = orderForPerson?.selectedDinner?.id ?: menu.dinner1?.id,
+                pictureId = orderForPerson?.selectedDinner?.picture?.id ?: menu.dinner1?.picture?.id
             )
         )
 
@@ -262,6 +276,23 @@ class MealPlanOverviewViewModel(
         if (meals.isEmpty()) return 0
         val idx = meals.indexOfFirst { it.timeMinutes >= nowMinutes }
         return if (idx == -1) meals.lastIndex else idx
+    }
+
+    private suspend fun resolvePersonId(): Int? {
+        val normalizedFoundPerson = foundPerson.trim().replace(Regex("\\s+"), " ")
+        val residents = residentsRepository.getResidents().getOrNull().orEmpty()
+        return residents.firstOrNull {
+            "${it.firstname} ${it.lastname}"
+                .trim()
+                .replace(Regex("\\s+"), " ")
+                .equals(normalizedFoundPerson, ignoreCase = true)
+        }?.id
+    }
+
+    private suspend fun loadOrderForPerson(dateKey: String, personId: Int?): ExportOrderDto? {
+        if (personId == null) return null
+        val exportOrders = ordersRepository.getExportedOrders(dateKey).getOrNull().orEmpty()
+        return exportOrders.firstOrNull { it.person.id == personId && it.date == dateKey }
     }
 }
 

@@ -285,35 +285,40 @@ class CreateMealPlanViewModel(
             if (currentMealStep == MealStep.MAIN) {
                 tempLunchId = foodId
                 RoboterActions.stopSpeaking()
+                val dinnerAlreadyChosen = tempDinnerId != null
                 RoboterActions.speak(
                     PepperPhrases.mealChoicePraise(
                         foodName = foodName,
                         mealText = mealText,
-                        nextMealText = "Abendessen"
+                        nextMealText = if (dinnerAlreadyChosen) null else "Abendessen"
                     )
                 )
-                // Direkt Abend-Auswahl zeigen
-                currentMealStep = MealStep.EVENING
-                stage = CreateStage.MEAL_SELECTION
+                if (dinnerAlreadyChosen) {
+                    submitUpsert(day, lunchId = foodId, dinnerId = tempDinnerId!!)
+                } else {
+                    // Direkt Abend-Auswahl zeigen
+                    currentMealStep = MealStep.EVENING
+                    stage = CreateStage.MEAL_SELECTION
+                }
                 return
             } else {
                 tempDinnerId = foodId
                 RoboterActions.stopSpeaking()
+                val lunchAlreadyChosen = tempLunchId != null
                 RoboterActions.speak(
                     PepperPhrases.mealChoicePraise(
                         foodName = foodName,
                         mealText = mealText,
-                        nextMealText = null
+                        nextMealText = if (lunchAlreadyChosen) null else "Mittagessen"
                     )
                 )
-                // Jetzt haben wir beide -> speichern
-                val lunchId = tempLunchId
-                val dinnerId = tempDinnerId
-                if (lunchId == null || dinnerId == null) {
-                    errorMessage = "Fehler: Auswahl unvollständig"
-                    return
+                if (lunchAlreadyChosen) {
+                    submitUpsert(day, lunchId = tempLunchId!!, dinnerId = foodId)
+                } else {
+                    // Start war Abendessen -> jetzt Mittagessen auswählen lassen
+                    currentMealStep = MealStep.MAIN
+                    stage = CreateStage.MEAL_SELECTION
                 }
-                submitUpsert(day, lunchId, dinnerId)
                 return
             }
         }
