@@ -85,7 +85,7 @@ fun FaceRecognitionScreen(
                 onClick = {
                     // DEV-SHORTCUT: Gesichtserkennung überspringen
                     if (devModeSkipFaceRecognition) {
-                        onAuthenticationSuccess("Nikola Mladenovic")
+                        onAuthenticationSuccess("Anna Müller")
                         return@Button
                     }
 
