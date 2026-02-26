@@ -38,76 +38,89 @@ fun OrderReminderScreen(
 
     val namePart = if (foundPerson.isNotBlank()) "$foundPerson, " else ""
 
+    // Gruppiert pro Datum: Mittag fehlt? Abend fehlt?
+    val missingByDay = remember(missingMeals) {
+        val map = linkedMapOf<String, Pair<Boolean, Boolean>>() // dateKey -> (lunchMissing, dinnerMissing)
+
+        missingMeals.forEach { info ->
+            val existing = map[info.dateKey] ?: (false to false)
+            val lunchMissing = existing.first || info.slot == MealSlot.MAIN1 || info.slot == MealSlot.MAIN2
+            val dinnerMissing = existing.second || info.slot == MealSlot.DINNER1 || info.slot == MealSlot.DINNER2
+            map[info.dateKey] = lunchMissing to dinnerMissing
+        }
+
+        // dateKey ist yyyy-MM-dd -> Sortierung klappt lexikografisch
+        map.entries.sortedBy { it.key }.map { entry ->
+            DayMissing(
+                dateKey = entry.key,
+                lunchMissing = entry.value.first,
+                dinnerMissing = entry.value.second
+            )
+        }
+    }
+
     // ---------- Text für Anzeige ----------
-    val mainText = remember(missingMeals) {
-        if (missingMeals.isEmpty()) {
+    val mainText = remember(missingByDay) {
+        if (missingByDay.isEmpty()) {
             namePart + "alle Mahlzeiten der nächsten Tage sind bereits bestellt."
+        } else if (missingByDay.size == 1) {
+            val first = missingByDay.first()
+            val weekDay = formatWeekday(first.dateKey)
+            val niceDate = formatDateKey(first.dateKey)
+            val whatMissing = missingMealsText(first.lunchMissing, first.dinnerMissing)
+
+            namePart +
+                    "für $weekDay, den $niceDate hast du $whatMissing noch nicht bestellt.\n\n" +
+                    "Wenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
+                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
         } else {
-            if (missingMeals.size == 1) {
-                val first = missingMeals.first()
-                val slotText = mealSlotText(first.slot)
+            val header =
+                namePart + "für die nächsten Tage hast du noch nicht alle Mahlzeiten bestellt:\n\n"
 
-                val weekDay = formatWeekday(first.dateKey)      // z.B. "Donnerstag"
-                val niceDate = formatDateKey(first.dateKey)     // z.B. "18.12.2025"
-
-                namePart +
-                        "für $weekDay, den $niceDate hast du $slotText noch nicht bestellt.\n\n" +
-                        "Wenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
-                        "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
-            } else {
-                val header =
-                    namePart + "für die nächsten Tage hast du noch nicht alle Mahlzeiten bestellt:\n\n"
-
-                val listText = missingMeals.joinToString(separator = "\n") { info ->
-                    val weekDay = formatWeekday(info.dateKey)
-                    val niceDate = formatDateKey(info.dateKey)
-                    val slotText = mealSlotText(info.slot)
-                    "- am $weekDay, den $niceDate: $slotText"
-                }
-
-                header +
-                        listText +
-                        "\n\nWenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
-                        "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
+            val listText = missingByDay.joinToString(separator = "\n") { day ->
+                val weekDay = formatWeekday(day.dateKey)
+                val niceDate = formatDateKey(day.dateKey)
+                val whatMissing = missingMealsText(day.lunchMissing, day.dinnerMissing)
+                "- am $weekDay, den $niceDate: $whatMissing"
             }
+
+            header +
+                    listText +
+                    "\n\nWenn du mit der Bestellung fortfahren möchtest, drücke bitte auf den blauen Button.\n" +
+                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
         }
     }
 
     // ---------- Text für Pepper ----------
-    val speechText = remember(missingMeals) {
-        if (missingMeals.isEmpty()) {
+    val speechText = remember(missingByDay) {
+        if (missingByDay.isEmpty()) {
             namePart + "alle Mahlzeiten der nächsten drei Tage sind bereits bestellt."
+        } else if (missingByDay.size == 1) {
+            val first = missingByDay.first()
+            val weekDay = formatWeekday(first.dateKey)
+            val whatMissing = missingMealsText(first.lunchMissing, first.dinnerMissing)
+
+            namePart +
+                    "für $weekDay, hast du $whatMissing noch nicht bestellt. " +
+                    "Drücke auf den blauen Button, um mit der Bestellung fortzufahren. " +
+                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
         } else {
-            if (missingMeals.size == 1) {
-                val first = missingMeals.first()
-                val slotText = mealSlotText(first.slot)
+            val header =
+                namePart + "für die nächsten Tage hast du noch nicht alle Mahlzeiten bestellt: "
 
-                val weekDay = formatWeekday(first.dateKey)
-                val niceDate = formatDateKey(first.dateKey)
-
-                namePart +
-                        "für $weekDay, hast du $slotText noch nicht bestellt. " +
-                        "Drücke auf den blauen Button, um mit der Bestellung fortzufahren. " +
-                        "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
-            } else {
-                val header =
-                    namePart + "für die nächsten Tage hast du noch nicht alle Mahlzeiten bestellt: "
-
-                val listText = missingMeals.joinToString(separator = " ") { info ->
-                    val weekDay = formatWeekday(info.dateKey)
-                    val niceDate = formatDateKey(info.dateKey)
-                    val slotText = mealSlotText(info.slot)
-                    "am $weekDay, $slotText."
-                }
-
-                header + listText +
-                        " Drücke auf den blauen Button, um mit der Bestellung fortzufahren. " +
-                        "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
+            val listText = missingByDay.joinToString(separator = " ") { day ->
+                val weekDay = formatWeekday(day.dateKey)
+                val whatMissing = missingMealsText(day.lunchMissing, day.dinnerMissing)
+                "am $weekDay, $whatMissing."
             }
+
+            header + listText +
+                    " Drücke auf den blauen Button, um mit der Bestellung fortzufahren. " +
+                    "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
         }
     }
 
-    // ---------- Pepper sprechen (alte Sprache stoppen, dann neuen Text) ----------
+    // ---------- Pepper sprechen ----------
     LaunchedEffect(speechText) {
         if (speechText.isNotBlank()) {
             withContext(Dispatchers.IO) {
@@ -124,7 +137,6 @@ fun OrderReminderScreen(
             .fillMaxSize()
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
-        // Oben: scrollbarer Text
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -150,7 +162,6 @@ fun OrderReminderScreen(
             )
         }
 
-        // Unten: zwei Buttons nebeneinander
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -204,20 +215,28 @@ fun OrderReminderScreen(
     }
 }
 
-private fun mealSlotText(slot: MealSlot): String =
-    when (slot) {
-        MealSlot.SOUP -> "die Suppe"
-        MealSlot.MAIN1, MealSlot.MAIN2 -> "das Mittagessen"
-        MealSlot.DESSERT -> "das Dessert"
-        MealSlot.DINNER1, MealSlot.DINNER2 -> "das Abendessen"
+private data class DayMissing(
+    val dateKey: String,
+    val lunchMissing: Boolean,
+    val dinnerMissing: Boolean
+)
+
+// Textbaustein: was fehlt an diesem Tag?
+private fun missingMealsText(lunchMissing: Boolean, dinnerMissing: Boolean): String {
+    return when {
+        lunchMissing && dinnerMissing -> "das Mittagessen und das Abendessen"
+        lunchMissing -> "das Mittagessen"
+        dinnerMissing -> "das Abendessen"
+        else -> "keine Mahlzeit"
     }
+}
 
 private fun formatWeekday(dateKey: String): String {
     return try {
         val parts = dateKey.split("-")
         if (parts.size == 3) {
             val year = parts[0].toInt()
-            val month = parts[1].toInt() - 1 // Calendar: 0-basiert
+            val month = parts[1].toInt() - 1
             val day = parts[2].toInt()
 
             val cal = Calendar.getInstance().apply {
@@ -231,23 +250,18 @@ private fun formatWeekday(dateKey: String): String {
                 Calendar.LONG,
                 Locale.GERMAN
             ) ?: ""
-        } else {
-            ""
-        }
+        } else ""
     } catch (e: Exception) {
         ""
     }
 }
 
 private fun formatDateKey(dateKey: String): String {
-    // yyyy-MM-dd -> dd.MM.yyyy
     return try {
         val parts = dateKey.split("-")
         if (parts.size == 3) {
             "${parts[2]}.${parts[1]}.${parts[0]}"
-        } else {
-            dateKey
-        }
+        } else dateKey
     } catch (e: Exception) {
         dateKey
     }

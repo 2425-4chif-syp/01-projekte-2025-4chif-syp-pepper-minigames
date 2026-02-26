@@ -1,6 +1,7 @@
 package com.pepper.mealplan.data.orders
 
 import com.pepper.mealplan.network.RetrofitClient
+import com.pepper.mealplan.network.dto.ExportOrderDto
 import com.pepper.mealplan.network.dto.OrderUpsertDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,13 +33,13 @@ class OrdersRepository {
         }
     }
 
-    suspend fun getExportedOrders(date: String): Result<List<Any>> = withContext(Dispatchers.IO) {
+    suspend fun getExportedOrders(date: String): Result<List<ExportOrderDto>> = withContext(Dispatchers.IO) {
         try {
-            val response = api.getExportedOrders(date)
+            val response = RetrofitClient.ordersApi.getExportedOrders(date)
             if (response.isSuccessful) {
-                Result.success(response.body() ?: emptyList())
+                Result.success(response.body().orEmpty())
             } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
+                Result.failure(Exception("getExportedOrders failed: ${response.code()} ${response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

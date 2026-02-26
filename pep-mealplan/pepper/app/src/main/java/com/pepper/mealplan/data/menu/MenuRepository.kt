@@ -3,6 +3,7 @@ package com.pepper.mealplan.data.menu
 import com.pepper.mealplan.network.RetrofitClient
 import com.pepper.mealplan.network.dto.ApiMealPlanDto
 import com.pepper.mealplan.network.dto.ApiMealPlanUpdateDto
+import com.pepper.mealplan.network.dto.MenuDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -25,11 +26,8 @@ class MenuRepository {
     suspend fun getMenuForDate(weekNumber: Int, weekDay: Int): Result<ApiMealPlanDto> = withContext(Dispatchers.IO) {
         try {
             val response = api.getMenuForDate(weekNumber, weekDay)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
+            if (response.isSuccessful && response.body() != null) Result.success(response.body()!!)
+            else Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }

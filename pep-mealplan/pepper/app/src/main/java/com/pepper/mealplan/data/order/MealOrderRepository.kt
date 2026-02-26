@@ -35,8 +35,11 @@ interface MealOrderRepository {
  */
 object MealOrderRepositoryProvider {
     // Umschalten auf echte Backend-Implementation
-    val repository: MealOrderRepository = RealMealOrderRepository
-    // Für Tests: val repository: MealOrderRepository = DummyMealOrderRepository
+    val repository: MealOrderRepository = RealMealOrderRepository()
+    // Für Tests (falls Dummy ein object ist, ohne Klammern):
+    // val repository: MealOrderRepository = DummyMealOrderRepository
+    // Falls Dummy eine Klasse ist, dann:
+    // val repository: MealOrderRepository = DummyMealOrderRepository()
 }
 
 fun Calendar.toDateKey(): String {

@@ -44,7 +44,7 @@ import androidx.compose.ui.res.painterResource
 fun MealPlanOverview(
     foundPerson: String = "",
     onGoToOrder: () -> Unit,
-    viewModel: MealPlanOverviewViewModel = viewModel(
+    vm: MealPlanOverviewViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
@@ -53,13 +53,12 @@ fun MealPlanOverview(
         }
     )
 ) {
-
     LaunchedEffect(Unit) {
-        viewModel.refreshData()
+        vm.refreshData()
     }
 
-    val dayMeals = viewModel.threeDayMeals
-    val initialMealIndexToday = viewModel.initialMealIndexToday
+    val dayMeals = vm.threeDayMeals
+    val initialMealIndexToday = vm.initialMealIndexToday
 
     Column(
         modifier = Modifier
@@ -67,7 +66,7 @@ fun MealPlanOverview(
             .padding(16.dp)
     ) {
 
-        if (viewModel.isLoading) {
+        if (vm.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -201,7 +200,8 @@ fun MealPlanOverview(
 
                     DayPager(
                         day = day,
-                        initialPage = initialPageForThisDay
+                        initialPage = initialPageForThisDay,
+                        vm
                     )
                 }
             }
@@ -220,7 +220,8 @@ fun MealPlanOverview(
 @Composable
 private fun DayPager(
     day: DayMealsUi,
-    initialPage: Int
+    initialPage: Int,
+    vm: MealPlanOverviewViewModel
 ) {
     val pagerState = rememberPagerState(initialPage = initialPage.coerceIn(0, 3))
     val coroutineScope = rememberCoroutineScope()
@@ -261,9 +262,22 @@ private fun DayPager(
             ) {
                 when (page) {
                     0 -> SoupScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
-                    1 -> MiddayScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
+
+                    1 -> MiddayScreen(
+                        day = day,
+                        onReadMenu = onReadMenu,
+                        onExplainNav = onExplainNav,
+                        viewModel = vm
+                    )
+
                     2 -> DessertScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
-                    3 -> DinnerScreen(day = day, onReadMenu = onReadMenu, onExplainNav = onExplainNav)
+
+                    3 -> DinnerScreen(
+                        day = day,
+                        onReadMenu = onReadMenu,
+                        onExplainNav = onExplainNav,
+                        viewModel = vm
+                    )
                 }
             }
 
@@ -330,9 +344,11 @@ private fun SoupScreen(
 private fun MiddayScreen(
     day: DayMealsUi,
     onReadMenu: () -> Unit,
-    onExplainNav: () -> Unit
+    onExplainNav: () -> Unit,
+    viewModel: MealPlanOverviewViewModel // <-- hinzufügen
 ) {
     val main = day.meals.getOrNull(1)
+    val status = viewModel.getOrderStatus(day.dateKey) // <-- neu
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -353,6 +369,7 @@ private fun MiddayScreen(
                 backgroundColor = Color(0xFFF3E5F5),
                 foodType = it.foodType,
                 pictureId = it.pictureId,
+                isMissing = (status?.lunchOrdered == false), // <-- neu
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -406,9 +423,11 @@ private fun DessertScreen(
 private fun DinnerScreen(
     day: DayMealsUi,
     onReadMenu: () -> Unit,
-    onExplainNav: () -> Unit
+    onExplainNav: () -> Unit,
+    viewModel: MealPlanOverviewViewModel // <-- hinzufügen
 ) {
     val dinner = day.meals.getOrNull(3)
+    val status = viewModel.getOrderStatus(day.dateKey) // <-- neu
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -429,6 +448,7 @@ private fun DinnerScreen(
                 backgroundColor = Color(0xFFE8F5E8),
                 foodType = it.foodType,
                 pictureId = it.pictureId,
+                isMissing = (status?.dinnerOrdered == false), // <-- neu
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -452,12 +472,14 @@ private fun mapMealIndexToGroupIndex(mealIndex: Int): Int =
 // ---------------- MenuSection ----------------
 
 @Composable
-private fun MenuSection(
+fun MenuSection(
     title: String,
     foodName: String,
     backgroundColor: Color,
     foodType: String? = null,
     pictureId: Int? = null,
+    pictureBytesBase64: String? = null,
+    isMissing: Boolean = false,
     onReadMenu: (() -> Unit)? = null,
     onExplainNav: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -466,26 +488,52 @@ private fun MenuSection(
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoadingImage by remember { mutableStateOf(false) }
 
+    if (isMissing) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(220.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(backgroundColor)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Diese Mahlzeit hast du noch nicht bestellt.",
+                color = Color.Red,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
+        return
+    }
+
+    // 1) Wenn Base64 vorhanden, direkt dekodieren
+    LaunchedEffect(pictureBytesBase64) {
+        if (!pictureBytesBase64.isNullOrBlank()) {
+            try {
+                val decoded = android.util.Base64.decode(pictureBytesBase64, android.util.Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
+                imageBitmap = bitmap?.asImageBitmap()
+            } catch (_: Exception) {
+                imageBitmap = null
+            }
+        }
+    }
+
     // Lade das Bild vom Backend, wenn pictureId vorhanden ist
     LaunchedEffect(pictureId) {
-        println("DEBUG MenuSection: pictureId = $pictureId")
-        if (pictureId != null) {
-            println("DEBUG MenuSection: Starting to fetch image for ID $pictureId")
+        if (pictureId != null && imageBitmap == null) {
             isLoadingImage = true
-            coroutineScope.launch(Dispatchers.IO) {
+            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 val imageBytes = com.pepper.mealplan.network.RetrofitClient.fetchImage(pictureId)
-                println("DEBUG MenuSection: Image bytes received: ${imageBytes?.size ?: 0} bytes")
                 if (imageBytes != null) {
                     val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                    println("DEBUG MenuSection: Bitmap decoded: ${bitmap != null}")
                     imageBitmap = bitmap?.asImageBitmap()
-                } else {
-                    println("DEBUG MenuSection: No image bytes received")
                 }
                 isLoadingImage = false
             }
-        } else {
-            println("DEBUG MenuSection: pictureId is null, skipping image fetch")
         }
     }
 
