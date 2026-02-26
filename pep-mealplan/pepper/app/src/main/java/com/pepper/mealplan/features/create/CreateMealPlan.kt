@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -125,13 +126,13 @@ private fun DaysPickView(
                 DayBox(
                     title = days.getOrNull(0)?.label ?: "",
                     dateText = days.getOrNull(0)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(150.dp),
+                    modifier = Modifier.weight(1f).height(225.dp),
                     onClick = { days.getOrNull(0)?.let(onDayClick) }
                 )
                 DayBox(
                     title = days.getOrNull(1)?.label ?: "",
                     dateText = days.getOrNull(1)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(150.dp),
+                    modifier = Modifier.weight(1f).height(225.dp),
                     onClick = { days.getOrNull(1)?.let(onDayClick) }
                 )
             }
@@ -140,12 +141,12 @@ private fun DaysPickView(
                 DayBox(
                     title = days.getOrNull(2)?.label ?: "",
                     dateText = days.getOrNull(2)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(150.dp),
+                    modifier = Modifier.weight(1f).height(225.dp),
                     onClick = { days.getOrNull(2)?.let(onDayClick) }
                 )
 
                 BackRedBox(
-                    modifier = Modifier.weight(1f).height(150.dp),
+                    modifier = Modifier.weight(1f).height(225.dp),
                     onClick = onBackClick
                 )
             }
@@ -167,8 +168,17 @@ private fun DayBox(
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(dateText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = title,
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = dateText,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -186,7 +196,12 @@ private fun BackRedBox(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Zurück", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(
+                text = "Zurück",
+                fontSize = 38.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }
