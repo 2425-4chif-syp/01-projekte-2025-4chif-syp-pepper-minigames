@@ -32,7 +32,6 @@ import com.pepper.mealplan.features.face.FaceRecognitionScreen
 import com.pepper.mealplan.features.order.OrderReminderScreen
 import com.pepper.mealplan.features.overview.MealPlanOverview
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Locale
@@ -111,6 +110,9 @@ sealed class BottomNavItem(val routeKey: String, val icon: ImageVector, val titl
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val items = listOf(BottomNavItem.Overview, BottomNavItem.Create, BottomNavItem.Logout)
+    val bottomNavHeight = 80.dp
+    val bottomNavIconSize = 34.dp
+    val bottomNavLabelSize = 15.sp
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -123,27 +125,23 @@ fun AppNavigation(navController: NavHostController) {
 
     var missingCount by remember { mutableStateOf(0) }
     var showMissingDialog by remember { mutableStateOf(false) }
+    var missingCountRefreshTick by remember { mutableStateOf(0) }
 
     val repo = remember { MealOrderRepositoryProvider.repository }
-    val coroutineScope = rememberCoroutineScope()
-
-    suspend fun refreshMissingCount(person: String) {
-        if (person.isBlank()) {
-            missingCount = 0
-            return
-        }
-        val missing = withContext(Dispatchers.IO) {
-            repo.getMissingMealsForNextDays(person, days = 3)
-        }
-        missingCount = effectiveMissingCount(missing)
-    }
 
     // BottomNav nur zeigen, wenn nicht Face
     val showBottomNav = currentRoute != Routes.FACE
 
     // missingCount laden (nur Lunch/Dinner)
-    LaunchedEffect(activePerson) {
-        refreshMissingCount(activePerson)
+    LaunchedEffect(activePerson, missingCountRefreshTick) {
+        if (activePerson.isBlank()) {
+            missingCount = 0
+        } else {
+            val missing = withContext(Dispatchers.IO) {
+                repo.getMissingMealsForNextDays(activePerson, days = 3)
+            }
+            missingCount = effectiveMissingCount(missing)
+        }
     }
 
     // Nach Face Login: Missing prüfen und navigieren
@@ -174,6 +172,7 @@ fun AppNavigation(navController: NavHostController) {
         bottomBar = {
             if (showBottomNav) {
                 BottomNavigation(
+                    modifier = Modifier.height(bottomNavHeight),
                     backgroundColor = MaterialTheme.colors.background,
                     contentColor = MaterialTheme.colors.primary
                 ) {
@@ -187,23 +186,36 @@ fun AppNavigation(navController: NavHostController) {
                                 if (item is BottomNavItem.Create && activePerson.isNotBlank()) {
                                     if (missingCount > 0) {
                                         Box {
-                                            Icon(item.icon, contentDescription = item.title)
+                                            Icon(
+                                                item.icon,
+                                                contentDescription = item.title,
+                                                modifier = Modifier.size(bottomNavIconSize)
+                                            )
                                             Box(
                                                 modifier = Modifier
-                                                    .size(16.dp)
+                                                    .size(20.dp)
                                                     .align(Alignment.TopEnd)
-                                                    .offset(x = 4.dp, y = (-4).dp)
+                                                    .offset(x = 6.dp, y = (-6).dp)
                                                     .background(Color.Red, shape = CircleShape),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Text("!", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                                Text("!", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     } else {
-                                        Icon(Icons.Default.Check, contentDescription = "Alles ok", tint = Color(0xFF2E7D32))
+                                        Icon(
+                                            Icons.Default.Check,
+                                            contentDescription = "Alles ok",
+                                            tint = Color(0xFF2E7D32),
+                                            modifier = Modifier.size(bottomNavIconSize)
+                                        )
                                     }
                                 } else {
-                                    Icon(item.icon, contentDescription = item.title)
+                                    Icon(
+                                        item.icon,
+                                        contentDescription = item.title,
+                                        modifier = Modifier.size(bottomNavIconSize)
+                                    )
                                 }
                             },
                             label = {
@@ -212,13 +224,19 @@ fun AppNavigation(navController: NavHostController) {
                                         Text(
                                             text = if (missingCount == 1) "1 fehlt" else "$missingCount Bestellungen fehlen",
                                             color = Color.Red,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = bottomNavLabelSize
                                         )
                                     } else {
-                                        Text("Alles ok", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                        Text(
+                                            "Alles ok",
+                                            color = Color(0xFF2E7D32),
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = bottomNavLabelSize
+                                        )
                                     }
                                 } else {
-                                    Text(item.title)
+                                    Text(item.title, fontSize = bottomNavLabelSize, fontWeight = FontWeight.SemiBold)
                                 }
                             },
                             selected = isSelected,
@@ -300,9 +318,7 @@ fun AppNavigation(navController: NavHostController) {
                 CreateMealPlan(
                     foundPerson = person,
                     onOrderSuccess = {
-                        coroutineScope.launch {
-                            refreshMissingCount(person)
-                        }
+                        missingCountRefreshTick++
                     },
                     onBackToMenu = {
                         navController.navigate(Routes.overview(person)) {
