@@ -63,6 +63,9 @@ class CreateMealPlanViewModel(
     private val residentsRepository = ResidentsRepository()
     private val mealRepo = MealOrderRepositoryProvider.repository
 
+    private val lunchTimeMinutes = 12 * 60
+    private val dinnerTimeMinutes = 17 * 60 + 30
+
     private var personId: Int? = null
 
     // Wenn nur eine fehlt: andere aus Export übernehmen
@@ -98,9 +101,11 @@ class CreateMealPlanViewModel(
 
         val filtered = nextThree.filter { day ->
             val miss = missingAll.filter { it.dateKey == day.dateKey }
-            val lunchMiss = miss.any { it.slot == MealSlot.MAIN1 || it.slot == MealSlot.MAIN2 }
-            val dinnerMiss = miss.any { it.slot == MealSlot.DINNER1 || it.slot == MealSlot.DINNER2 }
-            lunchMiss || dinnerMiss
+            val rawLunchMiss = miss.any { it.slot == MealSlot.MAIN1 || it.slot == MealSlot.MAIN2 }
+            val rawDinnerMiss = miss.any { it.slot == MealSlot.DINNER1 || it.slot == MealSlot.DINNER2 }
+            val (effectiveLunchMiss, effectiveDinnerMiss) =
+                applyOrderingWindow(day.dateKey, rawLunchMiss, rawDinnerMiss)
+            effectiveLunchMiss || effectiveDinnerMiss
         }
 
         pendingDays = filtered
@@ -170,8 +175,24 @@ class CreateMealPlanViewModel(
         val missing = mealRepo.getMissingMealsForNextDays(foundPerson, days = 3)
             .filter { it.dateKey == day.dateKey }
 
-        missingLunch = missing.any { it.slot == MealSlot.MAIN1 || it.slot == MealSlot.MAIN2 }
-        missingDinner = missing.any { it.slot == MealSlot.DINNER1 || it.slot == MealSlot.DINNER2 }
+        val rawLunchMissing = missing.any { it.slot == MealSlot.MAIN1 || it.slot == MealSlot.MAIN2 }
+        val rawDinnerMissing = missing.any { it.slot == MealSlot.DINNER1 || it.slot == MealSlot.DINNER2 }
+        val (effectiveLunchMissing, effectiveDinnerMissing) =
+            applyOrderingWindow(day.dateKey, rawLunchMissing, rawDinnerMissing)
+
+        missingLunch = effectiveLunchMissing
+        missingDinner = effectiveDinnerMissing
+
+        if (!missingLunch && !missingDinner) {
+            // Tag ist für Bestellungen nicht mehr relevant (z.B. Mahlzeitenzeit bereits vorbei).
+            pendingDays = pendingDays.filterNot { it.dateKey == day.dateKey }
+            selectedDay = null
+            stage = CreateStage.DAY_PICK
+            if (pendingDays.isEmpty()) {
+                navigateToMenu = true
+            }
+            return
+        }
 
         // Export holen, damit wir existingLunch/ existingDinner übernehmen können
         viewModelScope.launch {
@@ -198,6 +219,38 @@ class CreateMealPlanViewModel(
                 stage = CreateStage.DAY_PICK
             }
         }
+    }
+
+    private fun applyOrderingWindow(
+        dateKey: String,
+        lunchMissing: Boolean,
+        dinnerMissing: Boolean
+    ): Pair<Boolean, Boolean> {
+        // Nur für Heute: ausschließlich die nächste offene Mahlzeit darf bestellt werden.
+        if (dateKey != todayDateKey()) return lunchMissing to dinnerMissing
+
+        val now = nowMinutes()
+        return when {
+            now >= dinnerTimeMinutes -> false to false
+            now >= lunchTimeMinutes -> false to dinnerMissing
+            lunchMissing -> true to false
+            else -> false to dinnerMissing
+        }
+    }
+
+    private fun todayDateKey(): String {
+        val cal = Calendar.getInstance()
+        return String.format(
+            Locale.US, "%04d-%02d-%02d",
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH) + 1,
+            cal.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    private fun nowMinutes(): Int {
+        val cal = Calendar.getInstance()
+        return cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
     }
 
     fun onMealTypeClicked(type: MissingMealType) {
