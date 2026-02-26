@@ -25,6 +25,9 @@ import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Locale
 
+private const val LUNCH_TIME_MINUTES = 12 * 60
+private const val DINNER_TIME_MINUTES = 17 * 60 + 30
+
 @Composable
 fun OrderReminderScreen(
     foundPerson: String,
@@ -50,12 +53,19 @@ fun OrderReminderScreen(
         }
 
         // dateKey ist yyyy-MM-dd -> Sortierung klappt lexikografisch
-        map.entries.sortedBy { it.key }.map { entry ->
-            DayMissing(
-                dateKey = entry.key,
-                lunchMissing = entry.value.first,
-                dinnerMissing = entry.value.second
-            )
+        map.entries.sortedBy { it.key }.mapNotNull { entry ->
+            val (effectiveLunchMissing, effectiveDinnerMissing) =
+                applyTodayWindow(entry.key, entry.value.first, entry.value.second)
+
+            if (!effectiveLunchMissing && !effectiveDinnerMissing) {
+                null
+            } else {
+                DayMissing(
+                    dateKey = entry.key,
+                    lunchMissing = effectiveLunchMissing,
+                    dinnerMissing = effectiveDinnerMissing
+                )
+            }
         }
     }
 
@@ -264,5 +274,36 @@ private fun formatDateKey(dateKey: String): String {
         } else dateKey
     } catch (e: Exception) {
         dateKey
+    }
+}
+
+private fun currentDateKey(): String {
+    val cal = Calendar.getInstance()
+    return String.format(
+        Locale.US, "%04d-%02d-%02d",
+        cal.get(Calendar.YEAR),
+        cal.get(Calendar.MONTH) + 1,
+        cal.get(Calendar.DAY_OF_MONTH)
+    )
+}
+
+private fun currentMinutes(): Int {
+    val cal = Calendar.getInstance()
+    return cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+}
+
+private fun applyTodayWindow(
+    dateKey: String,
+    lunchMissing: Boolean,
+    dinnerMissing: Boolean
+): Pair<Boolean, Boolean> {
+    if (dateKey != currentDateKey()) return lunchMissing to dinnerMissing
+
+    val now = currentMinutes()
+    return when {
+        now >= DINNER_TIME_MINUTES -> false to false
+        now >= LUNCH_TIME_MINUTES -> false to dinnerMissing
+        lunchMissing -> true to false
+        else -> false to dinnerMissing
     }
 }
