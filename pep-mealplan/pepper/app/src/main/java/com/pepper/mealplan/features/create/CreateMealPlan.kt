@@ -71,7 +71,7 @@ fun CreateMealPlan(
                     mealStep = vm.currentMealStep,
                     dayLabel = day.label,            // ✅ brauchst du in MealSelectionView (siehe unten)
                     onBackClick = { vm.onSelectionBack() },
-                    onMealSelected = { foodId -> vm.onFoodChosen(foodId) }
+                    onMealSelected = { foodId, foodName -> vm.onFoodChosen(foodId, foodName) }
                 )
 
                 vm.errorMessage?.let { msg ->
@@ -227,20 +227,28 @@ private fun MealTypePickView(
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Card(
-                modifier = Modifier.weight(1f).height(150.dp).clickable { onPickLunch() },
+                modifier = Modifier.weight(1f).height(300.dp).clickable { onPickLunch() },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Mittagessen bestellen", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Mittagessen bestellen",
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
             Card(
-                modifier = Modifier.weight(1f).height(150.dp).clickable { onPickDinner() },
+                modifier = Modifier.weight(1f).height(300.dp).clickable { onPickDinner() },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Abendessen bestellen", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Abendessen bestellen",
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

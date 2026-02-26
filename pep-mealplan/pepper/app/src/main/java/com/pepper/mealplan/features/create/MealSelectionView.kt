@@ -2,6 +2,7 @@ package com.pepper.mealplan.features.create
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,11 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
 import com.pepper.mealplan.data.menu.MenuRepository
 import com.pepper.mealplan.network.RetrofitClient
 import com.pepper.mealplan.network.dto.ApiMealPlanDto
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private data class FoodOptionUi(
@@ -39,32 +43,25 @@ fun MealSelectionView(
     dayShort: String,
     mealStep: MealStep,               // nur MAIN oder EVENING
     onBackClick: () -> Unit,
-    onMealSelected: (Int) -> Unit,
+    onMealSelected: (Int, String) -> Unit,
     dayLabel: String
 ) {
     val menuRepository = remember { MenuRepository() }
+    val coroutineScope = rememberCoroutineScope()
 
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var options by remember { mutableStateOf<List<FoodOptionUi>>(emptyList()) }
 
     val weekDayIndex = remember(dayShort) { dayShortToIndex(dayShort) }
+    var selectedFoodId by remember(weekNumber, weekDayIndex, mealStep) { mutableStateOf<Int?>(null) }
+    var selectionLocked by remember(weekNumber, weekDayIndex, mealStep) { mutableStateOf(false) }
     val title = if (mealStep == MealStep.MAIN) "Mittagessen auswählen" else "Abendessen auswählen"
 
     // Pepper spricht freundlich
     LaunchedEffect(dayShort, mealStep) {
-        val dayText = when (dayShort) {
-            "MO" -> "Montag"
-            "DI" -> "Dienstag"
-            "MI" -> "Mittwoch"
-            "DO" -> "Donnerstag"
-            "FR" -> "Freitag"
-            "SA" -> "Samstag"
-            "SO" -> "Sonntag"
-            else -> "heute"
-        }
         val mealText = if (mealStep == MealStep.MAIN) "Mittagessen" else "Abendessen"
-        RoboterActions.speak("Alles klar. Für $dayLabel kannst du jetzt dein $mealText auswählen. Tippe bitte auf eine der beiden Speisen.")
+        RoboterActions.speak(PepperPhrases.mealSelectionIntro(dayLabel, mealText))
     }
 
     LaunchedEffect(weekNumber, weekDayIndex, mealStep) {
@@ -143,12 +140,32 @@ fun MealSelectionView(
                 FoodOptionCard(
                     option = options[0],
                     modifier = Modifier.weight(1f),
-                    onClick = { onMealSelected(options[0].foodId) }
+                    isSelected = selectedFoodId == options[0].foodId,
+                    onClick = {
+                        if (!selectionLocked) {
+                            selectionLocked = true
+                            selectedFoodId = options[0].foodId
+                            coroutineScope.launch {
+                                delay(350)
+                                onMealSelected(options[0].foodId, options[0].name)
+                            }
+                        }
+                    }
                 )
                 FoodOptionCard(
                     option = options[1],
                     modifier = Modifier.weight(1f),
-                    onClick = { onMealSelected(options[1].foodId) }
+                    isSelected = selectedFoodId == options[1].foodId,
+                    onClick = {
+                        if (!selectionLocked) {
+                            selectionLocked = true
+                            selectedFoodId = options[1].foodId
+                            coroutineScope.launch {
+                                delay(350)
+                                onMealSelected(options[1].foodId, options[1].name)
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -159,30 +176,46 @@ fun MealSelectionView(
 private fun FoodOptionCard(
     option: FoodOptionUi,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier
-            .height(300.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(360.dp)
+                .clickable { onClick() },
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            BackendImage(
-                pictureId = option.pictureId,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                BackendImage(
+                    pictureId = option.pictureId,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                if (isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0x662E7D32))
+                    )
+                }
+            }
+        }
 
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = option.name,
-                fontSize = 18.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
