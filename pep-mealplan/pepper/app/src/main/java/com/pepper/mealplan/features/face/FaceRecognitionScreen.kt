@@ -90,32 +90,32 @@ fun FaceRecognitionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 28.dp, vertical = 24.dp),
+                .padding(horizontal = 20.dp, vertical = 14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(22.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
                         text = "Gesichtserkennung",
-                        fontSize = 38.sp,
+                        fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = statusText,
-                        fontSize = 24.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF294861),
                         textAlign = TextAlign.Center
@@ -123,7 +123,7 @@ fun FaceRecognitionScreen(
                     if (devModeSkipFaceRecognition) {
                         Text(
                             text = "Testmodus aktiv",
-                            fontSize = 18.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF8A3E00)
                         )
@@ -131,7 +131,7 @@ fun FaceRecognitionScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Button(
                 onClick = {
@@ -147,8 +147,8 @@ fun FaceRecognitionScreen(
                         viewModel.takePicture()
                     }
                 },
-                modifier = Modifier.size(240.dp),
-                shape = RoundedCornerShape(120.dp),
+                modifier = Modifier.size(180.dp),
+                shape = RoundedCornerShape(90.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (errorMessage != null) Color(0xFFEF5350) else MaterialTheme.colorScheme.primary
                 ),
@@ -156,7 +156,7 @@ fun FaceRecognitionScreen(
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(74.dp),
+                        modifier = Modifier.size(54.dp),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
@@ -164,11 +164,11 @@ fun FaceRecognitionScreen(
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
                             contentDescription = "Kamera starten",
-                            modifier = Modifier.size(118.dp)
+                            modifier = Modifier.size(82.dp)
                         )
                         Text(
                             text = if (errorMessage != null) "Nochmal" else "Start",
-                            fontSize = 22.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -177,20 +177,20 @@ fun FaceRecognitionScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.96f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
             ) {
                 Text(
                     text = errorMessage
                         ?: "Wenn nichts passiert, bitte einmal auf die große Kamera-Taste tippen.",
                     color = if (errorMessage != null) MaterialTheme.colorScheme.error else Color(0xFF1F2937),
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                        .padding(horizontal = 14.dp, vertical = 12.dp)
                 )
             }
         }

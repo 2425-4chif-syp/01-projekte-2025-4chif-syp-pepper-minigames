@@ -85,7 +85,7 @@ fun MealSelectionView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(16.dp)
     ) {
         // Header
         Row(
@@ -103,7 +103,7 @@ fun MealSelectionView(
 
             Text(
                 text = title,
-                fontSize = 22.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -187,7 +187,7 @@ private fun FoodOptionCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(360.dp)
+                .height(260.dp)
                 .clickable { onClick() },
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -215,7 +215,7 @@ private fun FoodOptionCard(
         ) {
             Text(
                 text = option.name,
-                fontSize = 22.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()

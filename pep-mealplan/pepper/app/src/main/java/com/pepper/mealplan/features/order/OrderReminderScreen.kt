@@ -137,42 +137,42 @@ fun OrderReminderScreen(
                     colors = listOf(Color(0xFFF5FAFF), Color(0xFFEAF6F1))
                 )
             )
-            .padding(horizontal = 24.dp, vertical = 18.dp)
+            .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(
             text = "Bestell-Erinnerung",
-            fontSize = 38.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp)
+                .padding(top = 2.dp)
         )
 
         Text(
             text = if (foundPerson.isNotBlank()) "Hallo $foundPerson" else "Hallo",
-            fontSize = 28.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp, bottom = 10.dp)
+                .padding(top = 2.dp, bottom = 6.dp)
         )
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 14.dp),
-            shape = RoundedCornerShape(18.dp),
+                .padding(bottom = 8.dp),
+            shape = RoundedCornerShape(14.dp),
             backgroundColor = Color.White,
-            elevation = 6.dp
+            elevation = 4.dp
         ) {
             Text(
                 text = summaryText,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 16.dp),
-                fontSize = 25.sp,
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1B1B1B),
                 textAlign = TextAlign.Center
@@ -184,21 +184,21 @@ fun OrderReminderScreen(
                 .weight(1f)
                 .fillMaxWidth()
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (missingByDay.isEmpty()) {
                 Card(
-                    shape = RoundedCornerShape(18.dp),
+                    shape = RoundedCornerShape(14.dp),
                     backgroundColor = Color(0xFFE8F5E9),
-                    elevation = 4.dp,
+                    elevation = 3.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Alles erledigt.\nDu kannst den Essensplan ansehen.",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 20.dp),
-                        fontSize = 24.sp,
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         color = Color(0xFF1B5E20)
@@ -211,7 +211,7 @@ fun OrderReminderScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -225,7 +225,7 @@ fun OrderReminderScreen(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .height(80.dp),
+                    .height(64.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.primary
                 ),
@@ -234,7 +234,7 @@ fun OrderReminderScreen(
                 Text(
                     text = "Bestellung starten",
                     color = Color.White,
-                    fontSize = 24.sp,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center
                 )
@@ -247,7 +247,7 @@ fun OrderReminderScreen(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .height(80.dp),
+                    .height(64.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFF2E7D32)
                 ),
@@ -256,7 +256,7 @@ fun OrderReminderScreen(
                 Text(
                     text = "Nur Essensplan anzeigen",
                     color = Color.White,
-                    fontSize = 22.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center
                 )
@@ -271,25 +271,25 @@ private fun ReminderDayCard(day: DayMissing) {
     val niceDate = formatDateKey(day.dateKey)
 
     Card(
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(14.dp),
         backgroundColor = Color.White,
-        elevation = 5.dp,
+        elevation = 3.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = "$weekDay, $niceDate",
-                fontSize = 27.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF102A43)
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (day.lunchMissing) {
                     MissingBadge(text = "Mittagessen fehlt", color = Color(0xFFFFF3E0), textColor = Color(0xFF8A3E00))
                 }
@@ -309,13 +309,13 @@ private fun MissingBadge(
 ) {
     Card(
         backgroundColor = color,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
         elevation = 0.dp
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            fontSize = 22.sp,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = textColor
         )

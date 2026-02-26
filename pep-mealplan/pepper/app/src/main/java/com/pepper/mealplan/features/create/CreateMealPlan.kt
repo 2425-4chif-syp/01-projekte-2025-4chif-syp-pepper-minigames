@@ -99,15 +99,15 @@ private fun DaysPickView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Bestellung",
-            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 2.dp)
         )
 
         if (days.isEmpty()) {
@@ -126,13 +126,13 @@ private fun DaysPickView(
                 DayBox(
                     title = days.getOrNull(0)?.label ?: "",
                     dateText = days.getOrNull(0)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(225.dp),
+                    modifier = Modifier.weight(1f).height(160.dp),
                     onClick = { days.getOrNull(0)?.let(onDayClick) }
                 )
                 DayBox(
                     title = days.getOrNull(1)?.label ?: "",
                     dateText = days.getOrNull(1)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(225.dp),
+                    modifier = Modifier.weight(1f).height(160.dp),
                     onClick = { days.getOrNull(1)?.let(onDayClick) }
                 )
             }
@@ -141,12 +141,12 @@ private fun DaysPickView(
                 DayBox(
                     title = days.getOrNull(2)?.label ?: "",
                     dateText = days.getOrNull(2)?.displayDate ?: "",
-                    modifier = Modifier.weight(1f).height(225.dp),
+                    modifier = Modifier.weight(1f).height(160.dp),
                     onClick = { days.getOrNull(2)?.let(onDayClick) }
                 )
 
                 BackRedBox(
-                    modifier = Modifier.weight(1f).height(225.dp),
+                    modifier = Modifier.weight(1f).height(160.dp),
                     onClick = onBackClick
                 )
             }
@@ -170,12 +170,12 @@ private fun DayBox(
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = title,
-                    fontSize = 38.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = dateText,
-                    fontSize = 28.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -198,7 +198,7 @@ private fun BackRedBox(
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = "Zurück",
-                fontSize = 38.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -215,38 +215,38 @@ private fun MealTypePickView(
     onBack: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "$dayLabel – $dateText",
-            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold
         )
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Card(
-                modifier = Modifier.weight(1f).height(300.dp).clickable { onPickLunch() },
+                modifier = Modifier.weight(1f).height(190.dp).clickable { onPickLunch() },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Mittagessen bestellen",
-                        fontSize = 34.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             Card(
-                modifier = Modifier.weight(1f).height(300.dp).clickable { onPickDinner() },
+                modifier = Modifier.weight(1f).height(190.dp).clickable { onPickDinner() },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Abendessen bestellen",
-                        fontSize = 34.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }

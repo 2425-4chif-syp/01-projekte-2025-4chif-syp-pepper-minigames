@@ -110,9 +110,9 @@ sealed class BottomNavItem(val routeKey: String, val icon: ImageVector, val titl
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val items = listOf(BottomNavItem.Overview, BottomNavItem.Create, BottomNavItem.Logout)
-    val bottomNavHeight = 80.dp
-    val bottomNavIconSize = 34.dp
-    val bottomNavLabelSize = 15.sp
+    val bottomNavHeight = 48.dp
+    val bottomNavIconSize = 20.dp
+    val bottomNavLabelSize = 11.sp
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -193,13 +193,13 @@ fun AppNavigation(navController: NavHostController) {
                                             )
                                             Box(
                                                 modifier = Modifier
-                                                    .size(20.dp)
+                                                    .size(14.dp)
                                                     .align(Alignment.TopEnd)
-                                                    .offset(x = 6.dp, y = (-6).dp)
+                                                    .offset(x = 4.dp, y = (-4).dp)
                                                     .background(Color.Red, shape = CircleShape),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Text("!", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                Text("!", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     } else {
