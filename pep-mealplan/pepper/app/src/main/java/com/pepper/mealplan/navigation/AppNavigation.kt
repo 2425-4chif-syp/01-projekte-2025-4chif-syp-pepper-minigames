@@ -24,16 +24,72 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.pepper.mealplan.data.order.MealSlot
+import com.pepper.mealplan.data.order.MissingMealInfo
 import com.pepper.mealplan.data.order.MealOrderRepositoryProvider
 import com.pepper.mealplan.features.create.CreateMealPlan
 import com.pepper.mealplan.features.face.FaceRecognitionScreen
 import com.pepper.mealplan.features.order.OrderReminderScreen
 import com.pepper.mealplan.features.overview.MealPlanOverview
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
+import java.util.Locale
 
 private fun enc(s: String) = Uri.encode(s)
 private fun dec(s: String) = Uri.decode(s)
+
+private const val LUNCH_TIME_MINUTES = 12 * 60
+private const val DINNER_TIME_MINUTES = 17 * 60 + 30
+
+private fun currentDateKey(): String {
+    val cal = Calendar.getInstance()
+    return String.format(
+        Locale.US, "%04d-%02d-%02d",
+        cal.get(Calendar.YEAR),
+        cal.get(Calendar.MONTH) + 1,
+        cal.get(Calendar.DAY_OF_MONTH)
+    )
+}
+
+private fun currentMinutes(): Int {
+    val cal = Calendar.getInstance()
+    return cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+}
+
+private fun applyTodayWindow(
+    dateKey: String,
+    lunchMissing: Boolean,
+    dinnerMissing: Boolean
+): Pair<Boolean, Boolean> {
+    if (dateKey != currentDateKey()) return lunchMissing to dinnerMissing
+
+    val now = currentMinutes()
+    return when {
+        now >= DINNER_TIME_MINUTES -> false to false
+        now >= LUNCH_TIME_MINUTES -> false to dinnerMissing
+        lunchMissing -> true to false
+        else -> false to dinnerMissing
+    }
+}
+
+private fun effectiveMissingCount(missing: List<MissingMealInfo>): Int {
+    val byDate = missing.groupBy { it.dateKey }
+    var count = 0
+
+    byDate.forEach { (dateKey, entries) ->
+        val lunchMissing = entries.any { it.slot == MealSlot.MAIN1 || it.slot == MealSlot.MAIN2 }
+        val dinnerMissing = entries.any { it.slot == MealSlot.DINNER1 || it.slot == MealSlot.DINNER2 }
+        val (effectiveLunchMissing, effectiveDinnerMissing) =
+            applyTodayWindow(dateKey, lunchMissing, dinnerMissing)
+
+        if (effectiveLunchMissing) count++
+        if (effectiveDinnerMissing) count++
+    }
+
+    return count
+}
 
 private object Routes {
     const val FACE = "face_recognition"
@@ -69,20 +125,25 @@ fun AppNavigation(navController: NavHostController) {
     var showMissingDialog by remember { mutableStateOf(false) }
 
     val repo = remember { MealOrderRepositoryProvider.repository }
+    val coroutineScope = rememberCoroutineScope()
+
+    suspend fun refreshMissingCount(person: String) {
+        if (person.isBlank()) {
+            missingCount = 0
+            return
+        }
+        val missing = withContext(Dispatchers.IO) {
+            repo.getMissingMealsForNextDays(person, days = 3)
+        }
+        missingCount = effectiveMissingCount(missing)
+    }
 
     // BottomNav nur zeigen, wenn nicht Face
     val showBottomNav = currentRoute != Routes.FACE
 
     // missingCount laden (nur Lunch/Dinner)
     LaunchedEffect(activePerson) {
-        if (activePerson.isBlank()) {
-            missingCount = 0
-            return@LaunchedEffect
-        }
-        val missing = withContext(Dispatchers.IO) {
-            repo.getMissingMealsForNextDays(activePerson, days = 3)
-        }
-        missingCount = missing.count { it.slot.name.startsWith("MAIN") || it.slot.name.startsWith("DINNER") }
+        refreshMissingCount(activePerson)
     }
 
     // Nach Face Login: Missing prüfen und navigieren
@@ -92,7 +153,7 @@ fun AppNavigation(navController: NavHostController) {
         val missing = withContext(Dispatchers.IO) {
             repo.getMissingMealsForNextDays(person, days = 3)
         }
-        val hasMissing = missing.any { it.slot.name.startsWith("MAIN") || it.slot.name.startsWith("DINNER") }
+        val hasMissing = effectiveMissingCount(missing) > 0
 
         if (hasMissing) {
             navController.navigate(Routes.reminder(person)) {
@@ -149,7 +210,7 @@ fun AppNavigation(navController: NavHostController) {
                                 if (item is BottomNavItem.Create && activePerson.isNotBlank()) {
                                     if (missingCount > 0) {
                                         Text(
-                                            text = if (missingCount == 1) "1 fehlt" else "$missingCount fehlen",
+                                            text = if (missingCount == 1) "1 fehlt" else "$missingCount Bestellungen fehlen",
                                             color = Color.Red,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -238,6 +299,11 @@ fun AppNavigation(navController: NavHostController) {
 
                 CreateMealPlan(
                     foundPerson = person,
+                    onOrderSuccess = {
+                        coroutineScope.launch {
+                            refreshMissingCount(person)
+                        }
+                    },
                     onBackToMenu = {
                         navController.navigate(Routes.overview(person)) {
                             launchSingleTop = true

@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun CreateMealPlan(
     foundPerson: String = "",
     onBackToMenu: () -> Unit,
+    onOrderSuccess: () -> Unit = {},
     vm: CreateMealPlanViewModel = viewModel(
         key = "create_meal_plan_$foundPerson",
         factory = object : ViewModelProvider.Factory {
@@ -32,6 +33,12 @@ fun CreateMealPlan(
     // Wenn fertig -> Menü
     LaunchedEffect(vm.navigateToMenu) {
         if (vm.navigateToMenu) onBackToMenu()
+    }
+
+    LaunchedEffect(vm.successfulOrderVersion) {
+        if (vm.successfulOrderVersion > 0) {
+            onOrderSuccess()
+        }
     }
 
     when (vm.stage) {

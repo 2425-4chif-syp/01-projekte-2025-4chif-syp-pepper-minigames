@@ -59,6 +59,9 @@ class CreateMealPlanViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
+    var successfulOrderVersion by mutableStateOf(0)
+        private set
+
     private val ordersRepository = OrdersRepository()
     private val residentsRepository = ResidentsRepository()
     private val mealRepo = MealOrderRepositoryProvider.repository
@@ -339,6 +342,8 @@ class CreateMealPlanViewModel(
             )
 
             res.onSuccess {
+                successfulOrderVersion++
+
                 // Tag ist erledigt -> aus Liste entfernen
                 pendingDays = pendingDays.filterNot { it.dateKey == day.dateKey }
 
