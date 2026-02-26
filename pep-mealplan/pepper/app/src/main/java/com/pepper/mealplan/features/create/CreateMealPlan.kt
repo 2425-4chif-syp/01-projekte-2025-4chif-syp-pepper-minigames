@@ -20,6 +20,7 @@ fun CreateMealPlan(
     foundPerson: String = "",
     onBackToMenu: () -> Unit,
     vm: CreateMealPlanViewModel = viewModel(
+        key = "create_meal_plan_$foundPerson",
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -101,8 +102,8 @@ private fun DaysPickView(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Wenn keine Tage -> sollte eigentlich direkt ins Menü navigieren
         if (days.isEmpty()) {
+            // Wenn keine Tage -> sollte eigentlich direkt ins Menü navigieren
             Text("Es gibt nichts mehr zu bestellen.")
             Spacer(Modifier.height(12.dp))
             Button(
@@ -111,37 +112,36 @@ private fun DaysPickView(
             ) {
                 Text("Zurück", color = Color.White, fontWeight = FontWeight.Bold)
             }
-            return
-        }
+        } else {
+            // 2x2 Grid: bis zu 3 Tage + Zurück
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                DayBox(
+                    title = days.getOrNull(0)?.label ?: "",
+                    dateText = days.getOrNull(0)?.displayDate ?: "",
+                    modifier = Modifier.weight(1f).height(150.dp),
+                    onClick = { days.getOrNull(0)?.let(onDayClick) }
+                )
+                DayBox(
+                    title = days.getOrNull(1)?.label ?: "",
+                    dateText = days.getOrNull(1)?.displayDate ?: "",
+                    modifier = Modifier.weight(1f).height(150.dp),
+                    onClick = { days.getOrNull(1)?.let(onDayClick) }
+                )
+            }
 
-        // 2x2 Grid: bis zu 3 Tage + Zurück
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            DayBox(
-                title = days.getOrNull(0)?.label ?: "",
-                dateText = days.getOrNull(0)?.displayDate ?: "",
-                modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { days.getOrNull(0)?.let(onDayClick) }
-            )
-            DayBox(
-                title = days.getOrNull(1)?.label ?: "",
-                dateText = days.getOrNull(1)?.displayDate ?: "",
-                modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { days.getOrNull(1)?.let(onDayClick) }
-            )
-        }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                DayBox(
+                    title = days.getOrNull(2)?.label ?: "",
+                    dateText = days.getOrNull(2)?.displayDate ?: "",
+                    modifier = Modifier.weight(1f).height(150.dp),
+                    onClick = { days.getOrNull(2)?.let(onDayClick) }
+                )
 
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            DayBox(
-                title = days.getOrNull(2)?.label ?: "",
-                dateText = days.getOrNull(2)?.displayDate ?: "",
-                modifier = Modifier.weight(1f).height(150.dp),
-                onClick = { days.getOrNull(2)?.let(onDayClick) }
-            )
-
-            BackRedBox(
-                modifier = Modifier.weight(1f).height(150.dp),
-                onClick = onBackClick
-            )
+                BackRedBox(
+                    modifier = Modifier.weight(1f).height(150.dp),
+                    onClick = onBackClick
+                )
+            }
         }
     }
 }

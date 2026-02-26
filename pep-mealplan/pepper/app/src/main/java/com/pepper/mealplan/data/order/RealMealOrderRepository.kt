@@ -38,7 +38,10 @@ class RealMealOrderRepository(
                 val exportOrders: List<ExportOrderDto> =
                     ordersRepository.getExportedOrders(dateKey).getOrNull().orEmpty()
 
-                val orderForPerson = exportOrders.firstOrNull { it.person.id == personId }
+                // Export-Endpoint kann mehrere Tage liefern, daher zusätzlich auf das Datum filtern.
+                val orderForPerson = exportOrders.firstOrNull {
+                    it.person.id == personId && it.date == dateKey
+                }
 
                 if (orderForPerson == null) {
                     // Keine Bestellung => Mittag + Abend fehlen (Suppe/Dessert sind nicht bestellbar)

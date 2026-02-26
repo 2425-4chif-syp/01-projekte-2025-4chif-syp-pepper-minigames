@@ -177,7 +177,10 @@ class CreateMealPlanViewModel(
         viewModelScope.launch {
             val pid = personId ?: return@launch
             val exportRes = ordersRepository.getExportedOrders(day.dateKey)
-            val orderForPerson = exportRes.getOrNull()?.firstOrNull { it.person.id == pid }
+            // Export-Endpoint kann mehrere Tage liefern: daher Person + Datum filtern.
+            val orderForPerson = exportRes.getOrNull()?.firstOrNull {
+                it.person.id == pid && it.date == day.dateKey
+            }
 
             existingLunchId = orderForPerson?.selectedLunch?.id
             existingDinnerId = orderForPerson?.selectedDinner?.id

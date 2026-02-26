@@ -116,10 +116,7 @@ fun MealSelectionView(
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-            return
-        }
-
-        if (error != null) {
+        } else if (error != null) {
             Text(
                 text = error!!,
                 color = Color.Red,
@@ -137,24 +134,23 @@ fun MealSelectionView(
             ) {
                 Text("Zurück", color = Color.White, fontWeight = FontWeight.Bold)
             }
-            return
-        }
-
-        // 2 Optionen nebeneinander
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            FoodOptionCard(
-                option = options[0],
-                modifier = Modifier.weight(1f),
-                onClick = { onMealSelected(options[0].foodId) }
-            )
-            FoodOptionCard(
-                option = options[1],
-                modifier = Modifier.weight(1f),
-                onClick = { onMealSelected(options[1].foodId) }
-            )
+        } else {
+            // 2 Optionen nebeneinander
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                FoodOptionCard(
+                    option = options[0],
+                    modifier = Modifier.weight(1f),
+                    onClick = { onMealSelected(options[0].foodId) }
+                )
+                FoodOptionCard(
+                    option = options[1],
+                    modifier = Modifier.weight(1f),
+                    onClick = { onMealSelected(options[1].foodId) }
+                )
+            }
         }
     }
 }
@@ -217,15 +213,17 @@ private fun BackendImage(
     }
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        when {
-            bmp != null -> Image(
+        if (bmp != null) {
+            Image(
                 bitmap = bmp!!,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-            loading -> CircularProgressIndicator()
-            else -> Text("Kein Bild")
+        } else if (loading) {
+            CircularProgressIndicator()
+        } else {
+            Text("Kein Bild")
         }
     }
 }

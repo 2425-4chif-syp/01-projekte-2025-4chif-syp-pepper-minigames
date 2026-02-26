@@ -45,6 +45,7 @@ fun MealPlanOverview(
     foundPerson: String = "",
     onGoToOrder: () -> Unit,
     vm: MealPlanOverviewViewModel = viewModel(
+        key = "meal_plan_overview_$foundPerson",
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
@@ -518,50 +519,48 @@ fun MenuSection(
                 textAlign = TextAlign.Center
             )
         }
-        return
-    }
-
-    // 1) Wenn Base64 vorhanden, direkt dekodieren
-    LaunchedEffect(pictureBytesBase64) {
-        if (!pictureBytesBase64.isNullOrBlank()) {
-            try {
-                val decoded = android.util.Base64.decode(pictureBytesBase64, android.util.Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
-                imageBitmap = bitmap?.asImageBitmap()
-            } catch (_: Exception) {
-                imageBitmap = null
-            }
-        }
-    }
-
-    // Lade das Bild vom Backend, wenn pictureId vorhanden ist
-    LaunchedEffect(pictureId) {
-        if (pictureId != null && imageBitmap == null) {
-            isLoadingImage = true
-            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                val imageBytes = com.pepper.mealplan.network.RetrofitClient.fetchImage(pictureId)
-                if (imageBytes != null) {
-                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    } else {
+        // 1) Wenn Base64 vorhanden, direkt dekodieren
+        LaunchedEffect(pictureBytesBase64) {
+            if (!pictureBytesBase64.isNullOrBlank()) {
+                try {
+                    val decoded = android.util.Base64.decode(pictureBytesBase64, android.util.Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
                     imageBitmap = bitmap?.asImageBitmap()
+                } catch (_: Exception) {
+                    imageBitmap = null
                 }
-                isLoadingImage = false
             }
         }
-    }
 
-    Box(
-        modifier = modifier
-            .defaultMinSize(minHeight = 200.dp)
-            .background(
-                color = backgroundColor,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
+        // Lade das Bild vom Backend, wenn pictureId vorhanden ist
+        LaunchedEffect(pictureId) {
+            if (pictureId != null && imageBitmap == null) {
+                isLoadingImage = true
+                coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    val imageBytes = com.pepper.mealplan.network.RetrofitClient.fetchImage(pictureId)
+                    if (imageBytes != null) {
+                        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        imageBitmap = bitmap?.asImageBitmap()
+                    }
+                    isLoadingImage = false
+                }
+            }
+        }
+
+        Box(
+            modifier = modifier
+                .defaultMinSize(minHeight = 200.dp)
+                .background(
+                    color = backgroundColor,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(16.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             // Bild links
             if (imageBitmap != null) {
                 // Zeige das geladene Bild vom Backend
@@ -703,6 +702,7 @@ fun MenuSection(
                         )
                     }
                 }
+            }
             }
         }
     }
