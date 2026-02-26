@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepper.mealplan.BuildConfig
+import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
 import com.pepper.mealplan.data.orders.OrdersRepository
 import com.pepper.mealplan.data.residents.ResidentsRepository
@@ -274,23 +275,37 @@ class CreateMealPlanViewModel(
         stage = if (missingLunch && missingDinner) CreateStage.MEALTYPE_PICK else CreateStage.DAY_PICK
     }
 
-    fun onFoodChosen(foodId: Int) {
+    fun onFoodChosen(foodId: Int, foodName: String) {
         errorMessage = null
         val day = selectedDay ?: return
+        val mealText = if (currentMealStep == MealStep.MAIN) "Mittagessen" else "Abendessen"
 
         // Fall A: beide fehlen -> erst sammeln, dann nach 2. Auswahl speichern
         if (missingLunch && missingDinner) {
             if (currentMealStep == MealStep.MAIN) {
                 tempLunchId = foodId
+                RoboterActions.stopSpeaking()
+                RoboterActions.speak(
+                    PepperPhrases.mealChoicePraise(
+                        foodName = foodName,
+                        mealText = mealText,
+                        nextMealText = "Abendessen"
+                    )
+                )
                 // Direkt Abend-Auswahl zeigen
                 currentMealStep = MealStep.EVENING
                 stage = CreateStage.MEAL_SELECTION
-                // Pepper kann optional kurz sagen, dass jetzt Abendessen kommt:
-                RoboterActions.stopSpeaking()
-                RoboterActions.speak("Gut. Jetzt fehlt noch das Abendessen für ${day.label}.")
                 return
             } else {
                 tempDinnerId = foodId
+                RoboterActions.stopSpeaking()
+                RoboterActions.speak(
+                    PepperPhrases.mealChoicePraise(
+                        foodName = foodName,
+                        mealText = mealText,
+                        nextMealText = null
+                    )
+                )
                 // Jetzt haben wir beide -> speichern
                 val lunchId = tempLunchId
                 val dinnerId = tempDinnerId
@@ -310,6 +325,14 @@ class CreateMealPlanViewModel(
                 errorMessage = "Abendessen ist nicht vorhanden – bitte später beide auswählen."
                 return
             }
+            RoboterActions.stopSpeaking()
+            RoboterActions.speak(
+                PepperPhrases.mealChoicePraise(
+                    foodName = foodName,
+                    mealText = mealText,
+                    nextMealText = null
+                )
+            )
             submitUpsert(day, foodId, dinnerId)
             return
         }
@@ -321,6 +344,14 @@ class CreateMealPlanViewModel(
                 errorMessage = "Mittagessen ist nicht vorhanden – bitte später beide auswählen."
                 return
             }
+            RoboterActions.stopSpeaking()
+            RoboterActions.speak(
+                PepperPhrases.mealChoicePraise(
+                    foodName = foodName,
+                    mealText = mealText,
+                    nextMealText = null
+                )
+            )
             submitUpsert(day, lunchId, foodId)
             return
         }

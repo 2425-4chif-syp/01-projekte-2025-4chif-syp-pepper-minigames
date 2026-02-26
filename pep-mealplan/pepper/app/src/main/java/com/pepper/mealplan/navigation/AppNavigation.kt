@@ -205,7 +205,7 @@ fun AppNavigation(navController: NavHostController) {
                                     } else {
                                         Icon(
                                             Icons.Default.Check,
-                                            contentDescription = "Alles ok",
+                                            contentDescription = "Alles Bestellt",
                                             tint = Color(0xFF2E7D32),
                                             modifier = Modifier.size(bottomNavIconSize)
                                         )
@@ -222,14 +222,14 @@ fun AppNavigation(navController: NavHostController) {
                                 if (item is BottomNavItem.Create && activePerson.isNotBlank()) {
                                     if (missingCount > 0) {
                                         Text(
-                                            text = if (missingCount == 1) "1 fehlt" else "$missingCount Bestellungen fehlen",
+                                            text = if (missingCount == 1) "1 Bestellung fehlt" else "$missingCount Bestellungen fehlen",
                                             color = Color.Red,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = bottomNavLabelSize
                                         )
                                     } else {
                                         Text(
-                                            "Alles ok",
+                                            "Alles bestellt",
                                             color = Color(0xFF2E7D32),
                                             fontWeight = FontWeight.Bold,
                                             fontSize = bottomNavLabelSize

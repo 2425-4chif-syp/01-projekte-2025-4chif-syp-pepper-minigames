@@ -31,6 +31,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.pepper.mealplan.R
+import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -243,13 +244,13 @@ private fun DayPager(
 
         val onReadMenu: () -> Unit = {
             coroutineScope.launch(Dispatchers.IO) {
-                RoboterActions.speak(speechTextMeals)
+                RoboterActions.speak(PepperPhrases.menuReadSpeech(speechTextMeals))
             }
         }
 
         val onExplainNav: () -> Unit = {
             coroutineScope.launch(Dispatchers.IO) {
-                RoboterActions.speak(speechTextNav)
+                RoboterActions.speak(PepperPhrases.navigationSpeech(speechTextNav))
             }
         }
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
 import com.pepper.mealplan.data.order.MealOrderRepositoryProvider
 import com.pepper.mealplan.data.order.MealSlot
@@ -103,7 +104,7 @@ fun OrderReminderScreen(
 
     // ---------- Text für Pepper ----------
     val speechText = remember(missingByDay) {
-        if (missingByDay.isEmpty()) {
+        val baseText = if (missingByDay.isEmpty()) {
             namePart + "alle Mahlzeiten der nächsten drei Tage sind bereits bestellt."
         } else if (missingByDay.size == 1) {
             val first = missingByDay.first()
@@ -128,6 +129,7 @@ fun OrderReminderScreen(
                     " Drücke auf den blauen Button, um mit der Bestellung fortzufahren. " +
                     "Wenn du nur den Essensplan ansehen möchtest, drücke auf den grünen Button."
         }
+        PepperPhrases.reminderSpeech(baseText)
     }
 
     // ---------- Pepper sprechen ----------
