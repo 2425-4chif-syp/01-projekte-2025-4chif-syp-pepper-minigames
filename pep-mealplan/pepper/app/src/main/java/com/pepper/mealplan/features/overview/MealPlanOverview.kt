@@ -323,12 +323,17 @@ private fun SoupScreen(
         )
 
         soup?.let {
+
+            val isMissing = (it.foodName == "Keine Angabe" || it.foodName.isBlank())
+
             MenuSection(
                 title = it.title,
                 foodName = it.foodName,
                 backgroundColor = Color(0xFFE3F2FD),
                 foodType = it.foodType,
                 pictureId = it.pictureId,
+                isMissing = isMissing,
+                missingText = "Du hast keine Suppe bestellt.",
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -370,6 +375,7 @@ private fun MiddayScreen(
                 foodType = it.foodType,
                 pictureId = it.pictureId,
                 isMissing = (status?.lunchOrdered == false), // <-- neu
+                missingText = "Du hast kein Mittagessen bestellt.",
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -402,12 +408,16 @@ private fun DessertScreen(
         )
 
         dessert?.let {
+            val isMissing = (it.foodName == "Keine Angabe" || it.foodName.isBlank())
+
             MenuSection(
                 title = it.title,
                 foodName = it.foodName,
                 backgroundColor = Color(0xFFFFF3E0),
                 foodType = it.foodType,
                 pictureId = it.pictureId,
+                isMissing = isMissing,
+                missingText = "Du hast kein Dessert bestellt.",
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -449,6 +459,7 @@ private fun DinnerScreen(
                 foodType = it.foodType,
                 pictureId = it.pictureId,
                 isMissing = (status?.dinnerOrdered == false), // <-- neu
+                missingText = "Du hast kein Abendessen bestellt.",
                 onReadMenu = onReadMenu,
                 onExplainNav = onExplainNav,
                 modifier = Modifier
@@ -480,6 +491,7 @@ fun MenuSection(
     pictureId: Int? = null,
     pictureBytesBase64: String? = null,
     isMissing: Boolean = false,
+    missingText: String? = null,
     onReadMenu: (() -> Unit)? = null,
     onExplainNav: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -493,15 +505,15 @@ fun MenuSection(
             modifier = modifier
                 .fillMaxWidth()
                 .height(220.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(backgroundColor)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Diese Mahlzeit hast du noch nicht bestellt.",
+                text = missingText ?: "Du hast nichts bestellt.",
                 color = Color.Red,
-                fontSize = 22.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
