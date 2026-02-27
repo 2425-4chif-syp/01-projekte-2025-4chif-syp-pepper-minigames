@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pepper.mealplan.PepperPhrases
+import com.pepper.mealplan.RoboterActions
 
 @Composable
 fun CreateMealPlan(
@@ -96,6 +98,11 @@ private fun DaysPickView(
     onDayClick: (NextDayUi) -> Unit,
     onBackClick: () -> Unit
 ) {
+    LaunchedEffect(days.map { it.label }) {
+        RoboterActions.stopSpeaking()
+        RoboterActions.speak(PepperPhrases.daySelectionIntro(days.map { it.label }))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -214,6 +221,11 @@ private fun MealTypePickView(
     onPickDinner: () -> Unit,
     onBack: () -> Unit
 ) {
+    LaunchedEffect(dayLabel, dateText) {
+        RoboterActions.stopSpeaking()
+        RoboterActions.speak(PepperPhrases.mealTypeSelectionIntro(dayLabel))
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

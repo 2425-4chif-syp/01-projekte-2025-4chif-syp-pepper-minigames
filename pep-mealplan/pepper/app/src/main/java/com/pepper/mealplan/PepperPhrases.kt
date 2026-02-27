@@ -74,6 +74,32 @@ object PepperPhrases {
         )
     )
 
+    fun daySelectionIntro(dayLabels: List<String>): String {
+        val dayText = when (dayLabels.size) {
+            0 -> "Im Moment gibt es nichts mehr zu bestellen."
+            1 -> dayLabels[0]
+            2 -> "${dayLabels[0]} oder ${dayLabels[1]}"
+            else -> "${dayLabels[0]}, ${dayLabels[1]} oder ${dayLabels[2]}"
+        }
+        return rotate(
+            key = "day_selection_intro",
+            options = listOf(
+                "Bitte waehle zuerst den Tag aus. Du kannst $dayText antippen.",
+                "Wir beginnen mit dem Tag. Tippe bitte auf $dayText.",
+                "Schau bitte auf die grossen Felder und waehle den passenden Tag aus: $dayText."
+            )
+        )
+    }
+
+    fun mealTypeSelectionIntro(dayLabel: String): String = rotate(
+        key = "meal_type_intro",
+        options = listOf(
+            "Fuer $dayLabel kannst du jetzt waehlen, ob du Mittagessen oder Abendessen bestellen moechtest. Tippe bitte auf die passende Mahlzeit.",
+            "Jetzt geht es um $dayLabel. Bitte tippe auf Mittagessen oder auf Abendessen.",
+            "Als Naechstes waehle bitte die Mahlzeit fuer $dayLabel aus. Du kannst Mittagessen oder Abendessen antippen."
+        )
+    )
+
     fun mealChoicePraise(foodName: String, mealText: String, nextMealText: String?): String {
         val nextPart = if (nextMealText != null) {
             " Lass uns jetzt noch $nextMealText auswaehlen."
