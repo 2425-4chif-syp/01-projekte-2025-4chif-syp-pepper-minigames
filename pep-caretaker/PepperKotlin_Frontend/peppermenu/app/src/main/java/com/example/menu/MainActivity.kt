@@ -1,6 +1,5 @@
 package com.example.menu
 
-import MainMenuScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.navigation.compose.NavHost
@@ -22,6 +21,7 @@ import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.menu.common.Extras
+import com.example.menu.screens.MainMenuScreen
 import com.example.menu.viewmodel.LoginScreenViewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
