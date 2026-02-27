@@ -1,6 +1,5 @@
 package com.pepper.mealplan.features.create
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +25,7 @@ import com.pepper.mealplan.RoboterActions
 import com.pepper.mealplan.data.menu.MenuRepository
 import com.pepper.mealplan.network.RetrofitClient
 import com.pepper.mealplan.network.dto.ApiMealPlanDto
+import com.pepper.mealplan.util.decodeSampledBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -239,7 +239,7 @@ private fun BackendImage(
         loading = true
         val bytes = withContext(Dispatchers.IO) { RetrofitClient.fetchImage(pictureId) }
         if (bytes != null) {
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val bitmap = decodeSampledBitmap(bytes, reqWidth = 512, reqHeight = 512)
             bmp = bitmap?.asImageBitmap()
         }
         loading = false

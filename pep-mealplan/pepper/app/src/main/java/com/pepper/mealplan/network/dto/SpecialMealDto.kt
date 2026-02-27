@@ -1,9 +1,7 @@
 package com.pepper.mealplan.network.dto
 
-import java.time.LocalDate
-
 data class SpecialMealDto(
-    val date: LocalDate,
+    val date: String,
     val soupId: Int? = null,
     val m1Id: Int? = null,
     val m2Id: Int? = null,

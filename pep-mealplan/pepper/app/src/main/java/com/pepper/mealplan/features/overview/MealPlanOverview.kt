@@ -33,6 +33,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.pepper.mealplan.R
 import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
+import com.pepper.mealplan.util.decodeSampledBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -526,7 +527,7 @@ fun MenuSection(
             if (!pictureBytesBase64.isNullOrBlank()) {
                 try {
                     val decoded = android.util.Base64.decode(pictureBytesBase64, android.util.Base64.DEFAULT)
-                    val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
+                    val bitmap = decodeSampledBitmap(decoded, reqWidth = 480, reqHeight = 480)
                     imageBitmap = bitmap?.asImageBitmap()
                 } catch (_: Exception) {
                     imageBitmap = null
@@ -541,7 +542,7 @@ fun MenuSection(
                 coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                     val imageBytes = com.pepper.mealplan.network.RetrofitClient.fetchImage(pictureId)
                     if (imageBytes != null) {
-                        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        val bitmap = decodeSampledBitmap(imageBytes, reqWidth = 480, reqHeight = 480)
                         imageBitmap = bitmap?.asImageBitmap()
                     }
                     isLoadingImage = false

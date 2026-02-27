@@ -6,7 +6,7 @@ object PepperPhrases {
     @Synchronized
     private fun rotate(key: String, options: List<String>): String {
         if (options.isEmpty()) return ""
-        val idx = counters.getOrDefault(key, 0) % options.size
+        val idx = (counters[key] ?: 0) % options.size
         counters[key] = idx + 1
         return options[idx]
     }
