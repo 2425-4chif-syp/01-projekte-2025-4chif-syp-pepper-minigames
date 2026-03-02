@@ -71,15 +71,11 @@ fun CreateMealPlan(
                     weekNumber = day.weekNumber,
                     dayShort = day.dayShort,
                     mealStep = vm.currentMealStep,
+                    selectionKey = vm.mealSelectionVersion,
                     dayLabel = day.label,            // ✅ brauchst du in MealSelectionView (siehe unten)
                     onBackClick = { vm.onSelectionBack() },
                     onMealSelected = { foodId, foodName -> vm.onFoodChosen(foodId, foodName) }
                 )
-
-                vm.errorMessage?.let { msg ->
-                    // optional: du kannst später einen Snackbar/Overlay machen
-                    // aktuell lassen wir es still, weil UI sonst unruhig wird
-                }
             } else {
                 // Fallback
                 DaysPickView(
@@ -89,6 +85,19 @@ fun CreateMealPlan(
                 )
             }
         }
+    }
+
+    vm.errorMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { vm.clearError() },
+            title = { Text("Fehler") },
+            text = { Text(msg) },
+            confirmButton = {
+                TextButton(onClick = { vm.clearError() }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 

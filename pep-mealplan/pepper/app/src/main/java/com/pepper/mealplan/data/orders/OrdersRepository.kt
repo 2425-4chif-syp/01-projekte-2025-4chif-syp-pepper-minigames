@@ -12,8 +12,8 @@ class OrdersRepository {
     suspend fun upsertOrder(
         date: String,
         personId: Int,
-        selectedLunchId: Int,
-        selectedDinnerId: Int
+        selectedLunchId: Int?,
+        selectedDinnerId: Int?
     ): Result<Any> = withContext(Dispatchers.IO) {
         try {
             val payload = OrderUpsertDto(

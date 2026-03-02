@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.pepper.mealplan.BuildConfig
 import com.pepper.mealplan.PepperPhrases
 import com.pepper.mealplan.RoboterActions
+import com.pepper.mealplan.data.menu.MenuRepository
 import com.pepper.mealplan.data.orders.OrdersRepository
 import com.pepper.mealplan.data.residents.ResidentsRepository
 import com.pepper.mealplan.data.order.MealOrderRepositoryProvider
@@ -63,8 +64,12 @@ class CreateMealPlanViewModel(
     var successfulOrderVersion by mutableStateOf(0)
         private set
 
+    var mealSelectionVersion by mutableStateOf(0)
+        private set
+
     private val ordersRepository = OrdersRepository()
     private val residentsRepository = ResidentsRepository()
+    private val menuRepository = MenuRepository()
     private val mealRepo = MealOrderRepositoryProvider.repository
 
     private val lunchTimeMinutes = 12 * 60
@@ -75,6 +80,7 @@ class CreateMealPlanViewModel(
     // Wenn nur eine fehlt: andere aus Export übernehmen
     private var existingLunchId: Int? = null
     private var existingDinnerId: Int? = null
+    private var fallbackLunchIdForTodayDinnerOnly: Int? = null
 
     // Wenn beide fehlen: erst nach der 2. Auswahl speichern
     private var tempLunchId: Int? = null
@@ -209,9 +215,16 @@ class CreateMealPlanViewModel(
 
             existingLunchId = orderForPerson?.selectedLunch?.id
             existingDinnerId = orderForPerson?.selectedDinner?.id
+            fallbackLunchIdForTodayDinnerOnly = null
 
             tempLunchId = null
             tempDinnerId = null
+
+            if (day.dateKey == todayDateKey() && !missingLunch && missingDinner && existingLunchId == null) {
+                val menuRes = menuRepository.getMenuForDate(day.weekNumber, dayShortToIndex(day.dayShort))
+                val menu = menuRes.getOrNull()
+                fallbackLunchIdForTodayDinnerOnly = menu?.lunch1?.id ?: menu?.lunch2?.id
+            }
 
             if (missingLunch && missingDinner) {
                 stage = CreateStage.MEALTYPE_PICK
@@ -267,7 +280,12 @@ class CreateMealPlanViewModel(
 
     private fun startSelection(type: MissingMealType) {
         currentMealStep = if (type == MissingMealType.LUNCH) MealStep.MAIN else MealStep.EVENING
+        mealSelectionVersion++
         stage = CreateStage.MEAL_SELECTION
+    }
+
+    fun clearError() {
+        errorMessage = null
     }
 
     fun onSelectionBack() {
@@ -326,8 +344,9 @@ class CreateMealPlanViewModel(
         // Fall B: nur Lunch fehlt -> sofort speichern mit bestehendem Dinner
         if (missingLunch && !missingDinner) {
             val dinnerId = existingDinnerId
-            if (dinnerId == null) {
+            if (dinnerId == null && day.dateKey != todayDateKey()) {
                 errorMessage = "Abendessen ist nicht vorhanden – bitte später beide auswählen."
+                mealSelectionVersion++
                 return
             }
             RoboterActions.stopSpeaking()
@@ -338,15 +357,24 @@ class CreateMealPlanViewModel(
                     nextMealText = null
                 )
             )
-            submitUpsert(day, foodId, dinnerId)
+            submitUpsert(day, lunchId = foodId, dinnerId = dinnerId)
             return
         }
 
         // Fall C: nur Dinner fehlt -> sofort speichern mit bestehendem Lunch
         if (!missingLunch && missingDinner) {
-            val lunchId = existingLunchId
+            val lunchId = existingLunchId ?: if (day.dateKey == todayDateKey()) {
+                fallbackLunchIdForTodayDinnerOnly
+            } else {
+                null
+            }
             if (lunchId == null) {
-                errorMessage = "Mittagessen ist nicht vorhanden – bitte später beide auswählen."
+                errorMessage = if (day.dateKey == todayDateKey()) {
+                    "Mittagessen konnte nicht automatisch gesetzt werden."
+                } else {
+                    "Mittagessen ist nicht vorhanden – bitte später beide auswählen."
+                }
+                mealSelectionVersion++
                 return
             }
             RoboterActions.stopSpeaking()
@@ -357,16 +385,17 @@ class CreateMealPlanViewModel(
                     nextMealText = null
                 )
             )
-            submitUpsert(day, lunchId, foodId)
+            submitUpsert(day, lunchId = lunchId, dinnerId = foodId)
             return
         }
     }
 
-    private fun submitUpsert(day: NextDayUi, lunchId: Int, dinnerId: Int) {
+    private fun submitUpsert(day: NextDayUi, lunchId: Int?, dinnerId: Int?) {
         viewModelScope.launch {
             val pid = personId
             if (pid == null) {
                 errorMessage = "Person nicht gefunden"
+                mealSelectionVersion++
                 return@launch
             }
 
@@ -389,6 +418,7 @@ class CreateMealPlanViewModel(
                 missingDinner = false
                 existingLunchId = null
                 existingDinnerId = null
+                fallbackLunchIdForTodayDinnerOnly = null
                 tempLunchId = null
                 tempDinnerId = null
                 errorMessage = null
@@ -401,6 +431,7 @@ class CreateMealPlanViewModel(
                 }
             }.onFailure { e ->
                 errorMessage = "Fehler beim Speichern: ${e.message}"
+                mealSelectionVersion++
             }
         }
     }
@@ -434,5 +465,16 @@ class CreateMealPlanViewModel(
         var index = diffWeeks % 4
         if (index < 0) index += 4
         return index + 1
+    }
+
+    private fun dayShortToIndex(dayShort: String): Int = when (dayShort) {
+        "MO" -> 0
+        "DI" -> 1
+        "MI" -> 2
+        "DO" -> 3
+        "FR" -> 4
+        "SA" -> 5
+        "SO" -> 6
+        else -> 0
     }
 }

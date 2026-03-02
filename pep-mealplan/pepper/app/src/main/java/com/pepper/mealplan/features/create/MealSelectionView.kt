@@ -42,6 +42,7 @@ fun MealSelectionView(
     weekNumber: Int,
     dayShort: String,
     mealStep: MealStep,               // nur MAIN oder EVENING
+    selectionKey: Int,
     onBackClick: () -> Unit,
     onMealSelected: (Int, String) -> Unit,
     dayLabel: String
@@ -54,8 +55,8 @@ fun MealSelectionView(
     var options by remember { mutableStateOf<List<FoodOptionUi>>(emptyList()) }
 
     val weekDayIndex = remember(dayShort) { dayShortToIndex(dayShort) }
-    var selectedFoodId by remember(weekNumber, weekDayIndex, mealStep) { mutableStateOf<Int?>(null) }
-    var selectionLocked by remember(weekNumber, weekDayIndex, mealStep) { mutableStateOf(false) }
+    var selectedFoodId by remember(weekNumber, weekDayIndex, mealStep, selectionKey) { mutableStateOf<Int?>(null) }
+    var selectionLocked by remember(weekNumber, weekDayIndex, mealStep, selectionKey) { mutableStateOf(false) }
     val title = if (mealStep == MealStep.MAIN) "Mittagessen auswählen" else "Abendessen auswählen"
 
     // Pepper spricht freundlich
