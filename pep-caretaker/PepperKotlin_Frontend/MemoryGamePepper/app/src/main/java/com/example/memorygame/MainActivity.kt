@@ -1,5 +1,6 @@
 package com.example.memorygame
 
+import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
@@ -12,17 +13,23 @@ import androidx.navigation.navArgument
 import com.example.memorygame.common.Extras
 import com.example.memorygame.data.model.PersonIntent
 import com.example.memorygame.data.remote.NetworkModule
+import com.example.memorygame.data.remote.PersonApi
 import com.example.memorygame.ui.menu.MainMenuScreen
 import com.example.memorygame.ui.screens.*
 import com.example.memorygame.ui.theme.MemoryGameTheme
 import java.util.Locale
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.example.memorygame.data.repository.IntentPersonProvider
-import com.example.memorygame.data.repository.MockPersonProvider
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech
+    private lateinit var personApi: PersonApi
+    private var personFromIntent by mutableStateOf<PersonIntent?>(null)
+    private var personId by mutableStateOf(-1L)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,18 +38,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
 
         // Per Intent die person holen und einstezten
-        val personApi = NetworkModule.providePersonApi()
-
-        // nur zum Testen/Mock
-        /*val mockPersonProvider = MockPersonProvider(2L, personApi)
-        val personProviderMock = runBlocking { mockPersonProvider.getPerson() }
-        val personId: Long = personProviderMock.id*/
-
-        val personProvider = IntentPersonProvider(intent, personApi)
-        val personFromIntent: PersonIntent? = runBlocking {
-            IntentPersonProvider(intent, personApi).getPerson()
-        }
-        val personId: Long = personFromIntent?.id ?: intent.getLongExtra(Extras.PERSON_ID, -1L)
+        personApi = NetworkModule.providePersonApi()
+        updatePersonFromIntent(intent)
 
 
         setContent {
@@ -102,8 +99,25 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent == null) return
+
+        setIntent(intent)
+        updatePersonFromIntent(intent)
+    }
+
     override fun onDestroy() {
         textToSpeech.shutdown()
         super.onDestroy()
+    }
+
+    private fun updatePersonFromIntent(intent: Intent) {
+        val resolvedPerson: PersonIntent? = runBlocking {
+            IntentPersonProvider(intent, personApi).getPerson()
+        }
+
+        personFromIntent = resolvedPerson
+        personId = resolvedPerson?.id ?: intent.getLongExtra(Extras.PERSON_ID, -1L)
     }
 }
