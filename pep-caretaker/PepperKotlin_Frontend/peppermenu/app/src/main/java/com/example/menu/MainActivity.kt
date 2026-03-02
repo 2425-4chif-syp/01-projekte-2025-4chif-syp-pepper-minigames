@@ -1,5 +1,6 @@
 package com.example.menu
 
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.navigation.compose.NavHost
@@ -106,6 +107,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
             return
         }
         val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             putExtra(Extras.PERSON_ID, personId)
         }
         if (intent != null) {
