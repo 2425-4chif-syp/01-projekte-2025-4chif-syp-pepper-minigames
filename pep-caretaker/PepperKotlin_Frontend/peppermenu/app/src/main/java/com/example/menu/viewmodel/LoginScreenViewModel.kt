@@ -23,15 +23,16 @@ import java.util.*
 class LoginScreenViewModel(application: Application) : AndroidViewModel(application) {
 
     //Zustand für den ausgewählten Namen
-    var selectedName = mutableStateOf("Anna Müller")
+    var selectedName = mutableStateOf("")
         private set
 
     // Zustand für den ausgewähltes Geschlecht
-    var selectedGender = mutableStateOf("Frau")
+    var selectedGender = mutableStateOf("")
         private set
 
     // ausgewählte Person von den Anmeldevorgang
-    var selectedPerson : Person? = null
+    var selectedPerson = mutableStateOf<Person?>(null)
+        private set
 
     //Personenlsite der Bewohner + Arbeiter
     var persons : List<Person>? = null
@@ -136,11 +137,15 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
             RoboterActions.speak("Ich konnte keine richitge Person finden!")
         }
         else{
-            selectedPerson = rightPerson
-            setName(firstName + " " + lastName)
-            setGender(rightPerson.gender)
+            selectPerson(rightPerson)
             RoboterActions.speak("Sind Sie ${rightPerson.firstName + rightPerson.lastName}")
         }
+    }
+
+    fun selectPerson(person: Person) {
+        selectedPerson.value = person
+        setName(person.firstName + " " + person.lastName)
+        setGender(person.gender)
     }
 
     // Name setzen für Screen

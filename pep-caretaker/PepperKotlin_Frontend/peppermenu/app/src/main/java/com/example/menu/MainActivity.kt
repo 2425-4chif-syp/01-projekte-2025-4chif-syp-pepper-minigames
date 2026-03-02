@@ -63,10 +63,10 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
                             LoginScreen(
                                 onLoginClick = { id ->
-                                    launchExternalApp(packageName, id)
+                                    launchExternalApp(packageName, id, requireValidPerson = true)
                                 },
                                 onContinueWithoutLogin = {
-                                    launchExternalApp(packageName, -1L) // als Long übergeben
+                                    launchExternalApp(packageName, -1L, requireValidPerson = false)
                                 },
                                 navController = navController,
                                 viewModel = vm
@@ -99,8 +99,8 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         }
     }
 
-    private fun launchExternalApp(packageName: String, personId: Long) {
-        if (personId < 0L) {
+    private fun launchExternalApp(packageName: String, personId: Long, requireValidPerson: Boolean) {
+        if (requireValidPerson && personId < 0L) {
             Log.e("PepperMenu", "Abbruch: ungültige person_id=$personId")
             Toast.makeText(this, "Bitte zuerst eine Person auswählen", Toast.LENGTH_SHORT).show()
             return

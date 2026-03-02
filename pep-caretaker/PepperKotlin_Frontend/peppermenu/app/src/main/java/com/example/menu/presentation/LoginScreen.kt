@@ -64,7 +64,9 @@ fun LoginScreen(
     viewModel: LoginScreenViewModel
 ) {
     val selectedName by viewModel.selectedName
+    val selectedPerson by viewModel.selectedPerson
     val isLoading by viewModel.isLoading
+    val hasSelection = selectedPerson != null && selectedName.isNotBlank()
     var permissionGranted by remember { mutableStateOf(false) }
 
     val backgroundBrush = remember {
@@ -80,8 +82,6 @@ fun LoginScreen(
     val panelBorder = Color(0xFFE7DCCF)
     val accentColor = Color(0xFF2D6A4F)
     val mutedTextColor = Color(0xFF425466)
-    val selectedDisplayName = selectedName.takeIf { it.isNotBlank() } ?: "Noch nichts ausgewählt"
-
     RequestAudioPermission {
         permissionGranted = true
         Log.d("LoginScreen", "Audio-Berechtigung wurde erteilt.")
@@ -153,7 +153,7 @@ fun LoginScreen(
                     ) {
                         Button(
                             onClick = {
-                                val id = viewModel.selectedPerson?.pid?.toLong() ?: -1L
+                                val id = selectedPerson?.pid?.toLong() ?: return@Button
                                 Log.d("LoginScreen", "onLoginClick -> id=$id")
                                 RoboterActions.speak("Alles klar. Ich bestätige jetzt deine Anmeldung.")
                                 onLoginClick(id)
@@ -166,7 +166,7 @@ fun LoginScreen(
                                 contentColor = Color(0xFF14311F),
                             ),
                             shape = RoundedCornerShape(18.dp),
-                            enabled = !isLoading
+                            enabled = !isLoading && hasSelection
                         ) {
                             Text(
                                 text = "Anmeldung bestätigen",
@@ -224,12 +224,21 @@ fun LoginScreen(
                                 color = Color(0xFF24323D)
                             )
 
-                            Text(
-                                text = "Ausgewählt: $selectedDisplayName",
-                                fontSize = 15.sp,
-                                lineHeight = 22.sp,
-                                color = mutedTextColor
-                            )
+                            if (hasSelection) {
+                                Text(
+                                    text = "Ausgewählt: $selectedName",
+                                    fontSize = 15.sp,
+                                    lineHeight = 22.sp,
+                                    color = mutedTextColor
+                                )
+                            } else {
+                                Text(
+                                    text = "Noch niemand ausgewählt. Tippe einen Namen an oder nutze die Gesichtserkennung.",
+                                    fontSize = 15.sp,
+                                    lineHeight = 22.sp,
+                                    color = mutedTextColor
+                                )
+                            }
 
                             val scrollState = rememberLazyListState()
                             LazyColumn(
@@ -244,9 +253,7 @@ fun LoginScreen(
                                         onClick = {
                                             val p = viewModel.persons?.getOrNull(index)
                                             if (p != null) {
-                                                viewModel.selectedPerson = p
-                                                viewModel.setName("${p.firstName} ${p.lastName}")
-                                                viewModel.setGender(p.gender)
+                                                viewModel.selectPerson(p)
                                                 Log.d("LoginScreen", "Selected pid=${p.pid} name=${p.firstName} ${p.lastName}")
                                                 RoboterActions.speak("Ausgewählt: ${p.firstName} ${p.lastName}. Wenn alles passt, drücke auf Anmeldung bestätigen.")
                                             } else {
