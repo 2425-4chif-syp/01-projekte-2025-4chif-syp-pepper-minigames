@@ -62,7 +62,7 @@ export class ResidentsComponent {
 
   // Zähler für Filter-Buttons
   workersCount = computed(() => this.residents().filter(p => p.isWorker === true).length);
-  residentsCount = computed(() => this.residents().filter(p => p.isWorker === false).length);
+  residentsCount = computed(() => this.residents().filter(p => p.isWorker === false).length + 1);
 
   ngOnInit() {
     this.getAllResidents();
