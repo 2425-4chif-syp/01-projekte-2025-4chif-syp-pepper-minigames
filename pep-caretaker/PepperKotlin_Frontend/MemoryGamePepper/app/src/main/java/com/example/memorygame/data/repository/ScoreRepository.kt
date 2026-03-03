@@ -6,7 +6,7 @@ import com.example.memorygame.data.remote.ScoreApi
 import com.example.memorygame.data.remote.ScoreRequest
 
 object ScoreRepository {
-    private val api: ScoreApi = NetworkModule.retrofit.create(ScoreApi::class.java)
+    private val api: ScoreApi = NetworkModule.provideScoreApi()
 
     suspend fun getScoresForPlayer(playerId: Long): List<PlayerScore> {
         return try {
@@ -35,6 +35,5 @@ object ScoreRepository {
             false
         }
     }
-
 }
 
