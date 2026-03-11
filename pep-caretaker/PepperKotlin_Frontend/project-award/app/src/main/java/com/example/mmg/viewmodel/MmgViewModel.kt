@@ -65,7 +65,7 @@ class MmgViewModel() : ViewModel() {
         
         stepsFinished.value = true
         resetStepCount()
-        RoboterActions.speak("Die Geschichte ist zu Ende!")
+        RoboterActions.speak("The story is finished!")
         kotlinx.coroutines.delay(2000L)
         navigationCallback?.invoke()
     }
@@ -75,7 +75,7 @@ class MmgViewModel() : ViewModel() {
         if(_stepCount.value >= _mmgSteps.value.size){
             if(!stepsFinished.value) {
                 stepsFinished.value = true
-                RoboterActions.speak("Die Geschichte ist zu Ende!")
+                RoboterActions.speak("The story is finished!")
                 resetStepCount()
             }
             return
@@ -108,7 +108,7 @@ class MmgViewModel() : ViewModel() {
 
         if(_stepCount.value >= _mmgSteps.value.size){
             stepsFinished.value = true
-            RoboterActions.speak("Die Geschichte ist zu Ende!")
+            RoboterActions.speak("The story is finished!")
         }
     }
 
@@ -134,10 +134,10 @@ class MmgViewModel() : ViewModel() {
         var emoteName = ""
 
         if(stepDto.durationInSeconds == 0){
-            emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + "5"
+            emoteName = stepDto.move!!.name.lowercase(Locale.ENGLISH) + "_" + "5"
         }
         else{
-            emoteName = stepDto.move!!.name.lowercase(Locale.GERMAN) + "_" + stepDto.durationInSeconds.toString()
+            emoteName = stepDto.move!!.name.lowercase(Locale.ENGLISH) + "_" + stepDto.durationInSeconds.toString()
         }
 
         val rightEmote : EmoteDto? = emotes.filter{
@@ -169,7 +169,7 @@ class MmgViewModel() : ViewModel() {
                 }
             }
             else{
-                RoboterActions.speak("Ich habe keine Mitmachgeschichten gefunden")
+                RoboterActions.speak("I couldn't find any interactive stories")
             }
         }
     }
@@ -198,7 +198,7 @@ class MmgViewModel() : ViewModel() {
                 }
             }
             else{
-                RoboterActions.speak("Ich habe keine Informationen gefunden!")
+                RoboterActions.speak("I couldn't find any information!")
             }
         }
     }

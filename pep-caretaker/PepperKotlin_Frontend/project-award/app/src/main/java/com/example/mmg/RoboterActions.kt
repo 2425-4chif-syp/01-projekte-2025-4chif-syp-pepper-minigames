@@ -4,6 +4,9 @@ import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.aldebaran.qi.sdk.`object`.conversation.Say
+import com.aldebaran.qi.sdk.`object`.locale.Locale
+import com.aldebaran.qi.sdk.`object`.locale.Language
+import com.aldebaran.qi.sdk.`object`.locale.Region
 import com.aldebaran.qi.sdk.builder.AnimateBuilder
 import com.aldebaran.qi.sdk.builder.AnimationBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
@@ -18,8 +21,10 @@ class RoboterActions {
 
         fun speak(text: String): Future<Void>? {
             if (robotExecute) {
+                val englishLocale = Locale(Language.ENGLISH, Region.UNITED_STATES)
                 val say: Future<Say>? = SayBuilder.with(qiContext)
                     .withText(text)
+                    .withLocale(englishLocale)
                     .buildAsync()
 
                 while (!say!!.isDone) {
