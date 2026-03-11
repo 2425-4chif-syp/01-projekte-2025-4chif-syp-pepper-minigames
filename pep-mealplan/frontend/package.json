@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration=production",
+    "build:leocloud": "ng build --configuration=production",
+    "build:vm": "ng build --configuration=production --base-href /mealplan/ --deploy-url /mealplan/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
