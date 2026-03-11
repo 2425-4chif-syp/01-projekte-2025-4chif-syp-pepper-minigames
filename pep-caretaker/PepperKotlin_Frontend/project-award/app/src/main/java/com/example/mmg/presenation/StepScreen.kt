@@ -110,7 +110,7 @@ fun StepScreen(
                         navController.popBackStack()
                     }
                 ) {
-                    Text(text = "Abbrechen")
+                    Text(text = "Cancel")
                 }
 
                 if (isManualMode) {
@@ -128,7 +128,7 @@ fun StepScreen(
                             }
                         }
                     ) {
-                        Text(text = "Weiter")
+                        Text(text = "Next")
                     }
                 }
             }

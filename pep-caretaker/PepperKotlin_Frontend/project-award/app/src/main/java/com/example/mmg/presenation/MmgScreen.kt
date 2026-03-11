@@ -26,7 +26,7 @@ fun MmgScreen(
 ) {
     val mmgList by viewModel.mmgList.collectAsState()
     val imageMap by viewModel.imageMap.collectAsState()
-    var manuellSelected by remember { mutableStateOf(true) }
+    var manualSelected by remember { mutableStateOf(true) }
     var selectedTimerSeconds by remember { mutableStateOf(2) }
     var showTimerDropdown by remember { mutableStateOf(false) }
 
@@ -49,7 +49,7 @@ fun MmgScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Mitmachgeschichten",
+                text = "Interactive Stories",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
@@ -59,7 +59,7 @@ fun MmgScreen(
                     viewModel.loadMmgDtos()
                 }
             ) {
-                Text(text = "Geschichten laden")
+                Text(text = "Load Stories")
             }
         }
 
@@ -72,29 +72,29 @@ fun MmgScreen(
         ) {
             Button(
                 onClick = { 
-                    manuellSelected = true
+                    manualSelected = true
                     showTimerDropdown = false
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                    containerColor = if (manualSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Text(text = "Manuell")
+                Text(text = "Manual")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { 
-                    manuellSelected = false
+                    manualSelected = false
                     showTimerDropdown = true
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!manuellSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                    containerColor = if (!manualSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Text(text = "Automatisch")
+                Text(text = "Automatic")
             }
             
-            if (!manuellSelected && showTimerDropdown) {
+            if (!manualSelected && showTimerDropdown) {
                 Spacer(modifier = Modifier.width(16.dp))
                 
                 Box {
@@ -113,7 +113,7 @@ fun MmgScreen(
                         listOf(2,5, 10, 15).forEach { seconds ->
                             DropdownMenuItem(
                                 text = { 
-                                    Text("${seconds} Sekunden") 
+                                    Text("${seconds} Seconds") 
                                 },
                                 onClick = {
                                     selectedTimerSeconds = seconds
@@ -150,7 +150,7 @@ fun MmgScreen(
                                 navController.navigate("step")
                                 viewModel.loadMmgSteps(
                                     id = mmg.id,
-                                    isManual = manuellSelected,
+                                    isManual = manualSelected,
                                     timerSeconds = selectedTimerSeconds
                                 )
                                 viewModel.resetStepCount()
