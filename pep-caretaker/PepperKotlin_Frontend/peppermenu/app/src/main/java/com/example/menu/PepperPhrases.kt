@@ -14,9 +14,11 @@ object PepperPhrases {
     fun cameraGreeting(): String = rotate(
         key = "camera_greeting",
         options = listOf(
-            "Hallo! Hast du schon alle Mahlzeiten eingetragen?",
-            "Hey, schoen dich zu sehen. Wollen wir deine Mahlzeiten checken?",
-            "Hallo zusammen! Lass uns schauen, was heute noch zu bestellen ist."
+            "Hallo!?",
+            "Hey, schoen dich zu sehen.",
+            "Hey!",
+            "Grueß dich",
+            "Servus"
         )
     )
 
@@ -32,25 +34,25 @@ object PepperPhrases {
     fun authSuccess(personName: String): String = rotate(
         key = "auth_success",
         options = listOf(
-            "Hallo $personName! Was moechtest du heute essen?",
+            "Hallo $personName! Was sollen wir beide machen?",
             "Hi $personName, schoen dass du da bist. Worauf hast du heute Lust?",
-            "Willkommen $personName! Dann schauen wir gleich dein Essen an."
+            "Willkommen $personName! Sollen wir ein Spiel spielen oder willst du dein Essensplan anschauen?"
         )
     )
 
     fun noFaceDetected(): String = rotate(
         key = "no_face",
         options = listOf(
-            "Huch, ich konnte dein Gesicht nicht gut sehen. Probieren wir es nochmal?",
-            "Ups, das Bild war zu unklar. Lass uns gleich einen neuen Versuch machen.",
-            "Ich habe dich gerade nicht sauber erkannt. Nochmal bitte."
+            "Huch, ich konnte dein Gesicht nicht gut sehen. Bitte wähle deinen Namen aus!",
+            "Ups, das Bild war zu unklar. Wähle deinen Namen aus der Liste aus!",
+            "Ich habe dich gerade nicht sauber erkannt. Wähle deinen Namen aus der Liste aus!"
         )
     )
 
     fun unknownPerson(): String = rotate(
         key = "unknown_person",
         options = listOf(
-            "Oh, ich kenne dich leider noch nicht. Bitte kurz beim Betreuer anmelden.",
+            "Oh, ich kenne dich leider noch nicht. Bitte kurz beim Betreuer anmelden!",
             "Du bist noch nicht registriert. Ein Betreuer hilft dir sofort weiter.",
             "Ich finde dich noch nicht in meiner Liste. Bitte kurz anmelden lassen."
         )
