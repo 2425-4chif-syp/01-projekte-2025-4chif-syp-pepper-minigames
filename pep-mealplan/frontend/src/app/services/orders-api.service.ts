@@ -22,4 +22,12 @@ export class OrdersAPIService {
     // Use POST endpoint which handles both create and update via the service
     return this.http.post(this.apiUrl, payload);
   }
+
+  getOrdersForPersonAndWeek(personId: number, weekStart: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/person/${personId}/week/${weekStart}`);
+  }
+
+  getOrdersByDate(date: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/date/${date}`);
+  }
 }

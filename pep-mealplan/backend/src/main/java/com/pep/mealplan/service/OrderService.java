@@ -46,6 +46,15 @@ public class OrderService {
         return orderRepo.list("date", date);
     }
 
+    public List<Order> getByPersonAndWeek(Long personId, LocalDate date) {
+        LocalDate monday = date.minusDays(date.getDayOfWeek().getValue() - 1);
+        LocalDate sunday = monday.plusDays(6);
+        return orderRepo.list(
+                "person.id = ?1 and date >= ?2 and date <= ?3",
+                personId, monday, sunday
+        );
+    }
+
     // -------------------------------------------------
     // WRITE (UPSERT + VALIDATION)
     // -------------------------------------------------

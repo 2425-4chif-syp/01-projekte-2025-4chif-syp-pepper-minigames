@@ -46,6 +46,14 @@ public class OrderResource {
         return service.getByDate(date);
     }
 
+    @GET
+    @Path("/person/{personId}/week/{date}")
+    public List<Order> getByPersonAndWeek(
+            @PathParam("personId") Long personId,
+            @PathParam("date") LocalDate date) {
+        return service.getByPersonAndWeek(personId, date);
+    }
+
     // -------------------------------------------------
     // WRITE
     // -------------------------------------------------

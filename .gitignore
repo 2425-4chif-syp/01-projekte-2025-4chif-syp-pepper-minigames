@@ -92,3 +92,6 @@ db-postgres
 .stfolder
 .stversions
 .stignore
+
+AGENTS.md
+CLAUDE.md

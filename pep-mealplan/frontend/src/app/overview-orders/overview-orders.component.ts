@@ -13,6 +13,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 
 import { MenuAPIService } from '../services/menu-api.service';
 import { UserAPIService } from '../services/residents-api.service';
+import { OrdersAPIService } from '../services/orders-api.service';
 import { DayPlan } from '../models/day-plan.model';
 import { PersonalOrderRow } from '../models/personal-order-row.model';
 import { Resident } from '../models/resident.model';
@@ -71,7 +72,8 @@ export class OverviewOrdersComponent implements OnInit {
 
   constructor(
       private residentApi: UserAPIService,
-      private menuApi: MenuAPIService
+      private menuApi: MenuAPIService,
+      private ordersApi: OrdersAPIService
   ) {}
 
   ngOnInit(): void {
@@ -106,10 +108,8 @@ export class OverviewOrdersComponent implements OnInit {
         this.weekPlan = wp ?? null;
         this.dayPlan = this.weekPlan?.dayPlans?.[this.dayIndex] ?? null;
 
-        this.buildPersonalOrdersFromLocalStorage();
-        this.computeStats();
-
-        this.loading = false;
+        // Always fetch from backend first, then cache to localStorage
+        this.loadPersonalOrdersFromBackend();
       },
       error: (err) => {
         console.error('Fehler beim Laden des WeekPlans:', err);
@@ -117,14 +117,99 @@ export class OverviewOrdersComponent implements OnInit {
         this.weekPlan = null;
         this.dayPlan = null;
 
-        this.personalOrders = [];
-        this.orderedCount = 0;
-        this.missingCount = this.residentCount;
-
-        this.resetStats();
+        // Fallback to localStorage if weekplan fetch fails
+        this.buildPersonalOrdersFromLocalStorage();
+        this.computeStats();
         this.loading = false;
       }
     });
+  }
+
+  private loadPersonalOrdersFromBackend(): void {
+    this.ordersApi.getOrdersByDate(this.selectedDate).subscribe({
+      next: (orders) => {
+        this.personalOrders = [];
+
+        if (!this.dayPlan) {
+          this.orderedCount = 0;
+          this.missingCount = this.residentCount;
+          this.resetStats();
+          this.loading = false;
+          return;
+        }
+
+        for (const order of orders) {
+          const personId = order.person?.id ?? order.personId;
+          const resident = this.residents.find(r => Number(r.id) === Number(personId));
+          if (!resident) continue;
+
+          const lunchName: string | null = order.selectedLunch?.name ?? null;
+          const dinnerName: string | null = order.selectedDinner?.name ?? null;
+
+          this.personalOrders.push({
+            residentId: Number(personId),
+            name: `${resident.firstname} ${resident.lastname}`,
+            soup: this.dayPlan.daySoup ?? null,
+            lunch: lunchName,
+            dessert: this.dayPlan.dessert ?? null,
+            dinner: dinnerName
+          });
+        }
+
+        this.orderedCount = this.personalOrders.length;
+        this.missingCount = Math.max(0, this.residentCount - this.orderedCount);
+
+        // Cache to localStorage for offline use
+        this.syncOrdersToLocalStorage(orders);
+
+        this.computeStats();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Fehler beim Laden der Bestellungen vom Backend:', err);
+
+        // Fallback to localStorage if backend fails
+        this.buildPersonalOrdersFromLocalStorage();
+        this.computeStats();
+        this.loading = false;
+      }
+    });
+  }
+
+  private syncOrdersToLocalStorage(backendOrders: any[]): void {
+    const storage = this.loadStoredSelections();
+    const weekKey = this.weekStartIso;
+
+    if (!storage[weekKey]) storage[weekKey] = {};
+
+    for (const order of backendOrders) {
+      const personId = order.person?.id ?? order.personId;
+      const residentId = String(personId);
+
+      if (!storage[weekKey][residentId]) storage[weekKey][residentId] = {};
+
+      // Determine which menu options were selected
+      const lunchName = order.selectedLunch?.name ?? null;
+      const dinnerName = order.selectedDinner?.name ?? null;
+
+      let selectedMenu: 'one' | 'two' | null = null;
+      let selectedEvening: 'one' | 'two' | null = null;
+
+      if (this.dayPlan) {
+        if (lunchName === this.dayPlan.menuOne) selectedMenu = 'one';
+        else if (lunchName === this.dayPlan.menuTwo) selectedMenu = 'two';
+
+        if (dinnerName === this.dayPlan.eveningOne) selectedEvening = 'one';
+        else if (dinnerName === this.dayPlan.eveningTwo) selectedEvening = 'two';
+      }
+
+      storage[weekKey][residentId][String(this.dayIndex)] = {
+        selectedMenu,
+        selectedEvening
+      };
+    }
+
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(storage));
   }
 
   changeDay(delta: number): void {

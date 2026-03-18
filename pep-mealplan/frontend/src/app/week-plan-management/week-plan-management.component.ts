@@ -187,9 +187,10 @@ export class WeekPlanManagementComponent implements OnInit {
             // Badges neu für aktuelle Woche
             this.refreshPersonHasSelectionFlags();
 
-            // Wenn Person gewählt -> apply
+            // Wenn Person gewählt -> apply localStorage, then override with backend data
             if (this.selectedPersonOption) {
                 this.applySelectionsForSelectedPerson();
+                this.loadAndApplyOrdersFromBackend(this.selectedPersonOption.id);
             }
         });
     }
@@ -292,11 +293,11 @@ export class WeekPlanManagementComponent implements OnInit {
     // SAVE BUTTON STATE
     // =========================
 
-    hasAllSelectionsForSelectedPerson(): boolean {
+    hasAnySelectionForSelectedPerson(): boolean {
         if (!this.selectedPersonOption) return false;
         if (!this.currentWeekPlan.dayPlans?.length) return false;
 
-        return this.currentWeekPlan.dayPlans.every(
+        return this.currentWeekPlan.dayPlans.some(
             (dp) => !!dp.selectedMenu && !!dp.selectedEvening
         );
     }
@@ -308,6 +309,9 @@ export class WeekPlanManagementComponent implements OnInit {
     onPersonSelected(person: PersonOption | null): void {
         this.selectedPersonOption = person;
         this.applySelectionsForSelectedPerson();
+        if (person) {
+            this.loadAndApplyOrdersFromBackend(person.id);
+        }
     }
 
     onSaveSelections(): void {
@@ -336,6 +340,41 @@ export class WeekPlanManagementComponent implements OnInit {
     toggleEvening(dayPlan: DayPlan, evening: 'one' | 'two'): void {
         dayPlan.selectedEvening = dayPlan.selectedEvening === evening ? null : evening;
         this.persistCurrentSelectionsForSelectedPerson();
+    }
+
+    private loadAndApplyOrdersFromBackend(personId: number): void {
+        this.ordersApiService.getOrdersForPersonAndWeek(personId, this.weekStart).subscribe({
+            next: (orders) => {
+                orders.forEach((order) => {
+                    const orderDateStr = this.normalizeDate(order.date);
+                    const dp = this.currentWeekPlan.dayPlans.find(
+                        (d) => this.toIsoDate(d.date) === orderDateStr
+                    );
+                    if (!dp) return;
+
+                    if (order.selectedLunch?.name === dp.menuOne) dp.selectedMenu = 'one';
+                    else if (order.selectedLunch?.name === dp.menuTwo) dp.selectedMenu = 'two';
+
+                    if (order.selectedDinner?.name === dp.eveningOne) dp.selectedEvening = 'one';
+                    else if (order.selectedDinner?.name === dp.eveningTwo) dp.selectedEvening = 'two';
+                });
+
+                this.persistCurrentSelectionsForSelectedPerson();
+            },
+            error: (err) => {
+                console.error('Failed to load orders from backend', err);
+            }
+        });
+    }
+
+    // Handles both "2026-03-18" string and [2026, 3, 18] array from Jackson
+    private normalizeDate(date: any): string {
+        if (typeof date === 'string') return date;
+        if (Array.isArray(date)) {
+            const [y, m, d] = date;
+            return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+        return '';
     }
 
     private saveSelectionsToBackend(): void {
