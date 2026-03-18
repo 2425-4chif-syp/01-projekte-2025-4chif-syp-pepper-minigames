@@ -51,7 +51,7 @@ fun InitialFaceRecognitionScreen(
     viewModel: InitialFaceRecognitionViewModel = viewModel()
 ) {
     // Dev-Schalter: auf true setzen, um Gesichtserkennung zu ueberspringen
-    val devModeSkipFaceRecognition = true
+    val devModeSkipFaceRecognition = false
 
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading

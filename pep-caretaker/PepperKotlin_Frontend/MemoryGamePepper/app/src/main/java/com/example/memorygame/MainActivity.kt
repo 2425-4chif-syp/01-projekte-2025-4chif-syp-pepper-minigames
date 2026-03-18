@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        inactivityLogoutManager = InactivityLogoutManager(this)
+        inactivityLogoutManager = InactivityLogoutManager(this, timeoutMs = 90_000L)
 
         // Initialisiere TextToSpeech
         textToSpeech = TextToSpeech(this, this)
@@ -123,6 +123,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
         setIntent(intent)
         updatePersonFromIntent(intent)
+        inactivityLogoutManager.onUserInteraction()
     }
 
     override fun onDestroy() {
