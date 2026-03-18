@@ -18,13 +18,16 @@ import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import com.pepper.mealplan.common.Extras
 import com.pepper.mealplan.navigation.AppNavigation
+import com.pepper.mealplan.session.InactivityLogoutManager
 import com.pepper.mealplan.ui.theme.MealplanTheme
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     private var initialPersonFromMenu by mutableStateOf<String?>(null)
+    private lateinit var inactivityLogoutManager: InactivityLogoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inactivityLogoutManager = InactivityLogoutManager(this)
         initialPersonFromMenu = extractPersonName(intent)
         // Register the RobotLifecycleCallbacks to this Activity.
         QiSDK.register(this, this)
@@ -51,6 +54,21 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onNewIntent(intent)
         setIntent(intent)
         initialPersonFromMenu = extractPersonName(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        inactivityLogoutManager.onResume()
+    }
+
+    override fun onPause() {
+        inactivityLogoutManager.onPause()
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityLogoutManager.onUserInteraction()
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {

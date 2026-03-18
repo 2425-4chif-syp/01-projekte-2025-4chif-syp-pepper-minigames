@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,13 +28,19 @@ import com.example.menu.dto.Person
 import com.example.menu.presentation.InitialFaceRecognitionScreen
 import com.example.menu.presentation.LoginScreen
 import com.example.menu.screens.MainMenuScreen
+import com.example.menu.session.InactivityLogoutManager
 import com.example.menu.ui.theme.MenuTheme
 import com.example.menu.viewmodel.LoginScreenViewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
+    private lateinit var inactivityLogoutManager: InactivityLogoutManager
+    private var forceLogoutSignal by mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inactivityLogoutManager = InactivityLogoutManager(this)
+        inactivityLogoutManager.setEnabled(false)
+        consumeLogoutIntent(intent)
         QiSDK.register(this, this)
 
         setContent {
@@ -41,6 +48,20 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                 val navController = rememberNavController()
                 navController.setViewModelStore(viewModelStore)
                 var authenticatedPerson by remember { mutableStateOf<Person?>(null) }
+
+                LaunchedEffect(forceLogoutSignal) {
+                    if (forceLogoutSignal > 0) {
+                        authenticatedPerson = null
+                        navController.navigate("initial_face_login") {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+
+                LaunchedEffect(authenticatedPerson) {
+                    inactivityLogoutManager.setEnabled(authenticatedPerson != null)
+                }
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -92,6 +113,27 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        inactivityLogoutManager.onResume()
+    }
+
+    override fun onPause() {
+        inactivityLogoutManager.onPause()
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityLogoutManager.onUserInteraction()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        consumeLogoutIntent(intent)
+    }
+
     override fun onRobotFocusGained(qiContext: QiContext?) {
         RoboterActions.qiContext = qiContext
         Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
@@ -132,6 +174,12 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         } else {
             Toast.makeText(this, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
             Log.e("PepperMenu", "App mit Package $packageName nicht gefunden")
+        }
+    }
+
+    private fun consumeLogoutIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(Extras.FORCE_LOGOUT, false) == true) {
+            forceLogoutSignal++
         }
     }
 }

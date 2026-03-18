@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import java.util.Locale
+import com.example.tictactoe.session.InactivityLogoutManager
 import androidx.compose.runtime.LaunchedEffect as LaunchedEffect1
 =======
 import androidx.compose.ui.text.font.FontWeight
@@ -40,9 +41,11 @@ import java.util.Locale
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech
+    private lateinit var inactivityLogoutManager: InactivityLogoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inactivityLogoutManager = InactivityLogoutManager(this)
 
         textToSpeech = TextToSpeech(this, this)
 
@@ -58,6 +61,21 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech.language = Locale.GERMAN
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        inactivityLogoutManager.onResume()
+    }
+
+    override fun onPause() {
+        inactivityLogoutManager.onPause()
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityLogoutManager.onUserInteraction()
     }
 
     override fun onDestroy() {

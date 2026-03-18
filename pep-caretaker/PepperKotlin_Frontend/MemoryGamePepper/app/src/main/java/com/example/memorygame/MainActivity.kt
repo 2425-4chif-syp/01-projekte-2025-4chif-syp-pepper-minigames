@@ -22,17 +22,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.memorygame.data.repository.IntentPersonProvider
+import com.example.memorygame.session.InactivityLogoutManager
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var personApi: PersonApi
+    private lateinit var inactivityLogoutManager: InactivityLogoutManager
     private var personFromIntent by mutableStateOf<PersonIntent?>(null)
     private var personId by mutableStateOf(-1L)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inactivityLogoutManager = InactivityLogoutManager(this)
 
         // Initialisiere TextToSpeech
         textToSpeech = TextToSpeech(this, this)
@@ -91,6 +94,21 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        inactivityLogoutManager.onResume()
+    }
+
+    override fun onPause() {
+        inactivityLogoutManager.onPause()
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityLogoutManager.onUserInteraction()
     }
 
     override fun onInit(status: Int) {
