@@ -4,9 +4,9 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'pep-mealplan/backend/pep-mealplan-backend/**'
+      - 'pep-mealplan/backend/**'
       - 'pep-mealplan/frontend/**'
-      - '.github/workflows/build-and-deploy-mealplan.yml'
+      - '.github/workflows/build-and-deploy-mealplan-backend2.yml'
   workflow_dispatch:
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
           cache: 'maven'
 
       - name: Build backend with Maven Wrapper
-        working-directory: pep-mealplan/backend/pep-mealplan-backend
+        working-directory: pep-mealplan/backend
         run: |
           ./mvnw -B clean package -DskipTests
 
@@ -74,8 +74,8 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./pep-mealplan/backend/pep-mealplan-backend
-          file: ./pep-mealplan/backend/pep-mealplan-backend/src/main/docker/Dockerfile.jvm
+          context: ./pep-mealplan/backend
+          file: ./pep-mealplan/backend/src/main/docker/Dockerfile.jvm
           platforms: linux/amd64, linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}/mealplan-backend:${{ env.IMAGE_TAG }}
