@@ -50,6 +50,9 @@ fun InitialFaceRecognitionScreen(
     onManualSelectionRequired: () -> Unit,
     viewModel: InitialFaceRecognitionViewModel = viewModel()
 ) {
+    // Dev-Schalter: auf true setzen, um Gesichtserkennung zu ueberspringen
+    val devModeSkipFaceRecognition = true
+
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
@@ -97,9 +100,9 @@ fun InitialFaceRecognitionScreen(
     }
 
     val statusText = when {
-        isLoading -> "Ich erkenne gerade das Gesicht."
-        errorMessage != null -> "Bitte erneut versuchen."
-        else -> "Bitte vor den Roboter stellen."
+        isLoading -> "Ich schaue kurz, ob ich dich erkenne."
+        errorMessage != null -> "Lass uns das nochmal versuchen."
+        else -> "Stell dich bitte kurz vor mich."
     }
 
     Box(
@@ -144,19 +147,36 @@ fun InitialFaceRecognitionScreen(
                         color = Color(0xFF294861),
                         textAlign = TextAlign.Center
                     )
+                    if (devModeSkipFaceRecognition) {
+                        Text(
+                            text = "Testmodus aktiv",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF8A3E00)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(2.dp))
 
             Button(
-                onClick = { onManualSelectionRequired() },
+                onClick = {
+                    if (devModeSkipFaceRecognition) {
+                        viewModel.skipFaceRecognitionForDevMode(
+                            onAuthenticationSuccess = onAuthenticationSuccess,
+                            onFallbackToManualSelection = onManualSelectionRequired
+                        )
+                        return@Button
+                    }
+                    onManualSelectionRequired()
+                },
                 modifier = Modifier.size(180.dp),
                 shape = RoundedCornerShape(90.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (errorMessage != null) Color(0xFFEF5350) else MaterialTheme.colorScheme.primary
                 ),
-                enabled = !isLoading && errorMessage != null
+                enabled = !isLoading && (errorMessage != null || devModeSkipFaceRecognition)
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -187,7 +207,7 @@ fun InitialFaceRecognitionScreen(
             ) {
                 Text(
                     text = errorMessage
-                        ?: "Wenn nichts passiert, bitte einmal auf die große Kamera-Taste tippen.",
+                        ?: "Wenn nichts passiert, tipp bitte einmal auf die grosse Kamera-Taste.",
                     color = if (errorMessage != null) MaterialTheme.colorScheme.error else Color(0xFF1F2937),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,

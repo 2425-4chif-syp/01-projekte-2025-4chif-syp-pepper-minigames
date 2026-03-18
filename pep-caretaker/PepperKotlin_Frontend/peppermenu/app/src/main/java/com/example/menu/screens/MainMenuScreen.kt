@@ -10,15 +10,20 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.menu.PepperPhrases
 import com.example.menu.R
 import com.example.menu.RoboterActions
 import com.example.menu.common.Packages
@@ -44,13 +50,16 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MainMenuScreen(onOpenApp: (String) -> Unit) {
+fun MainMenuScreen(
+    personName: String?,
+    onOpenApp: (String) -> Unit
+) {
     val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        Log.d("QiContext:", "${RoboterActions.qiContext}")
-        RoboterActions.speak("Was wollen Sie machen?")
+    LaunchedEffect(personName) {
+        Log.d("QiContext", "${RoboterActions.qiContext}")
+        RoboterActions.speak(PepperPhrases.menuWelcome(personName))
     }
 
     val menuItems = listOf(
@@ -66,7 +75,7 @@ fun MainMenuScreen(onOpenApp: (String) -> Unit) {
         initialValue = Color(0xFF2196F3),
         targetValue = Color(0xFF64B5F6),
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 30001, easing = LinearEasing),
+            animation = tween(durationMillis = 3000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
@@ -86,7 +95,11 @@ fun MainMenuScreen(onOpenApp: (String) -> Unit) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .weight(0.78f)
+                .fillMaxWidth()
+        ) {
             HorizontalPager(
                 count = menuItems.size,
                 state = pagerState,
@@ -107,7 +120,7 @@ fun MainMenuScreen(onOpenApp: (String) -> Unit) {
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 16.dp)
-                    .size(100.dp)
+                    .size(90.dp)
                     .clickable {
                         coroutineScope.launch {
                             val nextPage = (pagerState.currentPage + 1) % menuItems.size
@@ -123,16 +136,76 @@ fun MainMenuScreen(onOpenApp: (String) -> Unit) {
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 16.dp)
-                    .size(100.dp)
+                    .size(90.dp)
                     .clickable {
                         coroutineScope.launch {
-                            val previousPage =
-                                (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
+                            val previousPage = (pagerState.currentPage - 1 + menuItems.size) % menuItems.size
                             pagerState.animateScrollToPage(previousPage)
                         }
                     }
             )
         }
+
+        Row(
+            modifier = Modifier
+                .weight(0.22f)
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SmallTalkButton(
+                label = "Witz",
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    RoboterActions.speak(PepperPhrases.smallTalkJoke())
+                }
+            )
+            SmallTalkButton(
+                label = "Wissen",
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    RoboterActions.speak(PepperPhrases.smallTalkFact())
+                }
+            )
+            SmallTalkButton(
+                label = "Bewegung",
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    RoboterActions.speak(PepperPhrases.smallTalkMovement())
+                }
+            )
+            SmallTalkButton(
+                label = "Kompliment",
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    RoboterActions.speak(PepperPhrases.smallTalkCompliment(personName))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SmallTalkButton(
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF2F6DA7),
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            text = label,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
@@ -141,12 +214,13 @@ fun MenuItem(
     imageRes: Int,
     title: String,
     packageName: String,
-    onOpenApp: (String) -> Unit,
+    onOpenApp: (String) -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
+                RoboterActions.speak(PepperPhrases.launchingApp(title))
                 onOpenApp(packageName)
             },
         contentAlignment = Alignment.Center

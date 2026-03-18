@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.menu.PepperPhrases
 import com.example.menu.RoboterActions
 import com.example.menu.dto.Person
 import com.example.menu.network.HttpInstance
@@ -18,38 +19,41 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.text.Normalizer
+import java.util.Locale
 
 class LoginScreenViewModel(application: Application) : AndroidViewModel(application) {
 
-    //Zustand für den ausgewählten Namen
     var selectedName = mutableStateOf("")
         private set
 
-    // Zustand für den ausgewähltes Geschlecht
     var selectedGender = mutableStateOf("")
         private set
 
-    // ausgewählte Person von den Anmeldevorgang
     var selectedPerson = mutableStateOf<Person?>(null)
         private set
 
-    //Personenlsite der Bewohner + Arbeiter
-    var persons : List<Person>? = null
+    var persons: List<Person>? = null
+        private set
 
-    // Namenliste für das LazyColumn im Screen
     var names = mutableStateOf<List<String>>(emptyList())
+        private set
+
+    var filteredPersons = mutableStateOf<List<Person>>(emptyList())
+        private set
+
+    var searchQuery = mutableStateOf("")
         private set
 
     var isLoading = mutableStateOf(false)
 
-    // Zusatzsatz für API-Abfrage um nur den Namen zu bekommen
-    val answerContext = "Bitte sag mir den Namen, welcher grad erwähnt wurde! Nur der Name bitte keine extra Wörter!"
+    val answerContext =
+        "Bitte sag mir den Namen, welcher grad erwaehnt wurde! Nur der Name bitte keine extra Woerter!"
 
-    // Config für Spracherkennung
+    private var allPersons: List<Person> = emptyList()
+
     private val context = application.applicationContext
     private var speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
-
 
     private val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
         putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -57,20 +61,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     init {
-        isLoading.value = true
-        viewModelScope.launch {
-            try {
-                persons = HttpInstance.getPersons()
-                names.value = persons?.map { p -> p.firstName + " " + p.lastName } ?: emptyList()
-
-            } catch (e: Exception) {
-                Log.e("Names", "Error loading names: ${e.message}")
-                names.value = emptyList()
-            } finally {
-                isLoading.value = false
-            }
-        }
-
+        loadPersons()
 
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
@@ -84,29 +75,23 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
 
             override fun onResults(results: Bundle?) {
                 val data = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-
-                Log.d("Sprache","${data}")
-
+                Log.d("Sprache", "$data")
                 isLoading.value = true
 
                 viewModelScope.launch {
                     try {
                         val response = HttpInstance.sendPostRequestSmallTalk(data.toString() + answerContext)
-
-                        if(response != "" && response != null){
-                            val answer = response
+                        if (response.isNotBlank()) {
                             withContext(Dispatchers.Main) {
-                                findRightPerson(response = response)
+                                findRightPerson(response)
                             }
-                        }
-                        else{
-                            RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        } else {
+                            RoboterActions.speak(PepperPhrases.manualFaceRetryFailed())
                         }
                     } catch (e: Exception) {
-                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        RoboterActions.speak(PepperPhrases.connectionIssue())
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-                    }
-                    finally {
+                    } finally {
                         isLoading.value = false
                     }
                 }
@@ -118,50 +103,46 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun startSpeechRecognition() {
-
         viewModelScope.launch(Dispatchers.Main) {
             speechRecognizer.startListening(speechRecognizerIntent)
         }
     }
 
-    // richitge Person von der Antwort herausfinden
-    fun findRightPerson(response: String){
-
-        val parts = response.split(" ")
-        val firstName = parts[0]
-        val lastName = parts[1]
-
-        val rightPerson : Person? = persons?.firstOrNull{ p -> p.firstName == firstName && p.lastName == lastName }
-
-        if(rightPerson == null){
-            RoboterActions.speak("Ich konnte keine richitge Person finden!")
+    fun updateSearchQuery(query: String) {
+        searchQuery.value = query
+        if (query.isBlank()) {
+            applySearchFilter()
         }
-        else{
+    }
+
+    fun applySearchFilter() {
+        val filtered = filterPersonsByQuery(searchQuery.value)
+        filteredPersons.value = filtered
+        names.value = filtered.map(::fullName)
+    }
+
+    fun findRightPerson(response: String) {
+        val rightPerson = findPersonFromText(response)
+        if (rightPerson == null) {
+            RoboterActions.speak("Ich konnte keine richtige Person finden!")
+        } else {
             selectPerson(rightPerson)
-            RoboterActions.speak("Sind Sie ${rightPerson.firstName + rightPerson.lastName}")
+            RoboterActions.speak("Sind Sie ${rightPerson.firstName} ${rightPerson.lastName}")
         }
     }
 
     fun selectPerson(person: Person) {
         selectedPerson.value = person
-        setName(person.firstName + " " + person.lastName)
+        setName(fullName(person))
         setGender(person.gender)
     }
 
-    // Name setzen für Screen
     fun setName(name: String) {
         selectedName.value = name
     }
 
-    // Gender setzen für Screen
-    fun setGender(gender: Boolean){
-
-        if(gender == true){
-            selectedGender.value = "Mann"
-        }
-        else{
-            selectedGender.value = "Frau"
-        }
+    fun setGender(gender: Boolean) {
+        selectedGender.value = if (gender) "Mann" else "Frau"
     }
 
     fun captureAndRecognizePerson() {
@@ -170,38 +151,120 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
             try {
-                RoboterActions.speak("Ich mache kurz ein Foto von dir")
+                RoboterActions.speak(PepperPhrases.manualFaceRetryStart())
 
-                // Warte auf das Bild
                 RoboterActions.takePicture { image ->
                     capturedImageDeferred.complete(image)
                 }
 
-                // Hier wird gewartet, bis das Bild verfügbar ist
                 val capturedImage = capturedImageDeferred.await()
-
                 val response = HttpInstance.sendPostRequestImage(capturedImage)
-                Log.d("Response", "${response}")
+                Log.d("Response", response)
 
                 withContext(Dispatchers.Main) {
-                    if (isResponseValid(response) && response != "" && response != null) {
-                        findRightPerson(response = response)
+                    if (isResponseValid(response) && response.isNotBlank()) {
+                        findRightPerson(response)
                     } else {
-                        RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                        RoboterActions.speak(PepperPhrases.manualFaceRetryFailed())
                     }
                 }
             } catch (e: Exception) {
-                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                RoboterActions.speak(PepperPhrases.connectionIssue())
                 Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
-            }
-            finally {
+            } finally {
                 isLoading.value = false
             }
         }
     }
 
+    private fun loadPersons() {
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
+                allPersons = HttpInstance.getPersons()
+                persons = allPersons
+                filteredPersons.value = allPersons
+                names.value = allPersons.map(::fullName)
+            } catch (e: Exception) {
+                Log.e("Names", "Error loading names: ${e.message}")
+                allPersons = emptyList()
+                persons = emptyList()
+                filteredPersons.value = emptyList()
+                names.value = emptyList()
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    private fun filterPersonsByQuery(query: String): List<Person> {
+        val normalizedQuery = normalizeForSearch(query)
+        if (normalizedQuery.isBlank()) {
+            return allPersons
+        }
+
+        val tokens = normalizedQuery.split(" ").filter { it.isNotBlank() }
+        return allPersons.mapNotNull { person ->
+            val normalizedName = normalizeForSearch(fullName(person))
+            val score = matchScore(normalizedName, normalizedQuery, tokens)
+            if (score >= 0) person to score else null
+        }.sortedWith(
+            compareByDescending<Pair<Person, Int>> { it.second }
+                .thenBy { normalizeForSearch(fullName(it.first)) }
+        ).map { it.first }
+    }
+
+    private fun matchScore(normalizedName: String, normalizedQuery: String, tokens: List<String>): Int {
+        var score = 0
+
+        for (token in tokens) {
+            score += when {
+                normalizedName == token -> 120
+                normalizedName.startsWith(token) -> 90
+                normalizedName.contains(" $token") -> 70
+                normalizedName.contains(token) -> 50
+                else -> return -1
+            }
+        }
+
+        if (normalizedName == normalizedQuery) score += 80
+        if (normalizedName.startsWith(normalizedQuery)) score += 50
+        if (normalizedName.contains(normalizedQuery)) score += 30
+        return score
+    }
+
+    private fun findPersonFromText(response: String): Person? {
+        val normalizedResponse = normalizeForSearch(response)
+        if (normalizedResponse.isBlank()) {
+            return null
+        }
+
+        return allPersons.firstOrNull {
+            normalizeForSearch(fullName(it)) == normalizedResponse
+        } ?: allPersons.firstOrNull {
+            normalizeForSearch(fullName(it)).contains(normalizedResponse)
+        }
+    }
+
+    private fun fullName(person: Person): String {
+        return "${person.firstName} ${person.lastName}".trim()
+    }
+
+    private fun normalizeForSearch(value: String): String {
+        val withoutQuotes = value.replace("\"", " ").replace("\n", " ")
+        val decomposed = Normalizer.normalize(withoutQuotes, Normalizer.Form.NFD)
+        return decomposed
+            .replace("\\p{M}+".toRegex(), "")
+            .lowercase(Locale.getDefault())
+            .replace("[^a-z0-9\\s]".toRegex(), " ")
+            .trim()
+            .replace(Regex("\\s+"), " ")
+    }
+
     private fun isResponseValid(response: String): Boolean {
         val responseUpper = response.uppercase(Locale.getDefault())
-        return responseUpper != "" && responseUpper != "NO MATCHING PERSON FOUND" && responseUpper != "ERROR PROCESSING IMAGE"
+        return responseUpper.isNotBlank() &&
+            responseUpper != "NO MATCHING PERSON FOUND" &&
+            responseUpper != "ERROR PROCESSING IMAGE"
     }
 }

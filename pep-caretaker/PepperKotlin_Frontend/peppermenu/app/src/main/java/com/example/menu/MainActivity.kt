@@ -102,6 +102,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
                         composable("main_menu") {
                             MainMenuScreen(
+                                personName = authenticatedPerson?.let { "${it.firstName} ${it.lastName}".trim() },
                                 onOpenApp = { packageName ->
                                     launchExternalApp(packageName, authenticatedPerson)
                                 }
