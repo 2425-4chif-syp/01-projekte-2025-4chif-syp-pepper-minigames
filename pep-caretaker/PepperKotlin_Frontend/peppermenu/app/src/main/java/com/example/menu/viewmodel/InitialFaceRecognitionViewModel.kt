@@ -105,6 +105,41 @@ class InitialFaceRecognitionViewModel : ViewModel() {
         }
     }
 
+    fun skipFaceRecognitionForDevMode(
+        onAuthenticationSuccess: (Person) -> Unit,
+        onFallbackToManualSelection: () -> Unit
+    ) {
+        isLoading.value = true
+        errorMessage.value = null
+        hasError.value = false
+        requiresManualSelection.value = false
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                ensurePersonsLoaded()
+                val fallbackPerson = persons.firstOrNull()
+
+                withContext(Dispatchers.Main) {
+                    if (fallbackPerson != null) {
+                        foundPerson.value = "${fallbackPerson.firstName} ${fallbackPerson.lastName}".trim()
+                        onAuthenticationSuccess(fallbackPerson)
+                    } else {
+                        onFallbackToManualSelection()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("InitialFaceRecognition", "Dev-Skip fehlgeschlagen: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    onFallbackToManualSelection()
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading.value = false
+                }
+            }
+        }
+    }
+
     private fun handleRecognitionError(response: String) {
         if (
             response.contains("Error processing image", ignoreCase = true) ||
