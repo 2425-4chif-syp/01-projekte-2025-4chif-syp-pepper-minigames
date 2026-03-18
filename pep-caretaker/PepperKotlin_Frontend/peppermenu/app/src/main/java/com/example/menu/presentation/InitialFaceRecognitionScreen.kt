@@ -1,12 +1,33 @@
-package com.pepper.mealplan.features.face
+package com.example.menu.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -16,33 +37,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.pepper.mealplan.RoboterActions
+import com.example.menu.RoboterActions
+import com.example.menu.dto.Person
+import com.example.menu.viewmodel.InitialFaceRecognitionViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Composable
-fun FaceRecognitionScreen(
-    onAuthenticationSuccess: (String) -> Unit,
-    viewModel: FaceRecognitionViewModel = viewModel()
+fun InitialFaceRecognitionScreen(
+    onAuthenticationSuccess: (Person) -> Unit,
+    onManualSelectionRequired: () -> Unit,
+    viewModel: InitialFaceRecognitionViewModel = viewModel()
 ) {
-    // Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
-    val devModeSkipFaceRecognition = false
-
-    // State für Human Awareness Monitoring
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
-    val foundPerson by viewModel.foundPerson
     val errorMessage by viewModel.errorMessage
     val hasError by viewModel.hasError
+    val requiresManualSelection by viewModel.requiresManualSelection
 
     LaunchedEffect(Unit) {
-        // Reset states when returning to the screen
         isMonitoring = true
         viewModel.clearError()
-        viewModel.setOnAuthenticationSuccess {
-            onAuthenticationSuccess(foundPerson)
-        }
     }
 
     LaunchedEffect(Unit) {
@@ -57,12 +73,20 @@ fun FaceRecognitionScreen(
                 if (humanAwareness != null) {
                     withContext(Dispatchers.Main) {
                         viewModel.talkToPerson()
-                        viewModel.takePicture()
+                        viewModel.takePicture(onAuthenticationSuccess)
                         isMonitoring = false
                     }
                 }
             }
             delay(3000)
+        }
+    }
+
+    LaunchedEffect(requiresManualSelection) {
+        if (requiresManualSelection) {
+            delay(500)
+            onManualSelectionRequired()
+            viewModel.clearError()
         }
     }
 
@@ -120,39 +144,19 @@ fun FaceRecognitionScreen(
                         color = Color(0xFF294861),
                         textAlign = TextAlign.Center
                     )
-                    if (devModeSkipFaceRecognition) {
-                        Text(
-                            text = "Testmodus aktiv",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF8A3E00)
-                        )
-                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(2.dp))
 
             Button(
-                onClick = {
-                    // DEV-SHORTCUT: Gesichtserkennung überspringen
-                    if (devModeSkipFaceRecognition) {
-                        onAuthenticationSuccess("Amir Mohamadi")
-                        return@Button
-                    }
-
-                    if (errorMessage != null) {
-                        viewModel.clearError()
-                        isMonitoring = true
-                        viewModel.takePicture()
-                    }
-                },
+                onClick = { onManualSelectionRequired() },
                 modifier = Modifier.size(180.dp),
                 shape = RoundedCornerShape(90.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (errorMessage != null) Color(0xFFEF5350) else MaterialTheme.colorScheme.primary
                 ),
-                enabled = !isLoading && (errorMessage != null || devModeSkipFaceRecognition)
+                enabled = !isLoading && errorMessage != null
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(

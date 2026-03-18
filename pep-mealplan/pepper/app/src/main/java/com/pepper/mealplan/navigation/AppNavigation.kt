@@ -91,6 +91,7 @@ private fun effectiveMissingCount(missing: List<MissingMealInfo>): Int {
 }
 
 private object Routes {
+    const val BOOTSTRAP = "bootstrap_auth"
     const val FACE = "face_recognition"
     const val OVERVIEW = "overview/{foundPerson}"
     const val CREATE = "create/{foundPerson}"
@@ -108,7 +109,10 @@ sealed class BottomNavItem(val routeKey: String, val icon: ImageVector, val titl
 }
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(
+    navController: NavHostController,
+    initialPersonFromMenu: String? = null
+) {
     val items = listOf(BottomNavItem.Overview, BottomNavItem.Create, BottomNavItem.Logout)
     val bottomNavHeight = 48.dp
     val bottomNavIconSize = 20.dp
@@ -117,11 +121,16 @@ fun AppNavigation(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val normalizedInitialPerson = initialPersonFromMenu
+        ?.trim()
+        ?.replace(Regex("\\s+"), " ")
+        ?.takeIf { it.isNotBlank() }
+
     // Aktive Person nur als State halten (nicht aus args schreiben!)
-    var activePerson by remember { mutableStateOf("") }
+    var activePerson by remember { mutableStateOf(normalizedInitialPerson.orEmpty()) }
 
     // Nach Face-Login wird hier gesetzt -> LaunchedEffect entscheidet Navigation
-    var pendingAuthPerson by remember { mutableStateOf<String?>(null) }
+    var pendingAuthPerson by remember { mutableStateOf<String?>(normalizedInitialPerson) }
 
     var missingCount by remember { mutableStateOf(0) }
     var showMissingDialog by remember { mutableStateOf(false) }
@@ -130,7 +139,7 @@ fun AppNavigation(navController: NavHostController) {
     val repo = remember { MealOrderRepositoryProvider.repository }
 
     // BottomNav nur zeigen, wenn nicht Face
-    val showBottomNav = currentRoute != Routes.FACE
+    val showBottomNav = currentRoute != Routes.FACE && currentRoute != Routes.BOOTSTRAP
 
     // missingCount laden (nur Lunch/Dinner)
     LaunchedEffect(activePerson, missingCountRefreshTick) {
@@ -155,12 +164,12 @@ fun AppNavigation(navController: NavHostController) {
 
         if (hasMissing) {
             navController.navigate(Routes.reminder(person)) {
-                popUpTo(Routes.FACE) { inclusive = true }
+                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
                 launchSingleTop = true
             }
         } else {
             navController.navigate(Routes.overview(person)) {
-                popUpTo(Routes.FACE) { inclusive = true }
+                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
                 launchSingleTop = true
             }
         }
@@ -290,9 +299,18 @@ fun AppNavigation(navController: NavHostController) {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Routes.FACE,
+            startDestination = if (normalizedInitialPerson == null) Routes.FACE else Routes.BOOTSTRAP,
             modifier = Modifier.padding(paddingValues)
         ) {
+            composable(Routes.BOOTSTRAP) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Lade Anmeldung...", fontWeight = FontWeight.Bold)
+                }
+            }
+
             composable(Routes.FACE) {
                 FaceRecognitionScreen(
                     onAuthenticationSuccess = { person ->

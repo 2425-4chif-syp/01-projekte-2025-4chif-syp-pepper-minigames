@@ -8,6 +8,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.`object`.camera.TakePicture
 import com.aldebaran.qi.sdk.`object`.conversation.Say
+import com.aldebaran.qi.sdk.`object`.human.Human
+import com.aldebaran.qi.sdk.`object`.humanawareness.HumanAwareness
 import com.aldebaran.qi.sdk.`object`.image.EncodedImage
 import com.aldebaran.qi.sdk.`object`.image.EncodedImageHandle
 import com.aldebaran.qi.sdk.builder.SayBuilder
@@ -67,6 +69,14 @@ class RoboterActions {
                     onImageCaptured(pictureImageBitmap)
                 }
             }
+        }
+
+        fun getHumanAwarness(): Human?{
+            if(robotExecute){
+                val humanAwareness: HumanAwareness = qiContext!!.humanAwareness
+                return humanAwareness.engagedHuman
+            }
+            return null
         }
     }
 }

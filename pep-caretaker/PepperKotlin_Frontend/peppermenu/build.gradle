@@ -12,6 +12,9 @@ buildscript {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0'
     }
 }
+ext {
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 task clean(type: Delete) {
     delete rootProject.buildDir

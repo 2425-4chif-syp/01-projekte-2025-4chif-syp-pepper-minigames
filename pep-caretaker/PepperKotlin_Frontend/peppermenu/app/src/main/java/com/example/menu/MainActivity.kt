@@ -1,28 +1,33 @@
 package com.example.menu
 
 import android.content.Intent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.menu.presentation.LoginScreen
-import com.example.menu.ui.theme.MenuTheme
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.menu.common.Extras
+import com.example.menu.common.Packages
+import com.example.menu.dto.Person
+import com.example.menu.presentation.InitialFaceRecognitionScreen
+import com.example.menu.presentation.LoginScreen
 import com.example.menu.screens.MainMenuScreen
+import com.example.menu.ui.theme.MenuTheme
 import com.example.menu.viewmodel.LoginScreenViewModel
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
@@ -31,46 +36,54 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onCreate(savedInstanceState)
         QiSDK.register(this, this)
 
-
         setContent {
             MenuTheme {
-                // Initialisiere NavController
                 val navController = rememberNavController()
-
-                // Setze den ViewModelStore
                 navController.setViewModelStore(viewModelStore)
+                var authenticatedPerson by remember { mutableStateOf<Person?>(null) }
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    // Setze den NavHost, nachdem ViewModelStore gesetzt wurde
-                    NavHost(navController = navController, startDestination = "main_menu") {
-                        //Das ist user Haputmenüü
-                        composable("main_menu") {
-                            MainMenuScreen(navController = navController)
+                    NavHost(navController = navController, startDestination = "initial_face_login") {
+                        composable("initial_face_login") {
+                            InitialFaceRecognitionScreen(
+                                onAuthenticationSuccess = { person ->
+                                    authenticatedPerson = person
+                                    navController.navigate("main_menu") {
+                                        popUpTo("initial_face_login") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onManualSelectionRequired = {
+                                    navController.navigate("manual_name_login") {
+                                        popUpTo("initial_face_login") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
                         }
 
-                        //loginscreen mit Übergabe von Packganeame
-                        composable(
-                            route = "login_screen/{packageName}",
-                            arguments = listOf(navArgument("packageName") {
-                                type = NavType.StringType
-                            })
-                        ) { backStackEntry ->
-                            val packageName =
-                                backStackEntry.arguments?.getString("packageName") ?: ""
+                        composable("manual_name_login") {
                             val vm: LoginScreenViewModel = viewModel()
-
                             LoginScreen(
-                                onLoginClick = { id ->
-                                    launchExternalApp(packageName, id, requireValidPerson = true)
+                                onLoginClick = { person ->
+                                    authenticatedPerson = person
+                                    navController.navigate("main_menu") {
+                                        popUpTo("manual_name_login") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 },
-                                onContinueWithoutLogin = {
-                                    launchExternalApp(packageName, -1L, requireValidPerson = false)
-                                },
-                                navController = navController,
                                 viewModel = vm
+                            )
+                        }
+
+                        composable("main_menu") {
+                            MainMenuScreen(
+                                onOpenApp = { packageName ->
+                                    launchExternalApp(packageName, authenticatedPerson)
+                                }
                             )
                         }
                     }
@@ -80,54 +93,45 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        // Context für Pepper um seine Funktionen aufrufen zu können
         RoboterActions.qiContext = qiContext
         Log.d("QiContext:", "Focus: ${RoboterActions.qiContext}")
-        // robotExecute gibt an, ob die Roboter Funktionen beim Aufrufen ausgeführt werden sollen
         RoboterActions.robotExecute = true
     }
 
     override fun onRobotFocusLost() {
-        QiSDK.unregister(this,this)
+        QiSDK.unregister(this, this)
         super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {
-
-        // Im Logcat werden Fehlermeldungen ausgeben, falls die Verbindung unterbrochen wird
-        if(reason != null){
-            Log.d("Reason:",reason)
+        if (reason != null) {
+            Log.d("Reason:", reason)
         }
     }
 
-    private fun launchExternalApp(packageName: String, personId: Long, requireValidPerson: Boolean) {
-        if (requireValidPerson && personId < 0L) {
-            Log.e("PepperMenu", "Abbruch: ungültige person_id=$personId")
-            Toast.makeText(this, "Bitte zuerst eine Person auswählen", Toast.LENGTH_SHORT).show()
+    private fun launchExternalApp(packageName: String, person: Person?) {
+        val requiresIdentifiedPerson =
+            packageName == Packages.MEMORY_GAME || packageName == Packages.ESSENSPLAN
+
+        if (requiresIdentifiedPerson && person == null) {
+            Toast.makeText(this, "Bitte zuerst eine Person anmelden", Toast.LENGTH_SHORT).show()
             return
         }
+
         val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            putExtra(Extras.PERSON_ID, personId)
+            person?.let {
+                putExtra(Extras.PERSON_ID, it.pid)
+                putExtra(Extras.PERSON_NAME, "${it.firstName} ${it.lastName}".trim())
+            }
         }
+
         if (intent != null) {
-            Log.d("PepperMenu", "Launching pkg=$packageName, person_id=$personId")
+            Log.d("PepperMenu", "Launching pkg=$packageName with person=${person?.pid}")
             startActivity(intent)
         } else {
-            Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
+            Toast.makeText(this, "App wurde noch nicht installiert", Toast.LENGTH_SHORT).show()
+            Log.e("PepperMenu", "App mit Package $packageName nicht gefunden")
         }
     }
-
-
-    /*private fun launchExternalApp(packageName: String, personId: Long) {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
-            putExtra(Extras.PERSON_ID, personId)
-        }
-        if (intent != null) {
-            Log.d("PepperMenu", "Launching pkg=$packageName, person_id=$personId")
-            startActivity(intent)
-        } else {
-            Log.e("LoginScreen", "App mit Package $packageName nicht gefunden")
-        }
-    }*/
 }

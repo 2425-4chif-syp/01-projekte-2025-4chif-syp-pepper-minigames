@@ -7,13 +7,16 @@ import androidx.navigation.compose.composable
 import com.example.menu.screens.*
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(
+    navController: NavHostController,
+    onOpenApp: (String) -> Unit = {}
+) {
     NavHost(
         navController = navController,
         startDestination = "main_menu"
     ) {
         composable("main_menu") {
-            MainMenuScreen(navController = navController)
+            MainMenuScreen(onOpenApp = onOpenApp)
         }
         composable("mitmachgeschichte_screen") {
             MitmachgeschichteScreen(navController = navController)

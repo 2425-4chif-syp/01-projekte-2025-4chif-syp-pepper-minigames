@@ -1,7 +1,6 @@
 package com.example.menu.screens
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -31,16 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.menu.R
 import com.example.menu.RoboterActions
 import com.example.menu.common.Packages
-import com.example.menu.common.openLoginFor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -48,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MainMenuScreen(navController: NavHostController) {
+fun MainMenuScreen(onOpenApp: (String) -> Unit) {
     val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
 
@@ -100,7 +96,7 @@ fun MainMenuScreen(navController: NavHostController) {
                     imageRes = menuItems[page].first,
                     title = menuItems[page].second.first,
                     packageName = menuItems[page].second.second,
-                    navController = navController
+                    onOpenApp = onOpenApp
                 )
             }
 
@@ -145,30 +141,13 @@ fun MenuItem(
     imageRes: Int,
     title: String,
     packageName: String,
-    navController: NavHostController,
+    onOpenApp: (String) -> Unit,
 ) {
-    val context = LocalContext.current
-    val needsLogin = title == "Memory"
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                when {
-                    needsLogin -> navController.openLoginFor(packageName)
-                    else -> {
-                        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-                        if (intent != null) {
-                            context.startActivity(intent)
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "App wurde noch nicht installiert",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+                onOpenApp(packageName)
             },
         contentAlignment = Alignment.Center
     ) {
