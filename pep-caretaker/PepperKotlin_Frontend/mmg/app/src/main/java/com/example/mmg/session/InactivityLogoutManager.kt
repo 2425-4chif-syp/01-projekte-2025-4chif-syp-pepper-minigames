@@ -8,8 +8,8 @@ import android.os.Looper
 
 class InactivityLogoutManager(
     private val activity: Activity,
-    private val timeoutMs: Long = 30_000L,
-    private val warningSeconds: Int = 10
+    private val timeoutMs: Long = 300_000L,
+    private val warningSeconds: Int = 260
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var isEnabled = true
