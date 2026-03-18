@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +23,11 @@ import androidx.navigation.NavHostController
 import com.example.memorygame.data.model.PersonIntent
 
 @Composable
-fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent?) {
+fun MainMenuScreen(
+    navController: NavHostController,
+    personIntent: PersonIntent?,
+    onCloseApp: () -> Unit
+) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFFF5F5DC),
@@ -110,6 +117,30 @@ fun MainMenuScreen(navController: NavHostController, personIntent: PersonIntent?
                     color = Color.White
                 )
             }
+        }
+
+        Button(
+            onClick = onCloseApp,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .height(38.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFFC62828)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "App schließen",
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "Schließen",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
         }
     }
 }

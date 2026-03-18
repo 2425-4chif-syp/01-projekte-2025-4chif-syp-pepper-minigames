@@ -35,19 +35,22 @@ import com.example.menu.viewmodel.LoginScreenViewModel
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     private lateinit var inactivityLogoutManager: InactivityLogoutManager
     private var forceLogoutSignal by mutableStateOf(0)
+    private var restorePersonSignal by mutableStateOf(0)
+    private var personFromIntentForRestore: Person? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inactivityLogoutManager = InactivityLogoutManager(this)
         inactivityLogoutManager.setEnabled(false)
         consumeLogoutIntent(intent)
+        consumeAuthenticatedPersonIntent(intent)
         QiSDK.register(this, this)
 
         setContent {
             MenuTheme {
                 val navController = rememberNavController()
                 navController.setViewModelStore(viewModelStore)
-                var authenticatedPerson by remember { mutableStateOf<Person?>(null) }
+                var authenticatedPerson by remember { mutableStateOf<Person?>(personFromIntentForRestore) }
 
                 LaunchedEffect(forceLogoutSignal) {
                     if (forceLogoutSignal > 0) {
@@ -56,6 +59,15 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
                         }
+                    }
+                }
+
+                LaunchedEffect(restorePersonSignal) {
+                    val person = personFromIntentForRestore ?: return@LaunchedEffect
+                    authenticatedPerson = person
+                    navController.navigate("main_menu") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
 
@@ -133,6 +145,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         super.onNewIntent(intent)
         setIntent(intent)
         consumeLogoutIntent(intent)
+        consumeAuthenticatedPersonIntent(intent)
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
@@ -142,14 +155,20 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusLost() {
-        QiSDK.unregister(this, this)
-        super.onDestroy()
+        RoboterActions.robotExecute = false
+        RoboterActions.qiContext = null
+        Log.d("QiContext:", "Focus lost")
     }
 
     override fun onRobotFocusRefused(reason: String?) {
         if (reason != null) {
             Log.d("Reason:", reason)
         }
+    }
+
+    override fun onDestroy() {
+        QiSDK.unregister(this, this)
+        super.onDestroy()
     }
 
     private fun launchExternalApp(packageName: String, person: Person?) {
@@ -180,7 +199,43 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
 
     private fun consumeLogoutIntent(intent: Intent?) {
         if (intent?.getBooleanExtra(Extras.FORCE_LOGOUT, false) == true) {
+            personFromIntentForRestore = null
             forceLogoutSignal++
+        }
+    }
+
+    private fun consumeAuthenticatedPersonIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(Extras.FORCE_LOGOUT, false) == true) return
+
+        val personName = intent
+            ?.getStringExtra(Extras.PERSON_NAME)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: return
+
+        val personId = intent.getLongExtra(Extras.PERSON_ID, -1L)
+        val (firstName, lastName) = splitPersonName(personName)
+
+        personFromIntentForRestore = Person(
+            pid = personId,
+            firstName = firstName,
+            lastName = lastName,
+            gender = false,
+            isWorker = false
+        )
+        restorePersonSignal++
+    }
+
+    private fun splitPersonName(fullName: String): Pair<String, String> {
+        val tokens = fullName
+            .trim()
+            .split(Regex("\\s+"))
+            .filter { it.isNotEmpty() }
+
+        return when (tokens.size) {
+            0 -> "" to ""
+            1 -> tokens[0] to ""
+            else -> tokens.dropLast(1).joinToString(" ") to tokens.last()
         }
     }
 }

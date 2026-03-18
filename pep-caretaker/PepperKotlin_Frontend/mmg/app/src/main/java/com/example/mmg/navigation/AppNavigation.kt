@@ -9,12 +9,22 @@ import com.example.mmg.presentation.StepScreen
 import com.example.mmg.viewmodel.MmgViewModel
 
 @Composable
-fun AppNavigaton(navController: NavHostController, mmgViewModel: MmgViewModel) {
+fun AppNavigaton(
+    navController: NavHostController,
+    mmgViewModel: MmgViewModel,
+    onCloseApp: () -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = "home"
     ){
-        composable("home"){ MmgScreen(navController = navController, viewModel = mmgViewModel)}
+        composable("home") {
+            MmgScreen(
+                navController = navController,
+                viewModel = mmgViewModel,
+                onCloseApp = onCloseApp
+            )
+        }
         composable("step"){ StepScreen(navController = navController, viewModel = mmgViewModel)}
     }
 }

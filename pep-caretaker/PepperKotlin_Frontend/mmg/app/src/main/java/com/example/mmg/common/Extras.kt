@@ -1,4 +1,4 @@
-package com.pepper.mealplan.common
+package com.example.mmg.common
 
 object Extras {
     const val PERSON_ID = "person_id"

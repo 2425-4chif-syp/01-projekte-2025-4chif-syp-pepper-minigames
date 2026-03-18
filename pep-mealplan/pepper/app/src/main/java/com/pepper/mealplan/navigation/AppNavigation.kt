@@ -111,7 +111,8 @@ sealed class BottomNavItem(val routeKey: String, val icon: ImageVector, val titl
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    initialPersonFromMenu: String? = null
+    initialPersonFromMenu: String? = null,
+    onCloseApp: (String) -> Unit
 ) {
     val items = listOf(BottomNavItem.Overview, BottomNavItem.Create, BottomNavItem.Logout)
     val bottomNavHeight = 48.dp
@@ -325,7 +326,8 @@ fun AppNavigation(
                 activePerson = person
                 MealPlanOverview(
                     foundPerson = person,
-                    onGoToOrder = { navController.navigate(Routes.create(person)) { launchSingleTop = true } }
+                    onGoToOrder = { navController.navigate(Routes.create(person)) { launchSingleTop = true } },
+                    onCloseApp = { onCloseApp(person) }
                 )
             }
 

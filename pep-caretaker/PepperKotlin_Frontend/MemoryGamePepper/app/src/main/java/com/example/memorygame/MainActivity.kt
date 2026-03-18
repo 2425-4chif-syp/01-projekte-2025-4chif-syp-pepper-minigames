@@ -51,7 +51,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 NavHost(navController = navController, startDestination = "main_menu") {
                     // Hauptmenü
                     composable("main_menu") {
-                        MainMenuScreen(navController, personFromIntent)//personProviderMock)
+                        MainMenuScreen(
+                            navController = navController,
+                            personIntent = personFromIntent,
+                            onCloseApp = { closeAppAndReturnToMenu() }
+                        )
                     }
 
                     // Grid-Auswahl
@@ -138,5 +142,29 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
         personFromIntent = resolvedPerson
         personId = resolvedPerson?.id ?: intent.getLongExtra(Extras.PERSON_ID, -1L)
+    }
+
+    private fun closeAppAndReturnToMenu() {
+        val menuIntent = packageManager.getLaunchIntentForPackage(MENU_PACKAGE)
+            ?: Intent().apply {
+                setClassName(MENU_PACKAGE, MENU_MAIN_ACTIVITY)
+            }
+
+        menuIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        if (personId > 0) {
+            menuIntent.putExtra(Extras.PERSON_ID, personId)
+        }
+
+        val personName = personFromIntent?.let { "${it.firstName} ${it.lastName}".trim() }
+            ?: intent.getStringExtra(Extras.PERSON_NAME)?.trim()?.takeIf { it.isNotEmpty() }
+        personName?.let { menuIntent.putExtra(Extras.PERSON_NAME, it) }
+
+        startActivity(menuIntent)
+        finish()
+    }
+
+    private companion object {
+        const val MENU_PACKAGE = "com.example.menu"
+        const val MENU_MAIN_ACTIVITY = "com.example.menu.MainActivity"
     }
 }

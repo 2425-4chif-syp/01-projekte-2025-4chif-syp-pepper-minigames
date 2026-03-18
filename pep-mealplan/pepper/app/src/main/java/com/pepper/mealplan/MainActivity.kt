@@ -23,12 +23,13 @@ import com.pepper.mealplan.ui.theme.MealplanTheme
 
 class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     private var initialPersonFromMenu by mutableStateOf<String?>(null)
+    private var initialPersonIdFromMenu by mutableStateOf(-1L)
     private lateinit var inactivityLogoutManager: InactivityLogoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inactivityLogoutManager = InactivityLogoutManager(this)
-        initialPersonFromMenu = extractPersonName(intent)
+        updatePersonFromIntent(intent)
         // Register the RobotLifecycleCallbacks to this Activity.
         QiSDK.register(this, this)
         setContent{
@@ -42,7 +43,10 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                         val navController = androidx.navigation.compose.rememberNavController()
                         AppNavigation(
                             navController = navController,
-                            initialPersonFromMenu = personFromMenu
+                            initialPersonFromMenu = personFromMenu,
+                            onCloseApp = { foundPerson ->
+                                closeAppAndReturnToMenu(foundPerson)
+                            }
                         )
                     }
                 }
@@ -53,7 +57,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        initialPersonFromMenu = extractPersonName(intent)
+        updatePersonFromIntent(intent)
     }
 
     override fun onResume() {
@@ -96,5 +100,33 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
             ?.getStringExtra(Extras.PERSON_NAME)
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
+    }
+
+    private fun updatePersonFromIntent(intent: Intent?) {
+        initialPersonFromMenu = extractPersonName(intent)
+        initialPersonIdFromMenu = intent?.getLongExtra(Extras.PERSON_ID, -1L) ?: -1L
+    }
+
+    private fun closeAppAndReturnToMenu(foundPerson: String?) {
+        val menuIntent = packageManager.getLaunchIntentForPackage(MENU_PACKAGE)
+            ?: Intent().apply {
+                setClassName(MENU_PACKAGE, MENU_MAIN_ACTIVITY)
+            }
+
+        menuIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        if (initialPersonIdFromMenu > 0) {
+            menuIntent.putExtra(Extras.PERSON_ID, initialPersonIdFromMenu)
+        }
+
+        val personName = foundPerson?.trim()?.takeIf { it.isNotEmpty() } ?: initialPersonFromMenu
+        personName?.let { menuIntent.putExtra(Extras.PERSON_NAME, it) }
+
+        startActivity(menuIntent)
+        finish()
+    }
+
+    private companion object {
+        const val MENU_PACKAGE = "com.example.menu"
+        const val MENU_MAIN_ACTIVITY = "com.example.menu.MainActivity"
     }
 }
