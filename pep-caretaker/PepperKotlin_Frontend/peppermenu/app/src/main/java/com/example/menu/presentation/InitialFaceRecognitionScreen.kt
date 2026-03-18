@@ -50,8 +50,8 @@ fun InitialFaceRecognitionScreen(
     onManualSelectionRequired: () -> Unit,
     viewModel: InitialFaceRecognitionViewModel = viewModel()
 ) {
-    // Dev-Schalter: auf true setzen, um Gesichtserkennung zu überspringen
-    val devModeSkipFaceRecognition = false
+    // Dev-Schalter: auf true setzen, um Gesichtserkennung zu ueberspringen
+    val devModeSkipFaceRecognition = true
 
     var isMonitoring by remember { mutableStateOf(true) }
     val isLoading by viewModel.isLoading
@@ -100,9 +100,9 @@ fun InitialFaceRecognitionScreen(
     }
 
     val statusText = when {
-        isLoading -> "Ich erkenne gerade das Gesicht."
-        errorMessage != null -> "Bitte erneut versuchen."
-        else -> "Bitte vor den Roboter stellen."
+        isLoading -> "Ich schaue kurz, ob ich dich erkenne."
+        errorMessage != null -> "Lass uns das nochmal versuchen."
+        else -> "Stell dich bitte kurz vor mich."
     }
 
     Box(
@@ -207,7 +207,7 @@ fun InitialFaceRecognitionScreen(
             ) {
                 Text(
                     text = errorMessage
-                        ?: "Wenn nichts passiert, bitte einmal auf die große Kamera-Taste tippen.",
+                        ?: "Wenn nichts passiert, tipp bitte einmal auf die grosse Kamera-Taste.",
                     color = if (errorMessage != null) MaterialTheme.colorScheme.error else Color(0xFF1F2937),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,

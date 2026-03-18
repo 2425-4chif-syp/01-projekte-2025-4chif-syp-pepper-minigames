@@ -16,7 +16,10 @@ fun AppNavigation(
         startDestination = "main_menu"
     ) {
         composable("main_menu") {
-            MainMenuScreen(onOpenApp = onOpenApp)
+            MainMenuScreen(
+                personName = null,
+                onOpenApp = onOpenApp
+            )
         }
         composable("mitmachgeschichte_screen") {
             MitmachgeschichteScreen(navController = navController)

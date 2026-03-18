@@ -93,7 +93,7 @@ class InitialFaceRecognitionViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    errorMessage.value = "Drücken Sie die obere Taste um sich anzumelden"
+                    errorMessage.value = "Tipp auf die obere Taste, dann versuchen wir es nochmal."
                     hasError.value = true
                     delay(1000)
                     RoboterActions.speak(PepperPhrases.connectionIssue())
@@ -145,7 +145,7 @@ class InitialFaceRecognitionViewModel : ViewModel() {
             response.contains("Error processing image", ignoreCase = true) ||
             response.contains("no faces in the image", ignoreCase = true)
         ) {
-            errorMessage.value = "Kein Gesicht erkannt - Weiter zur Namensliste."
+            errorMessage.value = "Kein Gesicht erkannt. Wir gehen zur Namensliste."
             hasError.value = true
             requiresManualSelection.value = true
             viewModelScope.launch(Dispatchers.IO) {
@@ -154,7 +154,7 @@ class InitialFaceRecognitionViewModel : ViewModel() {
             return
         }
 
-        errorMessage.value = "Ich kenne dich noch nicht - Bitte melde dich bei einem Betreuer an."
+        errorMessage.value = "Ich kenne dich noch nicht. Bitte melde dich kurz bei einer Betreuungsperson."
         hasError.value = true
         requiresManualSelection.value = true
         viewModelScope.launch(Dispatchers.IO) {

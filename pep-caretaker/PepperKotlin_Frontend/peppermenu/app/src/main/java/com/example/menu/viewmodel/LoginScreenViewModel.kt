@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.menu.PepperPhrases
 import com.example.menu.RoboterActions
 import com.example.menu.dto.Person
 import com.example.menu.network.HttpInstance
@@ -85,10 +86,10 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                                 findRightPerson(response)
                             }
                         } else {
-                            RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                            RoboterActions.speak(PepperPhrases.manualFaceRetryFailed())
                         }
                     } catch (e: Exception) {
-                        RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                        RoboterActions.speak(PepperPhrases.connectionIssue())
                         Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
                     } finally {
                         isLoading.value = false
@@ -150,7 +151,7 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
             val capturedImageDeferred = CompletableDeferred<ImageBitmap>()
 
             try {
-                RoboterActions.speak("Ich mache kurz ein Foto von dir")
+                RoboterActions.speak(PepperPhrases.manualFaceRetryStart())
 
                 RoboterActions.takePicture { image ->
                     capturedImageDeferred.complete(image)
@@ -164,11 +165,11 @@ class LoginScreenViewModel(application: Application) : AndroidViewModel(applicat
                     if (isResponseValid(response) && response.isNotBlank()) {
                         findRightPerson(response)
                     } else {
-                        RoboterActions.speak("Tut mir Leid. Ich kann Sie leider nicht erkennen.")
+                        RoboterActions.speak(PepperPhrases.manualFaceRetryFailed())
                     }
                 }
             } catch (e: Exception) {
-                RoboterActions.speak("Tut mir Leid. Ich kann sie leider nicht erkennen.")
+                RoboterActions.speak(PepperPhrases.connectionIssue())
                 Log.e("API-Fehler", "Fehler beim API-Aufruf: ${e.message}")
             } finally {
                 isLoading.value = false
