@@ -82,7 +82,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Frontend image (Nginx serving dist)
+      # Frontend image Nginx serving dist
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
