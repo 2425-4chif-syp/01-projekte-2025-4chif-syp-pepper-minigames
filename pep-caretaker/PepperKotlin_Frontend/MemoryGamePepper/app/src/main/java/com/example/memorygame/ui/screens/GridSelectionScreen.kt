@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.memorygame.ui.components.TopRightBackButton
 
 
 @Composable
@@ -81,6 +82,15 @@ fun GridSelectionScreen(navController: NavHostController) {
                 }
             }
         }
+
+        TopRightBackButton(
+            onBack = {
+                if (!navController.popBackStack()) {
+                    navController.navigate("main_menu") { launchSingleTop = true }
+                }
+            },
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
     }
 }
 

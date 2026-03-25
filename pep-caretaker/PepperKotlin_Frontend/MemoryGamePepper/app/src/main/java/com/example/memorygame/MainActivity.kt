@@ -86,7 +86,10 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     }
 
                     composable("high_scores") {
-                        HighScoresScreen(personId)
+                        HighScoresScreen(
+                            currentPlayerId = personId,
+                            navController = navController
+                        )
                     }
 
                     // Spieleinleitung

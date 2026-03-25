@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -329,6 +334,35 @@ fun MemoryGameScreen(navController: NavHostController, rows: Int, columns: Int, 
                         blurRadius = 1f
                     )
                 )
+            )
+        }
+
+        Button(
+            onClick = {
+                if (!navController.popBackStack()) {
+                    navController.navigate("main_menu") { launchSingleTop = true }
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .height(42.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF112D4E)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Zur\u00FCck",
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "Zur\u00FCck",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
