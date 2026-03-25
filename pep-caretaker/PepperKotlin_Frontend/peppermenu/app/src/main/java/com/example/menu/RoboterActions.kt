@@ -12,6 +12,8 @@ import com.aldebaran.qi.sdk.`object`.human.Human
 import com.aldebaran.qi.sdk.`object`.humanawareness.HumanAwareness
 import com.aldebaran.qi.sdk.`object`.image.EncodedImage
 import com.aldebaran.qi.sdk.`object`.image.EncodedImageHandle
+import com.aldebaran.qi.sdk.builder.ListenBuilder
+import com.aldebaran.qi.sdk.builder.PhraseSetBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.builder.TakePictureBuilder
 import java.nio.ByteBuffer
@@ -77,6 +79,28 @@ class RoboterActions {
                 return humanAwareness.engagedHuman
             }
             return null
+        }
+
+        fun waitForWakeWord(
+            wakeWordOptions: List<String> = listOf("Hallo Pepper", "hallo pepper", "Hallo Peppa")
+        ): Boolean {
+            if (!robotExecute || qiContext == null || wakeWordOptions.isEmpty()) return false
+
+            return try {
+                val phraseSet = PhraseSetBuilder.with(qiContext)
+                    .withTexts(*wakeWordOptions.toTypedArray())
+                    .build()
+
+                val listen = ListenBuilder.with(qiContext)
+                    .withPhraseSet(phraseSet)
+                    .build()
+
+                val heardText = listen.run().heardPhrase.text.orEmpty()
+                wakeWordOptions.any { option -> option.equals(heardText, ignoreCase = true) }
+            } catch (e: Exception) {
+                Log.e("PepperWakeWord", "Wake-word listening failed: ${e.message}")
+                false
+            }
         }
     }
 }

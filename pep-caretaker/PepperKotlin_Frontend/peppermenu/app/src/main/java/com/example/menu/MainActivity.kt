@@ -27,6 +27,7 @@ import com.example.menu.common.Packages
 import com.example.menu.dto.Person
 import com.example.menu.presentation.InitialFaceRecognitionScreen
 import com.example.menu.presentation.LoginScreen
+import com.example.menu.presentation.WakeWordActivationScreen
 import com.example.menu.screens.MainMenuScreen
 import com.example.menu.session.InactivityLogoutManager
 import com.example.menu.ui.theme.MenuTheme
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                 LaunchedEffect(forceLogoutSignal) {
                     if (forceLogoutSignal > 0) {
                         authenticatedPerson = null
-                        navController.navigate("initial_face_login") {
+                        navController.navigate("wake_word_activation") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
                         }
@@ -79,7 +80,18 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    NavHost(navController = navController, startDestination = "initial_face_login") {
+                    NavHost(navController = navController, startDestination = "wake_word_activation") {
+                        composable("wake_word_activation") {
+                            WakeWordActivationScreen(
+                                onWakeWordDetected = {
+                                    navController.navigate("initial_face_login") {
+                                        popUpTo("wake_word_activation") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+
                         composable("initial_face_login") {
                             InitialFaceRecognitionScreen(
                                 onAuthenticationSuccess = { person ->
