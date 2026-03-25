@@ -1,6 +1,7 @@
 package com.example.memorygame
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
@@ -150,7 +151,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 setClassName(MENU_PACKAGE, MENU_MAIN_ACTIVITY)
             }
 
-        menuIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        menuIntent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
+        )
         if (personId > 0) {
             menuIntent.putExtra(Extras.PERSON_ID, personId)
         }
@@ -160,7 +165,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         personName?.let { menuIntent.putExtra(Extras.PERSON_NAME, it) }
 
         startActivity(menuIntent)
-        finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAndRemoveTask()
+        } else {
+            finishAffinity()
+        }
     }
 
     private companion object {

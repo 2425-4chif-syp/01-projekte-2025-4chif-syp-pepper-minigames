@@ -1,6 +1,7 @@
 package com.pepper.mealplan
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -113,7 +114,11 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                 setClassName(MENU_PACKAGE, MENU_MAIN_ACTIVITY)
             }
 
-        menuIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        menuIntent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
+        )
         if (initialPersonIdFromMenu > 0) {
             menuIntent.putExtra(Extras.PERSON_ID, initialPersonIdFromMenu)
         }
@@ -122,7 +127,11 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         personName?.let { menuIntent.putExtra(Extras.PERSON_NAME, it) }
 
         startActivity(menuIntent)
-        finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAndRemoveTask()
+        } else {
+            finishAffinity()
+        }
     }
 
     private companion object {
