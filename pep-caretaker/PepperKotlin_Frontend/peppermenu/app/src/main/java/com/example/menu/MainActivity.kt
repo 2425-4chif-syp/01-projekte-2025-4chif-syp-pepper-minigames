@@ -1,6 +1,8 @@
 package com.example.menu
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +31,6 @@ import com.example.menu.common.Packages
 import com.example.menu.dto.Person
 import com.example.menu.presentation.InitialFaceRecognitionScreen
 import com.example.menu.presentation.LoginScreen
-import com.example.menu.presentation.WakeWordActivationScreen
 import com.example.menu.screens.MainMenuScreen
 import com.example.menu.session.InactivityLogoutManager
 import com.example.menu.ui.theme.MenuTheme
@@ -45,6 +48,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
         inactivityLogoutManager.setEnabled(false)
         consumeLogoutIntent(intent)
         consumeAuthenticatedPersonIntent(intent)
+        ensureMicrophonePermission()
         QiSDK.register(this, this)
 
         setContent {
@@ -56,7 +60,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                 LaunchedEffect(forceLogoutSignal) {
                     if (forceLogoutSignal > 0) {
                         authenticatedPerson = null
-                        navController.navigate("wake_word_activation") {
+                        navController.navigate("initial_face_login") {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
                         }
@@ -80,18 +84,7 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    NavHost(navController = navController, startDestination = "wake_word_activation") {
-                        composable("wake_word_activation") {
-                            WakeWordActivationScreen(
-                                onWakeWordDetected = {
-                                    navController.navigate("initial_face_login") {
-                                        popUpTo("wake_word_activation") { inclusive = true }
-                                        launchSingleTop = true
-                                    }
-                                }
-                            )
-                        }
-
+                    NavHost(navController = navController, startDestination = "initial_face_login") {
                         composable("initial_face_login") {
                             InitialFaceRecognitionScreen(
                                 onAuthenticationSuccess = { person ->
@@ -249,5 +242,23 @@ class MainActivity : ComponentActivity(), RobotLifecycleCallbacks {
             1 -> tokens[0] to ""
             else -> tokens.dropLast(1).joinToString(" ") to tokens.last()
         }
+    }
+
+    private fun ensureMicrophonePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            REQUEST_RECORD_AUDIO_PERMISSION
+        )
+    }
+
+    private companion object {
+        const val REQUEST_RECORD_AUDIO_PERMISSION = 1001
     }
 }

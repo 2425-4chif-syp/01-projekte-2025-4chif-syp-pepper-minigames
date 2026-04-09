@@ -29,7 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -46,7 +49,10 @@ import com.example.menu.common.Packages
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -216,12 +222,28 @@ fun MenuItem(
     packageName: String,
     onOpenApp: (String) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var isLaunching by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                RoboterActions.speak(PepperPhrases.launchingApp(title))
-                onOpenApp(packageName)
+                if (isLaunching) return@clickable
+                isLaunching = true
+                coroutineScope.launch {
+                    try {
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                RoboterActions.speakAndWait(PepperPhrases.launchingApp(title))
+                            }
+                            delay(120)
+                        }
+                        onOpenApp(packageName)
+                    } finally {
+                        isLaunching = false
+                    }
+                }
             },
         contentAlignment = Alignment.Center
     ) {

@@ -29,21 +29,34 @@ class RoboterActions {
 
 
         fun speak(text: String): Future<Void>? {
-            if (robotExecute) {
-                val say: Future<Say>? = SayBuilder.with(qiContext)
-                    .withText(text)
-                    .buildAsync()
-
-                while (!say!!.isDone) {
-                }
-
+            if (robotExecute && qiContext != null) {
                 return try {
-                    say.get().async().run()
+                    SayBuilder.with(qiContext)
+                        .withText(text)
+                        .build()
+                        .async()
+                        .run()
                 } catch (e: Exception) {
+                    Log.e("PepperSpeak", "Speak failed: ${e.message}")
                     null
                 }
             }
-            return null;
+            return null
+        }
+
+        fun speakAndWait(text: String): Boolean {
+            if (!robotExecute || qiContext == null) return false
+
+            return try {
+                SayBuilder.with(qiContext)
+                    .withText(text)
+                    .build()
+                    .run()
+                true
+            } catch (e: Exception) {
+                Log.e("PepperSpeak", "Speak-and-wait failed: ${e.message}")
+                false
+            }
         }
 
         fun takePicture(onImageCaptured: (ImageBitmap) -> Unit){
@@ -82,7 +95,10 @@ class RoboterActions {
         }
 
         fun waitForWakeWord(
-            wakeWordOptions: List<String> = listOf("Hallo Pepper", "hallo pepper", "Hallo Peppa")
+            wakeWordOptions: List<String> = listOf(
+                "Hallo Pepper",
+                "Hallo Peppa"
+            )
         ): Boolean {
             if (!robotExecute || qiContext == null || wakeWordOptions.isEmpty()) return false
 
@@ -96,11 +112,30 @@ class RoboterActions {
                     .build()
 
                 val heardText = listen.run().heardPhrase.text.orEmpty()
-                wakeWordOptions.any { option -> option.equals(heardText, ignoreCase = true) }
+                val heardNormalized = normalizeSpokenText(heardText)
+                val optionsNormalized = wakeWordOptions.map { normalizeSpokenText(it) }
+
+                val explicitMatch = optionsNormalized.any { wakeWord ->
+                    heardNormalized == wakeWord || heardNormalized.startsWith("$wakeWord ")
+                }
+
+                Log.d(
+                    "PepperWakeWord",
+                    "Heard='$heardText', normalized='$heardNormalized', wakeMatch=$explicitMatch"
+                )
+                explicitMatch
             } catch (e: Exception) {
                 Log.e("PepperWakeWord", "Wake-word listening failed: ${e.message}")
                 false
             }
+        }
+
+        private fun normalizeSpokenText(value: String): String {
+            return value
+                .trim()
+                .lowercase()
+                .replace(Regex("[^a-zA-Z0-9äöüÄÖÜß\\s]"), "")
+                .replace(Regex("\\s+"), " ")
         }
     }
 }

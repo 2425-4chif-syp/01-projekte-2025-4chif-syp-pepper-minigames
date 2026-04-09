@@ -1,5 +1,7 @@
 package com.example.menu.presentation
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,11 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.menu.R
 import com.example.menu.RoboterActions
 import kotlinx.coroutines.Dispatchers
@@ -40,21 +44,38 @@ import kotlinx.coroutines.withContext
 fun WakeWordActivationScreen(
     onWakeWordDetected: () -> Unit
 ) {
+    val context = LocalContext.current
     var statusText by remember {
         mutableStateOf("Sage \"Hallo Pepper\", und wir starten gemeinsam.")
     }
-
-    LaunchedEffect(Unit) {
-        delay(700)
-        RoboterActions.speak("Sage Hallo Pepper, um mich zu aktivieren.")
-    }
+    var hasPromptedUser by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         while (true) {
+            val hasAudioPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasAudioPermission) {
+                statusText = "Mikrofonberechtigung fehlt. Bitte erlaube den Mikrofonzugriff."
+                hasPromptedUser = false
+                delay(900)
+                continue
+            }
+
             if (!RoboterActions.robotExecute || RoboterActions.qiContext == null) {
                 statusText = "Ich verbinde mich kurz mit Pepper."
+                hasPromptedUser = false
                 delay(700)
                 continue
+            }
+
+            if (!hasPromptedUser) {
+                statusText = "Ich bin bereit. Sage bitte jetzt: Hallo Pepper."
+                RoboterActions.speak("Ich bin bereit. Sage Hallo Pepper, um mich zu aktivieren.")
+                hasPromptedUser = true
+                delay(1800)
             }
 
             statusText = "Ich höre zu. Codewort: Hallo Pepper"
@@ -64,8 +85,6 @@ fun WakeWordActivationScreen(
 
             if (wasActivated) {
                 statusText = "Super, wir starten die Gesichtserkennung."
-                RoboterActions.speak("Super, ich starte jetzt die Gesichtserkennung.")
-                delay(500)
                 onWakeWordDetected()
                 return@LaunchedEffect
             }
