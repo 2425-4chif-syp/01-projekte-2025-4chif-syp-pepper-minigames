@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">project-award</string>
+    <string name="title_voice_trigger">Pepper Voice Trigger</string>
+    <string name="status_preparing_microphone">Microphone is being prepared...</string>
+    <string name="status_microphone_active">Microphone active. Say a keyword.</string>
+    <string name="status_microphone_permission_missing">Microphone permission is missing.</string>
+    <string name="status_speech_recognizer_unavailable">SpeechRecognizer is not available on this device.</string>
+    <string name="status_robot_ready">Microphone active. Robot ready.</string>
+    <string name="status_robot_focus_lost">Robot focus lost.</string>
+    <string name="status_robot_focus_refused">Robot focus refused: %1$s</string>
+    <string name="status_keyword_recognized">Keyword recognized. Robot says: %1$s</string>
+    <string name="status_keyword_no_robot_focus">Keyword recognized, but robot focus is missing.</string>
+</resources>
